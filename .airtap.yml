@@ -1,0 +1,21 @@
+sauce_connect: true
+browsers:
+  - name: firefox
+    version: latest
+  - name: chrome
+    version: latest
+  - name: safari
+    version: latest
+  - name: edge
+    version: latest
+  - name: and_chr
+    version: latest
+  - name: ios_saf
+    version: latest
+providers:
+  - airtap-sauce
+presets:
+  local:
+    providers: airtap-manual
+    browsers:
+      - name: manual

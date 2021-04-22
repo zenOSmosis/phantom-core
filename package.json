@@ -1,0 +1,28 @@
+{
+  "name": "phantom-base",
+  "version": "0.0.1",
+  "description": "",
+  "author": {
+    "name": "Jeremy Harris",
+    "email": "jeremy.harris@zenosmosis.com",
+    "url": "https://zenosmosis.com"
+  },
+  "main": "src/index.js",
+  "scripts": {
+    "test": "npm run test-node && npm run test-browser",
+    "test-node": "tape test/*.test.js",
+    "test-browser": "dotenv airtap --coverage --concurrency 1 -- test/*.test.js",
+    "lint": "prettier --write '(**/)*.js'"
+  },
+  "devDependencies": {
+    "airtap": "^4.0.3",
+    "airtap-sauce": "^1.1.0",
+    "dotenv-cli": "^4.0.0",
+    "prettier": "^2.2.1",
+    "tape": "^5.2.2",
+    "tape-async": "^2.3.0"
+  },
+  "dependencies": {
+    "uuid": "^8.3.2"
+  }
+}
