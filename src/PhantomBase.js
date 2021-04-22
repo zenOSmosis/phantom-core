@@ -26,8 +26,16 @@ class PhantomBase extends EventEmitter {
     return _instances[uuid];
   }
 
-  // TODO: Provide optional singleton support
-  constructor(params = { isReady: true }) {
+  /**
+   * TODO: Provide optional singleton support
+   *
+   * @param {Object} params? [default={}]
+   */
+  constructor(params = {}) {
+    const DEFAULT_PARAMS = { isReady: true };
+
+    params = { ...DEFAULT_PARAMS, params };
+
     super();
 
     this._isDestroyed = false;
