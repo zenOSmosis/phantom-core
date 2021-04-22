@@ -7,6 +7,24 @@ const { EVT_READY, EVT_UPDATED, EVT_DESTROYED } = require("../src");
  * (no options passed).
  */
 
+test("determines class name", async t => {
+  const phantom = new PhantomBase();
+
+  t.ok(
+    phantom.getClassName() === "PhantomBase",
+    "determines its own class name"
+  );
+
+  class Phantom2 extends PhantomBase {}
+
+  const phantom2 = new Phantom2();
+
+  t.ok(
+    phantom2.getClassName() === "Phantom2",
+    "extensions know their class name"
+  );
+});
+
 test("onceReady handling", async t => {
   const phantom = new PhantomBase();
 
@@ -72,6 +90,9 @@ test("determines instance uptime", async t => {
     phantom.getInstanceUptime() >= 1,
     "knows that it has been up for at least 1 second"
   );
+
+  phantom.destroy();
+  t.ok(phantom.getInstanceUptime() === 0, "destroyed phantom returns 0 uptime");
 });
 
 test("events and destruct", async t => {
