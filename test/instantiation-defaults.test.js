@@ -1,6 +1,6 @@
 const test = require("tape-async");
 const PhantomBase = require("../src");
-const { EVT_READY, EVT_UPDATED, EVT_DESTROYED } = require("../src");
+const { EVT_READY, EVT_DESTROYED } = require("../src");
 
 /**
  * Tests instantiation and destroying of PhantomBase with the default options
@@ -131,6 +131,11 @@ test("events and destruct", async t => {
 
   phantom.once(EVT_DESTROYED, () => {
     t.ok(true, "triggers EVT_DESTROYED after destroying");
+
+    t.ok(
+      phantom.getIsDestroyed(),
+      "destroy state is true after EVT_DESTROYED emit"
+    );
   });
 
   await phantom.destroy();
