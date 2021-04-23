@@ -7,6 +7,24 @@ const { EVT_READY, EVT_UPDATED, EVT_DESTROYED } = require("../src");
  * (no options passed).
  */
 
+test("registers and unregisters instances", async t => {
+  const oCount = PhantomBase.getInstanceCount();
+
+  const phantom = new PhantomBase();
+
+  t.ok(
+    PhantomBase.getInstanceCount() === oCount + 1,
+    "increments instance count on new instance"
+  );
+
+  await phantom.destroy();
+
+  t.ok(
+    PhantomBase.getInstanceCount() === oCount,
+    "decrements instance count when instance is destroyed"
+  );
+});
+
 test("determines class name", async t => {
   const phantom = new PhantomBase();
 

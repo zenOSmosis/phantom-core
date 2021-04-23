@@ -28,6 +28,18 @@ class PhantomBase extends EventEmitter {
   }
 
   /**
+   * Retrieves the number of instances for this thread.
+   *
+   * When an instance is created / destroyed, the number is increased / reduced
+   * by one.
+   *
+   * @return {number}
+   */
+  static getInstanceCount() {
+    return Object.keys(_instances).length;
+  }
+
+  /**
    * TODO: Provide optional singleton support
    *
    * @param {Object} params? [default={}]
