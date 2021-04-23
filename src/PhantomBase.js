@@ -52,6 +52,7 @@ class PhantomBase extends EventEmitter {
     super();
 
     this._isDestroyed = false;
+
     this._uuid = uuidv4();
 
     _instances[this._uuid] = this;
@@ -108,58 +109,6 @@ class PhantomBase extends EventEmitter {
     );
   }
 
-  // TODO: Make more use of this
-  // TODO: Convert to logger.log?
-  /*
-  log(...args) {
-    console.log(...args);
-  }
-  */
-
-  // TODO: Add proxyOn, proxyOnce, proxyOff methods to use event emitters from
-  // other instances while binding them to this instance lifecycle,
-  // unregistering the proxied listener when this instance destructs
-
-  /**
-   * Retrieves the number of seconds since this instance was instantiated.
-   *
-   * @return {number}
-   */
-  getInstanceUptime() {
-    if (!this._isDestroyed) {
-      return getUnixTime() - this._instanceStartTime;
-    } else {
-      return 0;
-    }
-  }
-
-  /**
-   * Determines whether the passed instance is the same as the current
-   * instance.
-   *
-   * @param {PhantomBase} instance
-   * @return {boolean}
-   */
-  getIsSameInstance(instance) {
-    return Object.is(this, instance);
-  }
-
-  /**
-   * @return {boolean}
-   */
-  getIsDestroyed() {
-    return this._isDestroyed;
-  }
-
-  /**
-   * Unique identifier which represents this class instance.
-   *
-   * @return {string}
-   */
-  getUUID() {
-    return this._uuid;
-  }
-
   /**
    * @return {Promise} Resolves once the class instance is ready.
    */
@@ -179,10 +128,56 @@ class PhantomBase extends EventEmitter {
   }
 
   /**
+   * Unique identifier which represents this class instance.
+   *
+   * @return {string}
+   */
+  getUUID() {
+    return this._uuid;
+  }
+
+  /**
+   * Determines whether the passed instance is the same as the current
+   * instance.
+   *
+   * @param {PhantomBase} instance
+   * @return {boolean}
+   */
+  getIsSameInstance(instance) {
+    return Object.is(this, instance);
+  }
+
+  /**
    * @return {string}
    */
   getClassName() {
     return this.constructor.name;
+  }
+
+  // TODO: Make more use of this
+  // TODO: Convert to logger.log?
+  /*
+  log(...args) {
+    console.log(...args);
+  }
+  */
+
+  // TODO: Add proxyOn, proxyOnce, proxyOff methods to use event emitters from
+  // other instances while binding them to this instance lifecycle,
+  // unregistering the proxied listener when this instance destructs
+
+  /**
+   * Retrieves the number of seconds since this class instance was
+   * instantiated.
+   *
+   * @return {number}
+   */
+  getInstanceUptime() {
+    if (!this._isDestroyed) {
+      return getUnixTime() - this._instanceStartTime;
+    } else {
+      return 0;
+    }
   }
 
   /**
@@ -193,6 +188,13 @@ class PhantomBase extends EventEmitter {
    */
   getListenerCount(eventName) {
     return this.listenerCount(eventName);
+  }
+
+  /**
+   * @return {boolean}
+   */
+  getIsDestroyed() {
+    return this._isDestroyed;
   }
 
   /**
