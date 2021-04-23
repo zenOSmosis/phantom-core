@@ -1,6 +1,6 @@
 const test = require("tape-async");
 const PhantomBase = require("../src");
-const { EVT_READY, EVT_DESTROYED } = require("../src");
+const { EVT_READY, EVT_DESTROYED } = PhantomBase;
 
 /**
  * Tests instantiation and destroying of PhantomBase with the default options
