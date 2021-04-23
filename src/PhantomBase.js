@@ -77,6 +77,11 @@ class PhantomBase extends EventEmitter {
   }
 
   /**
+   * Internally invoked after being constructed.
+   *
+   * IMPORTANT: Extensions which set isReady to false should call this
+   * manually.
+   *
    * @return {Promise<void>}
    */
   async _init() {
