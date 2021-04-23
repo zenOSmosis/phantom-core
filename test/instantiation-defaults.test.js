@@ -55,15 +55,15 @@ test("emits EVT_READY", async t => {
 
 test("same instance detection", async t => {
   const phantom1 = new PhantomBase();
-  const phantom1Uuid = phantom1.getUuid();
+  const phantom1UUID = phantom1.getUUID();
 
   const phantom2 = new PhantomBase();
-  const phantom2Uuid = phantom2.getUuid();
+  const phantom2UUID = phantom2.getUUID();
 
   t.ok(phantom1.getIsSameInstance(phantom1), "can identify its own instance");
 
   t.ok(
-    PhantomBase.getInstanceWithUuid(phantom1Uuid).getIsSameInstance(phantom1)
+    PhantomBase.getInstanceWithUUID(phantom1UUID).getIsSameInstance(phantom1)
   );
 
   t.notOk(
@@ -72,7 +72,7 @@ test("same instance detection", async t => {
   );
 
   t.ok(
-    PhantomBase.getInstanceWithUuid(phantom2Uuid).getIsSameInstance(phantom2)
+    PhantomBase.getInstanceWithUUID(phantom2UUID).getIsSameInstance(phantom2)
   );
 });
 

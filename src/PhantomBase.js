@@ -22,7 +22,7 @@ class PhantomBase extends EventEmitter {
    * @param {string} uuid
    * @return {PhantomBase}
    */
-  static getInstanceWithUuid(uuid) {
+  static getInstanceWithUUID(uuid) {
     return _instances[uuid];
   }
 
@@ -112,7 +112,7 @@ class PhantomBase extends EventEmitter {
    *
    * @return {string}
    */
-  getUuid() {
+  getUUID() {
     return this._uuid;
   }
 
