@@ -6,6 +6,7 @@ const getUnixTime = require("./time/getUnixTime");
 const EVT_READY = "ready";
 const EVT_UPDATED = "updated";
 const EVT_DESTROYED = "destroyed";
+const EVT_NO_INIT_WARN = "no-init-warn";
 
 // Instances for this particular thread
 const _instances = {};
@@ -43,6 +44,8 @@ class PhantomBase extends EventEmitter {
 
     _instances[this._uuid] = this;
 
+    this._instanceStartTime = getUnixTime();
+
     // TODO: Make constructor configurable to set if already ready
     this._isReady = params.isReady || false;
 
@@ -50,18 +53,42 @@ class PhantomBase extends EventEmitter {
       this._isReady = true;
     });
 
-    this._instanceStartTime = getUnixTime();
-
     if (this._isReady) {
-      // NOTE: This timeout is utilized to allow EVT_READY event listener to be
-      // triggered after instantiation
-      setTimeout(() => {
-        this.emit(EVT_READY);
-      });
+      // IMPORTANT: Implementations which set isReady to false must call _init
+      // on their own
+
+      this._init();
+    } else {
+      // Warn if _init() is not invoked shortly
+
+      const initTimeout = setTimeout(() => {
+        console.warn(
+          "_init has not been called in a reasonable amount of time"
+        );
+
+        this.emit(EVT_NO_INIT_WARN);
+      }, 5000);
+
+      this.once(EVT_READY, () => clearTimeout(initTimeout));
     }
 
     // TODO: Use class-level logger (npm debug library and / or logger w/ debug bindings)
     // console.debug(`Constructed ${this.getClassName()} @ ${this._uuid}`);
+  }
+
+  /**
+   * @return {Promise<void>}
+   */
+  async _init() {
+    // Await promise so that EVT_READY listeners can be invoked on next event
+    // loop cycle
+    await new Promise(resolve =>
+      setTimeout(() => {
+        this.emit(EVT_READY);
+
+        resolve();
+      })
+    );
   }
 
   // TODO: Make more use of this
@@ -179,3 +206,4 @@ module.exports = PhantomBase;
 module.exports.EVT_READY = EVT_READY;
 module.exports.EVT_UPDATED = EVT_UPDATED;
 module.exports.EVT_DESTROYED = EVT_DESTROYED;
+module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;
