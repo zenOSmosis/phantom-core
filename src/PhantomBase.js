@@ -34,7 +34,7 @@ class PhantomBase extends EventEmitter {
   constructor(params = {}) {
     const DEFAULT_PARAMS = { isReady: true };
 
-    params = { ...DEFAULT_PARAMS, params };
+    params = { ...DEFAULT_PARAMS, ...params };
 
     super();
 
