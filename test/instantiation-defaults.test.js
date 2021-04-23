@@ -147,5 +147,10 @@ test("events and destruct", async t => {
     "removes event listeners after destroying"
   );
 
+  t.ok(
+    undefined === (await phantom.destroy()),
+    "subsequent calls to destroy are ignored"
+  );
+
   t.end();
 });
