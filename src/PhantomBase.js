@@ -1,5 +1,6 @@
 const EventEmitter = require("events");
 const uuidv4 = require("uuid").v4;
+const logger = require("loglevel");
 
 const getUnixTime = require("./time/getUnixTime");
 
@@ -10,6 +11,12 @@ const EVT_NO_INIT_WARN = "no-init-warn";
 
 // Instances for this particular thread
 const _instances = {};
+
+const LOG_LEVEL_TRACE = 0;
+const LOG_LEVEL_DEBUG = 1;
+const LOG_LEVEL_INFO = 2;
+const LOG_LEVEL_WARN = 3;
+const LOG_LEVEL_ERROR = 4;
 
 /**
  * Base class which Phantom Server components derive.
@@ -45,7 +52,20 @@ class PhantomBase extends EventEmitter {
    * @param {Object} params? [default={}]
    */
   constructor(params = {}) {
-    const DEFAULT_PARAMS = { isReady: true };
+    const DEFAULT_PARAMS = {
+      isReady: true,
+      logLevel: LOG_LEVEL_INFO,
+      logger: (() => {
+        // IMPORTANT: loglevel doesn't support setting levels per instance, so we
+        // have to apply our own filtering here.
+        //
+        // Trace is used intentionally here or else it won't be available if
+        // desired.
+        logger.setLevel("trace");
+
+        return logger;
+      })(),
+    };
 
     params = { ...DEFAULT_PARAMS, ...params };
 
@@ -59,7 +79,6 @@ class PhantomBase extends EventEmitter {
 
     this._instanceStartTime = getUnixTime();
 
-    // TODO: Make constructor configurable to set if already ready
     this._isReady = params.isReady || false;
 
     this.once(EVT_READY, () => {
@@ -85,8 +104,110 @@ class PhantomBase extends EventEmitter {
       this.once(EVT_READY, () => clearTimeout(initTimeout));
     }
 
-    // TODO: Use class-level logger (npm debug library and / or logger w/ debug bindings)
-    // console.debug(`Constructed ${this.getClassName()} @ ${this._uuid}`);
+    // IMPORTANT: This is not directly set as the params log level might be of
+    // a string type, where setLogLevel will convert it to the necessary
+    // integer type.
+    this._logLevel = null;
+    this.setLogLevel(params.logLevel);
+
+    this.log = (() => {
+      const className = this.getClassName();
+      const uuid = this.getUUID();
+
+      const prefix = () => `[${className} ${uuid}]`;
+
+      const logger = params.logger;
+
+      return {
+        trace: (...args) =>
+          this._logLevel <= LOG_LEVEL_TRACE && logger.trace(prefix(), ...args),
+        debug: (...args) =>
+          this._logLevel <= LOG_LEVEL_DEBUG && logger.debug(prefix(), ...args),
+        info: (...args) =>
+          this._logLevel <= LOG_LEVEL_INFO && logger.info(prefix(), ...args),
+        warn: (...args) =>
+          this._logLevel <= LOG_LEVEL_WARN && logger.warn(prefix(), ...args),
+        error: (...args) =>
+          this._logLevel <= LOG_LEVEL_ERROR && logger.error(prefix(), ...args),
+      };
+    })();
+
+    this.log.debug(`Constructed instance`);
+  }
+
+  /**
+   * Sets the log level, in order to determine log filtering.
+   *
+   * Accepts either numeric (i.e. LOG_LEVEL_TRACE constant) or string (i.e.
+   * "trace") values.
+   *
+   * @param {number | number} level String values will be numerically mapped to
+   * the corresponding constant value.
+   */
+  setLogLevel(level) {
+    if (typeof level === "string") {
+      switch (level.toLowerCase()) {
+        case "trace":
+          level = LOG_LEVEL_TRACE;
+          break;
+
+        case "debug":
+          level = LOG_LEVEL_DEBUG;
+          break;
+
+        case "info":
+          level = LOG_LEVEL_INFO;
+          break;
+
+        case "warn":
+          level = LOG_LEVEL_WARN;
+          break;
+
+        case "error":
+          level = LOG_LEVEL_ERROR;
+          break;
+
+        default:
+          throw new Error(`Unknown log level: ${level}`);
+      }
+    }
+
+    this._logLevel = level;
+  }
+
+  /**
+   * @return {number}
+   */
+  getLogLevel() {
+    return this._logLevel;
+  }
+
+  /**
+   * @return {Promise<void>}
+   */
+  async destroy() {
+    if (!this._isDestroyed) {
+      delete _instances[this._uuid];
+
+      this.log.debug(`${this.constructor.name} is destructing`);
+
+      // Note: Setting this flag before-hand is intentional
+      this._isDestroyed = true;
+
+      this.emit(EVT_DESTROYED);
+
+      // Unbind all listeners
+      this.removeAllListeners();
+
+      this.log.debug(`Destructed instance`);
+    }
+  }
+
+  /**
+   * @return {boolean}
+   */
+  getIsDestroyed() {
+    return this._isDestroyed;
   }
 
   /**
@@ -154,14 +275,6 @@ class PhantomBase extends EventEmitter {
     return this.constructor.name;
   }
 
-  // TODO: Make more use of this
-  // TODO: Convert to logger.log?
-  /*
-  log(...args) {
-    console.log(...args);
-  }
-  */
-
   // TODO: Add proxyOn, proxyOnce, proxyOff methods to use event emitters from
   // other instances while binding them to this instance lifecycle,
   // unregistering the proxied listener when this instance destructs
@@ -189,36 +302,6 @@ class PhantomBase extends EventEmitter {
   getListenerCount(eventName) {
     return this.listenerCount(eventName);
   }
-
-  /**
-   * @return {boolean}
-   */
-  getIsDestroyed() {
-    return this._isDestroyed;
-  }
-
-  /**
-   * @return {Promise<void>}
-   */
-  async destroy() {
-    if (!this._isDestroyed) {
-      delete _instances[this._uuid];
-
-      // TODO: Use class-level logger
-      // this.log(`${this.constructor.name} is destructing`);
-
-      // Note: Setting this flag before-hand is intentional
-      this._isDestroyed = true;
-
-      this.emit(EVT_DESTROYED);
-
-      // Unbind all listeners
-      this.removeAllListeners();
-
-      // TODO: Use class-level logger
-      // console.debug(`Destructed ${this.getClassName()} @ ${this._uuid}`);
-    }
-  }
 }
 
 module.exports = PhantomBase;
@@ -226,3 +309,9 @@ module.exports.EVT_READY = EVT_READY;
 module.exports.EVT_UPDATED = EVT_UPDATED;
 module.exports.EVT_DESTROYED = EVT_DESTROYED;
 module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;
+
+module.exports.LOG_LEVEL_TRACE = LOG_LEVEL_TRACE;
+module.exports.LOG_LEVEL_DEBUG = LOG_LEVEL_DEBUG;
+module.exports.LOG_LEVEL_INFO = LOG_LEVEL_INFO;
+module.exports.LOG_LEVEL_WARN = LOG_LEVEL_WARN;
+module.exports.LOG_LEVEL_ERROR = LOG_LEVEL_ERROR;
