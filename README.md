@@ -5,4 +5,6 @@
 
 # Phantom Core
 
+<img src="phantom.svg" alt="Phantom" width="200"/>
+
 Base package utilized in [Speaker App](https://speaker.app) / [https://github.com/zenOSmosis/speaker.app](https://github.com/zenOSmosis/speaker.app).
