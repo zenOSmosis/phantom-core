@@ -118,7 +118,7 @@ class PhantomCore extends EventEmitter {
 
       const logger = params.logger;
 
-      return {
+      const loggerMethods = {
         trace: (...args) =>
           this._logLevel <= LOG_LEVEL_TRACE && logger.trace(prefix(), ...args),
         debug: (...args) =>
@@ -130,6 +130,15 @@ class PhantomCore extends EventEmitter {
         error: (...args) =>
           this._logLevel <= LOG_LEVEL_ERROR && logger.error(prefix(), ...args),
       };
+
+      // Calling log directly will log as info
+      const log = (...args) => loggerMethods.info(...args);
+
+      Object.keys(loggerMethods).forEach(method => {
+        log[method] = loggerMethods[method];
+      });
+
+      return log;
     })();
 
     this.log.debug(`Constructed instance`);
