@@ -1,4 +1,6 @@
 const EventEmitter = require("events");
+const Logger = require("./Logger");
+const { LOG_LEVEL_INFO } = Logger;
 const uuidv4 = require("uuid").v4;
 
 const getUnixTime = require("./time/getUnixTime");
@@ -10,15 +12,6 @@ const EVT_NO_INIT_WARN = "no-init-warn";
 
 // Instances for this particular thread
 const _instances = {};
-
-/*
-const LOG_LEVEL_TRACE = 0;
-const LOG_LEVEL_DEBUG = 1;
-const LOG_LEVEL_INFO = 2;
-const LOG_LEVEL_WARN = 3;
-const LOG_LEVEL_ERROR = 4;
-const LOG_LEVEL_SILENT = 5;
-*/
 
 /**
  * Base class which Phantom Server components derive.
@@ -60,11 +53,17 @@ class PhantomCore extends EventEmitter {
 
     const DEFAULT_PARAMS = {
       isReady: true,
-      // logLevel: LOG_LEVEL_INFO,
+      logLevel: LOG_LEVEL_INFO,
       // logger: logger.getLogger(this._uuid),
     };
 
     this._params = { ...DEFAULT_PARAMS, ...params };
+
+    this._logger = new Logger({
+      logLevel: this._params.logLevel,
+      prefix: logLevel => `[${logLevel} ${this.getClassName()} ${this._uuid}]`,
+    });
+    this.log = this._logger.log;
 
     this._isDestroyed = false;
 
@@ -87,7 +86,7 @@ class PhantomCore extends EventEmitter {
       // Warn if _init() is not invoked shortly
 
       const initTimeout = setTimeout(() => {
-        console.warn(
+        this.log.warn(
           "_init has not been called in a reasonable amount of time"
         );
 
@@ -95,59 +94,6 @@ class PhantomCore extends EventEmitter {
       }, 5000);
 
       this.once(EVT_READY, () => clearTimeout(initTimeout));
-    }
-
-    this.log = (() => {
-      const className = this.getClassName();
-      const uuid = this.getUUID();
-
-      const prefix = logLevel => `[${logLevel} ${className} ${uuid}]`;
-
-      /**
-       * Each logger method should retain original stack trace
-       *
-       * @see https://stackoverflow.com/questions/9559725/extending-console-log-without-affecting-log-line
-       */
-      const loggerMethods = {
-        trace: Function.prototype.bind.call(
-          console.trace,
-          console,
-          prefix("trace")
-        ),
-        debug: Function.prototype.bind.call(
-          console.debug,
-          console,
-          prefix("debug")
-        ),
-        info: Function.prototype.bind.call(
-          console.info,
-          console,
-          prefix("info")
-        ),
-        warn: Function.prototype.bind.call(
-          console.warn,
-          console,
-          prefix("warn")
-        ),
-        error: Function.prototype.bind.call(
-          console.error,
-          console,
-          prefix("error")
-        ),
-      };
-
-      // Calling this.log() directly will log as info
-      const log = loggerMethods.info;
-
-      Object.keys(loggerMethods).forEach(method => {
-        log[method] = loggerMethods[method];
-      });
-
-      return log;
-    })();
-
-    if (typeof this._params.logLevel !== "undefined") {
-      this.setLogLevel(this._params.logLevel);
     }
   }
 
@@ -159,20 +105,16 @@ class PhantomCore extends EventEmitter {
    *
    * @param {number | number} level
    */
-  /*
   setLogLevel(level) {
-    this._logger.setLevel(level, false);
+    this._logger.setLogLevel(level);
   }
-  */
 
   /**
    * @return {number}
    */
-  /*
   getLogLevel() {
-    return this._logger.getLevel();
+    return this._logger.getLogLevel();
   }
-  */
 
   /**
    * @return {Promise<void>}
@@ -297,12 +239,3 @@ module.exports.EVT_READY = EVT_READY;
 module.exports.EVT_UPDATED = EVT_UPDATED;
 module.exports.EVT_DESTROYED = EVT_DESTROYED;
 module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;
-
-/*
-module.exports.LOG_LEVEL_TRACE = LOG_LEVEL_TRACE;
-module.exports.LOG_LEVEL_DEBUG = LOG_LEVEL_DEBUG;
-module.exports.LOG_LEVEL_INFO = LOG_LEVEL_INFO;
-module.exports.LOG_LEVEL_WARN = LOG_LEVEL_WARN;
-module.exports.LOG_LEVEL_ERROR = LOG_LEVEL_ERROR;
-module.exports.LOG_LEVEL_SILENT = LOG_LEVEL_SILENT;
-*/
