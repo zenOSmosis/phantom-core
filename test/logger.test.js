@@ -132,7 +132,7 @@ test("set log level", t => {
 });
 
 test("custom logger", t => {
-  t.plan(6);
+  t.plan(7);
 
   const phantom = new PhantomCore({
     logger: {
@@ -155,6 +155,12 @@ test("custom logger", t => {
   });
 
   phantom.setLogLevel(LOG_LEVEL_TRACE);
+
+  try {
+    phantom.log("This should throw");
+  } catch (err) {
+    t.equals(err.message, "info", "direct call to log aliases to log.info()");
+  }
 
   try {
     phantom.log.trace("This should throw");
