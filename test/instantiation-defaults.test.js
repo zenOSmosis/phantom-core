@@ -23,13 +23,15 @@ test("registers and unregisters instances", async t => {
     PhantomBase.getInstanceCount() === oCount,
     "decrements instance count when instance is destroyed"
   );
+
+  t.end();
 });
 
 test("determines class name", async t => {
-  const phantom = new PhantomBase();
+  const phantom1 = new PhantomBase();
 
   t.ok(
-    phantom.getClassName() === "PhantomBase",
+    phantom1.getClassName() === "PhantomBase",
     "determines its own class name"
   );
 
@@ -41,6 +43,11 @@ test("determines class name", async t => {
     phantom2.getClassName() === "Phantom2",
     "extensions know their class name"
   );
+
+  phantom1.destroy();
+  phantom2.destroy();
+
+  t.end();
 });
 
 test("onceReady handling", async t => {
@@ -53,6 +60,8 @@ test("onceReady handling", async t => {
 
   await phantom.onceReady();
   t.ok(true, "after second onceReady");
+
+  phantom.destroy();
 
   t.end();
 });
@@ -67,6 +76,8 @@ test("emits EVT_READY", async t => {
       resolve();
     });
   });
+
+  phantom.destroy();
 
   t.end();
 });
@@ -92,6 +103,11 @@ test("same instance detection", async t => {
   t.ok(
     PhantomBase.getInstanceWithUUID(phantom2UUID).getIsSameInstance(phantom2)
   );
+
+  phantom1.destroy();
+  phantom2.destroy();
+
+  t.end();
 });
 
 test("determines instance uptime", async t => {
@@ -111,6 +127,8 @@ test("determines instance uptime", async t => {
 
   phantom.destroy();
   t.ok(phantom.getInstanceUptime() === 0, "destroyed phantom returns 0 uptime");
+
+  t.end();
 });
 
 test("events and destruct", async t => {

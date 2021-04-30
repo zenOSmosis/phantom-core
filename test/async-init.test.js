@@ -43,4 +43,8 @@ test("instantiates async", async t => {
   );
 
   t.ok(phantom.getIsReady(), "ready after init");
+
+  phantom.destroy();
+
+  t.end();
 });
