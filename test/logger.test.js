@@ -1,12 +1,12 @@
 const test = require("tape-async");
-const PhantomBase = require("../src");
+const PhantomCore = require("../src");
 const {
   LOG_LEVEL_TRACE,
   LOG_LEVEL_DEBUG,
   LOG_LEVEL_INFO,
   LOG_LEVEL_WARN,
   LOG_LEVEL_ERROR,
-} = PhantomBase;
+} = PhantomCore;
 
 test("log level steps", t => {
   t.plan(5);
@@ -23,7 +23,7 @@ test("log level steps", t => {
 test("default logging level", t => {
   t.plan(2);
 
-  const phantom1 = new PhantomBase();
+  const phantom1 = new PhantomCore();
 
   t.equals(
     phantom1.getLogLevel(),
@@ -31,7 +31,7 @@ test("default logging level", t => {
     "LOG_LEVEL_INFO default logging level"
   );
 
-  const phantom2 = new PhantomBase({ logLevel: LOG_LEVEL_TRACE });
+  const phantom2 = new PhantomCore({ logLevel: LOG_LEVEL_TRACE });
 
   t.equals(
     phantom2.getLogLevel(),
@@ -46,7 +46,7 @@ test("default logging level", t => {
 });
 
 test("set log level", t => {
-  const phantom = new PhantomBase();
+  const phantom = new PhantomCore();
 
   t.throws(() => {
     phantom.setLogLevel("notvalid");
@@ -134,7 +134,7 @@ test("set log level", t => {
 test("custom logger", t => {
   t.plan(6);
 
-  const phantom = new PhantomBase({
+  const phantom = new PhantomCore({
     logger: {
       trace: () => {
         throw new Error("trace");

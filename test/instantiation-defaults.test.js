@@ -1,26 +1,26 @@
 const test = require("tape-async");
-const PhantomBase = require("../src");
-const { EVT_READY, EVT_DESTROYED } = PhantomBase;
+const PhantomCore = require("../src");
+const { EVT_READY, EVT_DESTROYED } = PhantomCore;
 
 /**
- * Tests instantiation and destroying of PhantomBase with the default options
+ * Tests instantiation and destroying of PhantomCore with the default options
  * (no options passed).
  */
 
 test("registers and unregisters instances", async t => {
-  const oCount = PhantomBase.getInstanceCount();
+  const oCount = PhantomCore.getInstanceCount();
 
-  const phantom = new PhantomBase();
+  const phantom = new PhantomCore();
 
   t.ok(
-    PhantomBase.getInstanceCount() === oCount + 1,
+    PhantomCore.getInstanceCount() === oCount + 1,
     "increments instance count on new instance"
   );
 
   await phantom.destroy();
 
   t.ok(
-    PhantomBase.getInstanceCount() === oCount,
+    PhantomCore.getInstanceCount() === oCount,
     "decrements instance count when instance is destroyed"
   );
 
@@ -28,14 +28,14 @@ test("registers and unregisters instances", async t => {
 });
 
 test("determines class name", async t => {
-  const phantom1 = new PhantomBase();
+  const phantom1 = new PhantomCore();
 
   t.ok(
-    phantom1.getClassName() === "PhantomBase",
+    phantom1.getClassName() === "PhantomCore",
     "determines its own class name"
   );
 
-  class Phantom2 extends PhantomBase {}
+  class Phantom2 extends PhantomCore {}
 
   const phantom2 = new Phantom2();
 
@@ -51,7 +51,7 @@ test("determines class name", async t => {
 });
 
 test("onceReady handling", async t => {
-  const phantom = new PhantomBase();
+  const phantom = new PhantomCore();
 
   t.ok(phantom.getIsReady(), "ready by default");
 
@@ -67,7 +67,7 @@ test("onceReady handling", async t => {
 });
 
 test("emits EVT_READY", async t => {
-  const phantom = new PhantomBase();
+  const phantom = new PhantomCore();
 
   await new Promise(resolve => {
     phantom.once(EVT_READY, () => {
@@ -83,16 +83,16 @@ test("emits EVT_READY", async t => {
 });
 
 test("same instance detection", async t => {
-  const phantom1 = new PhantomBase();
+  const phantom1 = new PhantomCore();
   const phantom1UUID = phantom1.getUUID();
 
-  const phantom2 = new PhantomBase();
+  const phantom2 = new PhantomCore();
   const phantom2UUID = phantom2.getUUID();
 
   t.ok(phantom1.getIsSameInstance(phantom1), "can identify its own instance");
 
   t.ok(
-    PhantomBase.getInstanceWithUUID(phantom1UUID).getIsSameInstance(phantom1)
+    PhantomCore.getInstanceWithUUID(phantom1UUID).getIsSameInstance(phantom1)
   );
 
   t.notOk(
@@ -101,7 +101,7 @@ test("same instance detection", async t => {
   );
 
   t.ok(
-    PhantomBase.getInstanceWithUUID(phantom2UUID).getIsSameInstance(phantom2)
+    PhantomCore.getInstanceWithUUID(phantom2UUID).getIsSameInstance(phantom2)
   );
 
   phantom1.destroy();
@@ -111,7 +111,7 @@ test("same instance detection", async t => {
 });
 
 test("determines instance uptime", async t => {
-  const phantom = new PhantomBase();
+  const phantom = new PhantomCore();
 
   t.ok(
     phantom.getInstanceUptime() < 1,
@@ -132,7 +132,7 @@ test("determines instance uptime", async t => {
 });
 
 test("events and destruct", async t => {
-  const phantom = new PhantomBase();
+  const phantom = new PhantomCore();
 
   t.notOk(
     phantom.getIsDestroyed(),

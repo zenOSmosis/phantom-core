@@ -1,16 +1,16 @@
 const test = require("tape-async");
-const PhantomBase = require("../src");
-const { EVT_READY, EVT_NO_INIT_WARN } = PhantomBase;
+const PhantomCore = require("../src");
+const { EVT_READY, EVT_NO_INIT_WARN } = PhantomCore;
 
 /**
- * Tests instantiation and destroying of PhantomBase with the default options
+ * Tests instantiation and destroying of PhantomCore with the default options
  * (no options passed).
  */
 
 test("instantiates async", async t => {
   t.plan(5);
 
-  const phantom = new PhantomBase({
+  const phantom = new PhantomCore({
     isReady: false,
   });
 

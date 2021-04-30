@@ -23,12 +23,12 @@ const LOG_LEVEL_ERROR = 4;
  *
  * TODO: Update description.
  */
-class PhantomBase extends EventEmitter {
+class PhantomCore extends EventEmitter {
   /**
-   * Retrieves PhantomBase instance with the given UUID.
+   * Retrieves PhantomCore instance with the given UUID.
    *
    * @param {string} uuid
-   * @return {PhantomBase}
+   * @return {PhantomCore}
    */
   static getInstanceWithUUID(uuid) {
     return _instances[uuid];
@@ -261,7 +261,7 @@ class PhantomBase extends EventEmitter {
    * Determines whether the passed instance is the same as the current
    * instance.
    *
-   * @param {PhantomBase} instance
+   * @param {PhantomCore} instance
    * @return {boolean}
    */
   getIsSameInstance(instance) {
@@ -304,7 +304,7 @@ class PhantomBase extends EventEmitter {
   }
 }
 
-module.exports = PhantomBase;
+module.exports = PhantomCore;
 module.exports.EVT_READY = EVT_READY;
 module.exports.EVT_UPDATED = EVT_UPDATED;
 module.exports.EVT_DESTROYED = EVT_DESTROYED;
