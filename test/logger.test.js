@@ -6,16 +6,18 @@ const {
   LOG_LEVEL_INFO,
   LOG_LEVEL_WARN,
   LOG_LEVEL_ERROR,
+  LOG_LEVEL_SILENT,
 } = PhantomCore;
 
 test("log level steps", t => {
-  t.plan(5);
+  t.plan(6);
 
   t.ok(LOG_LEVEL_TRACE === 0);
   t.ok(LOG_LEVEL_DEBUG === LOG_LEVEL_TRACE + 1);
   t.ok(LOG_LEVEL_INFO === LOG_LEVEL_DEBUG + 1);
   t.ok(LOG_LEVEL_WARN === LOG_LEVEL_INFO + 1);
   t.ok(LOG_LEVEL_ERROR === LOG_LEVEL_WARN + 1);
+  t.ok(LOG_LEVEL_SILENT === LOG_LEVEL_ERROR + 1);
 
   t.end();
 });
@@ -46,6 +48,8 @@ test("default logging level", t => {
 });
 
 test("set log level", t => {
+  t.plan(14);
+
   const phantom = new PhantomCore();
 
   t.throws(() => {
@@ -93,6 +97,13 @@ test("set log level", t => {
     'accepts string value "error"'
   );
 
+  phantom.setLogLevel("silent");
+  t.equals(
+    phantom.getLogLevel(),
+    LOG_LEVEL_SILENT,
+    'accepts string value "error"'
+  );
+
   phantom.setLogLevel(LOG_LEVEL_TRACE);
   t.equals(
     phantom.getLogLevel(),
@@ -128,9 +139,17 @@ test("set log level", t => {
     "accepts numeric value LOG_LEVEL_ERROR"
   );
 
+  phantom.setLogLevel(LOG_LEVEL_SILENT);
+  t.equals(
+    phantom.getLogLevel(),
+    LOG_LEVEL_SILENT,
+    "accepts numeric value LOG_LEVEL_SILENT"
+  );
+
   t.end();
 });
 
+/*
 test("custom logger", t => {
   t.plan(7);
 
@@ -151,6 +170,8 @@ test("custom logger", t => {
       error: () => {
         throw new Error("error");
       },
+      setLevel: level => (this._level = level),
+      getLevel: () => this._level,
     },
   });
 
@@ -210,3 +231,4 @@ test("custom logger", t => {
 
   t.end();
 });
+*/
