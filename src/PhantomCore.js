@@ -44,9 +44,9 @@ class PhantomCore extends EventEmitter {
   /**
    * TODO: Provide optional singleton support
    *
-   * @param {Object} params? [default={}]
+   * @param {Object} options? [default={}]
    */
-  constructor(params = {}) {
+  constructor(options = {}) {
     super();
 
     this._uuid = uuidv4();
@@ -57,10 +57,10 @@ class PhantomCore extends EventEmitter {
       // logger: logger.getLogger(this._uuid),
     };
 
-    this._params = { ...DEFAULT_PARAMS, ...params };
+    this._options = { ...DEFAULT_PARAMS, ...options };
 
     this._logger = new Logger({
-      logLevel: this._params.logLevel,
+      logLevel: this._options.logLevel,
       prefix: logLevel => `[${logLevel} ${this.getClassName()} ${this._uuid}]`,
     });
     this.log = this._logger.log;
@@ -71,7 +71,7 @@ class PhantomCore extends EventEmitter {
 
     this._instanceStartTime = getUnixTime();
 
-    this._isReady = this._params.isReady || false;
+    this._isReady = this._options.isReady || false;
 
     this.once(EVT_READY, () => {
       this._isReady = true;
