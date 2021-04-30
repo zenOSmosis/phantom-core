@@ -149,8 +149,6 @@ class PhantomCore extends EventEmitter {
     if (typeof this._params.logLevel !== "undefined") {
       this.setLogLevel(this._params.logLevel);
     }
-
-    this.log.debug(`Constructed instance`);
   }
 
   /**
@@ -183,8 +181,6 @@ class PhantomCore extends EventEmitter {
     if (!this._isDestroyed) {
       delete _instances[this._uuid];
 
-      this.log.debug(`${this.constructor.name} is destructing`);
-
       // Note: Setting this flag before-hand is intentional
       this._isDestroyed = true;
 
@@ -192,8 +188,6 @@ class PhantomCore extends EventEmitter {
 
       // Unbind all listeners
       this.removeAllListeners();
-
-      this.log.debug(`Destructed instance`);
     }
   }
 
