@@ -14,6 +14,15 @@ const LOG_LEVEL_STRING_MAP = {
   silent: LOG_LEVEL_SILENT,
 };
 
+/**
+ * A very simple JavaScript logger, which wraps console.log/debug, etc. calls
+ * while retaining the original stack traces.
+ *
+ * This utility was inspired by https://www.npmjs.com/package/loglevel.  One of
+ * the main reasons why I didn't use loglevel is because loglevel doesn't use
+ * the browser's default console.debug mechanism and setting up namespaced
+ * loggers wasn't very straightforward.
+ */
 class Logger {
   constructor(options = {}) {
     const DEFAULT_OPTIONS = {
