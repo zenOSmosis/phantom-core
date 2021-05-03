@@ -27,6 +27,22 @@ test("registers and unregisters instances", async t => {
   t.end();
 });
 
+test("get options", t => {
+  t.plan(1);
+
+  const phantom = new PhantomCore({
+    testOption: 123,
+  });
+
+  t.deepEquals(phantom.getOptions(), {
+    testOption: 123,
+    logLevel: 2,
+    isReady: true,
+  });
+
+  t.end();
+});
+
 test("determines class name", async t => {
   const phantom1 = new PhantomCore();
 
