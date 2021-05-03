@@ -96,7 +96,7 @@ class Logger {
         loggerMethods.warn = Function.prototype.bind.call(
           console.warn,
           console,
-          prefix("warm")
+          prefix("warn")
         );
       } else {
         loggerMethods.warn = () => null;
