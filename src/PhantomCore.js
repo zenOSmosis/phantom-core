@@ -51,18 +51,23 @@ class PhantomCore extends EventEmitter {
 
     this._uuid = uuidv4();
 
-    const DEFAULT_PARAMS = {
+    const DEFAULT_OPTIONS = {
       isReady: true,
       logLevel: LOG_LEVEL_INFO,
-      // logger: logger.getLogger(this._uuid),
     };
 
-    this._options = { ...DEFAULT_PARAMS, ...options };
+    this._options = { ...DEFAULT_OPTIONS, ...options };
 
     this._logger = new Logger({
       logLevel: this._options.logLevel,
       prefix: logLevel => `[${logLevel} ${this.getClassName()} ${this._uuid}]`,
     });
+
+    /**
+     * @type {function} Calling this function directly will indirectly call
+     * logger.info(); The log.trace(), log.debug(), log.info(), log.warn(), and
+     * log.error() properties can be called directly.
+     */
     this.log = this._logger.log;
 
     this._isDestroyed = false;
@@ -95,6 +100,35 @@ class PhantomCore extends EventEmitter {
 
       this.once(EVT_READY, () => clearTimeout(initTimeout));
     }
+  }
+
+  /**
+   * Internally invoked after being constructed.
+   *
+   * IMPORTANT: Extensions which set isReady to false should call this
+   * manually.
+   *
+   * @return {Promise<void>}
+   */
+  async _init() {
+    // Await promise so that EVT_READY listeners can be invoked on next event
+    // loop cycle
+    await new Promise(resolve =>
+      setTimeout(() => {
+        this.emit(EVT_READY);
+
+        resolve();
+      })
+    );
+  }
+
+  /**
+   * Retrieves the options utilized in the class constructor.
+   *
+   * @return {Object}
+   */
+  getOptions() {
+    return this._options;
   }
 
   /**
@@ -138,26 +172,6 @@ class PhantomCore extends EventEmitter {
    */
   getIsDestroyed() {
     return this._isDestroyed;
-  }
-
-  /**
-   * Internally invoked after being constructed.
-   *
-   * IMPORTANT: Extensions which set isReady to false should call this
-   * manually.
-   *
-   * @return {Promise<void>}
-   */
-  async _init() {
-    // Await promise so that EVT_READY listeners can be invoked on next event
-    // loop cycle
-    await new Promise(resolve =>
-      setTimeout(() => {
-        this.emit(EVT_READY);
-
-        resolve();
-      })
-    );
   }
 
   /**
