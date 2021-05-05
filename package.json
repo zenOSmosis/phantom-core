@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "airtap": "^4.0.3",
-    "airtap-sauce": "^1.1.0",
+    "airtap-sauce": "^1.1.2",
     "dotenv-cli": "^4.0.0",
     "nyc": "^15.1.0",
     "prettier": "^2.2.1",
