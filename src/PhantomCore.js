@@ -151,6 +151,22 @@ class PhantomCore extends EventEmitter {
   }
 
   /**
+   * Retrieves all methods registered to this class.
+   *
+   * @return {string[]}
+   */
+  getMethods() {
+    let properties = new Set();
+    let currentObj = this;
+    do {
+      Object.getOwnPropertyNames(currentObj).map(item => properties.add(item));
+    } while ((currentObj = Object.getPrototypeOf(currentObj)));
+    return [...properties.keys()].filter(
+      item => typeof this[item] === "function"
+    );
+  }
+
+  /**
    * @return {Promise<void>}
    */
   async destroy() {
@@ -164,6 +180,23 @@ class PhantomCore extends EventEmitter {
 
       // Unbind all listeners
       this.removeAllListeners();
+
+      const className = this.getClassName();
+
+      for (const method of this.getMethods()) {
+        if (
+          method !== "getListenerCount" &&
+          method !== "listenerCount" &&
+          method !== "getIsDestroyed" &&
+          method !== "getInstanceUptime"
+        )
+          this[method] = () =>
+            // IMPORTANT: this.log.error won't be defined here, so call
+            // console.error directly
+            console.error(
+              `Cannot call this.${method}() after class ${className} is destroyed`
+            );
+      }
     }
   }
 
@@ -235,16 +268,6 @@ class PhantomCore extends EventEmitter {
     } else {
       return 0;
     }
-  }
-
-  /**
-   * Retrieves the number of listeners associated with the given event.
-   *
-   * @param {string} eventName
-   * @return {number}
-   */
-  getListenerCount(eventName) {
-    return this.listenerCount(eventName);
   }
 }
 

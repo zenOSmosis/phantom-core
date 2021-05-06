@@ -182,7 +182,7 @@ test("events and destruct", async t => {
 
   phantom.emit("mock-event");
   t.ok(
-    phantom.getListenerCount("mock-event") === 0,
+    phantom.listenerCount("mock-event") === 0,
     "removes event listeners after destroying"
   );
 
@@ -190,6 +190,22 @@ test("events and destruct", async t => {
     undefined === (await phantom.destroy()),
     "subsequent calls to destroy are ignored"
   );
+
+  t.end();
+});
+
+test("prevents methods from being called after destroyed", async t => {
+  class TestDestroyer extends PhantomCore {
+    a() {
+      throw new Error("a() was called");
+    }
+  }
+
+  const phantom = new TestDestroyer();
+
+  phantom.destroy();
+
+  phantom.a();
 
   t.end();
 });
