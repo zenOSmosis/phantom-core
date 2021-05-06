@@ -190,15 +190,14 @@ class PhantomCore extends EventEmitter {
       for (const method of this.getMethods()) {
         if (
           method !== "off" &&
+          method !== "log" &&
           method !== "getListenerCount" &&
           method !== "listenerCount" &&
           method !== "getIsDestroyed" &&
           method !== "getInstanceUptime"
         )
           this[method] = () =>
-            // IMPORTANT: this.log.error won't be defined here, so call
-            // console.error directly
-            console.error(
+            this.log.warn(
               `Cannot call this.${method}() after class ${className} is destroyed`
             );
       }
