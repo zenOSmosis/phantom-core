@@ -115,7 +115,11 @@ class PhantomCore extends EventEmitter {
     // loop cycle
     await new Promise(resolve =>
       setTimeout(() => {
-        this.emit(EVT_READY);
+        // NOTE (jh): I didn't add reject here due to potential breaking
+        // changes
+        if (!this._isDestroyed) {
+          this.emit(EVT_READY);
+        }
 
         resolve();
       })
