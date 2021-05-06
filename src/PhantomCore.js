@@ -189,6 +189,7 @@ class PhantomCore extends EventEmitter {
 
       for (const method of this.getMethods()) {
         if (
+          method !== "off" &&
           method !== "getListenerCount" &&
           method !== "listenerCount" &&
           method !== "getIsDestroyed" &&
