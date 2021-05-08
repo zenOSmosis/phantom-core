@@ -78,9 +78,7 @@ class PhantomCore extends EventEmitter {
       symbol: null,
     };
 
-    /**
-     * Options should be considered immutable.
-     */
+    // Options should be considered immutable.
     this._options = Object.freeze(
       PhantomCore.mergeOptions(DEFAULT_OPTIONS, options)
     );
