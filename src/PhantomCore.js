@@ -41,6 +41,15 @@ class PhantomCore extends EventEmitter {
   }
 
   /**
+   * Symbol is a built-in object whose constructor returns a symbol primitive —
+   * also called a Symbol value or just a Symbol — that’s guaranteed to be
+   * unique.  Symbols are often used to add unique property keys to an object
+   * that won’t collide with keys any other code might add to the object, and
+   * which are hidden from any mechanisms other code will typically use to
+   * access the object. That enables a form of weak encapsulation, or a weak
+   * form of information hiding.
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol
+   *
    * @param {Symbol} symbol
    * @return {PhantomCore}
    */
@@ -73,8 +82,13 @@ class PhantomCore extends EventEmitter {
     this._uuid = uuidv4();
 
     const DEFAULT_OPTIONS = {
+      /** @type {boolean} */
       isReady: true,
+
+      /** @type {string | number} */
       logLevel: LOG_LEVEL_INFO,
+
+      /** @type {Symbol | null} */
       symbol: null,
     };
 
@@ -169,6 +183,8 @@ class PhantomCore extends EventEmitter {
   }
 
   /**
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol
+   *
    * @return {Symbol | null}
    */
   getSymbol() {
