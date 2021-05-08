@@ -41,6 +41,16 @@ class PhantomCore extends EventEmitter {
   }
 
   /**
+   * @param {Symbol} symbol
+   * @return {PhantomCore}
+   */
+  static getInstanceWithSymbol(symbol) {
+    return Object.values(_instances).find(
+      instance => instance.getSymbol() === symbol
+    );
+  }
+
+  /**
    * Retrieves the number of instances for this thread.
    *
    * When an instance is created / destroyed, the number is increased / reduced
@@ -65,9 +75,32 @@ class PhantomCore extends EventEmitter {
     const DEFAULT_OPTIONS = {
       isReady: true,
       logLevel: LOG_LEVEL_INFO,
+      symbol: null,
     };
 
-    this._options = PhantomCore.mergeOptions(DEFAULT_OPTIONS, options);
+    /**
+     * Options should be considered immutable.
+     */
+    this._options = Object.freeze(
+      PhantomCore.mergeOptions(DEFAULT_OPTIONS, options)
+    );
+
+    this._symbol = (() => {
+      if (this._options.symbol) {
+        if (PhantomCore.getInstanceWithSymbol(this._options.symbol)) {
+          throw new Error(
+            "Existing instance with symbol",
+            this._options.symbol
+          );
+        }
+
+        if (typeof this._options.symbol !== "symbol") {
+          throw new TypeError("options.symbol is not a Symbol");
+        }
+      }
+
+      return this._options.symbol;
+    })();
 
     this._logger = new Logger({
       logLevel: this._options.logLevel,
@@ -135,6 +168,13 @@ class PhantomCore extends EventEmitter {
         resolve();
       })
     );
+  }
+
+  /**
+   * @return {Symbol | null}
+   */
+  getSymbol() {
+    return this._symbol;
   }
 
   /**

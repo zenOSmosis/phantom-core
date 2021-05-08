@@ -38,7 +38,46 @@ test("get options", t => {
     testOption: 123,
     logLevel: 2,
     isReady: true,
+    symbol: null,
   });
+
+  t.end();
+});
+
+test("get instance with symbol", t => {
+  t.plan(6);
+
+  const s1 = Symbol("a");
+  const s2 = Symbol("a");
+
+  // NOTE: These tests should not technically be needed, but might help
+  // determine if there is a browser bug?
+  t.ok(s1 === s1, "symbol compares against itself");
+  t.ok(s1 !== s2, "symbol differentiates against other symbol with same value");
+
+  const p1 = new PhantomCore({ symbol: s1 });
+
+  t.ok(
+    p1.getIsSameInstance(PhantomCore.getInstanceWithSymbol(s1)),
+    "retrieves instance with symbol"
+  );
+
+  t.throws(() => {
+    new PhantomCore({ symbol: s1 });
+  }, "does not allow creation of new instance with previously used symbol");
+
+  p1.destroy();
+
+  t.ok(
+    new PhantomCore({ symbol: s1 }),
+    "enables creation of new instance with existing symbol if the previous instance has been destroyed"
+  );
+
+  const p2 = new PhantomCore();
+  t.ok(
+    p2.getSymbol() === null,
+    "instance created without a symbol returns null for getSymbol()"
+  );
 
   t.end();
 });
