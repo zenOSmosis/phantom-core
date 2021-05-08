@@ -2,6 +2,7 @@ const EventEmitter = require("events");
 const Logger = require("./Logger");
 const { LOG_LEVEL_INFO } = Logger;
 const uuidv4 = require("uuid").v4;
+const deepMerge = require("deepmerge");
 
 const getUnixTime = require("./time/getUnixTime");
 
@@ -19,6 +20,16 @@ const _instances = {};
  * TODO: Update description.
  */
 class PhantomCore extends EventEmitter {
+  /**
+   * @param {Object} defaultOptions
+   * @param {Object} userLevelOptions
+   * @return {Object} Returns a deep merged clone of options, where
+   * userLevelOptions overrides defaultOptions.
+   */
+  static mergeOptions(defaultOptions, userLevelOptions) {
+    return deepMerge(defaultOptions, userLevelOptions);
+  }
+
   /**
    * Retrieves PhantomCore instance with the given UUID.
    *
@@ -56,7 +67,7 @@ class PhantomCore extends EventEmitter {
       logLevel: LOG_LEVEL_INFO,
     };
 
-    this._options = { ...DEFAULT_OPTIONS, ...options };
+    this._options = PhantomCore.mergeOptions(DEFAULT_OPTIONS, options);
 
     this._logger = new Logger({
       logLevel: this._options.logLevel,
