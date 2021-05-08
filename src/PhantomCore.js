@@ -41,6 +41,25 @@ class PhantomCore extends EventEmitter {
   }
 
   /**
+   * Symbol is a built-in object whose constructor returns a symbol primitive —
+   * also called a Symbol value or just a Symbol — that’s guaranteed to be
+   * unique.  Symbols are often used to add unique property keys to an object
+   * that won’t collide with keys any other code might add to the object, and
+   * which are hidden from any mechanisms other code will typically use to
+   * access the object. That enables a form of weak encapsulation, or a weak
+   * form of information hiding.
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol
+   *
+   * @param {Symbol} symbol
+   * @return {PhantomCore}
+   */
+  static getInstanceWithSymbol(symbol) {
+    return Object.values(_instances).find(
+      instance => instance.getSymbol() === symbol
+    );
+  }
+
+  /**
    * Retrieves the number of instances for this thread.
    *
    * When an instance is created / destroyed, the number is increased / reduced
@@ -63,11 +82,37 @@ class PhantomCore extends EventEmitter {
     this._uuid = uuidv4();
 
     const DEFAULT_OPTIONS = {
+      /** @type {boolean} */
       isReady: true,
+
+      /** @type {string | number} */
       logLevel: LOG_LEVEL_INFO,
+
+      /** @type {Symbol | null} */
+      symbol: null,
     };
 
-    this._options = PhantomCore.mergeOptions(DEFAULT_OPTIONS, options);
+    // Options should be considered immutable.
+    this._options = Object.freeze(
+      PhantomCore.mergeOptions(DEFAULT_OPTIONS, options)
+    );
+
+    this._symbol = (() => {
+      if (this._options.symbol) {
+        if (PhantomCore.getInstanceWithSymbol(this._options.symbol)) {
+          throw new Error(
+            "Existing instance with symbol",
+            this._options.symbol
+          );
+        }
+
+        if (typeof this._options.symbol !== "symbol") {
+          throw new TypeError("options.symbol is not a Symbol");
+        }
+      }
+
+      return this._options.symbol;
+    })();
 
     this._logger = new Logger({
       logLevel: this._options.logLevel,
@@ -135,6 +180,15 @@ class PhantomCore extends EventEmitter {
         resolve();
       })
     );
+  }
+
+  /**
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol
+   *
+   * @return {Symbol | null}
+   */
+  getSymbol() {
+    return this._symbol;
   }
 
   /**
