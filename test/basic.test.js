@@ -43,6 +43,151 @@ test("get options", t => {
   t.end();
 });
 
+test("deep merge options of same type", t => {
+  t.plan(1);
+
+  // NOTE: Despite the similarities, these data structures are not the same as
+  // MediaStreamTrack constraints
+  const defaultOptions = {
+    audio: {
+      quality: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+        sampleRate: 48000,
+        sampleSize: 16,
+      },
+    },
+    video: {
+      resolution: {
+        width: 1920,
+        height: 1280,
+      },
+    },
+  };
+
+  const userLevelOptions = {
+    audio: {
+      quality: {
+        autoGainControl: false,
+      },
+    },
+
+    video: {
+      resolution: {
+        width: 640,
+        height: 480,
+      },
+    },
+  };
+
+  t.deepEquals(PhantomCore.mergeOptions(defaultOptions, userLevelOptions), {
+    audio: {
+      quality: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: false,
+        sampleRate: 48000,
+        sampleSize: 16,
+      },
+    },
+    video: {
+      resolution: {
+        width: 640,
+        height: 480,
+      },
+    },
+  });
+
+  t.end();
+});
+
+test("deep merge options of altered type", t => {
+  t.plan(3);
+
+  const defaultOptions = {
+    audio: true,
+    video: true,
+  };
+
+  const userLevelOptions = {
+    audio: {
+      quality: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+        sampleRate: 48000,
+        sampleSize: 16,
+      },
+    },
+    video: {
+      resolution: {
+        width: 1920,
+        height: 1280,
+      },
+    },
+  };
+
+  t.deepEquals(
+    PhantomCore.mergeOptions(defaultOptions, {
+      audio: userLevelOptions.audio,
+    }),
+    {
+      audio: {
+        quality: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          sampleRate: 48000,
+          sampleSize: 16,
+        },
+      },
+      video: true,
+    },
+    "changes audio from boolean to object type"
+  );
+
+  t.deepEquals(
+    PhantomCore.mergeOptions(defaultOptions, {
+      video: userLevelOptions.video,
+    }),
+    {
+      audio: true,
+      video: {
+        resolution: {
+          width: 1920,
+          height: 1280,
+        },
+      },
+    },
+    "changes video from boolean to object type"
+  );
+
+  t.deepEquals(
+    PhantomCore.mergeOptions(defaultOptions, userLevelOptions),
+    {
+      audio: {
+        quality: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          sampleRate: 48000,
+          sampleSize: 16,
+        },
+      },
+      video: {
+        resolution: {
+          width: 1920,
+          height: 1280,
+        },
+      },
+    },
+    "merges multiple type changes"
+  );
+
+  t.end();
+});
+
 test("determines class name", async t => {
   const phantom1 = new PhantomCore();
 
