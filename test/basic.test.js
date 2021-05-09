@@ -28,19 +28,24 @@ test("registers and unregisters instances", async t => {
 });
 
 test("get options", t => {
-  t.plan(1);
+  t.plan(4);
 
   const phantom = new PhantomCore({
     testOption: 123,
+    logLevel: 4,
   });
 
   t.deepEquals(phantom.getOptions(), {
     testOption: 123,
-    logLevel: 2,
+    logLevel: 4,
     isReady: true,
     symbol: null,
     title: null,
   });
+
+  t.equals(phantom.getOption("testOption"), 123, "retrieves testOption option");
+  t.equals(phantom.getOption("logLevel"), 4, "retrieves logLevel option");
+  t.equals(phantom.getOption("symbol"), null, "retrieves symbol option");
 
   t.end();
 });

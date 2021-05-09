@@ -233,6 +233,16 @@ class PhantomCore extends EventEmitter {
   }
 
   /**
+   * Retrieve the option with the given name.
+   *
+   * @param {string} optionName
+   * @return {any}
+   */
+  getOption(optionName) {
+    return this._options[optionName];
+  }
+
+  /**
    * Sets the log level, in order to determine log filtering.
    *
    * Accepts either numeric (i.e. LOG_LEVEL_TRACE constant) or string (i.e.
