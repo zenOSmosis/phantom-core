@@ -88,8 +88,21 @@ class PhantomCore extends EventEmitter {
       /** @type {string | number} */
       logLevel: LOG_LEVEL_INFO,
 
-      /** @type {Symbol | null} */
+      /**
+       * An arbitrary Symbol for this instance, explicitly guaranteed to be
+       * \unique across instances.
+       *
+       * @type {Symbol | null}
+       **/
       symbol: null,
+
+      /**
+       * An arbitrary title for this instance, not guaranteed to be unique
+       * across instances.
+       *
+       * @type {string | null}
+       **/
+      title: null,
     };
 
     // Options should be considered immutable.
@@ -113,6 +126,8 @@ class PhantomCore extends EventEmitter {
 
       return this._options.symbol;
     })();
+
+    this._title = this._options.title;
 
     this._logger = new Logger({
       logLevel: this._options.logLevel,
@@ -192,12 +207,39 @@ class PhantomCore extends EventEmitter {
   }
 
   /**
+   * @return {string | null}
+   */
+  getTitle() {
+    return this._title;
+  }
+
+  /**
+   * @param {string} title
+   * @return {void}
+   */
+  setTitle(title) {
+    this._title = title;
+
+    this.emit(EVT_UPDATED);
+  }
+
+  /**
    * Retrieves the options utilized in the class constructor.
    *
    * @return {Object}
    */
   getOptions() {
     return this._options;
+  }
+
+  /**
+   * Retrieve the option with the given name.
+   *
+   * @param {string} optionName
+   * @return {any}
+   */
+  getOption(optionName) {
+    return this._options[optionName];
   }
 
   /**

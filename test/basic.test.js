@@ -1,6 +1,6 @@
 const test = require("tape-async");
 const PhantomCore = require("../src");
-const { EVT_READY, EVT_DESTROYED } = PhantomCore;
+const { EVT_READY, EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
 
 /**
  * Tests instantiation and destroying of PhantomCore with the default options
@@ -28,18 +28,24 @@ test("registers and unregisters instances", async t => {
 });
 
 test("get options", t => {
-  t.plan(1);
+  t.plan(4);
 
   const phantom = new PhantomCore({
     testOption: 123,
+    logLevel: 4,
   });
 
   t.deepEquals(phantom.getOptions(), {
     testOption: 123,
-    logLevel: 2,
+    logLevel: 4,
     isReady: true,
     symbol: null,
+    title: null,
   });
+
+  t.equals(phantom.getOption("testOption"), 123, "retrieves testOption option");
+  t.equals(phantom.getOption("logLevel"), 4, "retrieves logLevel option");
+  t.equals(phantom.getOption("symbol"), null, "retrieves symbol option");
 
   t.end();
 });
@@ -137,6 +143,36 @@ test("deep merge options of same type", t => {
       },
     },
   });
+
+  t.end();
+});
+
+test("title support", async t => {
+  t.plan(2);
+
+  const phantom = new PhantomCore({ title: "test-title" });
+
+  t.equals(
+    phantom.getTitle(),
+    "test-title",
+    "title passed to constructor is registered"
+  );
+
+  await Promise.all([
+    new Promise(resolve => {
+      phantom.once(EVT_UPDATED, () => {
+        t.equals(
+          phantom.getTitle(),
+          "some-other-title",
+          "emits EVT_UPDATED when title has changed"
+        );
+
+        resolve();
+      });
+    }),
+
+    phantom.setTitle("some-other-title"),
+  ]);
 
   t.end();
 });
