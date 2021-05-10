@@ -1,5 +1,6 @@
 const PhantomCore = require("./PhantomCore");
 const { EVT_READY, EVT_UPDATED, EVT_DESTROYED, EVT_NO_INIT_WARN } = PhantomCore;
+const PhantomCoreCollection = require("./PhantomCoreCollection");
 const Logger = require("./Logger");
 const {
   LOG_LEVEL_TRACE,
@@ -11,6 +12,7 @@ const {
 } = Logger;
 
 module.exports = PhantomCore;
+module.exports.PhantomCoreCollection = PhantomCoreCollection;
 module.exports.EVT_READY = EVT_READY;
 module.exports.EVT_UPDATED = EVT_UPDATED;
 module.exports.EVT_DESTROYED = EVT_DESTROYED;
