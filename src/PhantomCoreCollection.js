@@ -81,15 +81,8 @@ class PhantomCoreCollection extends PhantomCore {
           mapInstance
         );
       } else {
-        // NOTE: For some strange reason, when running in browsers,
-        // phantomCoreInstance.off is not a function! removeListener is the
-        // alternative, but not sure where off went.
-        //
         // Remove destroy handler from instance
-        phantomCoreInstance.removeListener(
-          EVT_DESTROYED,
-          mapInstance.destroyListener
-        );
+        phantomCoreInstance.off(EVT_DESTROYED, mapInstance.destroyListener);
       }
 
       // Remove mapped instance

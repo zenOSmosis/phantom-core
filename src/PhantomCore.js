@@ -88,6 +88,14 @@ class PhantomCore extends EventEmitter {
   constructor(options = {}) {
     super();
 
+    // Provide "off" aliasing if it is not available (fixes issue where
+    // PhantomCoreCollection could not use off binding in browsers)
+    //
+    // NOTE (jh): I don't really know why this was not a problem before.
+    if (typeof this.off !== "function") {
+      this.off = this.removeListener;
+    }
+
     this._uuid = uuidv4();
 
     const DEFAULT_OPTIONS = {
