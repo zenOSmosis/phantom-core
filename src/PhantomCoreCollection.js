@@ -80,8 +80,10 @@ class PhantomCoreCollection extends PhantomCore {
           mapInstance
         );
       } else {
-        // Remove destroy handler from instance
-        phantomCoreInstance.off(EVT_DESTROYED, mapInstance.destroyHandler);
+        if (typeof phantomCoreInstance.off === "function") {
+          // Remove destroy handler from instance
+          phantomCoreInstance.off(EVT_DESTROYED, mapInstance.destroyHandler);
+        }
       }
 
       // Remove mapped instance
