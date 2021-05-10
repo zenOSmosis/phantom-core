@@ -318,7 +318,6 @@ class PhantomCore extends EventEmitter {
           method !== "off" &&
           method !== "removeListener" &&
           method !== "log" &&
-          method !== "getListenerCount" &&
           method !== "listenerCount" &&
           method !== "getIsDestroyed" &&
           method !== "getInstanceUptime"
