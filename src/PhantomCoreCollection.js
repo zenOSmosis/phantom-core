@@ -68,29 +68,25 @@ class PhantomCoreCollection extends PhantomCore {
    * @param {PhantomCore} phantomCoreInstance
    */
   removeInstance(phantomCoreInstance) {
-    // Find mapped instance
-    const mapInstance = this._coreInstances.find(
-      ({ phantomCoreInstance: instance }) =>
-        instance.getIsSameInstance(phantomCoreInstance)
-    );
+    this._coreInstances = this._coreInstances.filter(mapInstance => {
+      const instance = mapInstance.phantomCoreInstance;
 
-    if (mapInstance) {
-      if (!mapInstance.destroyListener) {
-        this.log.warn(
-          "Could not locate destroyListener for mapInstance",
-          mapInstance
-        );
+      if (!phantomCoreInstance.getIsSameInstance(instance)) {
+        return true;
       } else {
-        // Remove destroy handler from instance
-        phantomCoreInstance.off(EVT_DESTROYED, mapInstance.destroyListener);
-      }
+        if (!mapInstance.destroyListener) {
+          this.log.warn(
+            "Could not locate destroyListener for mapInstance",
+            mapInstance
+          );
+        } else {
+          // Remove destroy handler from instance
+          phantomCoreInstance.off(EVT_DESTROYED, mapInstance.destroyListener);
+        }
 
-      // Remove mapped instance
-      this._coreInstances = this._coreInstances.filter(
-        ({ phantomCoreInstance: instance }) =>
-          !instance.getIsSameInstance(phantomCoreInstance)
-      );
-    }
+        return false;
+      }
+    });
 
     this.emit(EVT_UPDATED);
   }
