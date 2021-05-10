@@ -92,6 +92,8 @@ class PhantomCore extends EventEmitter {
     // PhantomCoreCollection could not use off binding in browsers)
     //
     // NOTE (jh): I don't really know why this was not a problem before
+    //
+    // Reference: https://github.com/zenOSmosis/phantom-core/pull/17
     if (typeof this.off !== "function") {
       this.off = this.removeListener;
     }
