@@ -1,7 +1,7 @@
 const test = require("tape-async");
 const PhantomCore = require("../src");
 const PhantomCoreCollection = require("../src/PhantomCoreCollection");
-const { EVT_READY, EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
+const { EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
 
 test("PhantomCoreCollection handling", async t => {
   t.plan(10);
@@ -83,7 +83,7 @@ test("PhantomCoreCollection handling", async t => {
   t.equals(
     ec2.listenerCount(EVT_DESTROYED),
     lenEC2InitialEvents,
-    "removed EVT_DESTROYED handler from instance when removed from collection"
+    "removes EVT_DESTROYED handler from instance when removed from collection"
   );
 
   t.end();

@@ -88,6 +88,16 @@ class PhantomCore extends EventEmitter {
   constructor(options = {}) {
     super();
 
+    // Provide "off" aliasing if it is not available (fixes issue where
+    // PhantomCoreCollection could not use off binding in browsers)
+    //
+    // NOTE (jh): I don't really know why this was not a problem before
+    //
+    // Reference: https://github.com/zenOSmosis/phantom-core/pull/17
+    if (typeof this.off !== "function") {
+      this.off = this.removeListener;
+    }
+
     this._uuid = uuidv4();
 
     const DEFAULT_OPTIONS = {
@@ -99,7 +109,7 @@ class PhantomCore extends EventEmitter {
 
       /**
        * An arbitrary Symbol for this instance, explicitly guaranteed to be
-       * \unique across instances.
+       * unique across instances.
        *
        * @type {Symbol | null}
        **/
@@ -306,6 +316,7 @@ class PhantomCore extends EventEmitter {
       for (const method of this.getMethods()) {
         if (
           method !== "off" &&
+          method !== "removeListener" &&
           method !== "log" &&
           method !== "getListenerCount" &&
           method !== "listenerCount" &&
