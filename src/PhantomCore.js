@@ -91,7 +91,7 @@ class PhantomCore extends EventEmitter {
     // Provide "off" aliasing if it is not available (fixes issue where
     // PhantomCoreCollection could not use off binding in browsers)
     //
-    // NOTE (jh): I don't really know why this was not a problem before.
+    // NOTE (jh): I don't really know why this was not a problem before
     if (typeof this.off !== "function") {
       this.off = this.removeListener;
     }
@@ -107,7 +107,7 @@ class PhantomCore extends EventEmitter {
 
       /**
        * An arbitrary Symbol for this instance, explicitly guaranteed to be
-       * \unique across instances.
+       * unique across instances.
        *
        * @type {Symbol | null}
        **/
