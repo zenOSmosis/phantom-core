@@ -21,6 +21,15 @@ const _instances = {};
  */
 class PhantomCore extends EventEmitter {
   /**
+   * @param {Object} instance
+   * @return {boolean} Whether or not the given instance is, or extends,
+   * PhantomCore.
+   */
+  static getIsInstance(instance) {
+    return instance instanceof PhantomCore;
+  }
+
+  /**
    * @param {Object} defaultOptions
    * @param {Object} userLevelOptions
    * @return {Object} Returns a deep merged clone of options, where
