@@ -49,14 +49,15 @@ class PhantomCoreCollection extends PhantomCore {
       }
     }
 
-    const destroyHandler = () => this.removeInstance(phantomCoreInstance);
+    // Called when the collection instance is destroyed before the collection
+    const destroyListener = () => this.removeInstance(phantomCoreInstance);
 
     this._coreInstances.push({
       phantomCoreInstance,
-      destroyHandler,
+      destroyListener,
     });
 
-    phantomCoreInstance.once(EVT_DESTROYED, destroyHandler);
+    phantomCoreInstance.once(EVT_DESTROYED, destroyListener);
 
     this.emit(EVT_UPDATED);
   }
@@ -74,14 +75,14 @@ class PhantomCoreCollection extends PhantomCore {
     );
 
     if (mapInstance) {
-      if (!mapInstance.destroyHandler) {
+      if (!mapInstance.destroyListener) {
         this.log.warn(
-          "Could not locate destroyHandler for mapInstance",
+          "Could not locate destroyListener for mapInstance",
           mapInstance
         );
       } else {
         // Remove destroy handler from instance
-        phantomCoreInstance.off(EVT_DESTROYED, mapInstance.destroyHandler);
+        phantomCoreInstance.off(EVT_DESTROYED, mapInstance.destroyListener);
       }
 
       // Remove mapped instance
