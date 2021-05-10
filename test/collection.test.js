@@ -4,7 +4,7 @@ const PhantomCoreCollection = require("../src/PhantomCoreCollection");
 const { EVT_READY, EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
 
 test("PhantomCoreCollection handling", async t => {
-  t.plan(9);
+  t.plan(10);
 
   class ExtendedPhantomCore extends PhantomCore {}
 
@@ -16,6 +16,11 @@ test("PhantomCoreCollection handling", async t => {
     collection.getInstances().length,
     1,
     "initial passed instance registers as an instance"
+  );
+
+  t.ok(
+    PhantomCore.getIsInstance(collection.getInstances()[0]),
+    "getInstances() retrieves PhantomCore types"
   );
 
   t.throws(() => {
