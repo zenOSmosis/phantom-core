@@ -80,10 +80,8 @@ class PhantomCoreCollection extends PhantomCore {
           mapInstance
         );
       } else {
-        if (typeof phantomCoreInstance.off === "function") {
-          // Remove destroy handler from instance
-          phantomCoreInstance.off(EVT_DESTROYED, mapInstance.destroyHandler);
-        }
+        // Remove destroy handler from instance
+        phantomCoreInstance.off(EVT_DESTROYED, mapInstance.destroyHandler);
       }
 
       // Remove mapped instance
@@ -110,8 +108,8 @@ class PhantomCoreCollection extends PhantomCore {
    */
   async destroy() {
     // Empty out the collection
-    for (const instance of this._coreInstances) {
-      this.removeInstance(instance);
+    for (const phantomCoreInstance of this.getInstances()) {
+      this.removeInstance(phantomCoreInstance);
     }
 
     await super.destroy();
