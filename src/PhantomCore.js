@@ -6,6 +6,10 @@ const deepMerge = require("deepmerge");
 
 const getUnixTime = require("./time/getUnixTime");
 
+// Amount of milliseconds to allow async inits to initialize before triggering
+// warning
+const ASYNC_INIT_GRACE_TIME = 5000;
+
 const EVT_READY = "ready";
 const EVT_UPDATED = "updated";
 const EVT_DESTROYED = "destroyed";
@@ -104,7 +108,7 @@ class PhantomCore extends EventEmitter {
       /**
        * If set to false, this._init() MUST be called during the instance
        * construction.
-       * 
+       *
        * The ready state can be detected by checking this.getIsReady() or
        * awaited for by this.onceReady().
        *
@@ -187,17 +191,17 @@ class PhantomCore extends EventEmitter {
 
       this._init();
     } else {
-      // Warn if _init() is not invoked shortly
-
+      // Warn if _init() is not invoked in a short time period
       const initTimeout = setTimeout(() => {
         this.log.warn(
           "_init has not been called in a reasonable amount of time"
         );
 
         this.emit(EVT_NO_INIT_WARN);
-      }, 5000);
+      }, ASYNC_INIT_GRACE_TIME);
 
       this.once(EVT_READY, () => clearTimeout(initTimeout));
+      this.once(EVT_DESTROYED, () => clearTimeout(initTimeout));
     }
   }
 
@@ -347,9 +351,9 @@ class PhantomCore extends EventEmitter {
   }
 
   /**
-   * @return {Promise} Resolves once the class instance is ready.
+   * @return {Promise<void>} Resolves once the class instance is ready.
    */
-  onceReady() {
+  async onceReady() {
     if (this._isReady) {
       return;
     }
