@@ -8,7 +8,7 @@ const { EVT_READY, EVT_NO_INIT_WARN } = PhantomCore;
  */
 
 test("instantiates async", async t => {
-  t.plan(5);
+  t.plan(6);
 
   const phantom = new PhantomCore({
     isReady: false,
@@ -45,6 +45,10 @@ test("instantiates async", async t => {
   t.ok(phantom.getIsReady(), "ready after init");
 
   phantom.destroy();
+
+  const phantom1 = new PhantomCore({ isReady: false });
+  await phantom1.destroy();
+  t.ok(true, "able to destruct immediately after declaration of async init");
 
   t.end();
 });
