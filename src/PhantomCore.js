@@ -101,7 +101,15 @@ class PhantomCore extends EventEmitter {
     this._uuid = uuidv4();
 
     const DEFAULT_OPTIONS = {
-      /** @type {boolean} */
+      /**
+       * If set to false, this._init() MUST be called during the instance
+       * construction.
+       * 
+       * The ready state can be detected by checking this.getIsReady() or
+       * awaited for by this.onceReady().
+       *
+       * @type {boolean}
+       **/
       isReady: true,
 
       /** @type {string | number} */
@@ -168,6 +176,7 @@ class PhantomCore extends EventEmitter {
 
     this._isReady = this._options.isReady || false;
 
+    // Set _isReady flag to true once instance has initialized
     this.once(EVT_READY, () => {
       this._isReady = true;
     });
