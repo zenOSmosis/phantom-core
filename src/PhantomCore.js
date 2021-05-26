@@ -353,7 +353,7 @@ class PhantomCore extends EventEmitter {
   /**
    * @return {Promise<void>} Resolves once the class instance is ready.
    */
-  onceReady() {
+  async onceReady() {
     if (this._isReady) {
       return;
     }
