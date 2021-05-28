@@ -147,6 +147,31 @@ test("deep merge options of same type", t => {
   t.end();
 });
 
+test("handles null options", t => {
+  t.plan(2);
+
+  const DEFAULT_OPTIONS = {
+    a: 123,
+    b: () => "hello",
+  };
+
+  const USER_OPTIONS = null;
+
+  t.deepEquals(
+    PhantomCore.mergeOptions(DEFAULT_OPTIONS, USER_OPTIONS),
+    DEFAULT_OPTIONS,
+    "accepts null user options"
+  );
+
+  t.deepEquals(
+    PhantomCore.mergeOptions(null, null),
+    {},
+    "accepts null values for all merge options parameters"
+  );
+
+  t.end();
+});
+
 test("title support", async t => {
   t.plan(2);
 

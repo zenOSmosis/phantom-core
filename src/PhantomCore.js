@@ -34,12 +34,18 @@ class PhantomCore extends EventEmitter {
   }
 
   /**
-   * @param {Object} defaultOptions
-   * @param {Object} userLevelOptions
+   * @param {Object} defaultOptions? [optional; default = {}]
+   * @param {Object} userLevelOptions? [optional; default = {}]
    * @return {Object} Returns a deep merged clone of options, where
    * userLevelOptions overrides defaultOptions.
    */
-  static mergeOptions(defaultOptions, userLevelOptions) {
+  static mergeOptions(defaultOptions = {}, userLevelOptions = {}) {
+    // Typecast null options to Object for robustness of implementors (i.e.
+    // media-stream-track-controller may pass null when merging optional
+    // MediaStreamTrack constraints)
+    if (defaultOptions === null) defaultOptions = {};
+    if (userLevelOptions === null) userLevelOptions = {};
+
     return deepMerge(defaultOptions, userLevelOptions);
   }
 
