@@ -3,6 +3,7 @@ const Logger = require("./Logger");
 const { LOG_LEVEL_INFO } = Logger;
 const uuidv4 = require("uuid").v4;
 const deepMerge = require("deepmerge");
+const dayjs = require("dayjs");
 
 const getUnixTime = require("./time/getUnixTime");
 
@@ -168,7 +169,15 @@ class PhantomCore extends EventEmitter {
 
     this._logger = new Logger({
       logLevel: this._options.logLevel,
-      prefix: logLevel => `[${logLevel} ${this.getClassName()} ${this._uuid}]`,
+
+      /**
+       * Currently using ISO8601 formatted date; for date rendering options:
+       * @see https://day.js.org/docs/en/display/format
+       */
+      prefix: logLevel =>
+        `[${dayjs().format()} ${logLevel} ${this.getClassName()} ${
+          this._uuid
+        }]`,
     });
 
     /**

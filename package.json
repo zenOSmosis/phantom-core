@@ -25,6 +25,7 @@
     "tape-async": "^2.3.0"
   },
   "dependencies": {
+    "dayjs": "^1.10.5",
     "deepmerge": "^4.2.2",
     "uuid": "^8.3.2"
   }
