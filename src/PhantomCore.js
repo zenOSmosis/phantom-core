@@ -341,10 +341,12 @@ class PhantomCore extends EventEmitter {
           method !== "getIsDestroyed" &&
           method !== "getInstanceUptime"
         )
-          this[method] = () =>
-            this.log.warn(
-              `Cannot call this.${method}() after class ${className} is destroyed`
-            );
+          this[method] = () => null;
+        // TODO: Reimplement and conditionally silence w/ instance options
+        // or env
+        // this.log.warn(
+        //  `Cannot call this.${method}() after class ${className} is destroyed`
+        // );
       }
     }
   }
