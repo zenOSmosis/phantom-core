@@ -330,8 +330,6 @@ class PhantomCore extends EventEmitter {
       // Unbind all listeners
       this.removeAllListeners();
 
-      const className = this.getClassName();
-
       for (const method of this.getMethods()) {
         if (
           method !== "off" &&
@@ -341,10 +339,12 @@ class PhantomCore extends EventEmitter {
           method !== "getIsDestroyed" &&
           method !== "getInstanceUptime"
         )
-          this[method] = () =>
-            this.log.warn(
-              `Cannot call this.${method}() after class ${className} is destroyed`
-            );
+          this[method] = () => undefined;
+        // TODO: Reimplement and conditionally silence w/ instance options
+        // or env
+        // this.log.warn(
+        //  `Cannot call this.${method}() after class ${className} is destroyed`
+        // );
       }
     }
   }
