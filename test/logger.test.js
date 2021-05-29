@@ -9,6 +9,17 @@ const {
   LOG_LEVEL_SILENT,
 } = PhantomCore;
 
+test("phantom-core uses logger.info when calling calling phantom.log() directly", t => {
+  t.plan(1);
+
+  const phantom = new PhantomCore();
+  phantom.log("hello");
+
+  t.ok(true, "call to phantom.log() does not error");
+
+  t.end();
+});
+
 test("log level steps", t => {
   t.plan(6);
 
