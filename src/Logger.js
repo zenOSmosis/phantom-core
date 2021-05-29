@@ -113,7 +113,7 @@ class Logger {
       }
 
       // Calling this.log() directly will log as info
-      const log = {};
+      const log = (...args) => loggerMethods.info(...args);
 
       Object.keys(loggerMethods).forEach(method => {
         log[method] = loggerMethods[method];
