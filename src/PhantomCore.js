@@ -4,6 +4,7 @@ const { LOG_LEVEL_INFO } = Logger;
 const uuidv4 = require("uuid").v4;
 const deepMerge = require("deepmerge");
 const dayjs = require("dayjs");
+const chalk = require("chalk");
 
 const getUnixTime = require("./time/getUnixTime");
 
@@ -175,9 +176,9 @@ class PhantomCore extends EventEmitter {
        * @see https://day.js.org/docs/en/display/format
        */
       prefix: logLevel =>
-        `[${dayjs().format()} ${logLevel} ${this.getClassName()} ${
-          this._uuid
-        }]`,
+        `[${chalk.green(dayjs().format())} ${logLevel} ${chalk.bold(
+          this.getClassName()
+        )} ${this._uuid}]`,
     });
 
     /**

@@ -20,11 +20,12 @@
     "airtap-sauce": "^1.1.2",
     "dotenv-cli": "^4.0.0",
     "nyc": "^15.1.0",
-    "prettier": "^2.2.1",
+    "prettier": "^2.3.0",
     "tape": "^5.2.2",
     "tape-async": "^2.3.0"
   },
   "dependencies": {
+    "chalk": "^4.1.1",
     "dayjs": "^1.10.5",
     "deepmerge": "^4.2.2",
     "uuid": "^8.3.2"
