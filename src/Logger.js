@@ -35,9 +35,17 @@ class Logger {
     this.log = null;
     this._logLevel = this._options.logLevel;
 
+    // Set up log level, extending this class functionality with log levels
     this.setLogLevel(this._options.logLevel);
   }
 
+  /**
+   * Sets minimum log level to send to actual logger function where subsequent
+   * log levels are ignored.
+   *
+   * @param {string || number} logLevel
+   * @return {void}
+   */
   setLogLevel(logLevel) {
     if (typeof logLevel === "string") {
       logLevel = LOG_LEVEL_STRING_MAP[logLevel];
@@ -116,7 +124,13 @@ class Logger {
       const log = (...args) => loggerMethods.info(...args);
 
       Object.keys(loggerMethods).forEach(method => {
+        // IMPORTANT: Both of these are used intentionally
+
+        // Extend off of log method (i.e. PhantomCore's this.log.debug)
         log[method] = loggerMethods[method];
+
+        // Extend class with logger methods
+        this[method] = loggerMethods[method];
       });
 
       return log;

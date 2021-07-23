@@ -24,3 +24,7 @@ module.exports.LOG_LEVEL_INFO = LOG_LEVEL_INFO;
 module.exports.LOG_LEVEL_WARN = LOG_LEVEL_WARN;
 module.exports.LOG_LEVEL_ERROR = LOG_LEVEL_ERROR;
 module.exports.LOG_LEVEL_SILENT = LOG_LEVEL_SILENT;
+
+// Independent logger (outside of PhantomCore instance; used instead of
+// console.log)
+module.exports.logger = new Logger();
