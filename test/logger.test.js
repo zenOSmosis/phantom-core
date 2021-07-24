@@ -7,6 +7,7 @@ const {
   LOG_LEVEL_WARN,
   LOG_LEVEL_ERROR,
   LOG_LEVEL_SILENT,
+  logger,
 } = PhantomCore;
 
 test("phantom-core uses logger.info when calling calling phantom.log() directly", t => {
@@ -156,6 +157,59 @@ test("set log level", t => {
     LOG_LEVEL_SILENT,
     "accepts numeric value LOG_LEVEL_SILENT"
   );
+
+  t.end();
+});
+
+test("PhantomCore this.log and this.logger calls", t => {
+  t.plan(8);
+
+  const phantom = new PhantomCore();
+
+  // phantom.log and phantom.logger can be called independently and are treated
+  // the same for all usages except that calling phantom.log() directly will
+  // indirectly call logger.info
+
+  phantom.log("ok");
+  t.ok(true, "call to phantom.log() succeeds");
+  phantom.logger.log("ok");
+  t.ok(true, "call to phantom.logger.log() succeeds");
+
+  phantom.log.debug("ok");
+  t.ok(true, "call to phantom.log.debug() succeeds");
+  phantom.logger.debug("ok");
+  t.ok(true, "call to phantom.logger.debug() succeeds");
+
+  phantom.log.warn("ok");
+  t.ok(true, "call to phantom.log.warn() succeeds");
+  phantom.logger.warn("ok");
+  t.ok(true, "call to phantom.logger.warn() succeeds");
+
+  phantom.log.error("ok");
+  t.ok(true, "call to phantom.log.error() succeeds");
+  phantom.logger.error("ok");
+  t.ok(true, "call to phantom.logger.error() succeeds");
+
+  t.end();
+});
+
+test("independent logger", t => {
+  t.plan(4);
+
+  logger.log("ok");
+  t.ok(true, "call to logger.log() succeeds");
+
+  logger.log.debug("ok");
+  logger.debug("ok");
+  t.ok(true), "call to logger.debug() succeeds";
+
+  logger.log.warn("ok");
+  logger.warn("ok");
+  t.ok(true, "call to logger.warn() succeeds");
+
+  logger.log.error("ok");
+  logger.error("ok");
+  t.ok(true, "call to logger.ok() succeeds");
 
   t.end();
 });

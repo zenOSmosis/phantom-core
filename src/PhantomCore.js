@@ -167,7 +167,7 @@ class PhantomCore extends EventEmitter {
 
     this._title = this._options.title;
 
-    this._logger = new Logger({
+    this.logger = new Logger({
       logLevel: this._options.logLevel,
 
       /**
@@ -182,10 +182,10 @@ class PhantomCore extends EventEmitter {
 
     /**
      * @type {function} Calling this function directly will indirectly call
-     * logger.info(); The log.trace(), log.debug(), log.info(), log.warn(), and
-     * log.error() properties can be called directly.
+     * logger.info(); The logger.trace(), logger.debug(), logger.info(), logger.warn(), and
+     * logger.error() properties can be called directly.
      */
-    this.log = this._logger.log;
+    this.log = this.logger.log;
 
     this._isDestroyed = false;
 
@@ -208,7 +208,7 @@ class PhantomCore extends EventEmitter {
     } else {
       // Warn if _init() is not invoked in a short time period
       const initTimeout = setTimeout(() => {
-        this.log.warn(
+        this.logger.warn(
           "_init has not been called in a reasonable amount of time"
         );
 
@@ -298,14 +298,14 @@ class PhantomCore extends EventEmitter {
    * @param {number | number} level
    */
   setLogLevel(level) {
-    this._logger.setLogLevel(level);
+    this.logger.setLogLevel(level);
   }
 
   /**
    * @return {number}
    */
   getLogLevel() {
-    return this._logger.getLogLevel();
+    return this.logger.getLogLevel();
   }
 
   /**
@@ -351,7 +351,7 @@ class PhantomCore extends EventEmitter {
           this[method] = () => undefined;
         // TODO: Reimplement and conditionally silence w/ instance options
         // or env
-        // this.log.warn(
+        // this.logger.warn(
         //  `Cannot call this.${method}() after class ${className} is destroyed`
         // );
       }
