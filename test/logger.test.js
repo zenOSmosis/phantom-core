@@ -201,7 +201,7 @@ test("independent logger", t => {
 
   logger.log.debug("ok");
   logger.debug("ok");
-  t.ok(true), "call to logger.debug() succeeds";
+  t.ok(true, "call to logger.debug() succeeds");
 
   logger.log.warn("ok");
   logger.warn("ok");
