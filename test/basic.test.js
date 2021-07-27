@@ -8,23 +8,38 @@ const { EVT_READY, EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
  */
 
 test("uuid and short uuid", async t => {
-  const phantom = new PhantomCore();
+  t.plan(5);
+
+  const phantom1 = new PhantomCore();
+  const phantom2 = new PhantomCore();
 
   t.notEquals(
-    phantom.getUUID(),
-    phantom.getShortUUID(),
+    phantom1.getUUID(),
+    phantom1.getShortUUID(),
     "uuid and short uuid do not match"
   );
 
-  t.equals(phantom.getUUID().length, 36, "uuid is 36 characters long");
+  t.equals(phantom1.getUUID().length, 36, "uuid is 36 characters long");
 
   t.equals(
-    phantom.getShortUUID().length,
+    phantom1.getShortUUID().length,
     22,
     "short uuid is 22 characters long"
   );
 
-  await phantom.destroy();
+  t.notEquals(
+    phantom1.getUUID(),
+    phantom2.getUUID(),
+    "two instances have unique uuids"
+  );
+  t.notEquals(
+    phantom1.getShortUUID(),
+    phantom2.getShortUUID(),
+    "two instances have unique short uuids"
+  );
+
+  await phantom1.destroy();
+  await phantom2.destroy();
 
   t.end();
 });
