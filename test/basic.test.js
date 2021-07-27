@@ -7,28 +7,6 @@ const { EVT_READY, EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
  * (no options passed).
  */
 
-test("uuid and short uuid", async t => {
-  const phantom = new PhantomCore();
-
-  t.notEquals(
-    phantom.getUUID(),
-    phantom.getShortUUID(),
-    "uuid and short uuid do not match"
-  );
-
-  t.equals(phantom.getUUID().length, 36, "uuid is 36 characters long");
-
-  t.equals(
-    phantom.getShortUUID().length,
-    22,
-    "short uuid is 22 characters long"
-  );
-
-  await phantom.destroy();
-
-  t.end();
-});
-
 test("registers and unregisters instances", async t => {
   t.plan(2);
 
@@ -36,17 +14,55 @@ test("registers and unregisters instances", async t => {
 
   const phantom = new PhantomCore();
 
-  t.ok(
-    PhantomCore.getInstanceCount() === oCount + 1,
+  t.equals(
+    PhantomCore.getInstanceCount(),
+    oCount + 1,
     "increments instance count on new instance"
   );
 
   await phantom.destroy();
 
-  t.ok(
-    PhantomCore.getInstanceCount() === oCount,
+  t.equals(
+    PhantomCore.getInstanceCount(),
+    oCount,
     "decrements instance count when instance is destroyed"
   );
+
+  t.end();
+});
+
+test("uuid and short uuid", async t => {
+  t.plan(5);
+
+  const phantom1 = new PhantomCore();
+  const phantom2 = new PhantomCore();
+
+  t.notEquals(
+    phantom1.getUUID(),
+    phantom1.getShortUUID(),
+    "uuid and short uuid do not match"
+  );
+
+  t.equals(phantom1.getUUID().length, 36, "uuid is 36 characters long");
+
+  t.equals(
+    phantom1.getShortUUID().length,
+    22,
+    "short uuid is 22 characters long"
+  );
+
+  t.notEquals(
+    phantom1.getUUID(),
+    phantom2.getUUID(),
+    "two instances have unique uuids"
+  );
+  t.notEquals(
+    phantom1.getShortUUID(),
+    phantom2.getShortUUID(),
+    "two instances have unique short uuids"
+  );
+
+  await Promise.all([phantom1.destroy(), phantom2.destroy()]);
 
   t.end();
 });
