@@ -2,6 +2,7 @@ const EventEmitter = require("events");
 const Logger = require("./Logger");
 const { LOG_LEVEL_INFO } = Logger;
 const uuidv4 = require("uuid").v4;
+const shortUUID = require("short-uuid");
 const deepMerge = require("deepmerge");
 const dayjs = require("dayjs");
 
@@ -110,6 +111,7 @@ class PhantomCore extends EventEmitter {
     }
 
     this._uuid = uuidv4();
+    this._shortUUID = shortUUID().fromUUID(this._uuid);
 
     const DEFAULT_OPTIONS = {
       /**
@@ -390,6 +392,17 @@ class PhantomCore extends EventEmitter {
    */
   getUUID() {
     return this._uuid;
+  }
+
+  /**
+   * Short unique identifier which represents this class instance.
+   *
+   * i.e. "mhvXdrZT4jP5T8vBxuvm75"
+   *
+   * @return {string}
+   */
+  getShortUUID() {
+    return this._shortUUID;
   }
 
   /**

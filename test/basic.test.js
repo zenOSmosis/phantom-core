@@ -7,7 +7,31 @@ const { EVT_READY, EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
  * (no options passed).
  */
 
+test("uuid and short uuid", async t => {
+  const phantom = new PhantomCore();
+
+  t.notEquals(
+    phantom.getUUID(),
+    phantom.getShortUUID(),
+    "uuid and short uuid do not match"
+  );
+
+  t.equals(phantom.getUUID().length, 36, "uuid is 36 characters long");
+
+  t.equals(
+    phantom.getShortUUID().length,
+    22,
+    "short uuid is 22 characters long"
+  );
+
+  await phantom.destroy();
+
+  t.end();
+});
+
 test("registers and unregisters instances", async t => {
+  t.plan(2);
+
   const oCount = PhantomCore.getInstanceCount();
 
   const phantom = new PhantomCore();
