@@ -7,6 +7,30 @@ const { EVT_READY, EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
  * (no options passed).
  */
 
+test("registers and unregisters instances", async t => {
+  t.plan(2);
+
+  const oCount = PhantomCore.getInstanceCount();
+
+  const phantom = new PhantomCore();
+
+  t.equals(
+    PhantomCore.getInstanceCount(),
+    oCount + 1,
+    "increments instance count on new instance"
+  );
+
+  await phantom.destroy();
+
+  t.equals(
+    PhantomCore.getInstanceCount(),
+    oCount,
+    "decrements instance count when instance is destroyed"
+  );
+
+  t.end();
+});
+
 test("uuid and short uuid", async t => {
   t.plan(5);
 
@@ -38,30 +62,7 @@ test("uuid and short uuid", async t => {
     "two instances have unique short uuids"
   );
 
-  await phantom1.destroy();
-  await phantom2.destroy();
-
-  t.end();
-});
-
-test("registers and unregisters instances", async t => {
-  t.plan(2);
-
-  const oCount = PhantomCore.getInstanceCount();
-
-  const phantom = new PhantomCore();
-
-  t.ok(
-    PhantomCore.getInstanceCount() === oCount + 1,
-    "increments instance count on new instance"
-  );
-
-  await phantom.destroy();
-
-  t.ok(
-    PhantomCore.getInstanceCount() === oCount,
-    "decrements instance count when instance is destroyed"
-  );
+  await Promise.all([phantom1.destroy(), phantom2.destroy()]);
 
   t.end();
 });
