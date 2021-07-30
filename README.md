@@ -21,7 +21,7 @@ Includes:
   - Event proxies to other PhantomCore instances w/ automated unregistration once self or remote is destructed
   - Event constants
   - Instance lookup by UUID / Symbol
-  - Logger w/ log levels which exposes original stack trace to console (node and browser)
+  - Logger, inspired by [loglevel](https://www.npmjs.com/package/loglevel), w/ log levels which exposes original stack trace to console (node and browser)
   - UUID and short UUID per instance
   - Instance counting
   - Destruct method
