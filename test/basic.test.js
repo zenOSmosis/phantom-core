@@ -479,18 +479,44 @@ test("events and destruct", async t => {
   t.end();
 });
 
-test("prevents methods from being called after destroyed", async t => {
-  class TestDestroyer extends PhantomCore {
-    a() {
-      throw new Error("a() was called");
+test("retrieves methods and properties", t => {
+  t.plan(2);
+
+  const phantom = new PhantomCore();
+
+  t.ok(
+    phantom.getPropertyNames().includes("logger") &&
+      phantom.getPropertyNames().includes("log") &&
+      phantom.getPropertyNames().includes("_uuid"),
+    "retrieves property names"
+  );
+
+  t.ok(
+    phantom.getMethodNames().includes("on") &&
+      phantom.getMethodNames().includes("off") &&
+      phantom.getMethodNames().includes("emit"),
+    "retrieves property names"
+  );
+
+  t.end();
+});
+
+test("prevents methods from being called after destroyed", t => {
+  t.plan(1);
+
+  t.doesNotThrow(async () => {
+    class TestDestroyer extends PhantomCore {
+      a() {
+        throw new Error("a() was called");
+      }
     }
-  }
 
-  const phantom = new TestDestroyer();
+    const phantom = new TestDestroyer();
 
-  phantom.destroy();
+    await phantom.destroy();
 
-  phantom.a();
+    phantom.a();
+  }, "does not call non-keep-alive methods after destruct");
 
   t.end();
 });

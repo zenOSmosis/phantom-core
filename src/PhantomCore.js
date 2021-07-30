@@ -20,6 +20,16 @@ const EVT_NO_INIT_WARN = "no-init-warn";
 // Instances for this particular thread
 const _instances = {};
 
+// Methods which should continue working after class destruct
+const KEEP_ALIVE_SHUTDOWN_METHODS = [
+  "off",
+  "removeListener",
+  "log",
+  "listenerCount",
+  "getIsDestroyed",
+  "getInstanceUptime",
+];
+
 /**
  * Base class which Phantom Server components derive.
  *
@@ -311,19 +321,36 @@ class PhantomCore extends EventEmitter {
   }
 
   /**
-   * Retrieves all methods registered to this class.
+   * Retrieves all properties registered to this class.
+   *
+   * NOTE: It doesn't return properties defined via symbols.
+   *
+   * @see https://stackoverflow.com/a/31055217
    *
    * @return {string[]}
    */
-  getMethods() {
-    let properties = new Set();
+  getPropertyNames() {
+    const properties = new Set();
     let currentObj = this;
+
     do {
       Object.getOwnPropertyNames(currentObj).map(item => properties.add(item));
     } while ((currentObj = Object.getPrototypeOf(currentObj)));
-    return [...properties.keys()].filter(
-      item => typeof this[item] === "function"
-    );
+
+    return [...properties.keys()];
+  }
+
+  /**
+   * Retrieves all methods registered to this class.
+   *
+   * NOTE: It doesn't return methods defined via symbols.
+   *
+   * @return {string[]}
+   */
+  getMethodNames() {
+    const propertyNames = this.getPropertyNames();
+
+    return propertyNames.filter(item => typeof this[item] === "function");
   }
 
   /**
@@ -341,22 +368,20 @@ class PhantomCore extends EventEmitter {
       // Unbind all listeners
       this.removeAllListeners();
 
-      for (const method of this.getMethods()) {
-        if (
-          method !== "off" &&
-          method !== "removeListener" &&
-          method !== "log" &&
-          method !== "listenerCount" &&
-          method !== "getIsDestroyed" &&
-          method !== "getInstanceUptime"
-        )
-          this[method] = () => undefined;
+      for (const methodName of this.getMethodNames()) {
+        // Force non-keep-alive methods to return undefined
+        if (!KEEP_ALIVE_SHUTDOWN_METHODS.includes(methodName)) {
+          this[methodName] = () => undefined;
+        }
+
         // TODO: Reimplement and conditionally silence w/ instance options
         // or env
         // this.logger.warn(
         //  `Cannot call this.${method}() after class ${className} is destroyed`
         // );
       }
+
+      // TODO: Force regular class properties to be null (as of July 30, 2021, not changing due to unforeseen consequences)
     }
   }
 
