@@ -501,10 +501,10 @@ test("retrieves methods and properties", t => {
   t.end();
 });
 
-test("prevents methods from being called after destroyed", async t => {
+test("prevents methods from being called after destroyed", t => {
   t.plan(1);
 
-  await t.doesNotThrow(async () => {
+  t.doesNotThrow(async () => {
     class TestDestroyer extends PhantomCore {
       a() {
         throw new Error("a() was called");
