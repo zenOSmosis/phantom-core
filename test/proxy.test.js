@@ -12,6 +12,7 @@ test("proxy events", async t => {
   t.throws(
     () => {
       phantom1.proxyOn(new EventEmitter(), EVT_UPDATED, () =>
+        // NOTE: Not throwing here because we want to make sure it comes from the class
         console.log("Should not get here")
       );
     },
@@ -22,6 +23,7 @@ test("proxy events", async t => {
   t.throws(
     () => {
       phantom1.proxyOn(phantom1, EVT_UPDATED, () =>
+        // NOTE: Not throwing here because we want to make sure it comes from the class
         console.log("Should not get here")
       );
     },
@@ -32,6 +34,7 @@ test("proxy events", async t => {
   t.throws(
     () => {
       phantom1.proxyOnce(new EventEmitter(), EVT_UPDATED, () =>
+        // NOTE: Not throwing here because we want to make sure it comes from the class
         console.log("Should not get here")
       );
     },
@@ -42,6 +45,7 @@ test("proxy events", async t => {
   t.throws(
     () => {
       phantom1.proxyOnce(phantom1, EVT_UPDATED, () =>
+        // NOTE: Not throwing here because we want to make sure it comes from the class
         console.log("Should not get here")
       );
     },
@@ -52,6 +56,7 @@ test("proxy events", async t => {
   t.throws(
     () => {
       phantom1.proxyOff(new EventEmitter(), EVT_UPDATED, () =>
+        // NOTE: Not throwing here because we want to make sure it comes from the class
         console.log("Should not get here")
       );
     },
@@ -62,6 +67,7 @@ test("proxy events", async t => {
   t.throws(
     () => {
       phantom1.proxyOff(phantom1, EVT_UPDATED, () =>
+        // NOTE: Not throwing here because we want to make sure it comes from the class
         console.log("Should not get here")
       );
     },
@@ -129,7 +135,7 @@ test("proxy events", async t => {
   t.doesNotThrow(
     () => {
       const _eventHandler = () => {
-        throw new Error("This should not happen");
+        throw new Error("proxyOff is not working as expected");
       };
 
       phantom2.proxyOnce(phantom1, EVT_UPDATED, _eventHandler);
