@@ -423,9 +423,49 @@ class PhantomCore extends EventEmitter {
     return this.constructor.name;
   }
 
-  // TODO: Add proxyOn, proxyOnce, proxyOff methods to use event emitters from
-  // other instances while binding them to this instance lifecycle,
-  // unregistering the proxied listener when this instance destructs
+  // TODO: Document
+  proxyOn(proxyInstance, ...args) {
+    if (!PhantomCore.getIsInstance(proxyInstance)) {
+      throw new ReferenceError("proxyInstance is not a PhantomCore instance");
+    }
+
+    if (this.getIsSameInstance(proxyInstance)) {
+      throw new ReferenceError("proxyInstance cannot be bound to itself");
+    }
+
+    proxyInstance.on(...args);
+
+    this.once(EVT_DESTROYED, () => proxyInstance.off(...args));
+  }
+
+  // TODO: Document
+  proxyOnce(proxyInstance, ...args) {
+    if (!PhantomCore.getIsInstance(proxyInstance)) {
+      throw new ReferenceError("proxyInstance is not a PhantomCore instance");
+    }
+
+    if (this.getIsSameInstance(proxyInstance)) {
+      throw new ReferenceError("proxyInstance cannot be bound to itself");
+    }
+
+    proxyInstance.once(...args);
+
+    // TODO: Automatically unbind once proxy instance once runs
+    this.once(EVT_DESTROYED, () => proxyInstance.off(...args));
+  }
+
+  // TODO: Document
+  proxyOff(proxyInstance, ...args) {
+    if (!PhantomCore.getIsInstance(proxyInstance)) {
+      throw new ReferenceError("proxyInstance is not a PhantomCore instance");
+    }
+
+    if (this.getIsSameInstance(proxyInstance)) {
+      throw new ReferenceError("proxyInstance cannot be bound to itself");
+    }
+
+    proxyInstance.off(...args);
+  }
 
   /**
    * Retrieves the number of seconds since this class instance was
