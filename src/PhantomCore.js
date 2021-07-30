@@ -465,6 +465,9 @@ class PhantomCore extends EventEmitter {
     proxyInstance.once(eventName, eventHandler);
 
     // TODO: Automatically unbind once proxy instance once runs
+    // FIXME: I (jh) tried wrapping the eventHandler w/ additional
+    // functionality but it was failing the proxy.test.js so I changed it back
+    // to the way it is
     this.once(EVT_DESTROYED, () => proxyInstance.off(eventName, eventHandler));
   }
 
