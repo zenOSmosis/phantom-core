@@ -423,9 +423,74 @@ class PhantomCore extends EventEmitter {
     return this.constructor.name;
   }
 
-  // TODO: Add proxyOn, proxyOnce, proxyOff methods to use event emitters from
-  // other instances while binding them to this instance lifecycle,
-  // unregistering the proxied listener when this instance destructs
+  /**
+   * Binds an "on" event listener to another PhantomCore instance.
+   *
+   * @param {PhantomCore} proxyInstance
+   * @param {string} eventName
+   * @param {function} eventHandler
+   * @return {void}
+   */
+  proxyOn(proxyInstance, eventName, eventHandler) {
+    if (!PhantomCore.getIsInstance(proxyInstance)) {
+      throw new ReferenceError("proxyInstance is not a PhantomCore instance");
+    }
+
+    if (this.getIsSameInstance(proxyInstance)) {
+      throw new ReferenceError("proxyInstance cannot be bound to itself");
+    }
+
+    proxyInstance.on(eventName, eventHandler);
+
+    this.once(EVT_DESTROYED, () => proxyInstance.off(eventName, eventHandler));
+  }
+
+  /**
+   * Binds a "once" event listener to another PhantomCore instance.
+   *
+   * @param {PhantomCore} proxyInstance
+   * @param {string} eventName
+   * @param {function} eventHandler
+   * @return {void}
+   */
+  proxyOnce(proxyInstance, eventName, eventHandler) {
+    if (!PhantomCore.getIsInstance(proxyInstance)) {
+      throw new ReferenceError("proxyInstance is not a PhantomCore instance");
+    }
+
+    if (this.getIsSameInstance(proxyInstance)) {
+      throw new ReferenceError("proxyInstance cannot be bound to itself");
+    }
+
+    proxyInstance.once(eventName, eventHandler);
+
+    // TODO: Automatically unbind once proxy instance once runs
+    // FIXME: I (jh) tried wrapping the eventHandler w/ additional
+    // functionality but it was failing the proxy.test.js so I changed it back
+    // to the way it is
+    this.once(EVT_DESTROYED, () => proxyInstance.off(eventName, eventHandler));
+  }
+
+  /**
+   * Unbinds an "on" or "once" event listener from another PhantomCore
+   * instance.
+   *
+   * @param {PhantomCore} proxyInstance
+   * @param {string} eventName
+   * @param {function} eventHandler
+   * @return {void}
+   */
+  proxyOff(proxyInstance, eventName, eventHandler) {
+    if (!PhantomCore.getIsInstance(proxyInstance)) {
+      throw new ReferenceError("proxyInstance is not a PhantomCore instance");
+    }
+
+    if (this.getIsSameInstance(proxyInstance)) {
+      throw new ReferenceError("proxyInstance cannot be bound to itself");
+    }
+
+    proxyInstance.off(eventName, eventHandler);
+  }
 
   /**
    * Retrieves the number of seconds since this class instance was
