@@ -313,14 +313,20 @@ class PhantomCore extends EventEmitter {
   /**
    * Retrieves all methods registered to this class.
    *
+   * NOTE: It doesn't return methods defined via symbols.
+   *
+   * @see https://stackoverflow.com/a/31055217
+   *
    * @return {string[]}
    */
   getMethods() {
-    let properties = new Set();
+    const properties = new Set();
     let currentObj = this;
+
     do {
       Object.getOwnPropertyNames(currentObj).map(item => properties.add(item));
     } while ((currentObj = Object.getPrototypeOf(currentObj)));
+
     return [...properties.keys()].filter(
       item => typeof this[item] === "function"
     );
