@@ -14,3 +14,16 @@
 <img src="phantom.svg" alt="Phantom" width="200"/>
 
 Base package utilized in [Speaker App](https://speaker.app) / [https://github.com/zenOSmosis/speaker.app](https://github.com/zenOSmosis/speaker.app).
+
+Includes:
+
+  - EventEmitter based core
+  - Event proxies to other PhantomCore instances w/ automated unregistration once self or remote is destructed
+  - Event constants
+  - Instance lookup by UUID / Symbol
+  - Logger w/ log levels which exposes original stack trace to console (node and browser)
+  - UUID and short UUID per instance
+  - Instance counting
+  - Destruct method
+
+TODO: Build out this documentation
