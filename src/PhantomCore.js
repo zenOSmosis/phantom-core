@@ -451,6 +451,12 @@ class PhantomCore extends EventEmitter {
   /**
    * Binds an "on" event listener to another PhantomCore instance.
    *
+   * This should not be confused with JavaScript object proxies and is not
+   * intended to work the same way.
+   *
+   * NOTE: Unlike the original event emitter method, this does NOT return a
+   * reference to the underlying class for optional chaining.
+   *
    * @param {PhantomCore} proxyInstance
    * @param {string} eventName
    * @param {function} eventHandler
@@ -472,6 +478,12 @@ class PhantomCore extends EventEmitter {
 
   /**
    * Binds a "once" event listener to another PhantomCore instance.
+   *
+   * This should not be confused with JavaScript object proxies and is not
+   * intended to work the same way.
+   *
+   * NOTE: Unlike the original event emitter method, this does NOT return a
+   * reference to the underlying class for optional chaining.
    *
    * @param {PhantomCore} proxyInstance
    * @param {string} eventName
@@ -499,6 +511,12 @@ class PhantomCore extends EventEmitter {
   /**
    * Unbinds an "on" or "once" event listener from another PhantomCore
    * instance.
+   *
+   * This should not be confused with JavaScript object proxies and is not
+   * intended to work the same way.
+   *
+   * NOTE: Unlike the original event emitter method, this does NOT return a
+   * reference to the underlying class for optional chaining.
    *
    * @param {PhantomCore} proxyInstance
    * @param {string} eventName
