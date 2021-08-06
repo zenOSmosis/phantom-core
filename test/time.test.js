@@ -29,7 +29,7 @@ test("time", async t => {
 
   const phantom = new PhantomCore();
 
-  // Due to previous awaits, we phantom instance uptime shouldn't equal current (non-phantom) getUptime()
+  // Due to previous awaits, phantom instance uptime shouldn't equal current (non-phantom) getUptime()
   t.notEquals(
     phantom.getInstanceUptime(),
     getUptime(),
