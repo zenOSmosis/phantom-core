@@ -504,6 +504,8 @@ class PhantomCore extends EventEmitter {
 
     proxyInstance.once(eventName, eventHandler);
 
+    // Unbind from proxy instance once local class is destroyed
+    //
     // FIXME: Try to automatically unbind destroyed handler once proxy instance
     // once runs. NOTE: Wrapping eventHandler will not work as intended because
     // when trying to externally unbind with proxyOff (i.e. via unit tests or
@@ -538,6 +540,7 @@ class PhantomCore extends EventEmitter {
       throw new ReferenceError("proxyInstance cannot be bound to itself");
     }
 
+    // Unbind from proxy instance
     proxyInstance.off(eventName, eventHandler);
   }
 
