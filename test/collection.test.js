@@ -31,7 +31,6 @@ test("PhantomCoreCollection handling", async t => {
     "cannot instantiate with non-PhantomCore class instances"
   );
 
-  // Temporary test class
   class PhantomCoreTestClass extends PhantomCore {}
 
   const extendedCore = new PhantomCoreTestClass();
