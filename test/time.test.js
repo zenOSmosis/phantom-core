@@ -1,8 +1,9 @@
 const test = require("tape-async");
+const PhantomCore = require("../src");
 const { getUnixTime, getUptime } = require("../src");
 
 test("time", async t => {
-  t.plan(4);
+  t.plan(7);
 
   const timeStart = getUnixTime();
 
@@ -25,6 +26,30 @@ test("time", async t => {
 
   t.ok(getUnixTime() > timeStart, "unixTime increments as expected");
   t.ok(getUptime() > uptimeStart, "uptime increments as expected");
+
+  const phantom = new PhantomCore();
+
+  // Due to previous awaits, phantom instance uptime shouldn't equal current (non-phantom) getUptime()
+  t.notEquals(
+    phantom.getInstanceUptime(),
+    getUptime(),
+    "phantom instance uptime does not equal getUptime after greater than one second await"
+  );
+
+  t.equals(
+    phantom.getInstanceUptime(),
+    0,
+    "new phantom instance uptime starts at 0"
+  );
+
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  t.ok(
+    phantom.getInstanceUptime() > 0,
+    "phantom instance uptime increments as expected"
+  );
+
+  await phantom.destroy();
 
   t.end();
 });
