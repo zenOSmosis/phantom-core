@@ -4,7 +4,7 @@ const PhantomCore = require("../src");
 const { EVT_UPDATED } = PhantomCore;
 
 test("proxy events", async t => {
-  t.plan(10);
+  t.plan(11);
 
   const phantom1 = new PhantomCore();
   const phantom2 = new PhantomCore();
@@ -138,13 +138,28 @@ test("proxy events", async t => {
         throw new Error("proxyOff is not working as expected");
       };
 
+      phantom2.proxyOn(phantom1, EVT_UPDATED, _eventHandler);
+      phantom2.proxyOff(phantom1, EVT_UPDATED, _eventHandler);
+
+      phantom1.emit(EVT_UPDATED);
+    },
+    Error,
+    "proxyOff unbinds event listener when bound w/ proxyOn"
+  );
+
+  t.doesNotThrow(
+    () => {
+      const _eventHandler = () => {
+        throw new Error("proxyOff is not working as expected");
+      };
+
       phantom2.proxyOnce(phantom1, EVT_UPDATED, _eventHandler);
       phantom2.proxyOff(phantom1, EVT_UPDATED, _eventHandler);
 
       phantom1.emit(EVT_UPDATED);
     },
     Error,
-    "proxyOff unbinds event listener"
+    "proxyOff unbinds event listener when bound w/ proxyOnce"
   );
 
   t.doesNotThrow(async () => {
