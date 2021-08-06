@@ -1,16 +1,50 @@
 const test = require("tape-async");
 const PhantomCore = require("../src");
+const EventEmitter = require("events");
 const PhantomCoreCollection = require("../src/PhantomCoreCollection");
 const { EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
 
 test("PhantomCoreCollection handling", async t => {
-  t.plan(10);
+  t.plan(14);
 
-  class ExtendedPhantomCore extends PhantomCore {}
+  t.throws(
+    () => {
+      new PhantomCoreCollection("some-string");
+    },
+    TypeError,
+    "instantiating with string throws TypeError"
+  );
 
-  const extendedCore = new ExtendedPhantomCore();
+  t.throws(
+    () => {
+      new PhantomCoreCollection({ a: 123 });
+    },
+    TypeError,
+    "instantiating with object throws TypeError"
+  );
+
+  t.throws(
+    () => {
+      new PhantomCoreCollection([new PhantomCore(), new EventEmitter()]);
+    },
+    TypeError,
+    "cannot instantiate with non-PhantomCore class instances"
+  );
+
+  // Temporary test class
+  class PhantomCoreTestClass extends PhantomCore {}
+
+  const extendedCore = new PhantomCoreTestClass();
 
   const collection = new PhantomCoreCollection([extendedCore]);
+
+  t.throws(
+    () => {
+      collection.addInstance(extendedCore);
+    },
+    ReferenceError,
+    "prevents previously added instance from being re-added"
+  );
 
   t.equals(
     collection.getInstances().length,
@@ -23,13 +57,21 @@ test("PhantomCoreCollection handling", async t => {
     "getInstances() retrieves PhantomCore types"
   );
 
-  t.throws(() => {
-    collection.addInstance(collection);
-  }, "prevents collection from being added to itself");
+  t.throws(
+    () => {
+      collection.addInstance(new EventEmitter());
+    },
+    TypeError,
+    "cannot add non-PhantomCore class instance"
+  );
 
-  t.throws(() => {
-    collection.addInstance(extendedCore);
-  }, "prevents previously added instance from being re-added");
+  t.throws(
+    () => {
+      collection.addInstance(collection);
+    },
+    ReferenceError,
+    "prevents collection from being added to itself"
+  );
 
   await extendedCore.destroy();
 
@@ -41,10 +83,11 @@ test("PhantomCoreCollection handling", async t => {
 
   t.throws(
     () => collection.addInstance(extendedCore),
+    ReferenceError,
     "throws when trying to add a destructed instance"
   );
 
-  const ec2 = new ExtendedPhantomCore();
+  const ec2 = new PhantomCoreTestClass();
   const lenEC2InitialEvents = ec2.listenerCount();
 
   await Promise.all([
