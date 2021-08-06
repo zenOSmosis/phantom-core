@@ -10,6 +10,8 @@ const {
   LOG_LEVEL_ERROR,
   LOG_LEVEL_SILENT,
 } = Logger;
+const getUnixTime = require("./utils/getUnixTime");
+const getUptime = require("./utils/getUptime");
 
 module.exports = PhantomCore;
 module.exports.PhantomCoreCollection = PhantomCoreCollection;
@@ -28,3 +30,6 @@ module.exports.LOG_LEVEL_SILENT = LOG_LEVEL_SILENT;
 // Independent logger (outside of PhantomCore instance; used instead of
 // console.log)
 module.exports.logger = new Logger();
+
+module.exports.getUnixTime = getUnixTime;
+module.exports.getUptime = getUptime;
