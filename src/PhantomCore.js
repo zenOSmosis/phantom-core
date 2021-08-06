@@ -473,7 +473,10 @@ class PhantomCore extends EventEmitter {
 
     proxyInstance.on(eventName, eventHandler);
 
-    this.once(EVT_DESTROYED, () => proxyInstance.off(eventName, eventHandler));
+    // Unbind from proxy instance once local class is destroyed
+    this.once(EVT_DESTROYED, () =>
+      this.proxyOff(proxyInstance, eventName, eventHandler)
+    );
   }
 
   /**
@@ -505,7 +508,9 @@ class PhantomCore extends EventEmitter {
     // FIXME: I (jh) tried wrapping the eventHandler w/ additional
     // functionality but it was failing the proxy.test.js so I changed it back
     // to the way it is
-    this.once(EVT_DESTROYED, () => proxyInstance.off(eventName, eventHandler));
+    this.once(EVT_DESTROYED, () =>
+      this.proxyOff(proxyInstance, eventName, eventHandler)
+    );
   }
 
   /**
