@@ -18,12 +18,11 @@ Base package utilized in [Speaker App](https://speaker.app) / [https://github.co
 Includes:
 
   - EventEmitter based core
-  - Event proxies to other PhantomCore instances w/ automated unregistration once self or remote is destructed
-  - Event constants
-  - Instance lookup by UUID / Symbol
-  - Logger, inspired by [loglevel](https://www.npmjs.com/package/loglevel), w/ log levels which exposes original stack trace to console (node and browser)
-  - UUID and short UUID per instance
-  - Instance counting
-  - Destruct method
+  - Destruct method: Unbinds event listeners and nullifies internal method calls
+  - Event proxies: Events (i.e. on / once) can be mapped to other PhantomCore instances and are automatically unbound once the proxying host is destructed
+  - Event constants: Internal events are exposed as module exports (i.e. EVT_UPDATED, EVT_DESTROYED)
+  - Instance lookup by UUID / Symbol: If the UUID or Symbol is known for a given PhantomCore instance, that instance can be returned by the lookup function (i.e. PhantomCore.getInstanceWithUUID() or PhantomCore.getInstanceWithSymbol() static methods)
+  - Logger, inspired by [loglevel](https://www.npmjs.com/package/loglevel), with log level support, and exposes original stack trace to console (node and browser)
+  - PhantomCoreCollection: Contains an array of unique PhantomCore instances which are bound as child instances, where EVT_UPDATED from each child instance is emit out the main instance, and each child instance is destructed when the main instance is destructed
 
 TODO: Build out this documentation

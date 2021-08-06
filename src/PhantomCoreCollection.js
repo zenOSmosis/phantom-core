@@ -2,9 +2,10 @@ const PhantomCore = require("./PhantomCore");
 const { EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
 
 /**
- * A PhantomCoreCollection is a grouped collection of unique PhantomCore
- * instances, useful for performing operations on the entire collection
- * at once.
+ * A PhantomCoreCollection contains an array of unique PhantomCore instances
+ * which are bound as child instances, where EVT_UPDATED from each child
+ * instance is emit out the main instance, and each child instance is
+ * destructed when the main instance is destructed.
  */
 class PhantomCoreCollection extends PhantomCore {
   /**
