@@ -6,7 +6,7 @@ const shortUUID = require("short-uuid");
 const deepMerge = require("deepmerge");
 const dayjs = require("dayjs");
 
-const getUnixTime = require("./time/getUnixTime");
+const getUnixTime = require("./utils/getUnixTime");
 
 // Amount of milliseconds to allow async inits to initialize before triggering
 // warning
