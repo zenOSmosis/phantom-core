@@ -520,3 +520,34 @@ test("prevents methods from being called after destroyed", t => {
 
   t.end();
 });
+
+test("on / once / off use super return types", async t => {
+  t.plan(3);
+
+  const phantom = new PhantomCore();
+
+  const retOn = phantom.on(EVT_UPDATED, () => null);
+
+  t.ok(
+    Object.is(retOn, phantom),
+    "on returns a self reference to PhantomCore instance"
+  );
+
+  const retOnce = phantom.once(EVT_UPDATED, () => null);
+
+  t.ok(
+    Object.is(retOnce, phantom),
+    "once returns a self reference to PhantomCore instance"
+  );
+
+  const retOff = phantom.off(EVT_UPDATED, () => null);
+
+  t.ok(
+    Object.is(retOff, phantom),
+    "off returns a self reference to PhantomCore instance"
+  );
+
+  await phantom.destroy();
+
+  t.end();
+});

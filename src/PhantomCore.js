@@ -451,6 +451,12 @@ class PhantomCore extends EventEmitter {
   /**
    * Binds an "on" event listener to another PhantomCore instance.
    *
+   * This should not be confused with JavaScript object proxies and is not
+   * intended to work the same way.
+   *
+   * NOTE: Unlike the original event emitter method, this does NOT return a
+   * reference to the underlying class for optional chaining.
+   *
    * @param {PhantomCore} proxyInstance
    * @param {string} eventName
    * @param {function} eventHandler
@@ -467,11 +473,20 @@ class PhantomCore extends EventEmitter {
 
     proxyInstance.on(eventName, eventHandler);
 
-    this.once(EVT_DESTROYED, () => proxyInstance.off(eventName, eventHandler));
+    // Unbind from proxy instance once local class is destroyed
+    this.once(EVT_DESTROYED, () =>
+      this.proxyOff(proxyInstance, eventName, eventHandler)
+    );
   }
 
   /**
    * Binds a "once" event listener to another PhantomCore instance.
+   *
+   * This should not be confused with JavaScript object proxies and is not
+   * intended to work the same way.
+   *
+   * NOTE: Unlike the original event emitter method, this does NOT return a
+   * reference to the underlying class for optional chaining.
    *
    * @param {PhantomCore} proxyInstance
    * @param {string} eventName
@@ -489,16 +504,27 @@ class PhantomCore extends EventEmitter {
 
     proxyInstance.once(eventName, eventHandler);
 
-    // TODO: Automatically unbind once proxy instance once runs
-    // FIXME: I (jh) tried wrapping the eventHandler w/ additional
-    // functionality but it was failing the proxy.test.js so I changed it back
-    // to the way it is
-    this.once(EVT_DESTROYED, () => proxyInstance.off(eventName, eventHandler));
+    // Unbind from proxy instance once local class is destroyed
+    //
+    // FIXME: Try to automatically unbind destroyed handler once proxy instance
+    // once runs. NOTE: Wrapping eventHandler will not work as intended because
+    // when trying to externally unbind with proxyOff (i.e. via unit tests or
+    // implementation usage [not the following line]) the original event
+    // handler reference is lost.
+    this.once(EVT_DESTROYED, () =>
+      this.proxyOff(proxyInstance, eventName, eventHandler)
+    );
   }
 
   /**
    * Unbinds an "on" or "once" event listener from another PhantomCore
    * instance.
+   *
+   * This should not be confused with JavaScript object proxies and is not
+   * intended to work the same way.
+   *
+   * NOTE: Unlike the original event emitter method, this does NOT return a
+   * reference to the underlying class for optional chaining.
    *
    * @param {PhantomCore} proxyInstance
    * @param {string} eventName
@@ -514,6 +540,7 @@ class PhantomCore extends EventEmitter {
       throw new ReferenceError("proxyInstance cannot be bound to itself");
     }
 
+    // Unbind from proxy instance
     proxyInstance.off(eventName, eventHandler);
   }
 

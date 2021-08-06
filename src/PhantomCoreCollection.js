@@ -2,17 +2,22 @@ const PhantomCore = require("./PhantomCore");
 const { EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
 
 /**
- * A PhantomCoreCollection is a grouped collection of unique PhantomCore
- * instances, useful for performing operations on the entire collection
- * at once.
+ * A PhantomCoreCollection contains an array of unique PhantomCore instances
+ * which are bound as child instances, where EVT_UPDATED from each child
+ * instance is emit out the main instance, and each child instance is
+ * destructed when the main instance is destructed.
  */
 class PhantomCoreCollection extends PhantomCore {
-  constructor(initialPhantomInstances = []) {
+  /**
+   * @param {PhantomCore[]} initialPhantomInstances
+   * @param {Object} options? [default = {}]
+   */
+  constructor(initialPhantomInstances = [], options = {}) {
     if (!Array.isArray(initialPhantomInstances)) {
       throw new TypeError("initialPhantomInstances must be an array");
     }
 
-    super();
+    super(options);
 
     this._coreInstances = [];
 
@@ -23,6 +28,8 @@ class PhantomCoreCollection extends PhantomCore {
    * Adds a PhantomCore instance to the collection.
    *
    * @param {PhantomCore} phantomCoreInstance
+   * @throws TypeError
+   * @throws ReferenceError
    * @return {void}
    */
   addInstance(phantomCoreInstance) {
@@ -33,17 +40,23 @@ class PhantomCoreCollection extends PhantomCore {
     }
 
     if (this.getIsSameInstance(phantomCoreInstance)) {
-      throw new TypeError("A PhantomCoreCollection cannot be passed to itself");
+      throw new ReferenceError(
+        "A PhantomCoreCollection cannot be passed to itself"
+      );
     }
 
     if (phantomCoreInstance.getIsDestroyed()) {
-      throw new TypeError("Cannot add a destroyed PhantomCore instance");
+      throw new ReferenceError("Cannot add a destroyed PhantomCore instance");
     }
 
     // Ensure instance isn't already part of the collection
     for (const instance of this._coreInstances) {
+      if (typeof instance.getIsSameInstance !== "function") {
+        throw new ReferenceError("getIsSameInstance is not a function");
+      }
+
       if (instance.getIsSameInstance(phantomCoreInstance)) {
-        throw new RangeError(
+        throw new ReferenceError(
           "The PhantomCore instance is already a part of the collection"
         );
       }
