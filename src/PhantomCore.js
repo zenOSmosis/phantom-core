@@ -16,6 +16,7 @@ const EVT_READY = "ready";
 const EVT_UPDATED = "updated";
 const EVT_DESTROYED = "destroyed";
 const EVT_NO_INIT_WARN = "no-init-warn";
+const EVT_PUBLISH = "publish";
 
 // Instances for this particular thread
 const _instances = {};
@@ -544,6 +545,29 @@ class PhantomCore extends EventEmitter {
     proxyInstance.off(eventName, eventHandler);
   }
 
+  // TODO: Document
+  // @see https://github.com/mroderick/PubSubJS
+  // @see https://stackoverflow.com/a/62693723
+  publish(topic, message) {
+    this.emit(EVT_PUBLISH, { topic, message });
+  }
+
+  // TODO: Document
+  subscribe(topic, subscriber) {
+    const eventHandler = ({
+      topic: publishedTopic,
+      message: publishedMessage,
+    }) => {
+      if (topic === publishedTopic) {
+        subscriber(publishedMessage);
+      }
+    };
+
+    this.on(EVT_PUBLISH, eventHandler);
+
+    return () => this.off(EVT_PUBLISH, eventHandler);
+  }
+
   /**
    * Retrieves the number of seconds since this class instance was
    * instantiated.
@@ -564,3 +588,4 @@ module.exports.EVT_READY = EVT_READY;
 module.exports.EVT_UPDATED = EVT_UPDATED;
 module.exports.EVT_DESTROYED = EVT_DESTROYED;
 module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;
+module.exports.EVT_PUBLISH = EVT_PUBLISH;
