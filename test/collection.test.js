@@ -5,7 +5,7 @@ const PhantomCoreCollection = require("../src/PhantomCoreCollection");
 const { EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
 
 test("PhantomCoreCollection handling", async t => {
-  t.plan(14);
+  t.plan(17);
 
   t.throws(
     () => {
@@ -121,6 +121,26 @@ test("PhantomCoreCollection handling", async t => {
 
     collection.removeInstance(ec2),
   ]);
+
+  (() => {
+    const coll1 = new PhantomCoreCollection();
+    const coll2 = new PhantomCoreCollection([coll1]);
+
+    t.throws(
+      () => coll2.addInstance(coll1),
+      ReferenceError,
+      "ReferenceError is raised when coll1 is tried to be re-added to coll2"
+    );
+
+    t.ok(
+      coll2.getInstances()[0].getIsSameInstance(coll1),
+      "coll1 can be added to coll2"
+    );
+
+    coll2.removeInstance(coll1);
+
+    t.equals(coll2.getInstances().length, 0, "coll2 can remove coll1");
+  })();
 
   t.equals(
     ec2.listenerCount(EVT_DESTROYED),
