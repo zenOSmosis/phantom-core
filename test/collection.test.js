@@ -1,15 +1,15 @@
 const test = require("tape-async");
 const PhantomCore = require("../src");
 const EventEmitter = require("events");
-const PhantomCoreCollection = require("../src/PhantomCoreCollection");
+const PhantomCollection = require("../src/PhantomCollection");
 const { EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
 
-test("PhantomCoreCollection handling", async t => {
+test("PhantomCollection handling", async t => {
   t.plan(17);
 
   t.throws(
     () => {
-      new PhantomCoreCollection("some-string");
+      new PhantomCollection("some-string");
     },
     TypeError,
     "instantiating with string throws TypeError"
@@ -17,7 +17,7 @@ test("PhantomCoreCollection handling", async t => {
 
   t.throws(
     () => {
-      new PhantomCoreCollection({ a: 123 });
+      new PhantomCollection({ a: 123 });
     },
     TypeError,
     "instantiating with object throws TypeError"
@@ -25,7 +25,7 @@ test("PhantomCoreCollection handling", async t => {
 
   t.throws(
     () => {
-      new PhantomCoreCollection([new PhantomCore(), new EventEmitter()]);
+      new PhantomCollection([new PhantomCore(), new EventEmitter()]);
     },
     TypeError,
     "cannot instantiate with non-PhantomCore class instances"
@@ -35,7 +35,7 @@ test("PhantomCoreCollection handling", async t => {
 
   const extendedCore = new PhantomCoreTestClass();
 
-  const collection = new PhantomCoreCollection([extendedCore]);
+  const collection = new PhantomCollection([extendedCore]);
 
   t.throws(
     () => {
@@ -123,8 +123,8 @@ test("PhantomCoreCollection handling", async t => {
   ]);
 
   (() => {
-    const coll1 = new PhantomCoreCollection();
-    const coll2 = new PhantomCoreCollection([coll1]);
+    const coll1 = new PhantomCollection();
+    const coll2 = new PhantomCollection([coll1]);
 
     t.ok(
       coll2.getInstances()[0].getIsSameInstance(coll1),

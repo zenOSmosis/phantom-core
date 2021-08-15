@@ -111,7 +111,7 @@ class PhantomCore extends EventEmitter {
     super();
 
     // Provide "off" aliasing if it is not available (fixes issue where
-    // PhantomCoreCollection could not use off binding in browsers)
+    // PhantomCollection could not use off binding in browsers)
     //
     // NOTE (jh): I don't really know why this was not a problem before
     //

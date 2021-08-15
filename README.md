@@ -23,6 +23,6 @@ Includes:
   - Event constants: Internal events are exposed as module exports (i.e. EVT_UPDATED, EVT_DESTROYED)
   - Instance lookup by UUID / Symbol: If the UUID or Symbol is known for a given PhantomCore instance, that instance can be returned by the lookup function (i.e. PhantomCore.getInstanceWithUUID() or PhantomCore.getInstanceWithSymbol() static methods)
   - Logger, inspired by [loglevel](https://www.npmjs.com/package/loglevel), with log level support, and exposes original stack trace to console (node and browser)
-  - PhantomCoreCollection: Contains an array of unique PhantomCore instances which are bound as child instances, where EVT_UPDATED from each child instance is emit out the main instance, and each child instance is destructed when the main instance is destructed
+  - PhantomCollection: Contains an array of unique PhantomCore instances which are bound as child instances, where EVT_UPDATED from each child instance is emit out the main instance, and each child instance is destructed when the main instance is destructed
 
 TODO: Build out this documentation

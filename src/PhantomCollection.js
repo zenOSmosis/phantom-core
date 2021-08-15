@@ -2,12 +2,12 @@ const PhantomCore = require("./PhantomCore");
 const { EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
 
 /**
- * A PhantomCoreCollection contains an array of unique PhantomCore instances
+ * A PhantomCollection contains an array of unique PhantomCore instances
  * which are bound as child instances, where EVT_UPDATED from each child
  * instance is emit out the main instance, and each child instance is
  * destructed when the main instance is destructed.
  */
-class PhantomCoreCollection extends PhantomCore {
+class PhantomCollection extends PhantomCore {
   /**
    * @param {PhantomCore[]} initialPhantomInstances
    * @param {Object} options? [default = {}]
@@ -41,7 +41,7 @@ class PhantomCoreCollection extends PhantomCore {
 
     if (this.getIsSameInstance(phantomCoreInstance)) {
       throw new ReferenceError(
-        "A PhantomCoreCollection cannot be passed to itself"
+        "A PhantomCollection cannot be passed to itself"
       );
     }
 
@@ -126,6 +126,6 @@ class PhantomCoreCollection extends PhantomCore {
   }
 }
 
-module.exports = PhantomCoreCollection;
+module.exports = PhantomCollection;
 module.exports.EVT_UPDATED = EVT_UPDATED;
 module.exports.EVT_DESTROYED = EVT_DESTROYED;
