@@ -50,20 +50,64 @@ class ChildEventBridge extends PhantomCore {
      */
     this._bridgeEventNames = [...DEFAULT_BRIDGE_EVENT_NAMES];
 
+    this._handleChildInstanceAdded = this._handleChildInstanceAdded.bind(this);
+
     // TODO: Map update / remove handling
     // EVT_CHILD_INSTANCE_ADDED,
     // EVT_CHILD_INSTANCE_REMOVED,
 
     // TODO: On each new instance, map all existing bridge events to it
+
+    // Bind child _...added/removed handlers
+    (() => {
+      this._phantomCollection.on(
+        EVT_CHILD_INSTANCE_ADDED,
+        this._handleChildInstanceAdded
+      );
+
+      this._phantomCollection.on(
+        EVT_CHILD_INSTANCE_REMOVED,
+        this._handleChildInstanceRemoved
+      );
+    })();
   }
 
   /**
    * @return {Promise<void>}
    */
   async destroy() {
+    // Unbind child _...added/removed handlers
+    (() => {
+      this._phantomCollection.off(
+        EVT_CHILD_INSTANCE_ADDED,
+        this._handleChildInstanceAdded
+      );
+
+      this._phantomCollection.off(
+        EVT_CHILD_INSTANCE_REMOVED,
+        this._handleChildInstanceRemoved
+      );
+    })();
+
     // TODO: Unmap mapped event handlers from each child
 
     return super.destroy();
+  }
+
+  // TODO: Remove
+  _handleChildInstanceAdded(childInstance) {
+    // TODO: Remove
+    console.log({
+      childInstanceAdded: childInstance,
+    });
+  }
+
+  // TODO: Remove
+  _handleChildInstanceRemoved(childInstance) {
+    // TODO: Remove
+    console.log({
+      childInstanceRemoved: childInstance,
+    });
   }
 
   /**
@@ -163,7 +207,7 @@ class ChildEventBridge extends PhantomCore {
     const nextLength = this._bridgeEventNames.length;
 
     if (nextLength < prevLength) {
-      this.emit(EVT_BRIDGE_EVENT_NAME_ADDED, eventName);
+      this.emit(EVT_BRIDGE_EVENT_NAME_REMOVED, eventName);
     }
   }
 
