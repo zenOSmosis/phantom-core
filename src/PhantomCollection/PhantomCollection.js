@@ -7,6 +7,14 @@ const EVT_CHILD_INSTANCE_ADDED = "child-instance-added";
 // @export
 const EVT_CHILD_INSTANCE_REMOVED = "child-instance-removed";
 
+// TODO: Document
+// @export
+const KEY_META_CHILD_DESC_INSTANCE = "phantomCoreInstance";
+// @export
+const KEY_META_CHILD_DESC_PROXY_EVENT_HANDLERS = "proxyEventHandlers";
+// @export
+const KEY_META_CHILD_DESTROY_LISTENER = "destroyListener";
+
 /**
  * A PhantomCollection contains an array of unique PhantomCore instances
  * which are bound as child instances.
@@ -42,8 +50,6 @@ class PhantomCollection extends PhantomCore {
     // needs to be able to read the exports from this file, including the
     // PhantomCollection class itself
     const ChildEventBridge = require("./ChildEventBridge");
-
-    // TODO: [ex. scenario] Child A emits EVT_AUDIO_LEVEL_TICK; pipe it through here
 
     // TODO: Document
     this._childEventBridge = new ChildEventBridge(this);
@@ -107,9 +113,9 @@ class PhantomCollection extends PhantomCore {
 
     // Register w/ _childMetaDescriptions property
     this._childMetaDescriptions.push({
-      phantomCoreInstance,
-      proxyEventHandlers: {},
-      destroyListener,
+      [KEY_META_CHILD_DESC_INSTANCE]: phantomCoreInstance,
+      [KEY_META_CHILD_DESC_PROXY_EVENT_HANDLERS]: {},
+      [KEY_META_CHILD_DESTROY_LISTENER]: destroyListener,
     });
 
     phantomCoreInstance.once(EVT_DESTROYED, destroyListener);
@@ -170,6 +176,23 @@ class PhantomCollection extends PhantomCore {
   }
 
   // TODO: Document
+  mapChildEventName(childEventName) {
+    this._childEventBridge.addBridgeEventName(childEventName);
+  }
+
+  // TODO: Document
+  unmapChildEventName(childEventName) {
+    this._childEventBridge.removeBridgeEventName(childEventName);
+  }
+
+  /**
+   * @return {string[]}
+   */
+  getMappedChildEventNames() {
+    return this._childEventBridge.getBridgeEventNames();
+  }
+
+  // TODO: Document
   getChildMetaDescription(instance) {
     return this._childEventBridge.find(({ phantomCoreInstance }) =>
       Object.is(phantomCoreInstance, instance)
@@ -177,11 +200,13 @@ class PhantomCollection extends PhantomCore {
   }
 
   /**
+   * Retrieves an array of PhantomCore children for this collection.
+   *
    * @return {PhantomCore[]}
    */
   getChildren() {
     return Object.values(this._childMetaDescriptions).map(
-      ({ phantomCoreInstance }) => phantomCoreInstance
+      ({ [KEY_META_CHILD_DESC_INSTANCE]: childInstance }) => childInstance
     );
   }
 }
@@ -193,3 +218,7 @@ module.exports.EVT_CHILD_INSTANCE_REMOVED = EVT_CHILD_INSTANCE_REMOVED;
 
 module.exports.EVT_UPDATED = EVT_UPDATED;
 module.exports.EVT_DESTROYED = EVT_DESTROYED;
+
+module.exports.KEY_META_CHILD_DESC_INSTANCE = KEY_META_CHILD_DESC_INSTANCE;
+module.exports.KEY_META_CHILD_DESC_PROXY_EVENT_HANDLERS = KEY_META_CHILD_DESC_PROXY_EVENT_HANDLERS;
+module.exports.KEY_META_CHILD_DESTROY_LISTENER = KEY_META_CHILD_DESTROY_LISTENER;

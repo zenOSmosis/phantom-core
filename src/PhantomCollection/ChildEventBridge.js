@@ -4,12 +4,26 @@ const PhantomCollection = require("./PhantomCollection");
 const {
   EVT_CHILD_INSTANCE_ADDED,
   EVT_CHILD_INSTANCE_REMOVED,
+  KEY_META_CHILD_DESC_PROXY_EVENT_HANDLERS,
 } = PhantomCollection;
 
 const DEFAULT_BRIDGE_EVENT_NAMES = [EVT_UPDATED];
 
-// TODO: Document
+/**
+ * Handles proxying of events emit from PhantomCollection children out of the
+ * PhantomCollection itself.
+ *
+ * i.e. (for every mapped event): When childA emits EVT_UPDATED, collection
+ * emits EVT_UPDATED as well.
+ */
 class ChildEventBridge extends PhantomCore {
+  /**
+   * IMPORTANT: This bridge is destructed by the collection itself and does not
+   * need to listen for EVT_DESTROYED from PhantomCollection.
+   *
+   * @param {PhantomCollection} phantomCollection The collection this bridge
+   * should be bound to.
+   */
   constructor(phantomCollection) {
     if (!(phantomCollection instanceof PhantomCollection)) {
       throw new TypeError(
@@ -19,6 +33,16 @@ class ChildEventBridge extends PhantomCore {
 
     super();
 
+    /**
+     * @type {PhantomCollection} The parent PhantomCollection.
+     */
+    this._phantomCollection = phantomCollection;
+
+    /**
+     * @type {string[]} The event names this bridge currently (i.e. at any given
+     * time) maintains mappings for events which can emit from child instances
+     * and relay out the parent collection.
+     */
     this._bridgeEventNames = [...DEFAULT_BRIDGE_EVENT_NAMES];
 
     // TODO: Map update / remove handling
@@ -27,6 +51,50 @@ class ChildEventBridge extends PhantomCore {
 
     // TODO: On each new instance, map all existing bridge events to it
   }
+
+  /**
+   * TODO: Document
+   *
+   * @param {PhantomCore} childInstance
+   * @return {Object | void} // TODO: Document type beyond just "Object"
+   */
+  getChildMappedEventHandlers(childInstance) {
+    const metaDescription = this._phantomCollection.getInstanceChildMetaDescription(
+      childInstance
+    );
+
+    if (metaDescription) {
+      return metaDescription[KEY_META_CHILD_DESC_PROXY_EVENT_HANDLERS];
+    }
+  }
+
+  // TODO: Document
+  getChildMappedEventHandlerWithName(childInstance, eventName) {
+    const mappedEventHandlers = this.getChildMappedEventHandlerWithName(
+      childInstance
+    );
+
+    if (mappedEventHandlers) {
+      return mappedEventHandlers[eventName];
+    }
+  }
+
+  // TODO: Document
+  /*
+  setChildMappedEventHandlers(childInstance, proxyEventHandlers) {
+    const metaDescription = this._phantomCollection.getInstanceChildMetaDescription(
+      childInstance
+    );
+
+    if (!metaDescription) {
+      throw new ReferenceError(
+        "Could not obtain metaDescription of child instance from parent collection"
+      );
+    }
+
+    metaDescription.proxyEventHandlers = { ...proxyEventHandlers };
+  }
+  */
 
   // TODO: Document
   // TODO: Provide way to unmap when this class is destructed
@@ -41,22 +109,51 @@ class ChildEventBridge extends PhantomCore {
   */
 
   // TODO: Document
+  _mapChildEvent(childInstance, eventName) {
+    // TODO: Determine if already mapped before doing it again
+
+    const _handleChildEvent = eventData =>
+      this._phantomCollection.emit(eventName, eventData);
+
+    childInstance.on(eventName, _handleChildEvent);
+  }
+
+  _unmapChildEvent(childInstance, eventName) {
+    // TODO: Handle
+  }
+
+  // TODO: Document
   addBridgeEventName(eventName) {
+    const prevLength = this._bridgeEventNames.length;
+
+    // Add only unique values
     this._bridgeEventNames = [...new Set(eventName)];
 
-    this.emit(EVT_UPDATED);
+    const nextLength = this._bridgeEventNames.length;
+
+    if (nextLength > prevLength) {
+      this.emit(EVT_UPDATED);
+    }
   }
 
   // TODO: Document
   removeBridgeEventName(eventName) {
+    const prevLength = this._bridgeEventNames.length;
+
     this._bridgeEventNames = this._bridgeEventNames.filter(
       predicate => predicate !== eventName
     );
 
-    this.emit(EVT_UPDATED);
+    const nextLength = this._bridgeEventNames.length;
+
+    if (nextLength < prevLength) {
+      this.emit(EVT_UPDATED);
+    }
   }
 
-  // TODO: Document
+  /**
+   * @return {string[]}
+   */
   getBridgeEventNames() {
     return this._bridgeEventNames;
   }
