@@ -9,7 +9,7 @@ const {
 const DEFAULT_BRIDGE_EVENT_NAMES = [EVT_UPDATED];
 
 // TODO: Document
-class EventBridge extends PhantomCore {
+class ChildEventBridge extends PhantomCore {
   constructor(phantomCollection) {
     if (!(phantomCollection instanceof PhantomCollection)) {
       throw new TypeError(
@@ -27,6 +27,18 @@ class EventBridge extends PhantomCore {
 
     // TODO: On each new instance, map all existing bridge events to it
   }
+
+  // TODO: Document
+  // TODO: Provide way to unmap when this class is destructed
+  /*
+  _mapChildEvents(childInstance) {
+    this._bridgeEventNames.forEach(eventName =>
+      childInstance.on(eventName, eventData =>
+        this._phantomCollection.emit(eventName, eventData)
+      )
+    );
+  }
+  */
 
   // TODO: Document
   addBridgeEventName(eventName) {
@@ -50,5 +62,5 @@ class EventBridge extends PhantomCore {
   }
 }
 
-module.exports = EventBridge;
+module.exports = ChildEventBridge;
 module.exports.EVT_UPDATED = EVT_UPDATED;

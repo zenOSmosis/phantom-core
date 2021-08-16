@@ -38,15 +38,15 @@ class PhantomCollection extends PhantomCore {
      */
     this._coreInstances = [];
 
-    // IMPORTANT: EventBridge has to be lazy-loaded due to the fact that it
+    // IMPORTANT: ChildEventBridge has to be lazy-loaded due to the fact that it
     // needs to be able to read the exports from this file, including the
     // PhantomCollection class itself
-    const EventBridge = require("./EventBridge");
+    const ChildEventBridge = require("./ChildEventBridge");
 
     // TODO: [ex. scenario] Child A emits EVT_AUDIO_LEVEL_TICK; pipe it through here
 
     // TODO: Document
-    this._eventBridge = new EventBridge(this);
+    this._ChildEventBridge = new ChildEventBridge(this);
 
     // Add all initial instances
     initialPhantomInstances.forEach(instance => this.addInstance(instance));
@@ -61,7 +61,7 @@ class PhantomCollection extends PhantomCore {
       this.removeInstance(phantomCoreInstance);
     }
 
-    await this._eventBridge.destroy();
+    await this._ChildEventBridge.destroy();
 
     await super.destroy();
   }

@@ -4,7 +4,7 @@ const EventEmitter = require("events");
 const PhantomCollection = require("../src/PhantomCollection");
 const { EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
 
-const _EventBridge = require("../src/PhantomCollection/EventBridge");
+const _ChildEventBridge = require("../src/PhantomCollection/ChildEventBridge");
 
 test("PhantomCollection handling", async t => {
   t.plan(17);
@@ -153,11 +153,11 @@ test("PhantomCollection handling", async t => {
   t.end();
 });
 
-test("PhantomCollection EventBridge", async t => {
+test("PhantomCollection ChildEventBridge", async t => {
   t.plan(3);
 
   t.throws(() => {
-    new _EventBridge(new PhantomCore());
+    new _ChildEventBridge(new PhantomCore());
   }, TypeError);
 
   await (async () => {
@@ -197,7 +197,7 @@ test("PhantomCollection EventBridge", async t => {
     ]);
   })();
 
-  // TODO: Add additional EventBridge tests
+  // TODO: Add additional ChildEventBridge tests
 
   t.end();
 });
