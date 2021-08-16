@@ -19,6 +19,17 @@ const KEY_META_CHILD_DESTROY_LISTENER = "destroyListener";
  * A PhantomCollection contains an array of unique PhantomCore instances
  * which are bound as child instances.
  *
+ * In addition, this collection strives to include all of the properties which
+ * Techopedia defines as a collection:
+ * @see https://www.techopedia.com/definition/25317/collection
+ *  - Each group element represents an object with a similar purpose
+ *  - Group size varies dynamically during runtime
+ *  - There must be access to an individual element through a search function
+ *    based on a specific key [TODO: This is not currently implemented due to
+ *    not yet deciding upon which search criteria to search for, or if it can
+ *    be somehow dynamic in which search criteria to use]
+ *  - There must be a sort or iteration through the group elements
+ *
  * TODO: Reword: ... where EVT_UPDATED from each child
  * instance is emit out the main instance, and each child instance is
  * destructed when the main instance is destructed.
