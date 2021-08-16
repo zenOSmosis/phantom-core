@@ -6,12 +6,15 @@ const PhantomCollection = require("../src/PhantomCollection");
 const {
   EVT_CHILD_INSTANCE_ADDED,
   EVT_CHILD_INSTANCE_REMOVED,
+  KEY_META_CHILD_DESC_INSTANCE,
+  KEY_META_CHILD_DESC_PROXY_EVENT_HANDLERS,
+  KEY_META_CHILD_DESTROY_LISTENER,
 } = PhantomCollection;
 
 const _ChildEventBridge = require("../src/PhantomCollection/ChildEventBridge");
 
 test("PhantomCollection add / remove child; get children", async t => {
-  t.plan(25);
+  t.plan(28);
 
   t.throws(
     () => {
@@ -119,6 +122,32 @@ test("PhantomCollection add / remove child; get children", async t => {
         t.ok(
           collection.getChildren().includes(ec2),
           "getChildren() includes added child instance"
+        );
+
+        const ec2MetaDescription = collection.getChildMetaDescription(ec2);
+
+        t.equals(
+          typeof ec2MetaDescription,
+          "object",
+          "child meta description is an object"
+        );
+
+        t.ok(
+          Object.keys(ec2MetaDescription).includes(
+            KEY_META_CHILD_DESC_INSTANCE
+          ) &&
+            Object.keys(ec2MetaDescription).includes(
+              KEY_META_CHILD_DESC_PROXY_EVENT_HANDLERS
+            ) &&
+            Object.keys(ec2MetaDescription).includes(
+              KEY_META_CHILD_DESTROY_LISTENER
+            ),
+          "all expected meta child keys are present"
+        );
+
+        t.ok(
+          Object.is(ec2MetaDescription[KEY_META_CHILD_DESC_INSTANCE], ec2),
+          "child meta description phantom core instance matches child instance"
         );
 
         resolve();
@@ -289,17 +318,18 @@ test("PhantomCollection ChildEventBridge", async t => {
     "throws TypeError when trying to add non-PhantomCollection instance"
   );
 
+  /*
   const collection = new PhantomCollection();
   const child1 = new PhantomCore();
   const child2 = new PhantomCore();
 
   const eventBridge = new _ChildEventBridge(collection);
 
-  /*
   await Promise.all([
     new Promise(resolve => {
       eventBridge.once()
-    })
+    }),
+
     new Promise(resolve => {
       collection.addChild(child1)
     })

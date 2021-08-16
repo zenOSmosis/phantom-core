@@ -159,6 +159,25 @@ class PhantomCollection extends PhantomCore {
   }
 
   /**
+   * Retrieves an array of PhantomCore children for this collection.
+   *
+   * @return {PhantomCore[]}
+   */
+  getChildren() {
+    return this._childMetaDescriptions.map(
+      ({ [KEY_META_CHILD_DESC_INSTANCE]: childInstance }) => childInstance
+    );
+  }
+
+  // TODO: Document
+  getChildMetaDescription(childInstance) {
+    return this._childMetaDescriptions.find(
+      ({ [KEY_META_CHILD_DESC_INSTANCE]: phantomCoreInstance }) =>
+        Object.is(phantomCoreInstance, childInstance)
+    );
+  }
+
+  /**
    * Emits an event to all child instances (one-to-many relationship).
    *
    * @param {string} eventName
@@ -187,33 +206,15 @@ class PhantomCollection extends PhantomCore {
   getMappedChildEventNames() {
     return this._childEventBridge.getBridgeEventNames();
   }
-
-  // TODO: Document
-  getChildMetaDescription(instance) {
-    return this._childEventBridge.find(({ phantomCoreInstance }) =>
-      Object.is(phantomCoreInstance, instance)
-    );
-  }
-
-  /**
-   * Retrieves an array of PhantomCore children for this collection.
-   *
-   * @return {PhantomCore[]}
-   */
-  getChildren() {
-    return Object.values(this._childMetaDescriptions).map(
-      ({ [KEY_META_CHILD_DESC_INSTANCE]: childInstance }) => childInstance
-    );
-  }
 }
 
 module.exports = PhantomCollection;
 
-module.exports.EVT_CHILD_INSTANCE_ADDED = EVT_CHILD_INSTANCE_ADDED;
-module.exports.EVT_CHILD_INSTANCE_REMOVED = EVT_CHILD_INSTANCE_REMOVED;
-
 module.exports.EVT_UPDATED = EVT_UPDATED;
 module.exports.EVT_DESTROYED = EVT_DESTROYED;
+
+module.exports.EVT_CHILD_INSTANCE_ADDED = EVT_CHILD_INSTANCE_ADDED;
+module.exports.EVT_CHILD_INSTANCE_REMOVED = EVT_CHILD_INSTANCE_REMOVED;
 
 module.exports.KEY_META_CHILD_DESC_INSTANCE = KEY_META_CHILD_DESC_INSTANCE;
 module.exports.KEY_META_CHILD_DESC_PROXY_EVENT_HANDLERS = KEY_META_CHILD_DESC_PROXY_EVENT_HANDLERS;
