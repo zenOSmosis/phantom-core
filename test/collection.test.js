@@ -4,6 +4,8 @@ const EventEmitter = require("events");
 const PhantomCollection = require("../src/PhantomCollection");
 const { EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
 
+const _EventBridge = require("../src/PhantomCollection/EventBridge");
+
 test("PhantomCollection handling", async t => {
   t.plan(17);
 
@@ -147,6 +149,18 @@ test("PhantomCollection handling", async t => {
     lenEC2InitialEvents,
     "removes EVT_DESTROYED handler from instance when removed from collection"
   );
+
+  t.end();
+});
+
+test("PhantomCollection EventBridge", async t => {
+  t.plan(1);
+
+  t.throws(() => {
+    new _EventBridge(new PhantomCore());
+  }, TypeError);
+
+  // TODO: Add additional EventBridge tests
 
   t.end();
 });

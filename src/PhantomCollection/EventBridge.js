@@ -24,12 +24,6 @@ class EventBridge extends PhantomCore {
     // TODO: Map update / remove handling
     // EVT_CHILD_INSTANCE_ADDED,
     // EVT_CHILD_INSTANCE_REMOVED,
-
-    // TODO: Remove
-    console.log({
-      EVT_CHILD_INSTANCE_ADDED,
-      EVT_CHILD_INSTANCE_REMOVED,
-    });
   }
 
   // TODO: Document
