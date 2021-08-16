@@ -27,6 +27,15 @@ class PhantomCollection extends PhantomCore {
 
     super(options);
 
+    /**
+     * An array of objects with PhantomCore information as well as destroy
+     * listener for each.
+     *
+     * IMPORTANT: Use this.getInstances() instead of iterating on this variable
+     * directly.
+     *
+     * @type {Object{phantomCoreInstance: PhantomCore, destroyListener: function}[]}
+     */
     this._coreInstances = [];
 
     // TODO: Document
@@ -81,11 +90,7 @@ class PhantomCollection extends PhantomCore {
     }
 
     // Ensure instance isn't already part of the collection
-    for (const instance of this._coreInstances) {
-      if (typeof instance.getIsSameInstance !== "function") {
-        throw new ReferenceError("getIsSameInstance is not a function");
-      }
-
+    for (const instance of this.getInstances()) {
       if (instance.getIsSameInstance(phantomCoreInstance)) {
         throw new ReferenceError(
           "The PhantomCore instance is already a part of the collection"
