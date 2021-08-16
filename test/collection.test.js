@@ -6,7 +6,7 @@ const { EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
 
 const _ChildEventBridge = require("../src/PhantomCollection/ChildEventBridge");
 
-test("PhantomCollection handling", async t => {
+test("PhantomCollection basic handling", async t => {
   t.plan(17);
 
   t.throws(
@@ -153,49 +153,72 @@ test("PhantomCollection handling", async t => {
   t.end();
 });
 
+test("PhantomCollection broadcasting / post-destruct child retention", async t => {
+  t.plan(4);
+
+  const phantom1 = new PhantomCore();
+  const phantom2 = new PhantomCore();
+
+  const collection = new PhantomCollection([phantom1, phantom2]);
+
+  const expectedEventMessage = "hello world. it works.";
+
+  await Promise.all([
+    new Promise(resolve => {
+      phantom1.once(EVT_UPDATED, message => {
+        t.equals(
+          message,
+          expectedEventMessage,
+          "phantom1 received correct broadcast message"
+        );
+
+        resolve();
+      });
+    }),
+
+    new Promise(resolve => {
+      phantom2.once(EVT_UPDATED, message => {
+        t.equals(
+          message,
+          expectedEventMessage,
+          "phantom2 received correct broadcast message"
+        );
+
+        resolve();
+      });
+    }),
+
+    new Promise(resolve => {
+      collection.broadcast(EVT_UPDATED, expectedEventMessage);
+
+      resolve();
+    }),
+  ]);
+
+  try {
+    await collection.destroy();
+
+    t.ok(
+      !phantom1.getIsDestroyed(),
+      "phantom1 is not destroyed after collection is"
+    );
+    t.ok(
+      !phantom2.getIsDestroyed(),
+      "phantom2 is not destroyed after collection is"
+    );
+  } catch (err) {
+    throw err;
+  }
+
+  t.end();
+});
+
 test("PhantomCollection ChildEventBridge", async t => {
-  t.plan(3);
+  t.plan(1);
 
   t.throws(() => {
     new _ChildEventBridge(new PhantomCore());
   }, TypeError);
-
-  await (async () => {
-    const phantom1 = new PhantomCore();
-    const phantom2 = new PhantomCore();
-
-    const collection = new PhantomCollection([phantom1, phantom2]);
-
-    const expectedEventMessage = "hello world. it works.";
-
-    await Promise.all([
-      new Promise((resolve, reject) => {
-        phantom1.once(EVT_UPDATED, message => {
-          t.equals(
-            message,
-            expectedEventMessage,
-            "phantom1 received correct broadcast message"
-          );
-        });
-      }),
-
-      new Promise((resolve, reject) => {
-        phantom2.once(EVT_UPDATED, message => {
-          t.equals(
-            message,
-            expectedEventMessage,
-            "phantom2 received correct broadcast message"
-          );
-        });
-      }),
-
-      new Promise(resolve => {
-        collection.broadcast(EVT_UPDATED, expectedEventMessage);
-
-        resolve();
-      }),
-    ]);
-  })();
 
   // TODO: Add additional ChildEventBridge tests
 
