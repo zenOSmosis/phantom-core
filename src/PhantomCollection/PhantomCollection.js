@@ -29,10 +29,6 @@ const KEY_META_CHILD_DESTROY_LISTENER = "destroyListener";
  *    not yet deciding upon which search criteria to search for, or if it can
  *    be somehow dynamic in which search criteria to use]
  *  - There must be a sort or iteration through the group elements
- *
- * TODO: Reword: ... where EVT_UPDATED from each child
- * instance is emit out the main instance, and each child instance is
- * destructed when the main instance is destructed.
  */
 class PhantomCollection extends PhantomCore {
   /**
