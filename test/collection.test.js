@@ -41,26 +41,26 @@ test("PhantomCollection handling", async t => {
 
   t.throws(
     () => {
-      collection.addInstance(extendedCore);
+      collection.addChild(extendedCore);
     },
     ReferenceError,
     "prevents previously added instance from being re-added"
   );
 
   t.equals(
-    collection.getInstances().length,
+    collection.getChildren().length,
     1,
-    "initial passed instance registers as an instance"
+    "initial passed instance registers as a child instance"
   );
 
   t.ok(
-    PhantomCore.getIsInstance(collection.getInstances()[0]),
-    "getInstances() retrieves PhantomCore types"
+    PhantomCore.getIsInstance(collection.getChildren()[0]),
+    "getChildren() retrieves PhantomCore types"
   );
 
   t.throws(
     () => {
-      collection.addInstance(new EventEmitter());
+      collection.addChild(new EventEmitter());
     },
     TypeError,
     "cannot add non-PhantomCore class instance"
@@ -68,7 +68,7 @@ test("PhantomCollection handling", async t => {
 
   t.throws(
     () => {
-      collection.addInstance(collection);
+      collection.addChild(collection);
     },
     ReferenceError,
     "prevents collection from being added to itself"
@@ -77,13 +77,13 @@ test("PhantomCollection handling", async t => {
   await extendedCore.destroy();
 
   t.equals(
-    collection.getInstances().length,
+    collection.getChildren().length,
     0,
     "de-increments instance length when instance destructs"
   );
 
   t.throws(
-    () => collection.addInstance(extendedCore),
+    () => collection.addChild(extendedCore),
     ReferenceError,
     "throws when trying to add a destructed instance"
   );
@@ -100,7 +100,7 @@ test("PhantomCollection handling", async t => {
       });
     }),
 
-    collection.addInstance(ec2),
+    collection.addChild(ec2),
   ]);
 
   t.equals(
@@ -121,7 +121,7 @@ test("PhantomCollection handling", async t => {
       });
     }),
 
-    collection.removeInstance(ec2),
+    collection.removeChild(ec2),
   ]);
 
   (() => {
@@ -129,18 +129,18 @@ test("PhantomCollection handling", async t => {
     const coll2 = new PhantomCollection([coll1]);
 
     t.ok(
-      coll2.getInstances()[0].getIsSameInstance(coll1),
+      coll2.getChildren()[0].getIsSameInstance(coll1),
       "contain child collection"
     );
 
-    coll2.removeInstance(coll1);
-    t.equals(coll2.getInstances().length, 0, "coll2 can remove coll1");
+    coll2.removeChild(coll1);
+    t.equals(coll2.getChildren().length, 0, "coll2 can remove coll1");
 
     const sharedPhantom = new PhantomCore();
 
     t.doesNotThrow(() => {
-      coll1.addInstance(sharedPhantom);
-      coll2.addInstance(sharedPhantom);
+      coll1.addChild(sharedPhantom);
+      coll2.addChild(sharedPhantom);
     }, "does not throw error when shared phantom added to two collections");
   })();
 

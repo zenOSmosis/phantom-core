@@ -31,12 +31,12 @@ class PhantomCollection extends PhantomCore {
      * An array of objects with PhantomCore instances as well as destroy
      * listener for each.
      *
-     * IMPORTANT: Use this.getInstances() instead of iterating on this variable
+     * IMPORTANT: Use this.getChildren() instead of iterating on this variable
      * directly.
      *
      * @type {Object{phantomCoreInstance: PhantomCore, destroyListener: function}[]}
      */
-    this._coreInstances = [];
+    this._childMetaDescriptions = [];
 
     // IMPORTANT: ChildEventBridge has to be lazy-loaded due to the fact that it
     // needs to be able to read the exports from this file, including the
@@ -46,10 +46,10 @@ class PhantomCollection extends PhantomCore {
     // TODO: [ex. scenario] Child A emits EVT_AUDIO_LEVEL_TICK; pipe it through here
 
     // TODO: Document
-    this._ChildEventBridge = new ChildEventBridge(this);
+    this._childEventBridge = new ChildEventBridge(this);
 
     // Add all initial instances
-    initialPhantomInstances.forEach(instance => this.addInstance(instance));
+    initialPhantomInstances.forEach(instance => this.addChild(instance));
   }
 
   /**
@@ -57,13 +57,13 @@ class PhantomCollection extends PhantomCore {
    */
   async destroy() {
     // Empty out the collection
-    for (const phantomCoreInstance of this.getInstances()) {
-      this.removeInstance(phantomCoreInstance);
+    for (const child of this.getChildren()) {
+      this.removeChild(child);
     }
 
-    await this._ChildEventBridge.destroy();
+    await this._childEventBridge.destroy();
 
-    await super.destroy();
+    return super.destroy();
   }
 
   /**
@@ -76,7 +76,7 @@ class PhantomCollection extends PhantomCore {
    * @emits EVT_UPDATED
    * @return {void}
    */
-  addInstance(phantomCoreInstance) {
+  addChild(phantomCoreInstance) {
     if (!PhantomCore.getIsInstance(phantomCoreInstance)) {
       throw new TypeError(
         "The phantomCoreInstance is not a PhantomCore instance"
@@ -94,7 +94,7 @@ class PhantomCollection extends PhantomCore {
     }
 
     // Ensure instance isn't already part of the collection
-    for (const instance of this.getInstances()) {
+    for (const instance of this.getChildren()) {
       if (instance.getIsSameInstance(phantomCoreInstance)) {
         throw new ReferenceError(
           "The PhantomCore instance is already a part of the collection"
@@ -103,11 +103,12 @@ class PhantomCollection extends PhantomCore {
     }
 
     // Called when the collection instance is destroyed before the collection
-    const destroyListener = () => this.removeInstance(phantomCoreInstance);
+    const destroyListener = () => this.removeChild(phantomCoreInstance);
 
-    // Register w/ _coreInstances property
-    this._coreInstances.push({
+    // Register w/ _childMetaDescriptions property
+    this._childMetaDescriptions.push({
       phantomCoreInstance,
+      proxyEventHandlers: {},
       destroyListener,
     });
 
@@ -125,29 +126,31 @@ class PhantomCollection extends PhantomCore {
    * @emits EVT_UPDATED
    * @return {void}
    */
-  removeInstance(phantomCoreInstance) {
-    // Unregister from _coreInstances property
-    this._coreInstances = this._coreInstances.filter(mapInstance => {
-      const instance = mapInstance.phantomCoreInstance;
+  removeChild(phantomCoreInstance) {
+    // Unregister from _childMetaDescriptions property
+    this._childMetaDescriptions = this._childMetaDescriptions.filter(
+      mapInstance => {
+        const instance = mapInstance.phantomCoreInstance;
 
-      if (!phantomCoreInstance.getIsSameInstance(instance)) {
-        // Retain in returned instances
-        return true;
-      } else {
-        if (!mapInstance.destroyListener) {
-          this.log.warn(
-            "Could not locate destroyListener for mapInstance",
-            mapInstance
-          );
+        if (!phantomCoreInstance.getIsSameInstance(instance)) {
+          // Retain in returned instances
+          return true;
         } else {
-          // Remove destroy handler from instance
-          phantomCoreInstance.off(EVT_DESTROYED, mapInstance.destroyListener);
-        }
+          if (!mapInstance.destroyListener) {
+            this.log.warn(
+              "Could not locate destroyListener for mapInstance",
+              mapInstance
+            );
+          } else {
+            // Remove destroy handler from instance
+            phantomCoreInstance.off(EVT_DESTROYED, mapInstance.destroyListener);
+          }
 
-        // Remove from returned instances
-        return false;
+          // Remove from returned instances
+          return false;
+        }
       }
-    });
+    );
 
     this.emit(EVT_CHILD_INSTANCE_REMOVED, phantomCoreInstance);
     this.emit(EVT_UPDATED);
@@ -161,16 +164,23 @@ class PhantomCollection extends PhantomCore {
    * @return {void}
    */
   broadcast(eventName, eventData) {
-    for (const instance of this.getInstances()) {
+    for (const instance of this.getChildren()) {
       instance.emit(eventName, eventData);
     }
+  }
+
+  // TODO: Document
+  getChildMetaDescription(instance) {
+    return this._childEventBridge.find(({ phantomCoreInstance }) =>
+      Object.is(phantomCoreInstance, instance)
+    );
   }
 
   /**
    * @return {PhantomCore[]}
    */
-  getInstances() {
-    return Object.values(this._coreInstances).map(
+  getChildren() {
+    return Object.values(this._childMetaDescriptions).map(
       ({ phantomCoreInstance }) => phantomCoreInstance
     );
   }
