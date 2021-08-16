@@ -15,8 +15,9 @@
 
 Base package utilized in [Speaker App](https://speaker.app) / [https://github.com/zenOSmosis/speaker.app](https://github.com/zenOSmosis/speaker.app).
 
-Includes:
+Characteristics:
 
+  - Can be run in Node.js and in browser
   - EventEmitter based core
   - Destruct method: Unbinds event listeners and nullifies internal method calls
   - Event proxies: Events (i.e. on / once) can be mapped to other PhantomCore instances and are automatically unbound once the proxying host is destructed
