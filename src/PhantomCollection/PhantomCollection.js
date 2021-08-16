@@ -28,7 +28,7 @@ class PhantomCollection extends PhantomCore {
     super(options);
 
     /**
-     * An array of objects with PhantomCore information as well as destroy
+     * An array of objects with PhantomCore instances as well as destroy
      * listener for each.
      *
      * IMPORTANT: Use this.getInstances() instead of iterating on this variable
@@ -38,8 +38,12 @@ class PhantomCollection extends PhantomCore {
      */
     this._coreInstances = [];
 
-    // TODO: Document
+    // IMPORTANT: EventBridge has to be lazy-loaded due to the fact that it
+    // needs to be able to read the exports from this file, including the
+    // PhantomCollection class itself
     const EventBridge = require("./EventBridge");
+
+    // TODO: [ex. scenario] Child A emits EVT_AUDIO_LEVEL_TICK; pipe it through here
 
     // TODO: Document
     this._eventBridge = new EventBridge(this);
@@ -62,14 +66,14 @@ class PhantomCollection extends PhantomCore {
     await super.destroy();
   }
 
-  // TODO: [ex. scenario] Child A emits EVT_AUDIO_LEVEL_TICK; pipe it through here
-
   /**
    * Adds a PhantomCore instance to the collection.
    *
    * @param {PhantomCore} phantomCoreInstance
    * @throws TypeError
    * @throws ReferenceError
+   * @emits EVT_CHILD_INSTANCE_ADDED
+   * @emits EVT_UPDATED
    * @return {void}
    */
   addInstance(phantomCoreInstance) {
@@ -101,6 +105,7 @@ class PhantomCollection extends PhantomCore {
     // Called when the collection instance is destroyed before the collection
     const destroyListener = () => this.removeInstance(phantomCoreInstance);
 
+    // Register w/ _coreInstances property
     this._coreInstances.push({
       phantomCoreInstance,
       destroyListener,
@@ -116,13 +121,17 @@ class PhantomCollection extends PhantomCore {
    * Removes a PhantomCore instance from the collection.
    *
    * @param {PhantomCore} phantomCoreInstance
+   * @emits EVT_CHILD_INSTANCE_REMOVED
+   * @emits EVT_UPDATED
    * @return {void}
    */
   removeInstance(phantomCoreInstance) {
+    // Unregister from _coreInstances property
     this._coreInstances = this._coreInstances.filter(mapInstance => {
       const instance = mapInstance.phantomCoreInstance;
 
       if (!phantomCoreInstance.getIsSameInstance(instance)) {
+        // Retain in returned instances
         return true;
       } else {
         if (!mapInstance.destroyListener) {
@@ -135,6 +144,7 @@ class PhantomCollection extends PhantomCore {
           phantomCoreInstance.off(EVT_DESTROYED, mapInstance.destroyListener);
         }
 
+        // Remove from returned instances
         return false;
       }
     });
@@ -148,6 +158,7 @@ class PhantomCollection extends PhantomCore {
    *
    * @param {string} eventName
    * @param {any} eventData
+   * @return {void}
    */
   broadcast(eventName, eventData) {
     for (const instance of this.getInstances()) {
