@@ -6,7 +6,7 @@ const { EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
 
 const _ChildEventBridge = require("../src/PhantomCollection/ChildEventBridge");
 
-test("PhantomCollection basic handling", async t => {
+test("PhantomCollection add / remove child; get children", async t => {
   t.plan(17);
 
   t.throws(
