@@ -97,17 +97,21 @@ class ChildEventBridge extends PhantomCore {
   // TODO: Remove
   _handleChildInstanceAdded(childInstance) {
     // TODO: Remove
+    /*
     console.log({
       childInstanceAdded: childInstance,
     });
+    */
   }
 
   // TODO: Remove
   _handleChildInstanceRemoved(childInstance) {
     // TODO: Remove
+    /*
     console.log({
       childInstanceRemoved: childInstance,
     });
+    */
   }
 
   /**
