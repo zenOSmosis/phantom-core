@@ -24,6 +24,8 @@ class EventBridge extends PhantomCore {
     // TODO: Map update / remove handling
     // EVT_CHILD_INSTANCE_ADDED,
     // EVT_CHILD_INSTANCE_REMOVED,
+
+    // TODO: On each new instance, map all existing bridge events to it
   }
 
   // TODO: Document

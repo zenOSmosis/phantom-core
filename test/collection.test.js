@@ -154,11 +154,48 @@ test("PhantomCollection handling", async t => {
 });
 
 test("PhantomCollection EventBridge", async t => {
-  t.plan(1);
+  t.plan(3);
 
   t.throws(() => {
     new _EventBridge(new PhantomCore());
   }, TypeError);
+
+  await (async () => {
+    const phantom1 = new PhantomCore();
+    const phantom2 = new PhantomCore();
+
+    const collection = new PhantomCollection([phantom1, phantom2]);
+
+    const expectedEventMessage = "hello world. it works.";
+
+    await Promise.all([
+      new Promise((resolve, reject) => {
+        phantom1.once(EVT_UPDATED, message => {
+          t.equals(
+            message,
+            expectedEventMessage,
+            "phantom1 received correct broadcast message"
+          );
+        });
+      }),
+
+      new Promise((resolve, reject) => {
+        phantom2.once(EVT_UPDATED, message => {
+          t.equals(
+            message,
+            expectedEventMessage,
+            "phantom2 received correct broadcast message"
+          );
+        });
+      }),
+
+      new Promise(resolve => {
+        collection.broadcast(EVT_UPDATED, expectedEventMessage);
+
+        resolve();
+      }),
+    ]);
+  })();
 
   // TODO: Add additional EventBridge tests
 

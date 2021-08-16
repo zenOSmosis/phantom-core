@@ -144,6 +144,18 @@ class PhantomCollection extends PhantomCore {
   }
 
   /**
+   * Emits an event to all child instances.
+   *
+   * @param {string} eventName
+   * @param {any} eventData
+   */
+  broadcast(eventName, eventData) {
+    for (const instance of this.getInstances()) {
+      instance.emit(eventName, eventData);
+    }
+  }
+
+  /**
    * @return {PhantomCore[]}
    */
   getInstances() {
