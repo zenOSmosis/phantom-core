@@ -135,22 +135,18 @@ class PhantomCollection extends PhantomCore {
   removeChild(phantomCoreInstance) {
     // Unregister from _childMetaDescriptions property
     this._childMetaDescriptions = this._childMetaDescriptions.filter(
-      mapInstance => {
-        const instance = mapInstance.phantomCoreInstance;
+      metaDescription => {
+        const instance = metaDescription[KEY_META_CHILD_DESC_INSTANCE];
 
         if (!phantomCoreInstance.getIsSameInstance(instance)) {
           // Retain in returned instances
           return true;
         } else {
-          if (!mapInstance.destroyListener) {
-            this.log.warn(
-              "Could not locate destroyListener for mapInstance",
-              mapInstance
-            );
-          } else {
-            // Remove destroy handler from instance
-            phantomCoreInstance.off(EVT_DESTROYED, mapInstance.destroyListener);
-          }
+          // Remove destroy handler from instance
+          phantomCoreInstance.off(
+            EVT_DESTROYED,
+            metaDescription[KEY_META_CHILD_DESTROY_LISTENER]
+          );
 
           // Remove from returned instances
           return false;
