@@ -308,6 +308,7 @@ class PhantomCore extends EventEmitter {
    * "trace") values.
    *
    * @param {number | number} level
+   * @return {void}
    */
   setLogLevel(level) {
     this.logger.setLogLevel(level);
