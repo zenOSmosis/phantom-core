@@ -24,6 +24,14 @@ Characteristics:
   - Event constants: Internal events are exposed as module exports (i.e. EVT_UPDATED, EVT_DESTROYED)
   - Instance lookup by UUID / Symbol: If the UUID or Symbol is known for a given PhantomCore instance, that instance can be returned by the lookup function (i.e. PhantomCore.getInstanceWithUUID() or PhantomCore.getInstanceWithSymbol() static methods)
   - Logger, inspired by [loglevel](https://www.npmjs.com/package/loglevel), with log level support, and exposes original stack trace to console (node and browser)
-  - PhantomCollection: Contains an array of unique PhantomCore instances which are bound as child instances, where EVT_UPDATED from each child instance is emit out the main instance, and each child instance is destructed when the main instance is destructed
+
+
+  [TODO: Validate the following happens before merging PR]
+  - PhantomCollection
+    - Useful for maintaining a collection of PhantomCore instances
+    - Contains an array of unique PhantomCore instances which are bound as child instances, where mapped events (and corresponding data) emitted from child instances are also emitted from the collection itself (ChildEventBridge class handles this)
+    - Can broadcast events to all of its children
+    - Can add and remove child instances during runtime
+    - Can contain children bound to other PhantomCollections
 
 TODO: Build out this documentation
