@@ -9,12 +9,17 @@ const {
 
 const DEFAULT_BRIDGE_EVENT_NAMES = [EVT_UPDATED];
 
+const EVT_BRIDGE_EVENT_NAME_ADDED = "bridge-event-name-added";
+const EVT_BRIDGE_EVENT_NAME_REMOVED = "bridge-event-name-removed";
+
 /**
- * Handles proxying of events emit from PhantomCollection children out of the
- * PhantomCollection itself.
+ * Handles many-to-one proxying of specified events of PhantomCollection
+ * children out of the PhantomCollection itself.
  *
- * i.e. (for every mapped event): When childA emits EVT_UPDATED, collection
- * emits EVT_UPDATED as well.
+ * For each relevant event, when emit, the PhantomCollection emits the same
+ * event and the same event data as the original child emitter emitted (i.e.
+ * [for every mapped event] when childA emits EVT_UPDATED, collection emits
+ * EVT_UPDATED as well).
  */
 class ChildEventBridge extends PhantomCore {
   /**
@@ -53,7 +58,17 @@ class ChildEventBridge extends PhantomCore {
   }
 
   /**
-   * TODO: Document
+   * @return {Promise<void>}
+   */
+  async destroy() {
+    // TODO: Unmap mapped event handlers from each child
+
+    return super.destroy();
+  }
+
+  /**
+   * Retrieves the specific event handlers this ChildEventBridge class has
+   * attached to the given childInstance.
    *
    * @param {PhantomCore} childInstance
    * @return {Object | void} // TODO: Document type beyond just "Object"
@@ -118,6 +133,7 @@ class ChildEventBridge extends PhantomCore {
     childInstance.on(eventName, _handleChildEvent);
   }
 
+  // TODO: Document
   _unmapChildEvent(childInstance, eventName) {
     // TODO: Handle
   }
@@ -132,7 +148,7 @@ class ChildEventBridge extends PhantomCore {
     const nextLength = this._bridgeEventNames.length;
 
     if (nextLength > prevLength) {
-      this.emit(EVT_UPDATED);
+      this.emit(EVT_BRIDGE_EVENT_NAME_ADDED, eventName);
     }
   }
 
@@ -147,7 +163,7 @@ class ChildEventBridge extends PhantomCore {
     const nextLength = this._bridgeEventNames.length;
 
     if (nextLength < prevLength) {
-      this.emit(EVT_UPDATED);
+      this.emit(EVT_BRIDGE_EVENT_NAME_ADDED, eventName);
     }
   }
 

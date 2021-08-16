@@ -76,8 +76,8 @@ class PhantomCollection extends PhantomCore {
    * Adds a PhantomCore instance to the collection.
    *
    * @param {PhantomCore} phantomCoreInstance
-   * @throws TypeError
-   * @throws ReferenceError
+   * @throws {TypeError}
+   * @throws {ReferenceErro}
    * @emits EVT_CHILD_INSTANCE_ADDED
    * @emits EVT_UPDATED
    * @return {void}
@@ -163,7 +163,7 @@ class PhantomCollection extends PhantomCore {
   }
 
   /**
-   * Emits an event to all child instances.
+   * Emits an event to all child instances (one-to-many relationship).
    *
    * @param {string} eventName
    * @param {any} eventData
@@ -175,12 +175,12 @@ class PhantomCollection extends PhantomCore {
     }
   }
 
-  // TODO: Document
+  // TODO: Document (many-to-one relationship)
   mapChildEventName(childEventName) {
     this._childEventBridge.addBridgeEventName(childEventName);
   }
 
-  // TODO: Document
+  // TODO: Document (many-to-one relationship)
   unmapChildEventName(childEventName) {
     this._childEventBridge.removeBridgeEventName(childEventName);
   }
