@@ -308,7 +308,7 @@ test("PhantomCollection broadcasting / post-destruct child retention", async t =
 });
 
 test("PhantomCollection ChildEventBridge", async t => {
-  t.plan(1);
+  t.plan(8);
 
   t.throws(
     () => {
@@ -318,23 +318,75 @@ test("PhantomCollection ChildEventBridge", async t => {
     "throws TypeError when trying to add non-PhantomCollection instance"
   );
 
-  /*
   const collection = new PhantomCollection();
-  const child1 = new PhantomCore();
-  const child2 = new PhantomCore();
+  const child = new PhantomCore();
 
-  const eventBridge = new _ChildEventBridge(collection);
+  collection.addChild(child);
 
-  await Promise.all([
-    new Promise(resolve => {
-      eventBridge.once()
-    }),
+  t.deepEquals(
+    collection.getChildEventNames(),
+    [EVT_UPDATED],
+    "collection includes EVT_UPDATED event by default"
+  );
 
-    new Promise(resolve => {
-      collection.addChild(child1)
-    })
-  ])
-  */
+  collection.removeChildEventName(EVT_UPDATED);
+
+  t.deepEquals(
+    collection.getChildEventNames(),
+    [],
+    "collection has 0 mapped child events after removing EVT_UPDATED"
+  );
+
+  collection.addChildEventName(EVT_UPDATED);
+
+  t.deepEquals(
+    collection.getChildEventNames(),
+    [EVT_UPDATED],
+    "collection can add child event"
+  );
+
+  t.doesNotThrow(() => {
+    collection.addChildEventName(EVT_UPDATED);
+  }, "collection does not throw when trying to add duplicate event (silently ignores)");
+
+  t.deepEquals(
+    collection.getChildEventNames(),
+    [EVT_UPDATED],
+    "collection does not contain duplicate added event"
+  );
+
+  (() => {
+    const collection = new PhantomCollection();
+    const child1 = new PhantomCore();
+    // const child2 = new PhantomCore();
+
+    class _TestChildEventBridge extends _ChildEventBridge {
+      constructor(...args) {
+        super(...args);
+
+        this._self = this;
+      }
+
+      _handleChildInstanceAdded() {
+        t.ok(
+          Object.is(this._self, this),
+          "_handleChildInstanceAdded is scoped to class"
+        );
+      }
+
+      _handleChildInstanceRemoved() {
+        t.ok(
+          Object.is(this._self, this),
+          "_handleChildInstanceRemoved is scoped to class"
+        );
+      }
+    }
+
+    const altEventBridge = new _TestChildEventBridge(collection);
+
+    collection.addChild(child1);
+    collection.removeChild(child1);
+  })();
 
   // TODO: Add additional ChildEventBridge tests
 

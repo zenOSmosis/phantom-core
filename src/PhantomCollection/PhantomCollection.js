@@ -198,19 +198,19 @@ class PhantomCollection extends PhantomCore {
   }
 
   // TODO: Document (many-to-one relationship)
-  mapChildEventName(childEventName) {
+  addChildEventName(childEventName) {
     this._childEventBridge.addBridgeEventName(childEventName);
   }
 
   // TODO: Document (many-to-one relationship)
-  unmapChildEventName(childEventName) {
+  removeChildEventName(childEventName) {
     this._childEventBridge.removeBridgeEventName(childEventName);
   }
 
   /**
    * @return {string[]}
    */
-  getMappedChildEventNames() {
+  getChildEventNames() {
     return this._childEventBridge.getBridgeEventNames();
   }
 }

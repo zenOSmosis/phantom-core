@@ -51,12 +51,9 @@ class ChildEventBridge extends PhantomCore {
     this._bridgeEventNames = [...DEFAULT_BRIDGE_EVENT_NAMES];
 
     this._handleChildInstanceAdded = this._handleChildInstanceAdded.bind(this);
-
-    // TODO: Map update / remove handling
-    // EVT_CHILD_INSTANCE_ADDED,
-    // EVT_CHILD_INSTANCE_REMOVED,
-
-    // TODO: On each new instance, map all existing bridge events to it
+    this._handleChildInstanceRemoved = this._handleChildInstanceRemoved.bind(
+      this
+    );
 
     // Bind child _...added/removed handlers
     (() => {
@@ -96,6 +93,7 @@ class ChildEventBridge extends PhantomCore {
 
   // TODO: Remove
   _handleChildInstanceAdded(childInstance) {
+    // TODO: Map all existing bridge events to this instance
     // TODO: Remove
     /*
     console.log({
@@ -191,7 +189,9 @@ class ChildEventBridge extends PhantomCore {
     const prevLength = this._bridgeEventNames.length;
 
     // Add only unique values
-    this._bridgeEventNames = [...new Set(eventName)];
+    this._bridgeEventNames = [
+      ...new Set([...this._bridgeEventNames, eventName]),
+    ];
 
     const nextLength = this._bridgeEventNames.length;
 
