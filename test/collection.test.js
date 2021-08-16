@@ -1,13 +1,17 @@
 const test = require("tape-async");
 const PhantomCore = require("../src");
+const { EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
 const EventEmitter = require("events");
 const PhantomCollection = require("../src/PhantomCollection");
-const { EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
+const {
+  EVT_CHILD_INSTANCE_ADDED,
+  EVT_CHILD_INSTANCE_REMOVED,
+} = PhantomCollection;
 
 const _ChildEventBridge = require("../src/PhantomCollection/ChildEventBridge");
 
 test("PhantomCollection add / remove child; get children", async t => {
-  t.plan(17);
+  t.plan(25);
 
   t.throws(
     () => {
@@ -96,12 +100,73 @@ test("PhantomCollection add / remove child; get children", async t => {
       collection.once(EVT_UPDATED, () => {
         t.ok(true, "emits EVT_UPDATED when instance is added to collection");
 
+        t.ok(
+          collection.getChildren().includes(ec2),
+          "getChildren() includes added child instance"
+        );
+
+        resolve();
+      });
+    }),
+
+    new Promise(resolve => {
+      collection.once(EVT_CHILD_INSTANCE_ADDED, childInstance => {
+        t.ok(
+          Object.is(childInstance, ec2),
+          "emits EVT_CHILD_INSTANCE_ADDED when instance is added to collection"
+        );
+
+        t.ok(
+          collection.getChildren().includes(ec2),
+          "getChildren() includes added child instance"
+        );
+
         resolve();
       });
     }),
 
     collection.addChild(ec2),
   ]);
+
+  await Promise.all([
+    new Promise(resolve => {
+      collection.once(EVT_UPDATED, () => {
+        t.ok(
+          true,
+          "emits EVT_UPDATED when instance is removed from collection"
+        );
+
+        t.ok(
+          !collection.getChildren().includes(ec2),
+          "getChildren() does not include removed child instance"
+        );
+
+        resolve();
+      });
+    }),
+
+    new Promise(resolve => {
+      collection.once(EVT_CHILD_INSTANCE_REMOVED, childInstance => {
+        t.ok(
+          Object.is(childInstance, ec2),
+          "emits EVT_CHILD_INSTANCE_REMOVED when instance is removed from collection"
+        );
+
+        t.ok(
+          !collection.getChildren().includes(ec2),
+          "getChildren() does not include removed child instance"
+        );
+
+        resolve();
+      });
+    }),
+
+    collection.removeChild(ec2),
+  ]);
+
+  t.doesNotThrow(() => {
+    collection.addChild(ec2);
+  }, "child can be re-added to collection");
 
   t.equals(
     ec2.listenerCount(EVT_DESTROYED),
@@ -216,9 +281,30 @@ test("PhantomCollection broadcasting / post-destruct child retention", async t =
 test("PhantomCollection ChildEventBridge", async t => {
   t.plan(1);
 
-  t.throws(() => {
-    new _ChildEventBridge(new PhantomCore());
-  }, TypeError);
+  t.throws(
+    () => {
+      new _ChildEventBridge(new PhantomCore());
+    },
+    TypeError,
+    "throws TypeError when trying to add non-PhantomCollection instance"
+  );
+
+  const collection = new PhantomCollection();
+  const child1 = new PhantomCore();
+  const child2 = new PhantomCore();
+
+  const eventBridge = new _ChildEventBridge(collection);
+
+  /*
+  await Promise.all([
+    new Promise(resolve => {
+      eventBridge.once()
+    })
+    new Promise(resolve => {
+      collection.addChild(child1)
+    })
+  ])
+  */
 
   // TODO: Add additional ChildEventBridge tests
 
