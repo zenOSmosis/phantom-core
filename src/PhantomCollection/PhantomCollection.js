@@ -15,6 +15,10 @@ const KEY_META_CHILD_DESTROY_LISTENER = "destroyListener";
  * A PhantomCollection contains an array of unique PhantomCore instances
  * which are bound as child instances.
  *
+ * Events can be sent to a children by broadcasting them, and events can be
+ * bridged from every child which will emit out the collection as if the
+ * collection itself generated the event.
+ *
  * In addition, this collection strives to include all of the properties which
  * Techopedia defines as a collection:
  * @see https://www.techopedia.com/definition/25317/collection
