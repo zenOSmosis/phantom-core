@@ -12,9 +12,13 @@ const getUnixTime = require("./utils/getUnixTime");
 // warning
 const ASYNC_INIT_GRACE_TIME = 5000;
 
+/** @export */
 const EVT_READY = "ready";
+/** @export */
 const EVT_UPDATED = "updated";
+/** @export */
 const EVT_DESTROYED = "destroyed";
+/** @export */
 const EVT_NO_INIT_WARN = "no-init-warn";
 
 // Instances for this particular thread
@@ -28,6 +32,10 @@ const KEEP_ALIVE_SHUTDOWN_METHODS = [
   "listenerCount",
   "getIsDestroyed",
   "getInstanceUptime",
+  "getTotalListenerCount",
+  // super method names
+  "eventNames",
+  "listenerCount",
 ];
 
 /**
@@ -111,7 +119,7 @@ class PhantomCore extends EventEmitter {
     super();
 
     // Provide "off" aliasing if it is not available (fixes issue where
-    // PhantomCoreCollection could not use off binding in browsers)
+    // PhantomCollection could not use off binding in browsers)
     //
     // NOTE (jh): I don't really know why this was not a problem before
     //
@@ -203,6 +211,7 @@ class PhantomCore extends EventEmitter {
 
     _instances[this._uuid] = this;
 
+    /** @type {number} UTC Unix time */
     this._instanceStartTime = getUnixTime();
 
     this._isReady = this._options.isReady || false;
@@ -257,6 +266,45 @@ class PhantomCore extends EventEmitter {
   }
 
   /**
+   * @return {Promise<void>}
+   */
+  async destroy() {
+    if (!this._isDestroyed) {
+      delete _instances[this._uuid];
+
+      // Note: Setting this flag before-hand is intentional
+      this._isDestroyed = true;
+
+      this.emit(EVT_DESTROYED);
+
+      // Unbind all listeners
+      this.removeAllListeners();
+
+      for (const methodName of this.getMethodNames()) {
+        // Force non-keep-alive methods to return undefined
+        if (!KEEP_ALIVE_SHUTDOWN_METHODS.includes(methodName)) {
+          this[methodName] = () => undefined;
+        }
+
+        // TODO: Reimplement and conditionally silence w/ instance options
+        // or env
+        // this.logger.warn(
+        //  `Cannot call this.${method}() after class ${className} is destroyed`
+        // );
+      }
+
+      // TODO: Force regular class properties to be null (as of July 30, 2021, not changing due to unforeseen consequences)
+    }
+  }
+
+  /**
+   * @return {boolean}
+   */
+  getIsDestroyed() {
+    return this._isDestroyed;
+  }
+
+  /**
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol
    *
    * @return {Symbol | null}
@@ -308,6 +356,7 @@ class PhantomCore extends EventEmitter {
    * "trace") values.
    *
    * @param {number | number} level
+   * @return {void}
    */
   setLogLevel(level) {
     this.logger.setLogLevel(level);
@@ -351,45 +400,6 @@ class PhantomCore extends EventEmitter {
     const propertyNames = this.getPropertyNames();
 
     return propertyNames.filter(item => typeof this[item] === "function");
-  }
-
-  /**
-   * @return {Promise<void>}
-   */
-  async destroy() {
-    if (!this._isDestroyed) {
-      delete _instances[this._uuid];
-
-      // Note: Setting this flag before-hand is intentional
-      this._isDestroyed = true;
-
-      this.emit(EVT_DESTROYED);
-
-      // Unbind all listeners
-      this.removeAllListeners();
-
-      for (const methodName of this.getMethodNames()) {
-        // Force non-keep-alive methods to return undefined
-        if (!KEEP_ALIVE_SHUTDOWN_METHODS.includes(methodName)) {
-          this[methodName] = () => undefined;
-        }
-
-        // TODO: Reimplement and conditionally silence w/ instance options
-        // or env
-        // this.logger.warn(
-        //  `Cannot call this.${method}() after class ${className} is destroyed`
-        // );
-      }
-
-      // TODO: Force regular class properties to be null (as of July 30, 2021, not changing due to unforeseen consequences)
-    }
-  }
-
-  /**
-   * @return {boolean}
-   */
-  getIsDestroyed() {
-    return this._isDestroyed;
   }
 
   /**
@@ -458,7 +468,7 @@ class PhantomCore extends EventEmitter {
    * reference to the underlying class for optional chaining.
    *
    * @param {PhantomCore} proxyInstance
-   * @param {string} eventName
+   * @param {string | symbol} eventName
    * @param {function} eventHandler
    * @return {void}
    */
@@ -489,7 +499,7 @@ class PhantomCore extends EventEmitter {
    * reference to the underlying class for optional chaining.
    *
    * @param {PhantomCore} proxyInstance
-   * @param {string} eventName
+   * @param {string | symbol} eventName
    * @param {function} eventHandler
    * @return {void}
    */
@@ -527,7 +537,7 @@ class PhantomCore extends EventEmitter {
    * reference to the underlying class for optional chaining.
    *
    * @param {PhantomCore} proxyInstance
-   * @param {string} eventName
+   * @param {string | symbol} eventName
    * @param {function} eventHandler
    * @return {void}
    */
@@ -542,6 +552,17 @@ class PhantomCore extends EventEmitter {
 
     // Unbind from proxy instance
     proxyInstance.off(eventName, eventHandler);
+  }
+
+  /**
+   * Retrieves total number of event listeners registered to this instance.
+   *
+   * @return {number}
+   */
+  getTotalListenerCount() {
+    return this.eventNames()
+      .map(eventName => this.listenerCount(eventName))
+      .reduce((a, b) => a + b, 0);
   }
 
   /**

@@ -91,7 +91,15 @@ test("get options", t => {
 });
 
 test("get instance with symbol", t => {
-  t.plan(6);
+  t.plan(7);
+
+  t.throws(
+    () => {
+      new PhantomCore({ symbol: { notASymbol: true } });
+    },
+    TypeError,
+    "throws TypeError when passing invalid symbol type"
+  );
 
   const s1 = Symbol("a");
   const s2 = Symbol("a");
@@ -548,6 +556,46 @@ test("on / once / off use super return types", async t => {
   );
 
   await phantom.destroy();
+
+  t.end();
+});
+
+test("total listener count", async t => {
+  t.plan(4);
+
+  const phantom = new PhantomCore();
+
+  let initialListenerCount = phantom.getTotalListenerCount();
+
+  t.equals(
+    typeof initialListenerCount,
+    "number",
+    "getTotalListenerCount() returns numeric"
+  );
+
+  phantom.on("test-event-a", () => null);
+
+  t.equals(
+    initialListenerCount + 1,
+    phantom.getTotalListenerCount(),
+    "total listener count is increased by one when adding new event"
+  );
+
+  phantom.on("test-event-b", () => null);
+
+  t.equals(
+    initialListenerCount + 2,
+    phantom.getTotalListenerCount(),
+    "total listener count is increased by two when adding another event"
+  );
+
+  await phantom.destroy();
+
+  t.equals(
+    phantom.getTotalListenerCount(),
+    0,
+    "total listener count is set to 0 after instance destruct"
+  );
 
   t.end();
 });

@@ -1,6 +1,6 @@
 const PhantomCore = require("./PhantomCore");
 const { EVT_READY, EVT_UPDATED, EVT_DESTROYED, EVT_NO_INIT_WARN } = PhantomCore;
-const PhantomCoreCollection = require("./PhantomCoreCollection");
+const PhantomCollection = require("./PhantomCollection");
 const Logger = require("./Logger");
 const {
   LOG_LEVEL_TRACE,
@@ -14,7 +14,7 @@ const getUnixTime = require("./utils/getUnixTime");
 const getUptime = require("./utils/getUptime");
 
 module.exports = PhantomCore;
-module.exports.PhantomCoreCollection = PhantomCoreCollection;
+module.exports.PhantomCollection = PhantomCollection;
 module.exports.EVT_READY = EVT_READY;
 module.exports.EVT_UPDATED = EVT_UPDATED;
 module.exports.EVT_DESTROYED = EVT_DESTROYED;
