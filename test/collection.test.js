@@ -7,6 +7,7 @@ const {
   EVT_CHILD_INSTANCE_ADDED,
   EVT_CHILD_INSTANCE_REMOVED,
   KEY_META_CHILD_DESC_INSTANCE,
+  KEY_META_DESC_CHILD_KEY,
   KEY_META_CHILD_DESTROY_LISTENER,
 } = PhantomCollection;
 
@@ -139,6 +140,7 @@ test("PhantomCollection add / remove child; get children", async t => {
           Object.keys(ec2MetaDescription).includes(
             KEY_META_CHILD_DESC_INSTANCE
           ) &&
+            Object.keys(ec2MetaDescription).includes(KEY_META_DESC_CHILD_KEY) &&
             Object.keys(ec2MetaDescription).includes(
               KEY_META_CHILD_DESTROY_LISTENER
             ),
@@ -504,3 +506,86 @@ test("PhantomCollection ChildEventBridge", async t => {
 
   t.end();
 });
+
+test("PhantomCollection key support", async t => {
+  t.plan(5);
+
+  const coll = new PhantomCollection();
+
+  const tPhantom1 = new PhantomCore();
+  coll.addChild(tPhantom1, "tPhantom1-test-key");
+  t.ok(
+    Object.is(tPhantom1, coll.getChildWithKey("tPhantom1-test-key")),
+    "obtains child1 with associated key"
+  );
+
+  const tPhantom2 = new PhantomCore();
+  coll.addChild(tPhantom2, null);
+  t.notOk(
+    coll.getChildWithKey(null),
+    "does not retrieve children with null keys"
+  );
+
+  const tPhantom3 = new PhantomCore();
+  coll.addChild(tPhantom3, "tPhantom3-test-key");
+  t.ok(
+    Object.is(tPhantom3, coll.getChildWithKey("tPhantom3-test-key")),
+    "obtains child3 with associated key"
+  );
+  t.ok(
+    Object.is(tPhantom1, coll.getChildWithKey("tPhantom1-test-key")),
+    "obtains child1 with associated key, again"
+  );
+  t.notOk(
+    coll.getChildWithKey("tPhantom3-invalid-key"),
+    "does not retrieve any child with invalid key"
+  );
+
+  t.end();
+});
+
+/*
+test("PhantomCollection coerced type support", async t => {
+  class _TestCollection extends PhantomCollection {
+    addChild(obj, key = null) {
+      if (this.getChildWithKey(key)) {
+        t.ok(key !== null, "captures get child with key");
+
+        this.emit("duplicate-key");
+
+        return;
+      }
+
+      const phantom = new PhantomCore();
+
+      return super.addChild(phantom, key);
+    }
+  }
+
+  // const coll = new _TestCollection();
+
+  await Promise.all([
+    new Promise(resolve => {
+      coll.once("duplicate-key", () => {
+        t.ok("duplicate key is captured");
+
+        resolve();
+      });
+    }),
+
+    new Promise(resolve => {
+      const testObject = { foo: 123 };
+
+      // coll.addChild(testObject);
+      // coll.addChild(testObject);
+
+      coll.addChild(testObject, 123);
+      coll.addChild(testObject, 123);
+
+      resolve();
+    }),
+  ]);
+
+  t.end();
+});
+*/
