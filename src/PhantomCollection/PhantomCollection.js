@@ -1,16 +1,14 @@
 const PhantomCore = require("../PhantomCore");
 const { EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
 
-// TODO: Document
-// @export
+/** @export */
 const EVT_CHILD_INSTANCE_ADDED = "child-instance-added";
-// @export
+/** @export */
 const EVT_CHILD_INSTANCE_REMOVED = "child-instance-removed";
 
-// TODO: Document
-// @export
+/** @export */
 const KEY_META_CHILD_DESC_INSTANCE = "phantomCoreInstance";
-// @export
+/** @export */
 const KEY_META_CHILD_DESTROY_LISTENER = "destroyListener";
 
 /**
