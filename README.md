@@ -13,22 +13,24 @@
 
 <img src="phantom.svg" alt="Phantom" width="200"/>
 
-Base package utilized in [Speaker App](https://speaker.app) / [https://github.com/zenOSmosis/speaker.app](https://github.com/zenOSmosis/speaker.app).
+Base package utilized in [Speaker App](https://speaker.app) / [https://github.com/zenOSmosis/speaker.app](https://github.com/zenOSmosis/speaker.app) which most other classes derive from.
 
-Characteristics:
+## Characteristics
 
   - Can be run in Node.js and in browser
   - EventEmitter based core
+  - Not a singleton on its own (can be extended w/ singleton support)
   - Destruct method: Unbinds event listeners and nullifies internal method calls
   - Event proxies: Events (i.e. on / once) can be mapped to other PhantomCore instances and are automatically unbound once the proxying host is destructed
   - Event constants: Internal events are exposed as module exports (i.e. EVT_UPDATED, EVT_DESTROYED)
   - Instance lookup by UUID / Symbol: If the UUID or Symbol is known for a given PhantomCore instance, that instance can be returned by the lookup function (i.e. PhantomCore.getInstanceWithUUID() or PhantomCore.getInstanceWithSymbol() static methods)
   - Logger, inspired by [loglevel](https://www.npmjs.com/package/loglevel), with log level support, and exposes original stack trace to console (node and browser)
   - PhantomCollection
-    - Maintains a collection of PhantomCore instances
+    - Maintains a collection of arbitrary PhantomCore (and derived) instances
     - Can broadcast events to all of its children
-    - Can re-emit events sent from one child (via included ChildEventBridge object)
-    - Can add and remove child instances (i.e. "group size varies") during runtime
+    - Can re-emit events sent from one child out the collection itself (via included ChildEventBridge object)
+    - Can add and remove child instances during runtime (i.e. "group size varies")
     - Can contain children bound to other PhantomCollections (share children across collections)
+    - Can contain other collections as children (linked collections)
 
 TODO: Build out this documentation
