@@ -243,7 +243,7 @@ class PhantomCollection extends PhantomCore {
    * Retrieves the event names which are mapped to every child which will emit
    * out the PhantomCollection when triggered.
    *
-   * @return {string[]}
+   * @return {string[] | symbol[]} Can be a mix of string and symbol types.
    */
   getChildEventNames() {
     return this._childEventBridge.getBridgeEventNames();
