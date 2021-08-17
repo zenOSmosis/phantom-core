@@ -326,33 +326,33 @@ test("PhantomCollection ChildEventBridge", async t => {
   collection.addChild(child4);
 
   t.deepEquals(
-    collection.getChildEventNames(),
+    collection.getBoundChildEventNames(),
     [EVT_UPDATED],
     "collection includes EVT_UPDATED event by default"
   );
 
-  collection.removeChildEventName(EVT_UPDATED);
+  collection.unbindChildEventName(EVT_UPDATED);
 
   t.deepEquals(
-    collection.getChildEventNames(),
+    collection.getBoundChildEventNames(),
     [],
     "collection has 0 mapped child events after removing EVT_UPDATED"
   );
 
-  collection.addChildEventName(EVT_UPDATED);
+  collection.bindChildEventName(EVT_UPDATED);
 
   t.deepEquals(
-    collection.getChildEventNames(),
+    collection.getBoundChildEventNames(),
     [EVT_UPDATED],
     "collection can add child event"
   );
 
   t.doesNotThrow(() => {
-    collection.addChildEventName(EVT_UPDATED);
+    collection.bindChildEventName(EVT_UPDATED);
   }, "collection does not throw when trying to add duplicate event (silently ignores)");
 
   t.deepEquals(
-    collection.getChildEventNames(),
+    collection.getBoundChildEventNames(),
     [EVT_UPDATED],
     "collection does not contain duplicate added event"
   );
@@ -388,7 +388,7 @@ test("PhantomCollection ChildEventBridge", async t => {
   // Test that removing child event names no longer routes the event through
   // the collection
   await (async () => {
-    collection.removeChildEventName(EVT_UPDATED);
+    collection.unbindChildEventName(EVT_UPDATED);
 
     await Promise.all([
       new Promise(resolve => {
@@ -415,8 +415,8 @@ test("PhantomCollection ChildEventBridge", async t => {
 
   // Test destruct unbinding
   await (async () => {
-    collection.addChildEventName(EVT_UPDATED);
-    collection.addChildEventName("some-test");
+    collection.bindChildEventName(EVT_UPDATED);
+    collection.bindChildEventName("some-test");
 
     const coll2 = new PhantomCollection([child1, child2, child3, child4]);
 
