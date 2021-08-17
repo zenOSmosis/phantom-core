@@ -32,6 +32,10 @@ const KEEP_ALIVE_SHUTDOWN_METHODS = [
   "listenerCount",
   "getIsDestroyed",
   "getInstanceUptime",
+  "getTotalListenerCount",
+  // super method names
+  "eventNames",
+  "listenerCount",
 ];
 
 /**
@@ -548,6 +552,17 @@ class PhantomCore extends EventEmitter {
 
     // Unbind from proxy instance
     proxyInstance.off(eventName, eventHandler);
+  }
+
+  /**
+   * Retrieves total number of event listeners registered to this instance.
+   *
+   * @return {number}
+   */
+  getTotalListenerCount() {
+    return this.eventNames()
+      .map(eventName => this.listenerCount(eventName))
+      .reduce((a, b) => a + b, 0);
   }
 
   /**
