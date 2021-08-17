@@ -135,6 +135,8 @@ class PhantomCollection extends PhantomCore {
    * @return {void}
    */
   removeChild(phantomCoreInstance) {
+    const prevLength = this._childMetaDescriptions.length;
+
     // Unregister from _childMetaDescriptions property
     this._childMetaDescriptions = this._childMetaDescriptions.filter(
       metaDescription => {
@@ -156,8 +158,12 @@ class PhantomCollection extends PhantomCore {
       }
     );
 
-    this.emit(EVT_CHILD_INSTANCE_REMOVED, phantomCoreInstance);
-    this.emit(EVT_UPDATED);
+    const nextLength = this._childMetaDescriptions.length;
+
+    if (nextLength < prevLength) {
+      this.emit(EVT_CHILD_INSTANCE_REMOVED, phantomCoreInstance);
+      this.emit(EVT_UPDATED);
+    }
   }
 
   /**
