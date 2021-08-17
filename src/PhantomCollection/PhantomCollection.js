@@ -193,7 +193,7 @@ class PhantomCollection extends PhantomCore {
   /**
    * Emits an event to all child instances (one-to-many relationship).
    *
-   * @param {string} eventName
+   * @param {string | symbol} eventName
    * @param {any} eventData
    * @return {void}
    */
@@ -205,12 +205,20 @@ class PhantomCollection extends PhantomCore {
 
   // TODO: Rename
   // TODO: Document (many-to-one relationship)
+  /**
+   *
+   * @param {string | symbol} childEventName
+   */
   addChildEventName(childEventName) {
     this._childEventBridge.addBridgeEventName(childEventName);
   }
 
   // TODO: Rename
   // TODO: Document (many-to-one relationship)
+  /**
+   *
+   * @param {string | symbol} childEventName
+   */
   removeChildEventName(childEventName) {
     this._childEventBridge.removeBridgeEventName(childEventName);
   }

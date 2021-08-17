@@ -158,7 +158,11 @@ class ChildEventBridge extends PhantomCore {
     delete this._linkedChildEventHandlers[childUUID];
   }
 
-  // TODO: Document
+  /**
+   *
+   * @param {PhantomCore} childInstance
+   * @param {string | symbol} eventName
+   */
   _mapChildEvent(childInstance, eventName) {
     const childUUID = childInstance.getUUID();
 

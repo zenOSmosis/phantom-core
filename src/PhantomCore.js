@@ -468,7 +468,7 @@ class PhantomCore extends EventEmitter {
    * reference to the underlying class for optional chaining.
    *
    * @param {PhantomCore} proxyInstance
-   * @param {string} eventName
+   * @param {string | symbol} eventName
    * @param {function} eventHandler
    * @return {void}
    */
@@ -499,7 +499,7 @@ class PhantomCore extends EventEmitter {
    * reference to the underlying class for optional chaining.
    *
    * @param {PhantomCore} proxyInstance
-   * @param {string} eventName
+   * @param {string | symbol} eventName
    * @param {function} eventHandler
    * @return {void}
    */
@@ -537,7 +537,7 @@ class PhantomCore extends EventEmitter {
    * reference to the underlying class for optional chaining.
    *
    * @param {PhantomCore} proxyInstance
-   * @param {string} eventName
+   * @param {string | symbol} eventName
    * @param {function} eventHandler
    * @return {void}
    */
