@@ -21,7 +21,7 @@ const KEY_META_CHILD_DESTROY_LISTENER = "destroyListener";
  *  - Each group element represents an object with a similar purpose
  *  - Group size varies dynamically during runtime
  *  - There must be access to an individual element through a search function
- *    based on a specific key [TODO: This is not currently implemented due to
+ *    based on a specific key [FIXME: This is not currently implemented due to
  *    not yet deciding upon which search criteria to search for, or if it can
  *    be somehow dynamic in which search criteria to use]
  *  - There must be a sort or iteration through the group elements
@@ -54,7 +54,7 @@ class PhantomCollection extends PhantomCore {
     // PhantomCollection class itself
     const ChildEventBridge = require("./ChildEventBridge");
 
-    // TODO: Document
+    // Controls proxying of events emit from children out the collection itself
     this._childEventBridge = new ChildEventBridge(this);
 
     // Add all initial instances
@@ -171,7 +171,12 @@ class PhantomCollection extends PhantomCore {
     );
   }
 
-  // TODO: Document
+  /**
+   * Retrieves collection-based metadata regarding the given child instance.
+   *
+   * @param {PhantomCore} childInstance
+   * @return {Object}
+   */
   getChildMetaDescription(childInstance) {
     return this._childMetaDescriptions.find(
       ({ [KEY_META_CHILD_DESC_INSTANCE]: phantomCoreInstance }) =>
@@ -192,11 +197,13 @@ class PhantomCollection extends PhantomCore {
     }
   }
 
+  // TODO: Rename
   // TODO: Document (many-to-one relationship)
   addChildEventName(childEventName) {
     this._childEventBridge.addBridgeEventName(childEventName);
   }
 
+  // TODO: Rename
   // TODO: Document (many-to-one relationship)
   removeChildEventName(childEventName) {
     this._childEventBridge.removeBridgeEventName(childEventName);
