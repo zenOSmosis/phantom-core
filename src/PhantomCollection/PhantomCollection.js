@@ -109,9 +109,8 @@ class PhantomCollection extends PhantomCore {
     // Ensure instance isn't already part of the collection
     for (const instance of this.getChildren()) {
       if (instance.getIsSameInstance(phantomCoreInstance)) {
-        throw new ReferenceError(
-          "The PhantomCore instance is already a part of the collection"
-        );
+        // Silently ignore repeated attempts to add same child
+        return;
       }
     }
 

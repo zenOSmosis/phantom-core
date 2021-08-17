@@ -45,13 +45,17 @@ test("PhantomCollection add / remove child; get children", async t => {
 
   const collection = new PhantomCollection([extendedCore]);
 
-  t.throws(
-    () => {
-      collection.addChild(extendedCore);
-    },
-    ReferenceError,
-    "prevents previously added instance from being re-added"
-  );
+  t.doesNotThrow(() => {
+    const prevLength = collection.getChildren().length;
+
+    collection.addChild(extendedCore);
+
+    const nextLength = collection.getChildren().length;
+
+    if (prevLength !== nextLength) {
+      throw new Error("Duplicate child was added");
+    }
+  }, "silently ignores duplicate child add attempt");
 
   t.equals(
     collection.getChildren().length,
