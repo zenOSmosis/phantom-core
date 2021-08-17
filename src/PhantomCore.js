@@ -266,6 +266,45 @@ class PhantomCore extends EventEmitter {
   }
 
   /**
+   * @return {Promise<void>}
+   */
+  async destroy() {
+    if (!this._isDestroyed) {
+      delete _instances[this._uuid];
+
+      // Note: Setting this flag before-hand is intentional
+      this._isDestroyed = true;
+
+      this.emit(EVT_DESTROYED);
+
+      // Unbind all listeners
+      this.removeAllListeners();
+
+      for (const methodName of this.getMethodNames()) {
+        // Force non-keep-alive methods to return undefined
+        if (!KEEP_ALIVE_SHUTDOWN_METHODS.includes(methodName)) {
+          this[methodName] = () => undefined;
+        }
+
+        // TODO: Reimplement and conditionally silence w/ instance options
+        // or env
+        // this.logger.warn(
+        //  `Cannot call this.${method}() after class ${className} is destroyed`
+        // );
+      }
+
+      // TODO: Force regular class properties to be null (as of July 30, 2021, not changing due to unforeseen consequences)
+    }
+  }
+
+  /**
+   * @return {boolean}
+   */
+  getIsDestroyed() {
+    return this._isDestroyed;
+  }
+
+  /**
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol
    *
    * @return {Symbol | null}
@@ -361,45 +400,6 @@ class PhantomCore extends EventEmitter {
     const propertyNames = this.getPropertyNames();
 
     return propertyNames.filter(item => typeof this[item] === "function");
-  }
-
-  /**
-   * @return {Promise<void>}
-   */
-  async destroy() {
-    if (!this._isDestroyed) {
-      delete _instances[this._uuid];
-
-      // Note: Setting this flag before-hand is intentional
-      this._isDestroyed = true;
-
-      this.emit(EVT_DESTROYED);
-
-      // Unbind all listeners
-      this.removeAllListeners();
-
-      for (const methodName of this.getMethodNames()) {
-        // Force non-keep-alive methods to return undefined
-        if (!KEEP_ALIVE_SHUTDOWN_METHODS.includes(methodName)) {
-          this[methodName] = () => undefined;
-        }
-
-        // TODO: Reimplement and conditionally silence w/ instance options
-        // or env
-        // this.logger.warn(
-        //  `Cannot call this.${method}() after class ${className} is destroyed`
-        // );
-      }
-
-      // TODO: Force regular class properties to be null (as of July 30, 2021, not changing due to unforeseen consequences)
-    }
-  }
-
-  /**
-   * @return {boolean}
-   */
-  getIsDestroyed() {
-    return this._isDestroyed;
   }
 
   /**
