@@ -13,12 +13,13 @@
 
 <img src="phantom.svg" alt="Phantom" width="200"/>
 
-Base package utilized in [Speaker App](https://speaker.app) / [https://github.com/zenOSmosis/speaker.app](https://github.com/zenOSmosis/speaker.app).
+Base package utilized in [Speaker App](https://speaker.app) / [https://github.com/zenOSmosis/speaker.app](https://github.com/zenOSmosis/speaker.app) which most other classes derive from.
 
 ## Characteristics
 
   - Can be run in Node.js and in browser
   - EventEmitter based core
+  - Not a singleton on its own (can be extended w/ singleton support)
   - Destruct method: Unbinds event listeners and nullifies internal method calls
   - Event proxies: Events (i.e. on / once) can be mapped to other PhantomCore instances and are automatically unbound once the proxying host is destructed
   - Event constants: Internal events are exposed as module exports (i.e. EVT_UPDATED, EVT_DESTROYED)
