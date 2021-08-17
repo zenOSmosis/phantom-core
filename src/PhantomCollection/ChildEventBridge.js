@@ -50,6 +50,9 @@ class ChildEventBridge extends PhantomCore {
      */
     this._bridgeEventNames = [...DEFAULT_BRIDGE_EVENT_NAMES];
 
+    // TODO: Document
+    this._linkedChildEventHandlers = {};
+
     this._handleChildInstanceAdded = this._handleChildInstanceAdded.bind(this);
     this._handleChildInstanceRemoved = this._handleChildInstanceRemoved.bind(
       this
@@ -67,6 +70,22 @@ class ChildEventBridge extends PhantomCore {
         this._handleChildInstanceRemoved
       );
     })();
+
+    this.on(EVT_BRIDGE_EVENT_NAME_ADDED, eventName => {
+      const children = this.getChildren();
+
+      for (const child of children) {
+        this._mapChildEvent(child, eventName);
+      }
+    });
+
+    this.on(EVT_BRIDGE_EVENT_NAME_REMOVED, eventName => {
+      const children = this.getChildren();
+
+      for (const child of children) {
+        this._unmapChildEvent(child, eventName);
+      }
+    });
   }
 
   /**
@@ -91,6 +110,16 @@ class ChildEventBridge extends PhantomCore {
     return super.destroy();
   }
 
+  /**
+   * Retrieves an array of PhantomCore children for the associated
+   * PhantomCollection.
+   *
+   * @return {PhantomCore[]}
+   */
+  getChildren() {
+    return this._phantomCollection.getChildren();
+  }
+
   // TODO: Document
   _handleChildInstanceAdded(childInstance) {
     // TODO: Map all existing bridge events to this instance
@@ -100,88 +129,56 @@ class ChildEventBridge extends PhantomCore {
       childInstanceAdded: childInstance,
     });
     */
+
+    const childUUID = childInstance.getUUID();
+
+    this._linkedChildEventHandlers[childUUID] = {};
+
+    // Add linked child event handlers
+    this._bridgeEventNames.forEach(eventName =>
+      this._mapChildEvent(childInstance, eventName)
+    );
   }
 
   // TODO: Document
   _handleChildInstanceRemoved(childInstance) {
-    // TODO: Remove
-    /*
-    console.log({
-      childInstanceRemoved: childInstance,
-    });
-    */
-  }
+    const childUUID = childInstance.getUUID();
 
-  /**
-   * Retrieves the specific event handlers this ChildEventBridge class has
-   * attached to the given childInstance.
-   *
-   * @param {PhantomCore} childInstance
-   * @return {Object | void} // TODO: Document type beyond just "Object"
-   */
-  getChildMappedEventHandlers(childInstance) {
-    const metaDescription = this._phantomCollection.getInstanceChildMetaDescription(
-      childInstance
-    );
-
-    if (metaDescription) {
-      return metaDescription[KEY_META_CHILD_DESC_PROXY_EVENT_HANDLERS];
-    }
-  }
-
-  // TODO: Document
-  getChildMappedEventHandlerWithName(childInstance, eventName) {
-    const mappedEventHandlers = this.getChildMappedEventHandlerWithName(
-      childInstance
-    );
-
-    if (mappedEventHandlers) {
-      return mappedEventHandlers[eventName];
-    }
-  }
-
-  // TODO: Document
-  /*
-  setChildMappedEventHandlers(childInstance, proxyEventHandlers) {
-    const metaDescription = this._phantomCollection.getInstanceChildMetaDescription(
-      childInstance
-    );
-
-    if (!metaDescription) {
-      throw new ReferenceError(
-        "Could not obtain metaDescription of child instance from parent collection"
-      );
-    }
-
-    metaDescription.proxyEventHandlers = { ...proxyEventHandlers };
-  }
-  */
-
-  // TODO: Document
-  // TODO: Provide way to unmap when this class is destructed
-  /*
-  _mapChildEvents(childInstance) {
+    // Clear out linked child event handlers
     this._bridgeEventNames.forEach(eventName =>
-      childInstance.on(eventName, eventData =>
-        this._phantomCollection.emit(eventName, eventData)
-      )
+      this._unmapChildEvent(childInstance, eventName)
     );
+
+    delete this._linkedChildEventHandlers[childUUID];
   }
-  */
 
   // TODO: Document
   _mapChildEvent(childInstance, eventName) {
-    // TODO: Determine if already mapped before doing it again
+    const childUUID = childInstance.getUUID();
 
-    const _handleChildEvent = eventData =>
-      this._phantomCollection.emit(eventName, eventData);
+    // Silently ignore previously linked events with same name
+    if (!this._linkedChildEventHandlers[childUUID][eventName]) {
+      // Re-emits the mapped child event data out the parent collection
+      const _handleChildEvent = eventData => {
+        this._phantomCollection.emit(eventName, eventData);
+      };
 
-    childInstance.on(eventName, _handleChildEvent);
+      childInstance.on(eventName, _handleChildEvent);
+
+      this._linkedChildEventHandlers[childUUID][eventName] = _handleChildEvent;
+    }
   }
 
   // TODO: Document
   _unmapChildEvent(childInstance, eventName) {
-    // TODO: Handle
+    const childUUID = childInstance.getUUID();
+    const eventHandler = this._linkedChildEventHandlers[childUUID][eventName];
+
+    if (eventHandler) {
+      childInstance.off(eventName, eventHandler);
+
+      delete this._linkedChildEventHandlers[childUUID][eventName];
+    }
   }
 
   // TODO: Document

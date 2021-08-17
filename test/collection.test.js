@@ -7,7 +7,6 @@ const {
   EVT_CHILD_INSTANCE_ADDED,
   EVT_CHILD_INSTANCE_REMOVED,
   KEY_META_CHILD_DESC_INSTANCE,
-  KEY_META_CHILD_DESC_PROXY_EVENT_HANDLERS,
   KEY_META_CHILD_DESTROY_LISTENER,
 } = PhantomCollection;
 
@@ -136,9 +135,6 @@ test("PhantomCollection add / remove child; get children", async t => {
           Object.keys(ec2MetaDescription).includes(
             KEY_META_CHILD_DESC_INSTANCE
           ) &&
-            Object.keys(ec2MetaDescription).includes(
-              KEY_META_CHILD_DESC_PROXY_EVENT_HANDLERS
-            ) &&
             Object.keys(ec2MetaDescription).includes(
               KEY_META_CHILD_DESTROY_LISTENER
             ),
@@ -308,7 +304,7 @@ test("PhantomCollection broadcasting / post-destruct child retention", async t =
 });
 
 test("PhantomCollection ChildEventBridge", async t => {
-  t.plan(8);
+  t.plan(12);
 
   t.throws(
     () => {
@@ -319,9 +315,15 @@ test("PhantomCollection ChildEventBridge", async t => {
   );
 
   const collection = new PhantomCollection();
-  const child = new PhantomCore();
+  const child1 = new PhantomCore();
+  const child2 = new PhantomCore();
+  const child3 = new PhantomCore();
+  const child4 = new PhantomCore();
 
-  collection.addChild(child);
+  collection.addChild(child1);
+  collection.addChild(child2);
+  collection.addChild(child3);
+  collection.addChild(child4);
 
   t.deepEquals(
     collection.getChildEventNames(),
@@ -355,6 +357,62 @@ test("PhantomCollection ChildEventBridge", async t => {
     "collection does not contain duplicate added event"
   );
 
+  // Test event proxying from child to collection
+  await (async () => {
+    const iChildren = [child1, child2, child3, child4];
+    for (const idx in iChildren) {
+      const child = iChildren[idx];
+
+      await Promise.all([
+        new Promise(resolve => {
+          collection.once(EVT_UPDATED, message => {
+            t.equals(
+              message,
+              "some-test-data",
+              `collection receives EVT_UPDATED emit from child ${idx}`
+            );
+
+            resolve();
+          });
+        }),
+
+        new Promise(resolve => {
+          child.emit(EVT_UPDATED, "some-test-data");
+
+          resolve();
+        }),
+      ]);
+    }
+  })();
+
+  // Test that removing child event names no longer routes the event through
+  // the collection
+  await (async () => {
+    collection.removeChildEventName(EVT_UPDATED);
+
+    await Promise.all([
+      new Promise(resolve => {
+        const eventRejectHandler = message => {
+          throw new Error("Should not get here");
+        };
+
+        collection.once(EVT_UPDATED, eventRejectHandler);
+
+        setTimeout(() => {
+          collection.off(EVT_UPDATED, eventRejectHandler);
+
+          resolve();
+        }, 500);
+      }),
+
+      new Promise(resolve => {
+        child1.emit(EVT_UPDATED, "some-additional-test-data");
+
+        resolve();
+      }),
+    ]);
+  })();
+
   (() => {
     const collection = new PhantomCollection();
     const child1 = new PhantomCore();
@@ -387,8 +445,6 @@ test("PhantomCollection ChildEventBridge", async t => {
     collection.addChild(child1);
     collection.removeChild(child1);
   })();
-
-  // TODO: Add additional ChildEventBridge tests
 
   t.end();
 });

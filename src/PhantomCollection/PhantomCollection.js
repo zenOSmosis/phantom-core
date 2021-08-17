@@ -11,8 +11,6 @@ const EVT_CHILD_INSTANCE_REMOVED = "child-instance-removed";
 // @export
 const KEY_META_CHILD_DESC_INSTANCE = "phantomCoreInstance";
 // @export
-const KEY_META_CHILD_DESC_PROXY_EVENT_HANDLERS = "proxyEventHandlers";
-// @export
 const KEY_META_CHILD_DESTROY_LISTENER = "destroyListener";
 
 /**
@@ -121,7 +119,6 @@ class PhantomCollection extends PhantomCore {
     // Register w/ _childMetaDescriptions property
     this._childMetaDescriptions.push({
       [KEY_META_CHILD_DESC_INSTANCE]: phantomCoreInstance,
-      [KEY_META_CHILD_DESC_PROXY_EVENT_HANDLERS]: {},
       [KEY_META_CHILD_DESTROY_LISTENER]: destroyListener,
     });
 
@@ -224,5 +221,4 @@ module.exports.EVT_CHILD_INSTANCE_ADDED = EVT_CHILD_INSTANCE_ADDED;
 module.exports.EVT_CHILD_INSTANCE_REMOVED = EVT_CHILD_INSTANCE_REMOVED;
 
 module.exports.KEY_META_CHILD_DESC_INSTANCE = KEY_META_CHILD_DESC_INSTANCE;
-module.exports.KEY_META_CHILD_DESC_PROXY_EVENT_HANDLERS = KEY_META_CHILD_DESC_PROXY_EVENT_HANDLERS;
 module.exports.KEY_META_CHILD_DESTROY_LISTENER = KEY_META_CHILD_DESTROY_LISTENER;
