@@ -4,7 +4,6 @@ const PhantomCollection = require("./PhantomCollection");
 const {
   EVT_CHILD_INSTANCE_ADDED,
   EVT_CHILD_INSTANCE_REMOVED,
-  KEY_META_CHILD_DESC_PROXY_EVENT_HANDLERS,
 } = PhantomCollection;
 
 const DEFAULT_BRIDGE_EVENT_NAMES = [EVT_UPDATED];
