@@ -91,7 +91,7 @@ class ChildEventBridge extends PhantomCore {
     return super.destroy();
   }
 
-  // TODO: Remove
+  // TODO: Document
   _handleChildInstanceAdded(childInstance) {
     // TODO: Map all existing bridge events to this instance
     // TODO: Remove
@@ -102,7 +102,7 @@ class ChildEventBridge extends PhantomCore {
     */
   }
 
-  // TODO: Remove
+  // TODO: Document
   _handleChildInstanceRemoved(childInstance) {
     // TODO: Remove
     /*
