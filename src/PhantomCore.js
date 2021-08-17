@@ -207,6 +207,7 @@ class PhantomCore extends EventEmitter {
 
     _instances[this._uuid] = this;
 
+    /** @type {number} UTC Unix time */
     this._instanceStartTime = getUnixTime();
 
     this._isReady = this._options.isReady || false;
