@@ -508,7 +508,7 @@ test("PhantomCollection ChildEventBridge", async t => {
 });
 
 test("PhantomCollection key support", async t => {
-  t.plan(5);
+  t.plan(8);
 
   const coll = new PhantomCollection();
 
@@ -517,6 +517,18 @@ test("PhantomCollection key support", async t => {
   t.ok(
     Object.is(tPhantom1, coll.getChildWithKey("tPhantom1-test-key")),
     "obtains child1 with associated key"
+  );
+
+  t.ok(coll.getChildren().length, 1, "detects one child after first child add");
+
+  t.doesNotThrow(() => {
+    coll.addChild(new PhantomCore(), "tPhantom1-test-key");
+  }, "does not throw when trying to add another child with same test key");
+
+  t.ok(
+    coll.getChildren().length,
+    1,
+    "detects one child after duplicate key attempt"
   );
 
   const tPhantom2 = new PhantomCore();
@@ -544,48 +556,93 @@ test("PhantomCollection key support", async t => {
   t.end();
 });
 
-/*
 test("PhantomCollection coerced type support", async t => {
-  class _TestCollection extends PhantomCollection {
+  t.plan(12);
+
+  let _hasDuplicate = false;
+
+  class _TestCoercedTypeCollection extends PhantomCollection {
+    // Takes an object and converts it into another type before writing it to
+    // super
+    //
+    // This type of scenario may be encountered often when dealing with objects
+    // of one value needing to be stored as another
     addChild(obj, key = null) {
       if (this.getChildWithKey(key)) {
         t.ok(key !== null, "captures get child with key");
 
         this.emit("duplicate-key");
 
+        _hasDuplicate = true;
+
         return;
       }
 
       const phantom = new PhantomCore();
 
+      phantom.__testObj = obj;
       return super.addChild(phantom, key);
     }
   }
 
-  // const coll = new _TestCollection();
+  const coll = new _TestCoercedTypeCollection();
+
+  // Set to true after coll.emit("duplicate-key") has been detected; this is
+  // not strictly required but helps to ensure the test is running properly
+  let _isDuplicateKeyCaptured = false;
 
   await Promise.all([
     new Promise(resolve => {
       coll.once("duplicate-key", () => {
         t.ok("duplicate key is captured");
 
+        _isDuplicateKeyCaptured = true;
+
         resolve();
       });
     }),
 
     new Promise(resolve => {
-      const testObject = { foo: 123 };
+      const testObject1 = { id: 1, foo: 123 };
+      const testObject2 = { id: 2, foo: 456 };
 
-      // coll.addChild(testObject);
-      // coll.addChild(testObject);
+      t.ok(!_hasDuplicate, "no duplicate key detected before start");
 
-      coll.addChild(testObject, 123);
-      coll.addChild(testObject, 123);
+      coll.addChild(testObject1, testObject1.id);
+      coll.addChild(testObject2, testObject2.id);
+
+      t.ok(!_hasDuplicate, "no duplicate key detected on first run");
+
+      coll.addChild(testObject1, testObject1.id);
+      coll.addChild(testObject2, testObject2.id);
+
+      t.ok(_hasDuplicate, "duplicate key detected on second run");
+      t.notOk(
+        Object.is(testObject1, testObject1.id),
+        "coerced test collection does not return original object on key lookup"
+      );
+
+      t.equals(
+        coll.getChildren().length,
+        2,
+        "2 total children detected after duplicate test add"
+      );
+
+      coll.addChild({}, testObject1.id);
+      coll.addChild({}, testObject2.id);
+      coll.addChild({}, "a-unique-id");
+
+      t.equals(
+        coll.getChildren().length,
+        3,
+        "3 total children detected after second duplicate test add"
+      );
 
       resolve();
     }),
   ]);
 
+  t.ok(_isDuplicateKeyCaptured, "detects duplicate key has been captured");
+
   t.end();
 });
-*/
