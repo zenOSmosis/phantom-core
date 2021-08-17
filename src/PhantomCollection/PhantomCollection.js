@@ -236,6 +236,9 @@ class PhantomCollection extends PhantomCore {
   }
 
   /**
+   * Retrieves the event names which are mapped to every child which will emit
+   * out the PhantomCollection when triggered.
+   *
    * @return {string[]}
    */
   getChildEventNames() {
