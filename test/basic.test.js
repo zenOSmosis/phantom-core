@@ -91,7 +91,15 @@ test("get options", t => {
 });
 
 test("get instance with symbol", t => {
-  t.plan(6);
+  t.plan(7);
+
+  t.throws(
+    () => {
+      new PhantomCore({ symbol: { notASymbol: true } });
+    },
+    TypeError,
+    "throws TypeError when passing invalid symbol type"
+  );
 
   const s1 = Symbol("a");
   const s2 = Symbol("a");
