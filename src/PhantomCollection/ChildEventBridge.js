@@ -49,6 +49,7 @@ class ChildEventBridge extends PhantomCore {
      */
     this._bridgeEventNames = [...DEFAULT_BRIDGE_EVENT_NAMES];
 
+    // TODO: Rename?
     // TODO: Document
     this._linkedChildEventHandlers = {};
 
@@ -59,6 +60,10 @@ class ChildEventBridge extends PhantomCore {
 
     // Bind child _...added/removed handlers
     (() => {
+      // NOTE: Since this instance is bound directly to the PhantomCollection
+      // "off" event handlers aren't added here; they could work but just
+      // aren't needed
+
       this._phantomCollection.on(
         EVT_CHILD_INSTANCE_ADDED,
         this._handleChildInstanceAdded
@@ -70,6 +75,7 @@ class ChildEventBridge extends PhantomCore {
       );
     })();
 
+    // Invoked when new proxying event name is added
     this.on(EVT_BRIDGE_EVENT_NAME_ADDED, eventName => {
       const children = this.getChildren();
 
@@ -78,6 +84,7 @@ class ChildEventBridge extends PhantomCore {
       }
     });
 
+    // Invoked when proxying event name is removed
     this.on(EVT_BRIDGE_EVENT_NAME_REMOVED, eventName => {
       const children = this.getChildren();
 
@@ -104,7 +111,15 @@ class ChildEventBridge extends PhantomCore {
       );
     })();
 
-    // TODO: Unmap mapped event handlers from each child
+    // Unmap all associated bridge event handlers from the children
+    (() => {
+      const children = this.getChildren();
+      for (const child of children) {
+        for (const eventName of this._bridgeEventNames) {
+          this._unmapChildEvent(child, eventName);
+        }
+      }
+    })();
 
     return super.destroy();
   }
@@ -121,14 +136,6 @@ class ChildEventBridge extends PhantomCore {
 
   // TODO: Document
   _handleChildInstanceAdded(childInstance) {
-    // TODO: Map all existing bridge events to this instance
-    // TODO: Remove
-    /*
-    console.log({
-      childInstanceAdded: childInstance,
-    });
-    */
-
     const childUUID = childInstance.getUUID();
 
     this._linkedChildEventHandlers[childUUID] = {};
@@ -212,6 +219,9 @@ class ChildEventBridge extends PhantomCore {
   }
 
   /**
+   * Returns the mapped child event names which this class will proxy out the
+   * collection.
+   *
    * @return {string[]}
    */
   getBridgeEventNames() {

@@ -304,7 +304,7 @@ test("PhantomCollection broadcasting / post-destruct child retention", async t =
 });
 
 test("PhantomCollection ChildEventBridge", async t => {
-  t.plan(12);
+  t.plan(15);
 
   t.throws(
     () => {
@@ -411,6 +411,52 @@ test("PhantomCollection ChildEventBridge", async t => {
         resolve();
       }),
     ]);
+  })();
+
+  // Test destruct unbinding
+  await (async () => {
+    collection.addChildEventName(EVT_UPDATED);
+    collection.addChildEventName("some-test");
+
+    const coll2 = new PhantomCollection([child1, child2, child3, child4]);
+
+    let prevTotalChildEvents = [child1, child2, child3, child4]
+      .map(child => {
+        return child.getTotalListenerCount();
+      })
+      .reduce((a, b) => a + b);
+
+    t.equals(
+      prevTotalChildEvents,
+      20,
+      "initial mapped child events before initial collection destruct is 20"
+    );
+
+    await collection.destroy();
+
+    const nextTotalChildEvents = [child1, child2, child3, child4]
+      .map(child => {
+        return child.getTotalListenerCount();
+      })
+      .reduce((a, b) => a + b);
+
+    t.ok(
+      nextTotalChildEvents < prevTotalChildEvents,
+      "total child listener count is reduced after collection destruct"
+    );
+
+    await coll2.destroy();
+
+    const finalTotalChildEvents = [child1, child2, child3, child4]
+      .map(child => {
+        return child.getTotalListenerCount();
+      })
+      .reduce((a, b) => a + b);
+
+    t.ok(
+      finalTotalChildEvents < nextTotalChildEvents,
+      "total child listener count is further reduced after second collection destruct"
+    );
   })();
 
   (() => {
