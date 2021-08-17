@@ -80,6 +80,19 @@ class PhantomCollection extends PhantomCore {
   }
 
   /**
+   * Destroys all currently associated children in the collection.
+   *
+   * IMPORTANT: This is a helper method for extension classes; It is not to be
+   * called internally in this base class.
+   *
+   * @return {Promise<void>}
+   */
+  async destroyAllChildren() {
+    const children = this.getChildren();
+    return Promise.all(children.map(child => child.destroy()));
+  }
+
+  /**
    * Adds a PhantomCore instance to the collection.
    *
    * @param {PhantomCore} phantomCoreInstance

@@ -33,5 +33,6 @@ Base package utilized in [Speaker App](https://speaker.app) / [https://github.co
     - Can contain children bound to other PhantomCollections (share children across collections)
     - Can contain other collections as children (linked collections)
     - Accepts an optional key when adding a child to make it easier to extend with coerced types; the relevant child can be looked up by this key
+    - Can optionally destruct all associated children
 
 TODO: Build out this documentation
