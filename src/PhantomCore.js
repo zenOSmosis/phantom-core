@@ -12,9 +12,13 @@ const getUnixTime = require("./utils/getUnixTime");
 // warning
 const ASYNC_INIT_GRACE_TIME = 5000;
 
+/** @export */
 const EVT_READY = "ready";
+/** @export */
 const EVT_UPDATED = "updated";
+/** @export */
 const EVT_DESTROYED = "destroyed";
+/** @export */
 const EVT_NO_INIT_WARN = "no-init-warn";
 
 // Instances for this particular thread
