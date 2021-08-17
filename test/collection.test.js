@@ -646,3 +646,55 @@ test("PhantomCollection coerced type support", async t => {
 
   t.end();
 });
+
+test("PhantomCollection destruct all children", async t => {
+  t.plan(15);
+
+  const child1 = new PhantomCore();
+  const child2 = new PhantomCore();
+  const child3 = new PhantomCore();
+  const child4 = new PhantomCore();
+  const child5 = new PhantomCore();
+
+  const coll1 = new PhantomCollection([child1, child2, child3, child4, child5]);
+  const coll2 = new PhantomCollection([child1, child2, child3, child4, child5]);
+
+  t.equals(coll1.getChildren().length, 5, "coll1 has 5 initial children");
+  t.equals(coll2.getChildren().length, 5, "coll2 has 5 initial children");
+
+  await coll1.destroy();
+
+  t.ok(coll1.getIsDestroyed(), "coll1 is in destructed state");
+
+  t.equals(
+    coll2.getChildren().length,
+    5,
+    "coll2 has 5 children after coll1 destruct"
+  );
+
+  [child1, child2, child3, child4, child5].forEach((child, idx) => {
+    t.ok(
+      !child.getIsDestroyed(),
+      `child${idx + 1} is not automatically destructed after coll1 destruct`
+    );
+  });
+
+  await coll2.destroyAllChildren();
+
+  [child1, child2, child3, child4, child5].forEach((child, idx) => {
+    t.ok(
+      child.getIsDestroyed(),
+      `child${
+        idx + 1
+      } is automatically destructed after coll destroyAllChildren() is invoked`
+    );
+  });
+
+  t.equals(
+    coll2.getChildren().length,
+    0,
+    "coll2 reports 0 children after all children have been destructed"
+  );
+
+  t.end();
+});
