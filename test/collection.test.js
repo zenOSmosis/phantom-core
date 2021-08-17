@@ -440,7 +440,13 @@ test("PhantomCollection ChildEventBridge", async t => {
       }
     }
 
-    const altEventBridge = new _TestChildEventBridge(collection);
+    // Test overridden EventBridge methods by instantiating test bridge an
+    // adding the collection to it
+    //
+    // When children are added or removed, the alt bridge will run its own
+    // lifecycle method hooks, in addition to the default bridge already
+    // associated with the collection
+    /* const altEventBridge = */ new _TestChildEventBridge(collection);
 
     collection.addChild(child1);
     collection.removeChild(child1);
