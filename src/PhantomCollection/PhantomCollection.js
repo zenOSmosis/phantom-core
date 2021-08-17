@@ -222,7 +222,7 @@ class PhantomCollection extends PhantomCore {
    * @param {string | symbol} childEventName
    * @return {void}
    */
-  addChildEventName(childEventName) {
+  bindChildEventName(childEventName) {
     this._childEventBridge.addBridgeEventName(childEventName);
   }
 
@@ -235,7 +235,7 @@ class PhantomCollection extends PhantomCore {
    * @param {string | symbol} childEventName
    * @return {void}
    */
-  removeChildEventName(childEventName) {
+  unbindChildEventName(childEventName) {
     this._childEventBridge.removeBridgeEventName(childEventName);
   }
 
@@ -245,7 +245,7 @@ class PhantomCollection extends PhantomCore {
    *
    * @return {string[] | symbol[]} Can be a mix of string and symbol types.
    */
-  getChildEventNames() {
+  getBoundChildEventNames() {
     return this._childEventBridge.getBridgeEventNames();
   }
 }
