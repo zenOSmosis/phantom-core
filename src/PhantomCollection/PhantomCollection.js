@@ -9,6 +9,8 @@ const EVT_CHILD_INSTANCE_REMOVED = "child-instance-removed";
 /** @export */
 const KEY_META_CHILD_DESC_INSTANCE = "phantomCoreInstance";
 /** @export */
+const KEY_META_DESC_CHILD_KEY = "childKey";
+/** @export */
 const KEY_META_CHILD_DESTROY_LISTENER = "destroyListener";
 
 /**
@@ -25,9 +27,7 @@ const KEY_META_CHILD_DESTROY_LISTENER = "destroyListener";
  *  - Each group element represents an object with a similar purpose
  *  - Group size varies dynamically during runtime
  *  - There must be access to an individual element through a search function
- *    based on a specific key [FIXME: This is not currently implemented due to
- *    not yet deciding upon which search criteria to search for, or if it can
- *    be somehow dynamic in which search criteria to use]
+ *    based on a specific key
  *  - There must be a sort or iteration through the group elements
  */
 class PhantomCollection extends PhantomCore {
@@ -83,13 +83,22 @@ class PhantomCollection extends PhantomCore {
    * Adds a PhantomCore instance to the collection.
    *
    * @param {PhantomCore} phantomCoreInstance
+   * @param {any} key? [default = null] If set, this value is utilized to
+   * determine same instance lookup. It can be useful when extending this
+   * method functionality where the passed in type is altered and it would be
+   * otherwise difficult to track that altered type.
    * @throws {TypeError}
    * @throws {ReferenceErro}
    * @emits EVT_CHILD_INSTANCE_ADDED
    * @emits EVT_UPDATED
    * @return {void}
    */
-  addChild(phantomCoreInstance) {
+  addChild(phantomCoreInstance, key = null) {
+    if (this.getChildWithKey(key)) {
+      // Silently ignore trying to add child with same key
+      return;
+    }
+
     if (!PhantomCore.getIsInstance(phantomCoreInstance)) {
       throw new TypeError(
         "The phantomCoreInstance is not a PhantomCore instance"
@@ -109,9 +118,8 @@ class PhantomCollection extends PhantomCore {
     // Ensure instance isn't already part of the collection
     for (const instance of this.getChildren()) {
       if (instance.getIsSameInstance(phantomCoreInstance)) {
-        throw new ReferenceError(
-          "The PhantomCore instance is already a part of the collection"
-        );
+        // Silently ignore repeated attempts to add same child
+        return;
       }
     }
 
@@ -121,6 +129,7 @@ class PhantomCollection extends PhantomCore {
     // Register w/ _childMetaDescriptions property
     this._childMetaDescriptions.push({
       [KEY_META_CHILD_DESC_INSTANCE]: phantomCoreInstance,
+      [KEY_META_DESC_CHILD_KEY]: key,
       [KEY_META_CHILD_DESTROY_LISTENER]: destroyListener,
     });
 
@@ -179,6 +188,26 @@ class PhantomCollection extends PhantomCore {
     return this._childMetaDescriptions.map(
       ({ [KEY_META_CHILD_DESC_INSTANCE]: childInstance }) => childInstance
     );
+  }
+
+  /**
+   * @param {any} key
+   * @return {PhantomCore | void}
+   */
+  getChildWithKey(key) {
+    if (!key) {
+      return;
+    }
+
+    const childMetaDescriptions = this._childMetaDescriptions;
+
+    const matchedMetaDescription = childMetaDescriptions.find(
+      ({ [KEY_META_DESC_CHILD_KEY]: testKey }) => testKey === key
+    );
+
+    if (matchedMetaDescription) {
+      return matchedMetaDescription[KEY_META_CHILD_DESC_INSTANCE];
+    }
   }
 
   /**
@@ -259,4 +288,5 @@ module.exports.EVT_CHILD_INSTANCE_ADDED = EVT_CHILD_INSTANCE_ADDED;
 module.exports.EVT_CHILD_INSTANCE_REMOVED = EVT_CHILD_INSTANCE_REMOVED;
 
 module.exports.KEY_META_CHILD_DESC_INSTANCE = KEY_META_CHILD_DESC_INSTANCE;
+module.exports.KEY_META_DESC_CHILD_KEY = KEY_META_DESC_CHILD_KEY;
 module.exports.KEY_META_CHILD_DESTROY_LISTENER = KEY_META_CHILD_DESTROY_LISTENER;
