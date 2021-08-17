@@ -30,5 +30,6 @@ Characteristics:
     - Can re-emit events sent from one child (via included ChildEventBridge object)
     - Can add and remove child instances (i.e. "group size varies") during runtime
     - Can contain children bound to other PhantomCollections (share children across collections)
+    - Can contain other collections as children (linked collections)
 
 TODO: Build out this documentation
