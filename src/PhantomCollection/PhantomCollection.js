@@ -191,7 +191,9 @@ class PhantomCollection extends PhantomCore {
   }
 
   /**
-   * Emits an event to all child instances (one-to-many relationship).
+   * Emits an event to all child instances.
+   *
+   * one-to-many relationship
    *
    * @param {string | symbol} eventName
    * @param {any} eventData
@@ -203,21 +205,31 @@ class PhantomCollection extends PhantomCore {
     }
   }
 
-  // TODO: Rename
-  // TODO: Document (many-to-one relationship)
   /**
+   * Adds an event name which will bind to each child and emit out the
+   * PhantomCollection when triggered.
+   *
+   * many-to-one relationship
+   *
+   * Any event added name here, when emit by any child, can be listened to by
+   * attaching a listener to this class for the same event name, acting as if
+   * the collection instance emit the event directly.
    *
    * @param {string | symbol} childEventName
+   * @return {void}
    */
   addChildEventName(childEventName) {
     this._childEventBridge.addBridgeEventName(childEventName);
   }
 
-  // TODO: Rename
-  // TODO: Document (many-to-one relationship)
   /**
+   * Removes an event name from each child which previously would emit out the
+   * PhantomCollection when triggered.
+   *
+   * many-to-one relationship
    *
    * @param {string | symbol} childEventName
+   * @return {void}
    */
   removeChildEventName(childEventName) {
     this._childEventBridge.removeBridgeEventName(childEventName);

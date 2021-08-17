@@ -49,8 +49,11 @@ class ChildEventBridge extends PhantomCore {
      */
     this._bridgeEventNames = [...DEFAULT_BRIDGE_EVENT_NAMES];
 
-    // TODO: Rename?
-    // TODO: Document
+    /**
+     * FIXME: This type isn't really valid, but describes the structure enough
+     * for human parsing
+     * @type {Object<key: uuid, value: Object: <key: eventName, value: eventHandler>>}
+     */
     this._linkedChildEventHandlers = {};
 
     this._handleChildInstanceAdded = this._handleChildInstanceAdded.bind(this);
@@ -134,7 +137,12 @@ class ChildEventBridge extends PhantomCore {
     return this._phantomCollection.getChildren();
   }
 
-  // TODO: Document
+  /**
+   * Internally invoked when the collection adds a new child.
+   *
+   * @param {PhantomCore} childInstance
+   * @return {void}
+   */
   _handleChildInstanceAdded(childInstance) {
     const childUUID = childInstance.getUUID();
 
@@ -146,7 +154,12 @@ class ChildEventBridge extends PhantomCore {
     );
   }
 
-  // TODO: Document
+  /**
+   * Internally invoked when the collection removes a child.
+   *
+   * @param {PhantomCore} childInstance
+   * @return {void}
+   */
   _handleChildInstanceRemoved(childInstance) {
     const childUUID = childInstance.getUUID();
 
@@ -159,9 +172,14 @@ class ChildEventBridge extends PhantomCore {
   }
 
   /**
+   * Adds an event name to a specific child and registers a wrapping event
+   * handler which will proxy out the PhantomCollection when triggered.
+   *
+   * Subsequent attempts to add the same event will be silently ignored.
    *
    * @param {PhantomCore} childInstance
    * @param {string | symbol} eventName
+   * @return {void}
    */
   _mapChildEvent(childInstance, eventName) {
     const childUUID = childInstance.getUUID();
@@ -175,11 +193,20 @@ class ChildEventBridge extends PhantomCore {
 
       childInstance.on(eventName, _handleChildEvent);
 
+      // Keep track of the event handler so it can be removed (via
+      // this._unmapChildEvent)
       this._linkedChildEventHandlers[childUUID][eventName] = _handleChildEvent;
     }
   }
 
-  // TODO: Document
+  /**
+   * Removes the wrapping event handler with the given even name from the
+   * relevant child instance.
+   *
+   * @param {PhantomCore} childInstance
+   * @param {string | symbol} eventName
+   * @return {void}
+   */
   _unmapChildEvent(childInstance, eventName) {
     const childUUID = childInstance.getUUID();
     const eventHandler = this._linkedChildEventHandlers[childUUID][eventName];
@@ -191,7 +218,13 @@ class ChildEventBridge extends PhantomCore {
     }
   }
 
-  // TODO: Document
+  /**
+   * Adds an event name which will bind to each child and emit out the
+   * PhantomCollection when triggered.
+   *
+   * @param {string | symbol} eventName
+   * @return {void}
+   */
   addBridgeEventName(eventName) {
     const prevLength = this._bridgeEventNames.length;
 
@@ -207,7 +240,13 @@ class ChildEventBridge extends PhantomCore {
     }
   }
 
-  // TODO: Document
+  /**
+   * Removes an event name from each child which previously would emit out the
+   * PhantomCollection when triggered.
+   *
+   * @param {string | symbol} eventName
+   * @return {void}
+   */
   removeBridgeEventName(eventName) {
     const prevLength = this._bridgeEventNames.length;
 
@@ -226,7 +265,7 @@ class ChildEventBridge extends PhantomCore {
    * Returns the mapped child event names which this class will proxy out the
    * collection.
    *
-   * @return {string[]}
+   * @return {string[] | symbol[]} Can be a mix of strings and symbols.
    */
   getBridgeEventNames() {
     return this._bridgeEventNames;
