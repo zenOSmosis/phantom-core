@@ -14,7 +14,7 @@ const {
 const _ChildEventBridge = require("../src/PhantomCollection/ChildEventBridge");
 
 test("PhantomCollection add / remove child; get children", async t => {
-  t.plan(28);
+  t.plan(33);
 
   t.throws(
     () => {
@@ -45,6 +45,28 @@ test("PhantomCollection add / remove child; get children", async t => {
   const extendedCore = new PhantomCoreTestClass();
 
   const collection = new PhantomCollection([extendedCore]);
+
+  t.equals(collection._lenChildren, 1, "protected _lenChildren equals 1");
+
+  t.doesNotThrow(() => {
+    collection.addChild(new PhantomCore(), "temp-child");
+  }, 'collection adds new child with "test-remove" key');
+
+  t.equals(
+    collection._lenChildren,
+    2,
+    "protected _lenChildren equals 2 after temp child added"
+  );
+
+  t.doesNotThrow(() => {
+    collection.removeChild(collection.getChildWithKey("temp-child"));
+  }, 'collection removes child with "temp-child" key');
+
+  t.equals(
+    collection._lenChildren,
+    1,
+    "protected _lenChildren equals 1 after temp child removed"
+  );
 
   t.doesNotThrow(() => {
     const prevLength = collection.getChildren().length;
@@ -648,7 +670,7 @@ test("PhantomCollection coerced type support", async t => {
 });
 
 test("PhantomCollection destruct all children", async t => {
-  t.plan(15);
+  t.plan(17);
 
   const child1 = new PhantomCore();
   const child2 = new PhantomCore();
@@ -662,7 +684,19 @@ test("PhantomCollection destruct all children", async t => {
   t.equals(coll1.getChildren().length, 5, "coll1 has 5 initial children");
   t.equals(coll2.getChildren().length, 5, "coll2 has 5 initial children");
 
+  t.equals(
+    coll1._lenChildren,
+    5,
+    "_lenChildren is 5 before first collection is destroyed"
+  );
+
   await coll1.destroy();
+
+  t.equals(
+    coll1._lenChildren,
+    0,
+    "_lenChildren is 0 after first collection is destroyed"
+  );
 
   t.ok(coll1.getIsDestroyed(), "coll1 is in destructed state");
 
