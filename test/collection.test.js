@@ -751,7 +751,7 @@ test("PhantomCollection diff", t => {
       added: [phantom5],
       removed: [phantom1, phantom3],
     },
-    "determines diff against collection of PhantomObjects"
+    "determines diff against array of PhantomObjects"
   );
 
   const obj1 = { testObject: 1 };
@@ -769,7 +769,7 @@ test("PhantomCollection diff", t => {
       added: [obj5],
       removed: [obj1, obj3],
     },
-    "determines diff against collection of objects"
+    "determines diff against array of objects"
   );
 
   t.deepEquals(
