@@ -14,7 +14,7 @@ const {
 const _ChildEventBridge = require("../src/PhantomCollection/ChildEventBridge");
 
 test("PhantomCollection add / remove child; get children", async t => {
-  t.plan(33);
+  t.plan(34);
 
   t.throws(
     () => {
@@ -216,6 +216,33 @@ test("PhantomCollection add / remove child; get children", async t => {
 
     collection.removeChild(ec2),
   ]);
+
+  await (async () => {
+    const autoDestructChild = new PhantomCore();
+
+    await Promise.all([
+      new Promise(resolve => {
+        collection.once(EVT_CHILD_INSTANCE_REMOVED, childInstance => {
+          t.ok(
+            Object.is(childInstance, autoDestructChild),
+            "collection emits EVT_CHILD_INSTANCE_REMOVED when child destructs"
+          );
+
+          resolve();
+        });
+      }),
+
+      new Promise(resolve => {
+        setTimeout(async () => {
+          await autoDestructChild.destroy();
+
+          resolve();
+        }, 500);
+      }),
+
+      collection.addChild(autoDestructChild, "test-auto-destruct-child"),
+    ]);
+  })();
 
   t.doesNotThrow(() => {
     collection.addChild(ec2);
