@@ -732,3 +732,57 @@ test("PhantomCollection destruct all children", async t => {
 
   t.end();
 });
+
+test("PhantomCollection diff", t => {
+  t.plan(3);
+
+  const phantom1 = new PhantomCore();
+  const phantom2 = new PhantomCore();
+  const phantom3 = new PhantomCore();
+  const phantom4 = new PhantomCore();
+  const phantom5 = new PhantomCore();
+
+  t.deepEquals(
+    PhantomCollection.getChildrenDiff(
+      [phantom1, phantom2, phantom3, phantom4],
+      [phantom2, phantom4, phantom5]
+    ),
+    {
+      added: [phantom5],
+      removed: [phantom1, phantom3],
+    },
+    "determines diff against array of PhantomObjects"
+  );
+
+  const obj1 = { testObject: 1 };
+  const obj2 = { testObject: 2 };
+  const obj3 = { testObject: 3 };
+  const obj4 = { testObject: 4 };
+  const obj5 = { testObject: 5 };
+
+  t.deepEquals(
+    PhantomCollection.getChildrenDiff(
+      [obj1, obj2, obj3, obj4],
+      [obj2, obj4, obj5]
+    ),
+    {
+      added: [obj5],
+      removed: [obj1, obj3],
+    },
+    "determines diff against array of objects"
+  );
+
+  t.deepEquals(
+    PhantomCollection.getChildrenDiff(
+      [obj1, obj2, obj3, obj4],
+      [obj1, obj2, obj3, obj4]
+    ),
+    {
+      added: [],
+      removed: [],
+    },
+    "uses empty arrays for added and removed when nothing has changed"
+  );
+
+  t.end();
+});

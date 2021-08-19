@@ -32,6 +32,35 @@ const KEY_META_CHILD_DESTROY_LISTENER = "destroyListener";
  */
 class PhantomCollection extends PhantomCore {
   /**
+   * Determines added and removed children from the given previous and current
+   * children.
+   *
+   * NOTE: This accepts any parameter for previous and current children because
+   * extension classes may use expose different child types to their own
+   * implementors (i.e. media-stream-track-controller uses MediaStreamTrack
+   * instances as exposed children in one of its classes).
+   *
+   * @param {any[]} prevChildren All of the previous children.
+   * @param {any[]} currChildren All of the current children.
+   * @return {Object<added: any[], removed: []>} Contains children added and
+   * removed.
+   */
+  static getChildrenDiff(prevChildren, currChildren) {
+    const added = currChildren.filter(
+      predicate => !prevChildren.includes(predicate)
+    );
+
+    const removed = prevChildren.filter(
+      predicate => !currChildren.includes(predicate)
+    );
+
+    return {
+      added,
+      removed,
+    };
+  }
+
+  /**
    * @param {PhantomCore[]} initialPhantomInstances
    * @param {Object} options? [default = {}]
    */
