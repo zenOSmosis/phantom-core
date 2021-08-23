@@ -122,9 +122,7 @@ class PhantomCollection extends PhantomCore {
    */
   async destroy() {
     // Empty out the collection
-    for (const child of this.getChildren()) {
-      this.removeChild(child);
-    }
+    await this.removeAllChildren();
 
     await this._childEventBridge.destroy();
 
@@ -241,6 +239,17 @@ class PhantomCollection extends PhantomCore {
     if (nextLength < prevLength) {
       this.emit(EVT_CHILD_INSTANCE_REMOVED, phantomCoreInstance);
       this.emit(EVT_UPDATED);
+    }
+  }
+
+  /**
+   * Removes all children from the collection.
+   *
+   * @return {void}
+   */
+  removeAllChildren() {
+    for (const child of this.getChildren()) {
+      this.removeChild(child);
     }
   }
 
