@@ -36,6 +36,14 @@ const KEEP_ALIVE_SHUTDOWN_METHODS = [
   // super method names
   "eventNames",
   "listenerCount",
+  //
+  // patches for other packages:
+  //
+  // [project--media-stream-track-controller]
+  // Fixes an issue w/ test runner locking up with
+  // media-stream-track-controller's track controller collection when testing
+  // for media stream tracks removed from _outputMediaStream property
+  "getOutputMediaStreamTrack",
 ];
 
 /**
