@@ -12,6 +12,7 @@ const {
 } = Logger;
 const getUnixTime = require("./utils/getUnixTime");
 const getUptime = require("./utils/getUptime");
+const symbolToUUID = require("./utils/symbolToUUID");
 
 module.exports = PhantomCore;
 module.exports.PhantomCollection = PhantomCollection;
@@ -33,3 +34,4 @@ module.exports.logger = new Logger();
 
 module.exports.getUnixTime = getUnixTime;
 module.exports.getUptime = getUptime;
+module.exports.symbolToUUID = symbolToUUID;
