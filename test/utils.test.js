@@ -56,7 +56,7 @@ test("time", async t => {
 });
 
 test("symbol to UUID", t => {
-  t.plan(15);
+  t.plan(16);
 
   const symbol1 = Symbol("abc");
 
@@ -71,10 +71,17 @@ test("symbol to UUID", t => {
     36,
     "symbolToUUID(symbol1) returns string of 36 characters"
   );
+
   t.equals(
     symbolToUUID(symbol2).length,
     36,
     "symbolToUUID(symbol2) returns string of 36 characters"
+  );
+
+  t.equals(
+    symbolToUUID(symbol1),
+    symbolToUUID(symbol1),
+    "symbolToUUID(symbol1) matches itself when called twice"
   );
 
   t.notEquals(symbol1, symbol2, "symbol1 and symbol2 are not equal");
