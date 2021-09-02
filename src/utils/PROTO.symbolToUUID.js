@@ -1,3 +1,6 @@
+// IMPORTANT: (jh) Backing this out due to it potentially being memory
+// intensive if using a lot of symbols
+
 const uuidv4 = require("uuid").v4;
 
 /**
