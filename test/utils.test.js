@@ -1,7 +1,6 @@
 const test = require("tape-async");
 const PhantomCore = require("../src");
-const { getUnixTime, getUptime } = require("../src");
-const symbolToUUID = require("../src/utils/symbolToUUID");
+const { getUnixTime, getUptime /* symbolToUUID */ } = require("../src");
 
 test("time", async t => {
   t.plan(7);
@@ -55,6 +54,7 @@ test("time", async t => {
   t.end();
 });
 
+/*
 test("symbol to UUID", t => {
   t.plan(16);
 
@@ -136,3 +136,4 @@ test("symbol to UUID", t => {
 
   t.end();
 });
+*/
