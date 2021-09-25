@@ -120,8 +120,8 @@ class Logger {
         loggerMethods.error = () => null;
       }
 
-      // Calling this.log() directly will log as info
-      const log = (...args) => loggerMethods.info(...args);
+      // Calling this.log() directly will log as info (log info alias)
+      const log = loggerMethods.info;
 
       Object.keys(loggerMethods).forEach(method => {
         // IMPORTANT: Both of these are used intentionally
