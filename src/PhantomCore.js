@@ -4,6 +4,7 @@ require("setimmediate");
 const EventEmitter = require("events");
 const Logger = require("./Logger");
 const { LOG_LEVEL_INFO } = Logger;
+const version = require("./static/version");
 const uuidv4 = require("uuid").v4;
 const shortUUID = require("short-uuid");
 const deepMerge = require("deepmerge");
@@ -55,6 +56,15 @@ const KEEP_ALIVE_SHUTDOWN_METHODS = [
  * TODO: Update description.
  */
 class PhantomCore extends EventEmitter {
+  /**
+   * Retrieves the version as defined in package.json.
+   *
+   * @return {string}
+   */
+  static getVersion() {
+    return version;
+  }
+
   /**
    * @param {Object} instance
    * @return {boolean} Whether or not the given instance is, or extends,
