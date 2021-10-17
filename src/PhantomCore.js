@@ -259,12 +259,6 @@ class PhantomCore extends EventEmitter {
    * @return {Promise<void>}
    */
   async _init() {
-    if (this._isReady) {
-      throw new ReferenceError(
-        "Cannot call _init because isReady state is set to true"
-      );
-    }
-
     this._init = () => {
       throw new ReferenceError("_init cannot be called more than once");
     };
