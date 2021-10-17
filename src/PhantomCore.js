@@ -287,6 +287,14 @@ class PhantomCore extends EventEmitter {
    */
   async destroy() {
     if (!this._isDestroyed) {
+      // TODO: Implement and call shutdown handlers before continuing (these will perform extra clean-up work, etc. and prevent having to bind to EVT_DESTROYED, etc.)
+
+      this.getPhantomProperties().forEach(phantomProp => {
+        console.warn(
+          `Lingering PhantomCore instance on prop name "${phantomProp}".  This could be a memory leak.  Ensure that all PhantomCore instances have been disposed of before class destruct.`
+        );
+      });
+
       delete _instances[this._uuid];
 
       // Note: Setting this flag before-hand is intentional
@@ -312,6 +320,21 @@ class PhantomCore extends EventEmitter {
 
       // TODO: Force regular class properties to be null (as of July 30, 2021, not changing due to unforeseen consequences)
     }
+  }
+
+  /**
+   * Retrieves the property names which are non-destructed PhantomCore
+   * instances.
+   *
+   * @return {string[]}
+   */
+  getPhantomProperties() {
+    return this.getPropertyNames().filter(
+      propName =>
+        propName !== "__proto__" &&
+        PhantomCore.getIsInstance(this[propName]) &&
+        !this[propName].getIsDestroyed()
+    );
   }
 
   /**

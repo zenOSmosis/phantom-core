@@ -613,3 +613,49 @@ test("total listener count", async t => {
 
   t.end();
 });
+
+test("phantom properties", async t => {
+  t.plan(1);
+
+  class ExtendedCore extends PhantomCore {}
+
+  class ExtendedCore2 extends PhantomCore {
+    constructor(...args) {
+      super(...args);
+    }
+  }
+
+  class TestPhantomProperties extends PhantomCore {
+    constructor() {
+      super();
+
+      this._pred1 = {};
+
+      this._pred2 = new PhantomCore();
+
+      this._pred3 = () => null;
+
+      this._pred4 = "hello";
+
+      this._pred5 = new ExtendedCore();
+
+      this._pred6 = new ExtendedCore2();
+
+      this._pred7 = ExtendedCore;
+      this._pred8 = ExtendedCore2;
+      this._pred9 = PhantomCore;
+    }
+  }
+
+  const testPhantom = new TestPhantomProperties();
+
+  t.deepEquals(testPhantom.getPhantomProperties(), [
+    "_pred2",
+    "_pred5",
+    "_pred6",
+  ]);
+
+  await testPhantom.destroy();
+
+  t.end();
+});
