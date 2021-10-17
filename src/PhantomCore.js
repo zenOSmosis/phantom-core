@@ -201,6 +201,14 @@ class PhantomCore extends DestructibleEventEmitter {
        * @type {string | null}
        **/
       title: null,
+
+      /**
+       * Whether or not to automatically bind PhantomCore class methods to the
+       * local PhantomCore class.
+       *
+       * @type {boolean}
+       */
+      hasAutomaticBindings: true,
     };
 
     // Options should be considered immutable.
@@ -241,6 +249,8 @@ class PhantomCore extends DestructibleEventEmitter {
     });
 
     /**
+     * NOTE: This is called directly in order to not lose the stack trace.
+     *
      * @type {function} Calling this function directly will indirectly call
      * logger.info(); The logger.trace(), logger.debug(), logger.info(), logger.warn(), and
      * logger.error() properties can be called directly.
@@ -253,6 +263,11 @@ class PhantomCore extends DestructibleEventEmitter {
     this._instanceStartTime = getUnixTime();
 
     this._isReady = !this._options.isAsync || false;
+
+    // Force method scope binding to class instance
+    if (this._options.hasAutomaticBindings) {
+      this.autoBind();
+    }
 
     if (this._isReady) {
       // This shouldn't be called if running isAsync
@@ -275,6 +290,25 @@ class PhantomCore extends DestructibleEventEmitter {
       this.once(EVT_READY, () => clearTimeout(initTimeout));
       this.once(EVT_DESTROYED, () => clearTimeout(initTimeout));
     }
+  }
+
+  /**
+   * Additional reading: https://gist.github.com/dfoverdx/2582340cab70cff83634c8d56b4417cd
+   *
+   * @return {void}
+   */
+  autoBind() {
+    // Handling for this.log is special and needs to be passed directly from
+    // the caller, or else it will lose the stack trace
+    const IGNORE_LIST = [this.log];
+
+    this.getMethodNames().forEach(methodName => {
+      const method = this[methodName];
+
+      if (method !== this.constructor && !IGNORE_LIST.includes(method)) {
+        this[methodName] = this[methodName].bind(this);
+      }
+    });
   }
 
   /**

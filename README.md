@@ -42,5 +42,8 @@ Base package utilized in [Speaker App](https://speaker.app) / [https://github.co
   - Add global setImmediate regardless of context.  To use in a browser, require PhantomCore somewhere in the program before calling setImmediate.
   - Add version reporting as static method: PhantomCore.getPhantomCoreVersion()
   - Deprecate optional isReady parameter; using isAsync instead
+  - Base PhantomCore off of DestructibleEventEmitter
+  - Implement default auto-bind support to PhantomCore classes and derivatives (can be disabled by setting hasAutomaticBindings to false in constructor options)
+  - TODO: Add stack support and registerShutdownHandler (which uses stack support)
 
 TODO: Build out this documentation

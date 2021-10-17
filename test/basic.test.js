@@ -81,6 +81,7 @@ test("get options", t => {
     isAsync: false,
     symbol: null,
     title: null,
+    hasAutomaticBindings: true,
   });
 
   t.equals(phantom.getOption("testOption"), 123, "retrieves testOption option");
@@ -341,8 +342,9 @@ test("determines class name", async t => {
 
   const phantom1 = new PhantomCore();
 
-  t.ok(
-    phantom1.getClassName() === "PhantomCore",
+  t.equals(
+    phantom1.getClassName(),
+    "PhantomCore",
     "determines its own class name"
   );
 
