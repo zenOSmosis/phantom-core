@@ -59,9 +59,13 @@ class PhantomCore extends EventEmitter {
   /**
    * Retrieves the version as defined in package.json.
    *
+   * NOTE: As opposed to "getVersion" this longer naming is designed to reduce
+   * disambiguation for extended classes which might have a different version
+   * number.
+   *
    * @return {string}
    */
-  static getVersion() {
+  static getPhantomCoreVersion() {
     return version;
   }
 
