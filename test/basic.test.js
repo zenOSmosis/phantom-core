@@ -337,12 +337,16 @@ test("deep merge options of altered type", t => {
 });
 
 test("determines class name", async t => {
+  t.plan(3);
+
   const phantom1 = new PhantomCore();
 
   t.ok(
     phantom1.getClassName() === "PhantomCore",
     "determines its own class name"
   );
+
+  t.ok(phantom1.getClass() === PhantomCore, "determines its own class");
 
   class Phantom2 extends PhantomCore {}
 
@@ -360,6 +364,8 @@ test("determines class name", async t => {
 });
 
 test("onceReady handling", async t => {
+  // TODO: Add t.plan()
+
   const phantom = new PhantomCore();
 
   t.ok(phantom.getIsReady(), "ready by default");
@@ -376,6 +382,8 @@ test("onceReady handling", async t => {
 });
 
 test("emits EVT_READY", async t => {
+  // TODO: Add t.plan()
+
   const phantom = new PhantomCore();
 
   await new Promise(resolve => {
@@ -392,6 +400,8 @@ test("emits EVT_READY", async t => {
 });
 
 test("same instance detection", async t => {
+  // TODO: Add t.plan()
+
   const phantom1 = new PhantomCore();
   const phantom1UUID = phantom1.getUUID();
 
@@ -420,6 +430,8 @@ test("same instance detection", async t => {
 });
 
 test("determines instance uptime", async t => {
+  // TODO: Add t.plan()
+
   const phantom = new PhantomCore();
 
   t.ok(
@@ -441,6 +453,8 @@ test("determines instance uptime", async t => {
 });
 
 test("events and destruct", async t => {
+  // TODO: Add t.plan()
+
   const phantom = new PhantomCore();
 
   t.notOk(

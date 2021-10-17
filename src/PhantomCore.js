@@ -469,6 +469,18 @@ class PhantomCore extends EventEmitter {
   }
 
   /**
+   * Retrieves the non-instantiated class definition.
+   *
+   * @return {Object}
+   */
+  getClass() {
+    return this.constructor;
+  }
+
+  /**
+   * IMPORTANT: This is not safe to rely on and will be modified if the script
+   * is minified.
+   *
    * @return {string}
    */
   getClassName() {
