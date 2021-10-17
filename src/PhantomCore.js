@@ -1,3 +1,6 @@
+// @see https://github.com/YuzuJS/setImmediate
+require("setimmediate");
+
 const EventEmitter = require("events");
 const Logger = require("./Logger");
 const { LOG_LEVEL_INFO } = Logger;
