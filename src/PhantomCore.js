@@ -2,7 +2,7 @@
 // Exposes setImmediate as a global, regardless of context
 require("setimmediate");
 
-const EventEmitter = require("events");
+const DestructibleEventEmitter = require("./_DestructibleEventEmitter");
 const Logger = require("./Logger");
 const { LOG_LEVEL_INFO } = Logger;
 const version = require("./static/version");
@@ -22,7 +22,7 @@ const EVT_READY = "ready";
 /** @export */
 const EVT_UPDATED = "updated";
 /** @export */
-const EVT_DESTROYED = "destroyed";
+const { EVT_DESTROYED } = DestructibleEventEmitter;
 /** @export */
 const EVT_NO_INIT_WARN = "no-init-warn";
 
@@ -56,7 +56,7 @@ const KEEP_ALIVE_SHUTDOWN_METHODS = [
  *
  * TODO: Update description.
  */
-class PhantomCore extends EventEmitter {
+class PhantomCore extends DestructibleEventEmitter {
   /**
    * Retrieves the version as defined in package.json.
    *
@@ -247,8 +247,6 @@ class PhantomCore extends EventEmitter {
      */
     this.log = this.logger.log;
 
-    this._isDestroyed = false;
-
     _instances[this._uuid] = this;
 
     /** @type {number} UTC Unix time */
@@ -295,7 +293,7 @@ class PhantomCore extends EventEmitter {
     // Await promise so that EVT_READY listeners can be invoked on next event
     // loop cycle
     await new Promise((resolve, reject) => {
-      if (!this._isDestroyed) {
+      if (!this.getIsDestroyed()) {
         this._isReady = true;
         this.emit(EVT_READY);
         resolve();
@@ -309,7 +307,12 @@ class PhantomCore extends EventEmitter {
    * @return {Promise<void>}
    */
   async destroy() {
-    if (!this._isDestroyed) {
+    if (!this.getIsDestroyed()) {
+      // Intentionally unregister w/ _instances and call super.destroy()
+      // handler first
+      delete _instances[this._uuid];
+      await super.destroy();
+
       // TODO: Implement and call shutdown handlers before continuing (these will perform extra clean-up work, etc. and prevent having to bind to EVT_DESTROYED, etc.)
 
       this.getPhantomProperties().forEach(phantomProp => {
@@ -317,16 +320,6 @@ class PhantomCore extends EventEmitter {
           `Lingering PhantomCore instance on prop name "${phantomProp}".  This could be a memory leak.  Ensure that all PhantomCore instances have been disposed of before class destruct.`
         );
       });
-
-      delete _instances[this._uuid];
-
-      // Note: Setting this flag before-hand is intentional
-      this._isDestroyed = true;
-
-      this.emit(EVT_DESTROYED);
-
-      // Unbind all listeners
-      this.removeAllListeners();
 
       for (const methodName of this.getMethodNames()) {
         // Force non-keep-alive methods to return undefined
@@ -358,13 +351,6 @@ class PhantomCore extends EventEmitter {
         PhantomCore.getIsInstance(this[propName]) &&
         !this[propName].getIsDestroyed()
     );
-  }
-
-  /**
-   * @return {boolean}
-   */
-  getIsDestroyed() {
-    return this._isDestroyed;
   }
 
   /**
@@ -647,7 +633,7 @@ class PhantomCore extends EventEmitter {
    * @return {number}
    */
   getInstanceUptime() {
-    if (!this._isDestroyed) {
+    if (!this.getIsDestroyed()) {
       return getUnixTime() - this._instanceStartTime;
     } else {
       return 0;
