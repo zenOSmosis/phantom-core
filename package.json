@@ -1,10 +1,10 @@
 {
   "name": "phantom-core",
-  "version": "1.0.1",
+  "version": "2.0.0-alpha",
   "description": "Node.js and browser compatible, base JavaScript EventEmitter-based class with base utility methods, logging, event proxies, collections, and destroy handling",
   "author": {
-    "name": "Jeremy Harris",
-    "email": "jeremy.harris@zenosmosis.com",
+    "name": "zenOSmosis",
+    "email": "info@zenosmosis.com",
     "url": "https://zenosmosis.com"
   },
   "main": "src/index.js",

@@ -52,3 +52,39 @@ test("instantiates async", async t => {
 
   t.end();
 });
+
+test("_init cannot be called more than once", async t => {
+  t.plan(1);
+
+  class TestAsyncPhantom extends PhantomCore {
+    constructor() {
+      super({
+        isReady: false,
+      });
+
+      this._initIdx = -1;
+
+      this._init();
+
+      t.throws(
+        () => this._init(),
+        ReferenceError,
+        "Second call to this._init() throws reference error"
+      );
+    }
+
+    async _init() {
+      ++this._initIdx;
+
+      if (this._initIdx > 0) {
+        throw new Error("_init called more than once");
+      }
+
+      return super._init();
+    }
+  }
+
+  new TestAsyncPhantom();
+
+  t.end();
+});
