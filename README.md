@@ -35,4 +35,12 @@ Base package utilized in [Speaker App](https://speaker.app) / [https://github.co
     - Accepts an optional key when adding a child to make it easier to extend with coerced types; the relevant child can be looked up by this key
     - Can optionally destruct all associated children
 
+## Changelog
+
+### Version 2.0.0
+
+  - Add global setImmediate regardless of context.  To use in a browser, require PhantomCore somewhere in the program before calling setImmediate.
+  - Add version reporting as static method: PhantomCore.getPhantomCoreVersion()
+  - Deprecate optional isReady parameter; using isAsync instead
+
 TODO: Build out this documentation

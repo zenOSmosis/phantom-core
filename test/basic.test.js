@@ -78,7 +78,7 @@ test("get options", t => {
   t.deepEquals(phantom.getOptions(), {
     testOption: 123,
     logLevel: 4,
-    isReady: true,
+    isAsync: false,
     symbol: null,
     title: null,
   });
@@ -364,7 +364,7 @@ test("determines class name", async t => {
 });
 
 test("onceReady handling", async t => {
-  // TODO: Add t.plan()
+  t.plan(3);
 
   const phantom = new PhantomCore();
 
@@ -381,8 +381,8 @@ test("onceReady handling", async t => {
   t.end();
 });
 
-test("emits EVT_READY", async t => {
-  // TODO: Add t.plan()
+test("emits EVT_READY (even in sync mode)", async t => {
+  t.plan(1);
 
   const phantom = new PhantomCore();
 
@@ -399,8 +399,8 @@ test("emits EVT_READY", async t => {
   t.end();
 });
 
-test("same instance detection", async t => {
-  // TODO: Add t.plan()
+test("same instance detection", t => {
+  t.plan(4);
 
   const phantom1 = new PhantomCore();
   const phantom1UUID = phantom1.getUUID();
@@ -430,7 +430,7 @@ test("same instance detection", async t => {
 });
 
 test("determines instance uptime", async t => {
-  // TODO: Add t.plan()
+  t.plan(3);
 
   const phantom = new PhantomCore();
 
@@ -453,7 +453,7 @@ test("determines instance uptime", async t => {
 });
 
 test("events and destruct", async t => {
-  // TODO: Add t.plan()
+  t.plan(8);
 
   const phantom = new PhantomCore();
 

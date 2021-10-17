@@ -1,4 +1,5 @@
 // @see https://github.com/YuzuJS/setImmediate
+// Exposes setImmediate as a global, regardless of context
 require("setimmediate");
 
 const EventEmitter = require("events");
@@ -143,10 +144,18 @@ class PhantomCore extends EventEmitter {
   constructor(options = {}) {
     super();
 
-    if (options && options.isReady !== "undefined") {
+    // FIXME: (jh) Remove after isReady has been removed
+    if (options && options.isReady !== undefined) {
       console.warn(
         "DEPRECATION NOTICE: isReady option will be changed to isAsync, defaulting to false"
       );
+
+      if (options.isAsync === undefined) {
+        // Transform to new value
+        options.isAsync = !options.isReady;
+      }
+
+      delete options.isReady;
     }
 
     // Provide "off" aliasing if it is not available (fixes issue where
@@ -172,7 +181,7 @@ class PhantomCore extends EventEmitter {
        *
        * @type {boolean}
        **/
-      isReady: true,
+      isAsync: false,
 
       /** @type {string | number} */
       logLevel: LOG_LEVEL_INFO,
@@ -245,14 +254,17 @@ class PhantomCore extends EventEmitter {
     /** @type {number} UTC Unix time */
     this._instanceStartTime = getUnixTime();
 
-    this._isReady = this._options.isReady || false;
+    this._isReady = !this._options.isAsync || false;
 
     if (this._isReady) {
-      // IMPORTANT: Implementations which set isReady to false must call _init
+      // This shouldn't be called if running isAsync
+      delete this._init;
+
+      setImmediate(() => this.emit(EVT_READY));
+    } else {
+      // IMPORTANT: Implementations which set isAsync to true must call _init
       // on their own
 
-      this._init();
-    } else {
       // Warn if _init() is not invoked in a short time period
       const initTimeout = setTimeout(() => {
         this.logger.warn(
@@ -282,18 +294,15 @@ class PhantomCore extends EventEmitter {
 
     // Await promise so that EVT_READY listeners can be invoked on next event
     // loop cycle
-    await new Promise(resolve =>
-      setTimeout(() => {
-        // NOTE (jh): I didn't add reject here due to potential breaking
-        // changes
-        if (!this._isDestroyed) {
-          this._isReady = true;
-          this.emit(EVT_READY);
-        }
-
+    await new Promise((resolve, reject) => {
+      if (!this._isDestroyed) {
+        this._isReady = true;
+        this.emit(EVT_READY);
         resolve();
-      })
-    );
+      } else {
+        reject();
+      }
+    });
   }
 
   /**

@@ -8,10 +8,19 @@ const { EVT_READY, EVT_NO_INIT_WARN } = PhantomCore;
  */
 
 test("instantiates async", async t => {
-  t.plan(6);
+  t.plan(7);
+
+  // FIXME: (jh) Remove after isReady has been removed
+  const p1 = new PhantomCore({ isReady: false });
+  const p2 = new PhantomCore({ isAsync: true });
+  t.deepEquals(
+    p1.getOptions(),
+    p2.getOptions(),
+    "older isReady[false] and newer isAsync[true] produce same options"
+  );
 
   const phantom = new PhantomCore({
-    isReady: false,
+    isAsync: true,
   });
 
   await new Promise(resolve =>
@@ -59,7 +68,7 @@ test("_init cannot be called more than once", async t => {
   class TestAsyncPhantom extends PhantomCore {
     constructor() {
       super({
-        isReady: false,
+        isAsync: true,
       });
 
       this._initIdx = -1;
