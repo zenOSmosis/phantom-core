@@ -175,11 +175,12 @@ class PhantomCore extends DestructibleEventEmitter {
 
     const DEFAULT_OPTIONS = {
       /**
-       * If set to false, this._init() MUST be called during the instance
-       * construction.
+       * If set to true, this._init() MUST be called during the instance
+       * construction, or shortly thereafter (otherwise a warning will be
+       * raised).
        *
-       * The ready state can be detected by checking this.getIsReady() or
-       * awaited for by this.onceReady().
+       * Note that if set to false, this._init will be discarded, regardless if
+       * it was set in an extension class.
        *
        * @type {boolean}
        **/
@@ -273,7 +274,7 @@ class PhantomCore extends DestructibleEventEmitter {
 
     if (this._isReady) {
       // This shouldn't be called if running isAsync
-      delete this._init;
+      this._init = undefined;
 
       setImmediate(() => this.emit(EVT_READY));
     } else {

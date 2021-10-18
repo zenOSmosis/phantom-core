@@ -97,3 +97,25 @@ test("_init cannot be called more than once", async t => {
 
   t.end();
 });
+
+test("_init is discarded for non-async instances", async t => {
+  t.plan(2);
+
+  class TestSyncPhantom extends PhantomCore {
+    _init() {
+      throw new Error("Should not get here");
+    }
+  }
+
+  const p = new TestSyncPhantom();
+
+  t.equals(typeof p._init, "undefined", "_init is undefined with sync type");
+
+  t.throws(
+    () => p._init(),
+    TypeError,
+    "_init call throws TypeError when sync type"
+  );
+
+  t.end();
+});
