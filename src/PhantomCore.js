@@ -144,10 +144,12 @@ class PhantomCore extends DestructibleEventEmitter {
   constructor(options = {}) {
     super();
 
+    const deprecationNotices = [];
+
     // FIXME: (jh) Remove after isReady has been removed
     if (options && options.isReady !== undefined) {
-      console.warn(
-        "DEPRECATION NOTICE: isReady option will be changed to isAsync, defaulting to false"
+      deprecationNotices.push(
+        "isReady option will be changed to isAsync, defaulting to false"
       );
 
       if (options.isAsync === undefined) {
@@ -290,6 +292,10 @@ class PhantomCore extends DestructibleEventEmitter {
       this.once(EVT_READY, () => clearTimeout(initTimeout));
       this.once(EVT_DESTROYED, () => clearTimeout(initTimeout));
     }
+
+    deprecationNotices.forEach(deprecation => {
+      this.log.warn(`DEPRECATION NOTICE: ${deprecation}`);
+    });
   }
 
   /**
