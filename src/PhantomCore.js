@@ -180,7 +180,7 @@ class PhantomCore extends DestructibleEventEmitter {
        * raised).
        *
        * Note that if set to false, this._init will be discarded, regardless if
-       * it was set in an extension class.
+       * it was defined in an extension class.
        *
        * @type {boolean}
        **/
