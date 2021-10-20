@@ -3,8 +3,10 @@ const { PhantomServiceCore, PhantomServiceManager } = require("../../src");
 
 class TestService extends PhantomServiceCore {}
 
-test("improper service instantiation", async t => {
-  t.plan(2);
+test("service instantiation", async t => {
+  t.plan(8);
+
+  const serviceManager = new PhantomServiceManager();
 
   t.throws(
     () => {
@@ -14,19 +16,10 @@ test("improper service instantiation", async t => {
     "services must be instantiated by a manager"
   );
 
-  const serviceManager = new PhantomServiceManager();
-
   t.throws(() => {
     serviceManager.startServiceClass(new PhantomServiceCore());
   });
 
-  t.end();
-});
-
-test("proper service instantiation", async t => {
-  t.plan(6);
-
-  const serviceManager = new PhantomServiceManager();
   serviceManager.startServiceClass(TestService);
 
   t.deepEquals(

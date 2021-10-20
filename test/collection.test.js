@@ -536,6 +536,8 @@ test("PhantomCollection ChildEventBridge", async t => {
   (() => {
     const collection = new PhantomCollection();
     const child1 = new PhantomCore();
+
+    // FIXME: (jh) Use this somehow?
     // const child2 = new PhantomCore();
 
     class _TestChildEventBridge extends _ChildEventBridge {
