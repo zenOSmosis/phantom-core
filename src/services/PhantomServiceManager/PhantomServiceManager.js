@@ -27,19 +27,7 @@ class PhantomServiceManager extends PhantomCollection {
   }
 
   // TODO: Document
-  addChild(service, ServiceClass) {
-    if (!(service instanceof PhantomServiceCore)) {
-      throw new TypeError("service is not a PhantomServiceCore instance");
-    }
-
-    return super.addChild(service, ServiceClass);
-  }
-
-  // TODO: Document
-  // TODO: Refactor most of this into addChild, directly
-  // IMPORTANT: Making this async might be more trouble than its worth, if that
-  // is ever a consideration
-  startServiceClass(ServiceClass) {
+  addChild(ServiceClass) {
     const cachedService = this.getChildWithKey(ServiceClass);
 
     if (cachedService) {
@@ -62,14 +50,23 @@ class PhantomServiceManager extends PhantomCollection {
     // collection.
     const service = new ServiceClass();
 
-    this.addChild(service, ServiceClass);
+    if (!(service instanceof PhantomServiceCore)) {
+      throw new TypeError("Service is not a PhantomServiceCore instance");
+    }
 
-    return service;
+    return super.addChild(service, ServiceClass);
+  }
+
+  // TODO: Document
+  // IMPORTANT: Making this async might be more trouble than its worth, if that
+  // is ever a consideration
+  startServiceClass(ServiceClass) {
+    this.addChild(ServiceClass);
   }
 
   // TODO: Document
   async stopServiceClass(ServiceClass) {
-    const cachedService = this.getChildWithKey(ServiceClass);
+    const cachedService = this.getServiceInstance(ServiceClass);
 
     if (cachedService) {
       cachedService.destroy();
@@ -77,10 +74,15 @@ class PhantomServiceManager extends PhantomCollection {
   }
 
   // TODO: Document
-  getService(ServiceClass) {
+  getServiceInstance(ServiceClass) {
     const cachedService = this.getChildWithKey(ServiceClass);
 
     return cachedService;
+  }
+
+  // TODO: Document
+  getServiceClasses() {
+    return this.getKeys();
   }
 }
 

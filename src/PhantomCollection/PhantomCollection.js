@@ -151,7 +151,7 @@ class PhantomCollection extends PhantomCore {
    * method functionality where the passed in type is altered and it would be
    * otherwise difficult to track that altered type.
    * @throws {TypeError}
-   * @throws {ReferenceErro}
+   * @throws {ReferenceError}
    * @emits EVT_CHILD_INSTANCE_ADDED
    * @emits EVT_UPDATED
    * @return {void}
@@ -265,10 +265,10 @@ class PhantomCollection extends PhantomCore {
   }
 
   /**
-   * @param {any} key
+   * @param {any} key? [default = null]
    * @return {PhantomCore | void}
    */
-  getChildWithKey(key) {
+  getChildWithKey(key = null) {
     if (!key) {
       return;
     }
@@ -282,6 +282,17 @@ class PhantomCollection extends PhantomCore {
     if (matchedMetaDescription) {
       return matchedMetaDescription[KEY_META_CHILD_DESC_INSTANCE];
     }
+  }
+
+  /**
+   * Retrieves the associative keys used with added children.
+   *
+   * @return {any[]}
+   */
+  getKeys() {
+    return this._childMetaDescriptions.map(
+      ({ [KEY_META_DESC_CHILD_KEY]: key }) => key
+    );
   }
 
   /**

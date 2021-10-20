@@ -13,6 +13,25 @@ const {
 
 const _ChildEventBridge = require("../src/PhantomCollection/ChildEventBridge");
 
+test("PhantomCollection add multiple children without keys", async t => {
+  t.plan(1);
+
+  const collection = new PhantomCollection();
+
+  collection.addChild(new PhantomCore());
+  collection.addChild(new PhantomCore());
+  collection.addChild(new PhantomCore());
+  collection.addChild(new PhantomCore());
+
+  t.equals(
+    collection.getChildren().length,
+    4,
+    "Multiple children can be added without keys"
+  );
+
+  t.end();
+});
+
 test("PhantomCollection add / remove child; get children", async t => {
   t.plan(34);
 

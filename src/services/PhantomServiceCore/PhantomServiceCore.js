@@ -32,7 +32,7 @@ class PhantomServiceCore extends PhantomCore {
     }
 
     this._state = Object.seal(
-      UIServiceCore.mergeOptions(DEFAULT_STATE, initialState)
+      PhantomServiceCore.mergeOptions(DEFAULT_STATE, initialState)
     );
 
     // A map of collections, attached to this service core
