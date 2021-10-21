@@ -44,6 +44,7 @@ Base package utilized in [Speaker App](https://speaker.app) / [https://github.co
   - Deprecate optional isReady parameter; using isAsync instead
   - Base PhantomCore off of DestructibleEventEmitter
   - Implement default auto-bind support to PhantomCore classes and derivatives (can be disabled by setting hasAutomaticBindings to false in constructor options)
+  - Implement PhantomServiceCore and PhantomServiceManager servicing
   - TODO: Add stack support and registerShutdownHandler (which uses stack support)
 
 TODO: Build out this documentation

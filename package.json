@@ -14,7 +14,7 @@
     "test-browser": "dotenv airtap --coverage --concurrency 1 -- test/{,/**/}*.test.js",
     "coverage": "nyc npm run test-node",
     "lint": "prettier --write '(**/)*.js'",
-    "write-version-info": "node utils/writeVersionInfo.js"
+    "write-version-info": "node node-utils/writeVersionInfo.js"
   },
   "devDependencies": {
     "airtap": "^4.0.3",
