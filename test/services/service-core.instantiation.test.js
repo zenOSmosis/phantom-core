@@ -25,7 +25,7 @@ test("service instantiation", async t => {
   t.deepEquals(
     serviceManager.getServiceClasses(),
     [TestService],
-    "TestService is included in getServiceClasses call"
+    "TestService class is included in getServiceClasses call"
   );
 
   const testServiceInstance = serviceManager.getServiceInstance(TestService);
