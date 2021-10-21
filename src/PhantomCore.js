@@ -357,7 +357,7 @@ class PhantomCore extends DestructibleEventEmitter {
       // TODO: Implement and call shutdown handlers before continuing (these will perform extra clean-up work, etc. and prevent having to bind to EVT_DESTROYED, etc.)
 
       this.getPhantomProperties().forEach(phantomProp => {
-        console.warn(
+        this.log.warn(
           `Lingering PhantomCore instance on prop name "${phantomProp}".  This could be a memory leak.  Ensure that all PhantomCore instances have been disposed of before class destruct.`
         );
       });
