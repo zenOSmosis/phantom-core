@@ -26,7 +26,21 @@ class PhantomServiceManager extends PhantomCollection {
     return ret;
   }
 
-  // TODO: Document
+  /**
+   * Starts a new ServiceCoreClass instance or retrieves an existing one, if
+   * the same class is managed by this manager.
+   *
+   * In the context of this manager instance, the service class is treated as a
+   * singleton, while new instances of the class can be bound to other manager
+   * instances.
+   *
+   * @param {PhantomServiceCore} ServiceClass
+   * @throws {TypeError}
+   * @throws {ReferenceError}
+   * @emits EVT_CHILD_INSTANCE_ADDED
+   * @emits EVT_UPDATED
+   * @return {PhantomServiceCore} Returns the instance of the added service class
+   */
   addChild(ServiceClass) {
     if (ServiceClass === PhantomServiceCore) {
       throw new TypeError(
@@ -51,7 +65,7 @@ class PhantomServiceManager extends PhantomCollection {
         throw new TypeError("Service cannot start a new instance of itself");
       }
 
-      this.startServiceClass(ChildServiceClass);
+      return this.startServiceClass(ChildServiceClass);
     };
 
     // NOTE: Services are instantiated with the collection without arguments,
@@ -65,22 +79,29 @@ class PhantomServiceManager extends PhantomCollection {
       throw new TypeError("Service is not a PhantomServiceCore instance");
     }
 
-    return super.addChild(service, ServiceClass);
+    super.addChild(service, ServiceClass);
+
+    return service;
   }
 
-  // TODO: Document
-  // IMPORTANT: Making this async might be more trouble than its worth, if that
-  // is ever a consideration
+  /**
+   * Alias for this.addChild
+   *
+   * @see this.addChild
+   */
   startServiceClass(ServiceClass) {
-    this.addChild(ServiceClass);
+    return this.addChild(ServiceClass);
   }
 
-  // TODO: Document
+  /**
+   *
+   * @param {PhantomServiceCore} ServiceClass
+   */
   async stopServiceClass(ServiceClass) {
     const cachedService = this.getServiceInstance(ServiceClass);
 
     if (cachedService) {
-      cachedService.destroy();
+      return cachedService.destroy();
     }
   }
 

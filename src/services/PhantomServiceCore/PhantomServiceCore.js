@@ -58,10 +58,18 @@ class PhantomServiceCore extends PhantomCore {
     return super.destroy();
   }
 
-  // TODO: Document
+  /**
+   * Starts a new service class instance, or retrieves an existing one which
+   * matches the given class.
+   *
+   * @param {PhantomServiceCore} ServiceClass
+   * @return {PhantomServiceCore} Service class instance
+   */
   useServiceClass(ServiceClass) {
     return this._useServiceClassHandler(ServiceClass);
   }
+
+  // TODO: Implement ability to get attached service classes
 
   /**
    * @param {PhantomCollection} CollectionClass
