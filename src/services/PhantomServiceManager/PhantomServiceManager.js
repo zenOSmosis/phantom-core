@@ -28,6 +28,12 @@ class PhantomServiceManager extends PhantomCollection {
 
   // TODO: Document
   addChild(ServiceClass) {
+    if (ServiceClass === PhantomServiceCore) {
+      throw new TypeError(
+        "ServiceClass must derive from PhantomServiceCore but cannot be PhantomServiceCore itself"
+      );
+    }
+
     const cachedService = this.getChildWithKey(ServiceClass);
 
     if (cachedService) {
@@ -40,8 +46,13 @@ class PhantomServiceManager extends PhantomCollection {
     // NOTE: This was engineered this way in order to not have to pass
     // arguments to the ServiceClass itself, thus making it easier to extend
     // services without having to think about needed constructor arguments
-    ServiceClass.prototype._useServiceClassHandler = ServiceClass =>
-      this.startServiceClass(ServiceClass);
+    ServiceClass.prototype._useServiceClassHandler = ChildServiceClass => {
+      if (ChildServiceClass === ServiceClass) {
+        throw new TypeError("Service cannot start a new instance of itself");
+      }
+
+      this.startServiceClass(ChildServiceClass);
+    };
 
     // NOTE: Services are instantiated with the collection without arguments,
     // but may pass arguments down to the base ServiceCore class (i.e. for
