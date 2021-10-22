@@ -23,8 +23,7 @@
     "dotenv-cli": "^4.0.0",
     "nyc": "^15.1.0",
     "prettier": "^2.4.1",
-    "tape": "^5.3.1",
-    "tape-async": "^2.3.0"
+    "tape": "^5.3.1"
   },
   "dependencies": {
     "dayjs": "^1.10.7",
