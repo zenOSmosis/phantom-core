@@ -25,6 +25,17 @@ class PhantomServiceCore extends PhantomCore {
 
     super();
 
+    // Ensure we're managed by a PhantomServiceManager
+    (() => {
+      const PhantomServiceManager = require("../PhantomServiceManager");
+
+      if (!(this.__UNSAFE__manager instanceof PhantomServiceManager)) {
+        throw new ReferenceError(
+          "PhantomServiceCore must be started by a PhantomServiceManager"
+        );
+      }
+    })();
+
     if (typeof this._useServiceClassHandler !== "function") {
       throw new ReferenceError(
         "_useServiceClassHandler property should be set by the PhantomServiceManager which manages this service"

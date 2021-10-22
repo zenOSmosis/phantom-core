@@ -1,9 +1,6 @@
 const test = require("tape-async");
-const {
-  PhantomCore,
-  PhantomServiceCore,
-  PhantomServiceManager,
-} = require("../../src");
+const PhantomCore = require("../../src");
+const { PhantomServiceCore, PhantomServiceManager } = PhantomCore;
 
 class TestService extends PhantomServiceCore {}
 
@@ -11,6 +8,14 @@ test("service instantiation", async t => {
   t.plan(10);
 
   const serviceManager = new PhantomServiceManager();
+
+  t.throws(
+    () => {
+      serviceManager.startServiceClass(PhantomCore);
+    },
+    TypeError,
+    "services must derive from PhantomServiceCore"
+  );
 
   t.throws(
     () => {
@@ -74,17 +79,8 @@ test("service instantiation", async t => {
     "serviceManager reports two service classes after adding in new service"
   );
 
-  const extendedTestServiceInstance = serviceManager.getServiceInstance(
-    ExtendedTestService
-  );
-
-  t.throws(
-    () => {
-      serviceManager.startServiceClass(PhantomCore);
-    },
-    TypeError,
-    "serviceManager cannot start non-PhantomServiceCore derived services"
-  );
+  const extendedTestServiceInstance =
+    serviceManager.getServiceInstance(ExtendedTestService);
 
   await serviceManager.destroy();
 
