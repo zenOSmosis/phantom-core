@@ -1,4 +1,3 @@
-// TODO: Add this to PhantomCore repository
 const PhantomCore = require("../../PhantomCore");
 const {
   /** @export */
