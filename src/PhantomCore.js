@@ -286,6 +286,8 @@ class PhantomCore extends DestructibleEventEmitter {
    * @return {void}
    */
   autoBind() {
+    // TODO: Adding this.log to the ignore list may not be necessary if auto-binding in the logger itself
+
     // Handling for this.log is special and needs to be passed directly from
     // the caller, or else it will lose the stack trace
     const IGNORE_LIST = [this.log];
