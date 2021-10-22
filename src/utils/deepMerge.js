@@ -1,13 +1,19 @@
 const libDeepMerge = require("deepmerge");
 
+// Potential lib replacements if the performance is low:
+// (NOTE: (jh) I haven't looked into these much but the idea of smart merging
+// sounds nice if it really boosts the performance)
+//
+//  - https://www.npmjs.com/package/deepmerge-ts
+//  - https://www.npmjs.com/package/object-accumulator
+
 /**
- * TODO: Reconsider this; do we really want to deep-merge these init options?
- * It makes things rather limiting.
+ * Deep merges two objects together
  *
  * @param {Object} objA? [optional; default = {}]
  * @param {Object} objB? [optional; default = {}]
- * @return {Object} Returns a deep merged clone of options, where
- * userLevelOptions overrides defaultOptions.
+ * @return {Object} Returns a deep merged clone of objects, where
+ * objB overrides objA.
  */
 module.exports = function deepMerge(objA = {}, objB = {}) {
   // Typecast null options to Object for robustness of implementors (i.e.
