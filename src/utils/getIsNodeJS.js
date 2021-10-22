@@ -1,3 +1,6 @@
+// Alternatively, see hostProcess, which checks for browser, electron, and all environments
+// @see https://github.com/microsoft/OCR-Form-Tools/blob/master/src/common/hostProcess.ts
+
 /**
  * Determines if process is running in Node.js or not.
  *
