@@ -8,7 +8,6 @@ const { LOG_LEVEL_INFO } = Logger;
 const version = require("./static/version");
 const uuidv4 = require("uuid").v4;
 const shortUUID = require("short-uuid");
-const deepMerge = require("deepmerge");
 const dayjs = require("dayjs");
 
 const getUnixTime = require("./utils/getUnixTime");
@@ -77,25 +76,6 @@ class PhantomCore extends DestructibleEventEmitter {
    */
   static getIsInstance(instance) {
     return instance instanceof PhantomCore;
-  }
-
-  /**
-   * TODO: Reconsider this; do we really want to deep-merge these init options?
-   * It makes things rather limiting.
-   *
-   * @param {Object} defaultOptions? [optional; default = {}]
-   * @param {Object} userLevelOptions? [optional; default = {}]
-   * @return {Object} Returns a deep merged clone of options, where
-   * userLevelOptions overrides defaultOptions.
-   */
-  static mergeOptions(defaultOptions = {}, userLevelOptions = {}) {
-    // Typecast null options to Object for robustness of implementors (i.e.
-    // media-stream-track-controller may pass null when merging optional
-    // MediaStreamTrack constraints)
-    if (defaultOptions === null) defaultOptions = {};
-    if (userLevelOptions === null) userLevelOptions = {};
-
-    return deepMerge(defaultOptions, userLevelOptions);
   }
 
   /**
@@ -217,10 +197,8 @@ class PhantomCore extends DestructibleEventEmitter {
       hasAutomaticBindings: true,
     };
 
-    // Options should be considered immutable.
-    this._options = Object.freeze(
-      PhantomCore.mergeOptions(DEFAULT_OPTIONS, options)
-    );
+    // Options should be considered immutable
+    this._options = Object.freeze({ ...DEFAULT_OPTIONS, ...options });
 
     this._symbol = (() => {
       if (this._options.symbol) {

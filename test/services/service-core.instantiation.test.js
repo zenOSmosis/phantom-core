@@ -13,11 +13,7 @@ test("service instantiation", async t => {
     () => {
       serviceManager.startServiceClass(PhantomCore);
     },
-    // FIXME: (jh) Due to PhantomCore's deep-merge of options, this will error
-    // with a maximum call-stack error; The real error we're looking for is a
-    // TypeError.
-    RangeError,
-    // TypeError,
+    TypeError,
     "services must derive from PhantomServiceCore"
   );
 
