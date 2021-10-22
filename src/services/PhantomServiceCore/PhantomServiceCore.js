@@ -20,16 +20,16 @@ const {
 // managing other types of collection-type data without the possibility of a
 // conflict (i.e. collections based on role, etc.)
 class PhantomServiceCore extends PhantomCore {
-  constructor(initialState = {}) {
-    const DEFAULT_STATE = {};
-
+  constructor({ manager, useServiceClassHandler }) {
     super();
+
+    this._useServiceClassHandler = useServiceClassHandler;
 
     // Ensure we're managed by a PhantomServiceManager
     (() => {
       const PhantomServiceManager = require("../PhantomServiceManager");
 
-      if (!(this.__UNSAFE__manager instanceof PhantomServiceManager)) {
+      if (!(manager instanceof PhantomServiceManager)) {
         throw new ReferenceError(
           "PhantomServiceCore must be started by a PhantomServiceManager"
         );
@@ -42,19 +42,20 @@ class PhantomServiceCore extends PhantomCore {
       );
     }
 
+    this._state = {};
+
+    // TODO: Refactor w/ setInitialState?
+    /*
     this._state = Object.seal(
       PhantomServiceCore.mergeOptions(DEFAULT_STATE, initialState)
     );
+    */
 
     // A map of collections, attached to this service core
     this._collectionMap = new Map();
 
     // Set default title
     this.setTitle(`[non-aliased-service]:${this.getClassName()}`);
-
-    // TODO: Include ability to dynamically link in Providers to a service so
-    // that the same providers will be available to all consumers of the
-    // service
   }
 
   /**

@@ -5,8 +5,12 @@ test("service state", async t => {
   t.plan(1);
 
   class TestService extends PhantomServiceCore {
-    constructor() {
+    constructor({ ...args }) {
       super({
+        ...args,
+      });
+
+      this.setState({
         someInitialFirstStateBoolean: true,
       });
     }

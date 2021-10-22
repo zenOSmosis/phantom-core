@@ -7,8 +7,8 @@ test("sub-service", async t => {
   class TestSubService extends PhantomServiceCore {}
 
   class TestService extends PhantomServiceCore {
-    constructor() {
-      super();
+    constructor({ ...args }) {
+      super({ ...args });
 
       t.throws(
         () => {

@@ -54,32 +54,22 @@ class PhantomServiceManager extends PhantomCollection {
       return cachedService;
     }
 
-    (() => {
-      // TODO: Remove this prototype stuff and figure out a better way of doing this!!  It prevents multiple contexts from being available.
-
-      ServiceClass.prototype.__UNSAFE__manager = this;
+    const service = new ServiceClass({
+      // While not EXPLICITLY required to make the functionality work, the
+      // internal check inside of PhantomServiceCore for this property helps to
+      // guarantee integrity of the PhantomServiceManager type
+      manager: this,
 
       // Bind functionality to the service to be able to use other services,
       // using this service collection as the backend
-      //
-      // NOTE: This was engineered this way in order to not have to pass
-      // arguments to the ServiceClass itself, thus making it easier to extend
-      // services without having to think about needed constructor arguments
-      ServiceClass.prototype._useServiceClassHandler = ChildServiceClass => {
+      useServiceClassHandler: ChildServiceClass => {
         if (ChildServiceClass === ServiceClass) {
           throw new TypeError("Service cannot start a new instance of itself");
         }
 
         return this.startServiceClass(ChildServiceClass);
-      };
-    })();
-
-    // NOTE: Services are instantiated with the collection without arguments,
-    // but may pass arguments down to the base ServiceCore class (i.e. for
-    // setting initial state) in extension classes.  The extension classes
-    // themselves won't be instantiated with any arguments set, however, by the
-    // collection.
-    const service = new ServiceClass();
+      },
+    });
 
     if (!(service instanceof PhantomServiceCore)) {
       throw new TypeError("Service is not a PhantomServiceCore instance");
