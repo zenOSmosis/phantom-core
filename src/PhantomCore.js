@@ -80,6 +80,9 @@ class PhantomCore extends DestructibleEventEmitter {
   }
 
   /**
+   * TODO: Reconsider this; do we really want to deep-merge these init options?
+   * It makes things rather limiting.
+   *
    * @param {Object} defaultOptions? [optional; default = {}]
    * @param {Object} userLevelOptions? [optional; default = {}]
    * @return {Object} Returns a deep merged clone of options, where
