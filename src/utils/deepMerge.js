@@ -8,7 +8,9 @@ const libDeepMerge = require("deepmerge");
 //  - https://www.npmjs.com/package/object-accumulator
 
 /**
- * Deep merges two objects together
+ * Deep merges two objects together.
+ *
+ * IMPORTANT: The return is a COPY of the merged; no re-assignment takes place.
  *
  * @param {Object} objA? [optional; default = {}]
  * @param {Object} objB? [optional; default = {}]
