@@ -23,9 +23,6 @@ class PhantomServiceCore extends PhantomCore {
   constructor({ manager, useServiceClassHandler }) {
     super();
 
-    this.__MANAGED__manager = manager;
-    this.__MANAGED__useServiceClassHandler = useServiceClassHandler;
-
     // Ensure we're managed by a PhantomServiceManager
     (() => {
       const PhantomServiceManager = require("../PhantomServiceManager");
@@ -36,6 +33,8 @@ class PhantomServiceCore extends PhantomCore {
         );
       }
     })();
+
+    this.__MANAGED__useServiceClassHandler = useServiceClassHandler;
 
     if (typeof this.__MANAGED__useServiceClassHandler !== "function") {
       throw new ReferenceError(
