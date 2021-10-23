@@ -41,6 +41,7 @@ class PhantomServiceCore extends PhantomCore {
       );
     }
 
+    // TODO: Ensure this is cleared once destructed
     this._state = {};
 
     // TODO: Refactor w/ setInitialState?
@@ -124,13 +125,24 @@ class PhantomServiceCore extends PhantomCore {
     }
   }
 
-  // TODO: Implement optional profiling?
-  // TODO: Document
+  /**
+   * Sets partial next state, shallow merging any new changes.
+   *
+   * @param {Object} partialNextState
+   * @emits EVT_UPDATED
+   * @return {void}
+   */
   setState(partialNextState = {}) {
+    if (typeof partialNextState !== "object") {
+      throw new TypeError("setState must be called with an object");
+    }
+
     // IMPORTANT: This state is only shallow merged due to deep merging not
     // working for certain native types
     this._state = { ...this._state, ...partialNextState };
 
+    // IMPORTANT: At this time, emit is invoked regardless if there are actual
+    // updates
     this.emit(EVT_UPDATED, partialNextState);
   }
 
