@@ -25,6 +25,7 @@ Base package utilized in [Speaker App](https://speaker.app) / [https://github.co
   - Event constants: Internal events are exposed as module exports (i.e. EVT_UPDATED, EVT_DESTROYED)
   - Instance lookup by UUID / Symbol: If the UUID or Symbol is known for a given PhantomCore instance, that instance can be returned by the lookup function (i.e. PhantomCore.getInstanceWithUUID() or PhantomCore.getInstanceWithSymbol() static methods)
   - Logger, inspired by [loglevel](https://www.npmjs.com/package/loglevel), with log level support, and exposes original stack trace to console (node and browser)
+  - Slightly opinionated deep object merging (based on [deepmerge](https://www.npmjs.com/package/deepmerge)))
   - PhantomCollection
     - Maintains a collection of arbitrary PhantomCore (and derived) instances
     - Can broadcast events to all of its children
@@ -37,13 +38,22 @@ Base package utilized in [Speaker App](https://speaker.app) / [https://github.co
 
 ## Changelog
 
-### Version 2.0.0
+### Version 1.0.0 (Sept. 10, 2021)
+  - Base PhantomCore, PhantomCollection and Logger support
 
+### Version 1.0.1 (Sept. 25, 2021)
+  - Fix issue where calling Logger.log method directly would lose stack trace
+
+### Version 2.0.0 (TBD)
+
+  - Enhanced precautions against memory leaks
   - Add global setImmediate regardless of context.  To use in a browser, require PhantomCore somewhere in the program before calling setImmediate.
   - Add version reporting as static method: PhantomCore.getPhantomCoreVersion()
   - Deprecate optional isReady parameter; using isAsync instead
   - Base PhantomCore off of DestructibleEventEmitter
   - Implement default auto-bind support to PhantomCore classes and derivatives (can be disabled by setting hasAutomaticBindings to false in constructor options)
+  - Implement PhantomServiceCore and PhantomServiceManager servicing
+  - Remove deep-merging of PhantomCore options and promote to a separate utility (deepMerge lives on its own)
   - TODO: Add stack support and registerShutdownHandler (which uses stack support)
 
 TODO: Build out this documentation

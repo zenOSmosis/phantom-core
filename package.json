@@ -10,23 +10,23 @@
   "main": "src/index.js",
   "scripts": {
     "test": "npm run test-node && npm run test-browser",
-    "test-node": "tape test/*.test.js",
-    "test-browser": "dotenv airtap --coverage --concurrency 1 -- test/*.test.js",
+    "test-node": "tape test/{,/**/}*.test.js",
+    "test-browser": "dotenv airtap --coverage --concurrency 1 -- test/{,/**/}*.test.js",
     "coverage": "nyc npm run test-node",
     "lint": "prettier --write '(**/)*.js'",
-    "write-version-info": "node utils/writeVersionInfo.js"
+    "check-dep-updates": "npx npm-check-updates",
+    "write-version-info": "node node-utils/writeVersionInfo.js"
   },
   "devDependencies": {
     "airtap": "^4.0.3",
     "airtap-sauce": "^1.1.2",
     "dotenv-cli": "^4.0.0",
     "nyc": "^15.1.0",
-    "prettier": "^2.2.1",
-    "tape": "^5.2.2",
-    "tape-async": "^2.3.0"
+    "prettier": "^2.4.1",
+    "tape": "^5.3.1"
   },
   "dependencies": {
-    "dayjs": "^1.10.5",
+    "dayjs": "^1.10.7",
     "deepmerge": "^4.2.2",
     "setimmediate": "^1.0.5",
     "short-uuid": "^4.2.0",

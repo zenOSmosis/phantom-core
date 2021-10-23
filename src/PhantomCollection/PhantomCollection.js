@@ -42,7 +42,7 @@ class PhantomCollection extends PhantomCore {
    *
    * @param {any[]} prevChildren All of the previous children.
    * @param {any[]} currChildren All of the current children.
-   * @return {Object<added: any[], removed: []>} Contains children added and
+   * @return {Object<added: any[], removed: any[]>} Contains children added and
    * removed.
    */
   static getChildrenDiff(prevChildren, currChildren) {
@@ -151,7 +151,7 @@ class PhantomCollection extends PhantomCore {
    * method functionality where the passed in type is altered and it would be
    * otherwise difficult to track that altered type.
    * @throws {TypeError}
-   * @throws {ReferenceErro}
+   * @throws {ReferenceError}
    * @emits EVT_CHILD_INSTANCE_ADDED
    * @emits EVT_UPDATED
    * @return {void}
@@ -265,10 +265,10 @@ class PhantomCollection extends PhantomCore {
   }
 
   /**
-   * @param {any} key
+   * @param {any} key? [default = null]
    * @return {PhantomCore | void}
    */
-  getChildWithKey(key) {
+  getChildWithKey(key = null) {
     if (!key) {
       return;
     }
@@ -282,6 +282,17 @@ class PhantomCollection extends PhantomCore {
     if (matchedMetaDescription) {
       return matchedMetaDescription[KEY_META_CHILD_DESC_INSTANCE];
     }
+  }
+
+  /**
+   * Retrieves the associative keys used with added children.
+   *
+   * @return {any[]}
+   */
+  getKeys() {
+    return this._childMetaDescriptions.map(
+      ({ [KEY_META_DESC_CHILD_KEY]: key }) => key
+    );
   }
 
   /**
@@ -363,4 +374,5 @@ module.exports.EVT_CHILD_INSTANCE_REMOVED = EVT_CHILD_INSTANCE_REMOVED;
 
 module.exports.KEY_META_CHILD_DESC_INSTANCE = KEY_META_CHILD_DESC_INSTANCE;
 module.exports.KEY_META_DESC_CHILD_KEY = KEY_META_DESC_CHILD_KEY;
-module.exports.KEY_META_CHILD_DESTROY_LISTENER = KEY_META_CHILD_DESTROY_LISTENER;
+module.exports.KEY_META_CHILD_DESTROY_LISTENER =
+  KEY_META_CHILD_DESTROY_LISTENER;

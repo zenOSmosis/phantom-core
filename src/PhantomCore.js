@@ -8,7 +8,6 @@ const { LOG_LEVEL_INFO } = Logger;
 const version = require("./static/version");
 const uuidv4 = require("uuid").v4;
 const shortUUID = require("short-uuid");
-const deepMerge = require("deepmerge");
 const dayjs = require("dayjs");
 
 const getUnixTime = require("./utils/getUnixTime");
@@ -77,22 +76,6 @@ class PhantomCore extends DestructibleEventEmitter {
    */
   static getIsInstance(instance) {
     return instance instanceof PhantomCore;
-  }
-
-  /**
-   * @param {Object} defaultOptions? [optional; default = {}]
-   * @param {Object} userLevelOptions? [optional; default = {}]
-   * @return {Object} Returns a deep merged clone of options, where
-   * userLevelOptions overrides defaultOptions.
-   */
-  static mergeOptions(defaultOptions = {}, userLevelOptions = {}) {
-    // Typecast null options to Object for robustness of implementors (i.e.
-    // media-stream-track-controller may pass null when merging optional
-    // MediaStreamTrack constraints)
-    if (defaultOptions === null) defaultOptions = {};
-    if (userLevelOptions === null) userLevelOptions = {};
-
-    return deepMerge(defaultOptions, userLevelOptions);
   }
 
   /**
@@ -214,10 +197,8 @@ class PhantomCore extends DestructibleEventEmitter {
       hasAutomaticBindings: true,
     };
 
-    // Options should be considered immutable.
-    this._options = Object.freeze(
-      PhantomCore.mergeOptions(DEFAULT_OPTIONS, options)
-    );
+    // Options should be considered immutable
+    this._options = Object.freeze({ ...DEFAULT_OPTIONS, ...options });
 
     this._symbol = (() => {
       if (this._options.symbol) {
@@ -305,6 +286,8 @@ class PhantomCore extends DestructibleEventEmitter {
    * @return {void}
    */
   autoBind() {
+    // TODO: Adding this.log to the ignore list may not be necessary if auto-binding in the logger itself
+
     // Handling for this.log is special and needs to be passed directly from
     // the caller, or else it will lose the stack trace
     const IGNORE_LIST = [this.log];
@@ -357,7 +340,7 @@ class PhantomCore extends DestructibleEventEmitter {
       // TODO: Implement and call shutdown handlers before continuing (these will perform extra clean-up work, etc. and prevent having to bind to EVT_DESTROYED, etc.)
 
       this.getPhantomProperties().forEach(phantomProp => {
-        console.warn(
+        this.log.warn(
           `Lingering PhantomCore instance on prop name "${phantomProp}".  This could be a memory leak.  Ensure that all PhantomCore instances have been disposed of before class destruct.`
         );
       });

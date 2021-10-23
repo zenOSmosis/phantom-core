@@ -1,4 +1,4 @@
-const test = require("tape-async");
+const test = require("tape");
 const PhantomCore = require("../src");
 const { getUnixTime, getUptime /* symbolToUUID */ } = require("../src");
 

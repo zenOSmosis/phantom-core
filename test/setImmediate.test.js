@@ -1,4 +1,4 @@
-const test = require("tape-async");
+const test = require("tape");
 require("../src");
 
 test("setImmediate", async t => {

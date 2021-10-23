@@ -1,3 +1,4 @@
+// TODO: Check if we're running in Node.js before executing the following
 const { readFileSync } = require("fs");
 const path = require("path");
 
