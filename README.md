@@ -38,8 +38,15 @@ Base package utilized in [Speaker App](https://speaker.app) / [https://github.co
 
 ## Changelog
 
-### Version 2.0.0
+### Version 1.0.0 (Sept. 10, 2021)
+  - Base PhantomCore, PhantomCollection and Logger support
 
+### Version 1.0.1 (Sept. 25, 2021)
+  - Fix issue where calling Logger.log method directly would lose stack trace
+
+### Version 2.0.0 (TBD)
+
+  - Enhanced precautions against memory leaks
   - Add global setImmediate regardless of context.  To use in a browser, require PhantomCore somewhere in the program before calling setImmediate.
   - Add version reporting as static method: PhantomCore.getPhantomCoreVersion()
   - Deprecate optional isReady parameter; using isAsync instead
