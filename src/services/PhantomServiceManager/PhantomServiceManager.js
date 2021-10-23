@@ -82,7 +82,7 @@ class PhantomServiceManager extends PhantomCollection {
       });
     } catch (err) {
       if (err instanceof TypeError) {
-        err.message = `Could not instantiate ServiceClass.  Ensure that {...args} are passed through the constructor to the super instance.`;
+        err.message = `Could not instantiate service class "${ServiceClass.name}".  Ensure that {...args} are passed through the constructor to the super instance.`;
       }
 
       throw err;

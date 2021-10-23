@@ -97,6 +97,17 @@ class PhantomServiceCore extends PhantomCore {
    * @return {void}
    */
   bindCollectionClass(CollectionClass) {
+    // Prevent duplicate collections from being bound
+    if (this._collectionMap.get(CollectionClass)) {
+      this.log.warn(
+        `Collection class "${
+          CollectionClass.name
+        }" is already bound to service "${this.getClassName()}". Ignoring duplicate call.`
+      );
+
+      return;
+    }
+
     const collectionInstance = new CollectionClass();
 
     // FIXME: (jh) A better check would be to determine this before
@@ -109,14 +120,19 @@ class PhantomServiceCore extends PhantomCore {
     this.proxyOn(collectionInstance, EVT_UPDATED, () => this.emit(EVT_UPDATED));
 
     this._collectionMap.set(CollectionClass, collectionInstance);
+
+    // Remove from collection map once collection is destructed
+    collectionInstance.once(EVT_DESTROYED, () => {
+      this._collectionMap.delete(CollectionClass);
+    });
   }
 
   // TODO: Document
-  unbindCollectionClass(CollectionClass) {
-    const instance = this.getCollectionInstance(CollectionClass);
+  async unbindCollectionClass(CollectionClass) {
+    const collectionInstance = this.getCollectionInstance(CollectionClass);
 
-    if (instance) {
-      instance.destroy();
+    if (collectionInstance) {
+      return collectionInstance.destroy();
     }
   }
 
@@ -129,8 +145,14 @@ class PhantomServiceCore extends PhantomCore {
   }
 
   // TODO: Document
+  /**
+   * @return {PhantomCollection[]} An array of PhantomCollection classes (not
+   * instances).
+   */
   getCollectionClasses() {
-    return this._collectionMap.keys();
+    // Coerce to array since map.keys() is not an array (it's an Iterator object)
+    // @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/keys
+    return [...this._collectionMap.keys()];
   }
 
   /**
