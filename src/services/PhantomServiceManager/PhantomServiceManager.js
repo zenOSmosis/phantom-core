@@ -106,9 +106,10 @@ class PhantomServiceManager extends PhantomCollection {
     return this.addChild(ServiceClass);
   }
 
+  // TODO: Document
   /**
-   *
    * @param {PhantomServiceCore} ServiceClass
+   * @return {Promise<void>}
    */
   async stopServiceClass(ServiceClass) {
     const cachedService = this.getServiceInstance(ServiceClass);
