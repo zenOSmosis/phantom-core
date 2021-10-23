@@ -23,7 +23,8 @@ class PhantomServiceCore extends PhantomCore {
   constructor({ manager, useServiceClassHandler }) {
     super();
 
-    this._useServiceClassHandler = useServiceClassHandler;
+    this.__MANAGED__manager = manager;
+    this.__MANAGED__useServiceClassHandler = useServiceClassHandler;
 
     // Ensure we're managed by a PhantomServiceManager
     (() => {
@@ -36,9 +37,9 @@ class PhantomServiceCore extends PhantomCore {
       }
     })();
 
-    if (typeof this._useServiceClassHandler !== "function") {
+    if (typeof this.__MANAGED__useServiceClassHandler !== "function") {
       throw new ReferenceError(
-        "_useServiceClassHandler property should be set by the PhantomServiceManager which manages this service"
+        "__MANAGED__useServiceClassHandler property should be set by the PhantomServiceManager which manages this service"
       );
     }
 
@@ -71,6 +72,7 @@ class PhantomServiceCore extends PhantomCore {
     return super.destroy();
   }
 
+  // TODO: Use consistency in naming
   /**
    * Starts a new service class instance, or retrieves an existing one which
    * matches the given class.
@@ -79,19 +81,12 @@ class PhantomServiceCore extends PhantomCore {
    * @return {PhantomServiceCore} Service class instance
    */
   useServiceClass(ServiceClass) {
-    return this._useServiceClassHandler(ServiceClass);
+    return this.__MANAGED__useServiceClassHandler(ServiceClass);
   }
 
   // TODO: Implement ability to get attached service classes
 
-  /**
-   * @param {PhantomCollection} CollectionClass
-   * @return {PhantomCollection} instance
-   */
-  getCollectionInstance(CollectionClass) {
-    return this._collectionMap.get(CollectionClass);
-  }
-
+  // TODO: Use consistency in naming
   /**
    * Binds a non-instantiated PhantomCollection to this service, propagating
    * EVT_UPDATED through the class.
@@ -124,6 +119,19 @@ class PhantomServiceCore extends PhantomCore {
     if (instance) {
       instance.destroy();
     }
+  }
+
+  /**
+   * @param {PhantomCollection} CollectionClass
+   * @return {PhantomCollection} instance
+   */
+  getCollectionInstance(CollectionClass) {
+    return this._collectionMap.get(CollectionClass);
+  }
+
+  // TODO: Document
+  getCollectionClasses() {
+    return this._collectionMap.keys();
   }
 
   /**

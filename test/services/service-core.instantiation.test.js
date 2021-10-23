@@ -110,3 +110,41 @@ test("arbitrary service stopping", async t => {
 
   t.end();
 });
+
+test("invalid service constructor", async t => {
+  t.plan(2);
+
+  const serviceManager = new PhantomServiceManager();
+
+  class InvalidService1 extends PhantomServiceCore {
+    // NOTE: Notice args are not passed through
+    constructor() {
+      super();
+    }
+  }
+
+  t.throws(
+    () => {
+      serviceManager.startServiceClass(InvalidService1);
+    },
+    TypeError,
+    "serviceManager throws TypeError when trying to instantiate service without passed args."
+  );
+
+  class InvalidService2 extends PhantomServiceCore {
+    // NOTE: Notice object is set in constructor, but still not passed through to super
+    constructor({}) {
+      super();
+    }
+  }
+
+  t.throws(
+    () => {
+      serviceManager.startServiceClass(InvalidService2);
+    },
+    TypeError,
+    "serviceManager throws TypeError when trying to instantiate service without passed args (version 2)."
+  );
+
+  t.end();
+});

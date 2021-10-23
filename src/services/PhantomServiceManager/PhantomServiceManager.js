@@ -54,22 +54,39 @@ class PhantomServiceManager extends PhantomCollection {
       return cachedService;
     }
 
-    const service = new ServiceClass({
-      // While not EXPLICITLY required to make the functionality work, the
-      // internal check inside of PhantomServiceCore for this property helps to
-      // guarantee integrity of the PhantomServiceManager type
-      manager: this,
+    let service;
 
-      // Bind functionality to the service to be able to use other services,
-      // using this service collection as the backend
-      useServiceClassHandler: ChildServiceClass => {
-        if (ChildServiceClass === ServiceClass) {
-          throw new TypeError("Service cannot start a new instance of itself");
-        }
+    // IMPORTANT: This try / catch block is solely for checking instantiation
+    // of SOMETHING, and additional error handling should be outside of this
+    // block scope. This is to help diagnose if the required arguments are not
+    // passed to super.  Any other error checking in this try / catch can make
+    // things trickier to manage.
+    try {
+      service = new ServiceClass({
+        // While not EXPLICITLY required to make the functionality work, the
+        // internal check inside of PhantomServiceCore for this property helps to
+        // guarantee integrity of the PhantomServiceManager type
+        manager: this,
 
-        return this.startServiceClass(ChildServiceClass);
-      },
-    });
+        // Bind functionality to the service to be able to use other services,
+        // using this service collection as the backend
+        useServiceClassHandler: ChildServiceClass => {
+          if (ChildServiceClass === ServiceClass) {
+            throw new TypeError(
+              "Service cannot start a new instance of itself"
+            );
+          }
+
+          return this.startServiceClass(ChildServiceClass);
+        },
+      });
+    } catch (err) {
+      if (err instanceof TypeError) {
+        err.message = `Could not instantiate ServiceClass.  Ensure that {...args} are passed through the constructor to the super instance.`;
+      }
+
+      throw err;
+    }
 
     if (!(service instanceof PhantomServiceCore)) {
       throw new TypeError("Service is not a PhantomServiceCore instance");
