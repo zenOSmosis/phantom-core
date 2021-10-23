@@ -1,4 +1,5 @@
 const PhantomCore = require("../../PhantomCore");
+const PhantomCollection = require("../../PhantomCollection");
 const {
   /** @export */
   EVT_UPDATED,
