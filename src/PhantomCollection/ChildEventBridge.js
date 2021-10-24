@@ -121,10 +121,12 @@ class ChildEventBridge extends PhantomCore {
       }
     })();
 
+    // TODO: Move to destruct stack, once implemented?
+    //
     // Fix warning which states potential memory leak; the ChildEventBridge is
     // directly attached to the PhantomCollection lifecycle, so it should be
     // cleaned up automatically
-    delete this._phantomCollection;
+    // delete this._phantomCollection;
 
     return super.destroy();
   }
