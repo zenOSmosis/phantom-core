@@ -538,7 +538,7 @@ class PhantomCore extends DestructibleEventEmitter {
   /**
    * Retrieves the non-instantiated class definition.
    *
-   * @return {Object}
+   * @return {function}
    */
   getClass() {
     return this.constructor;
