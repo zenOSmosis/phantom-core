@@ -54,6 +54,6 @@ Base package utilized in [Speaker App](https://speaker.app) / [https://github.co
   - Implement default auto-bind support to PhantomCore classes and derivatives (can be disabled by setting hasAutomaticBindings to false in constructor options)
   - Implement PhantomServiceCore and PhantomServiceManager servicing
   - Remove deep-merging of PhantomCore options and promote to a separate utility (deepMerge lives on its own)
-  - TODO: Add stack support and registerShutdownHandler (which uses stack support)
+  - Add registerShutdownHandler (and included function stack support)
 
 TODO: Build out this documentation
