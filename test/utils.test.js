@@ -1,6 +1,14 @@
 const test = require("tape");
+const EventEmitter = require("events");
 const PhantomCore = require("../src");
-const { getUnixTime, getUptime /* symbolToUUID */ } = require("../src");
+const {
+  PhantomCollection,
+  PhantomServiceCore,
+  PhantomServiceManager,
+  getUnixTime,
+  getUptime,
+  getClassName /* symbolToUUID */,
+} = PhantomCore;
 
 test("time", async t => {
   t.plan(7);
@@ -50,6 +58,70 @@ test("time", async t => {
   );
 
   await phantom.destroy();
+
+  t.end();
+});
+
+test("class name", t => {
+  t.plan(10);
+  t.equals(
+    getClassName(EventEmitter),
+    "EventEmitter",
+    "EventEmitter is detected from non-instantiated class"
+  );
+  t.equals(
+    getClassName(new EventEmitter()),
+    "EventEmitter",
+    "EventEmitter is detected from class instance"
+  );
+
+  t.equals(
+    getClassName(PhantomCore),
+    "PhantomCore",
+    "PhantomCore is detected from non-instantiated class"
+  );
+  t.equals(
+    getClassName(new PhantomCore()),
+    "PhantomCore",
+    "PhantomCore is detected from class instance"
+  );
+
+  t.equals(
+    getClassName(PhantomCollection),
+    "PhantomCollection",
+    "PhantomCollection is detected from non-instantiated class"
+  );
+  t.equals(
+    getClassName(new PhantomCollection()),
+    "PhantomCollection",
+    "PhantomCollection is detected from class instance"
+  );
+
+  t.equals(
+    getClassName(PhantomServiceManager),
+    "PhantomServiceManager",
+    "PhantomServiceManager is detected from non-instantiated class"
+  );
+  t.equals(
+    getClassName(new PhantomServiceManager()),
+    "PhantomServiceManager",
+    "PhantomServiceManager is detected from class instance"
+  );
+
+  const serviceManager = new PhantomServiceManager();
+  class TestService extends PhantomServiceCore {}
+  serviceManager.startServiceClass(TestService);
+
+  t.equals(
+    getClassName(TestService),
+    "TestService",
+    "TestService is detected from non-instantiated class"
+  );
+  t.equals(
+    getClassName(serviceManager.getServiceInstance(TestService)),
+    "TestService",
+    "TestService is detected from class instance"
+  );
 
   t.end();
 });

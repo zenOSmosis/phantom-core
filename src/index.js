@@ -17,6 +17,7 @@ const getUnixTime = require("./utils/getUnixTime");
 const getUptime = require("./utils/getUptime");
 const getIsNodeJS = require("./utils/getIsNodeJS");
 const deepMerge = require("./utils/deepMerge");
+const getClassName = require("./utils/getClassName");
 // const symbolToUUID = require("./utils/symbolToUUID");
 
 module.exports = PhantomCore;
@@ -44,4 +45,5 @@ module.exports.getUnixTime = getUnixTime;
 module.exports.getUptime = getUptime;
 module.exports.getIsNodeJS = getIsNodeJS;
 module.exports.deepMerge = deepMerge;
+module.exports.getClassName = getClassName;
 // module.exports.symbolToUUID = symbolToUUID;

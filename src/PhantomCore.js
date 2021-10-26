@@ -6,6 +6,7 @@ const DestructibleEventEmitter = require("./_DestructibleEventEmitter");
 const Logger = require("./Logger");
 const { LOG_LEVEL_INFO } = Logger;
 const version = require("./static/version");
+const getClassName = require("./utils/getClassName");
 const uuidv4 = require("uuid").v4;
 const shortUUID = require("short-uuid");
 const dayjs = require("dayjs");
@@ -540,7 +541,7 @@ class PhantomCore extends DestructibleEventEmitter {
    * @return {string}
    */
   getClassName() {
-    return this.constructor.name;
+    return getClassName(this);
   }
 
   /**
