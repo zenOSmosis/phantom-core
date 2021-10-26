@@ -40,6 +40,8 @@ class ChildEventBridge extends PhantomCore {
      */
     this._phantomCollection = phantomCollection;
 
+    this.registerShutdownHandler(() => delete this._phantomCollection);
+
     /**
      * @type {string[]} The event names this bridge currently (i.e. at any given
      * time) maintains mappings for events which can emit from child instances
@@ -120,13 +122,6 @@ class ChildEventBridge extends PhantomCore {
         }
       }
     })();
-
-    // TODO: Move to destruct stack, once implemented?
-    //
-    // Fix warning which states potential memory leak; the ChildEventBridge is
-    // directly attached to the PhantomCollection lifecycle, so it should be
-    // cleaned up automatically
-    // delete this._phantomCollection;
 
     return super.destroy();
   }

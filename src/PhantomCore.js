@@ -6,6 +6,7 @@ const DestructibleEventEmitter = require("./_DestructibleEventEmitter");
 const Logger = require("./Logger");
 const { LOG_LEVEL_INFO } = Logger;
 const version = require("./static/version");
+const Stack = require("./utils/Stack");
 const getClassName = require("./utils/getClassName");
 const uuidv4 = require("uuid").v4;
 const shortUUID = require("short-uuid");
@@ -157,6 +158,8 @@ class PhantomCore extends DestructibleEventEmitter {
     this._uuid = uuidv4();
     this._shortUUID = shortUUID().fromUUID(this._uuid);
 
+    _instances[this._uuid] = this;
+
     const DEFAULT_OPTIONS = {
       /**
        * If set to true, this._init() MUST be called during the instance
@@ -201,6 +204,8 @@ class PhantomCore extends DestructibleEventEmitter {
     // Options should be considered immutable
     this._options = Object.freeze({ ...DEFAULT_OPTIONS, ...options });
 
+    this._shutdownHandlerStack = new Stack();
+
     this._symbol = (() => {
       if (this._options.symbol) {
         if (PhantomCore.getInstanceWithSymbol(this._options.symbol)) {
@@ -241,8 +246,6 @@ class PhantomCore extends DestructibleEventEmitter {
      * logger.error() properties can be called directly.
      */
     this.log = this.logger.log;
-
-    _instances[this._uuid] = this;
 
     /** @type {number} UTC Unix time */
     this._instanceStartTime = getUnixTime();
@@ -302,6 +305,11 @@ class PhantomCore extends DestructibleEventEmitter {
     });
   }
 
+  // TODO: Document
+  registerShutdownHandler(fn) {
+    return this._shutdownHandlerStack.push(fn);
+  }
+
   /**
    * Internally invoked after being constructed.
    *
@@ -337,6 +345,8 @@ class PhantomCore extends DestructibleEventEmitter {
       // handler first
       delete _instances[this._uuid];
       await super.destroy();
+
+      await this._shutdownHandlerStack.exec();
 
       // TODO: Implement and call shutdown handlers before continuing (these will perform extra clean-up work, etc. and prevent having to bind to EVT_DESTROYED, etc.)
 
