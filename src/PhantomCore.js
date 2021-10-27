@@ -290,6 +290,9 @@ class PhantomCore extends DestructibleEventEmitter {
    * Force scope binding of PhantomCore class methods to the instance they are
    * defined in, regardless of how the method is invoked.
    *
+   * IMPORTANT: Once a method is bound, it cannot be rebound to another class.
+   * @see https://stackoverflow.com/a/20925268
+   *
    * @return {void}
    */
   autoBind() {
