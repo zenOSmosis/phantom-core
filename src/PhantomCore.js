@@ -11,8 +11,10 @@ const getClassName = require("./utils/getClassName");
 const uuidv4 = require("uuid").v4;
 const shortUUID = require("short-uuid");
 const dayjs = require("dayjs");
-
 const getUnixTime = require("./utils/getUnixTime");
+const getClassPropertyNames = require("./utils/getClassPropertyNames");
+const getClassMethodNames = require("./utils/getClassMethodNames");
+const autoBindClassMethods = require("./utils/autoBindClassMethods");
 
 // Amount of milliseconds to allow async inits to initialize before triggering
 // warning
@@ -296,13 +298,7 @@ class PhantomCore extends DestructibleEventEmitter {
     // the caller, or else it will lose the stack trace
     const IGNORE_LIST = [this.log];
 
-    this.getMethodNames().forEach(methodName => {
-      const method = this[methodName];
-
-      if (method !== this.constructor && !IGNORE_LIST.includes(method)) {
-        this[methodName] = this[methodName].bind(this);
-      }
-    });
+    autoBindClassMethods(this, IGNORE_LIST);
   }
 
   // TODO: Document
@@ -463,14 +459,7 @@ class PhantomCore extends DestructibleEventEmitter {
    * @return {string[]}
    */
   getPropertyNames() {
-    const properties = new Set();
-    let currentObj = this;
-
-    do {
-      Object.getOwnPropertyNames(currentObj).map(item => properties.add(item));
-    } while ((currentObj = Object.getPrototypeOf(currentObj)));
-
-    return [...properties.keys()];
+    return getClassPropertyNames(this);
   }
 
   /**
@@ -481,9 +470,7 @@ class PhantomCore extends DestructibleEventEmitter {
    * @return {string[]}
    */
   getMethodNames() {
-    const propertyNames = this.getPropertyNames();
-
-    return propertyNames.filter(item => typeof this[item] === "function");
+    return getClassMethodNames(this);
   }
 
   /**
