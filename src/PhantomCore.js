@@ -287,7 +287,8 @@ class PhantomCore extends DestructibleEventEmitter {
   }
 
   /**
-   * Additional reading: https://gist.github.com/dfoverdx/2582340cab70cff83634c8d56b4417cd
+   * Force scope binding of PhantomCore class methods to the instance they are
+   * defined in, regardless of how the method is invoked.
    *
    * @return {void}
    */
