@@ -7,8 +7,7 @@ const {
 // const { EVT_UPDATED } = PhantomServiceCore;
 
 test("service collections", async t => {
-  // TODO: Reimplement
-  // t.plan(5);
+  t.plan(15);
 
   class TestCollection1 extends PhantomCollection {}
   class TestCollection2 extends PhantomCollection {}
