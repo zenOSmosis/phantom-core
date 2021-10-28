@@ -289,30 +289,6 @@ class PhantomCore extends DestructibleEventEmitter {
   }
 
   /**
-   * Force scope binding of PhantomCore class methods to the instance they are
-   * defined in, regardless of how the method is invoked.
-   *
-   * IMPORTANT: Once a method is bound, it cannot be rebound to another class.
-   * @see https://stackoverflow.com/a/20925268
-   *
-   * @return {void}
-   */
-  autoBind() {
-    // TODO: Adding this.log to the ignore list may not be necessary if auto-binding in the logger itself
-
-    // Handling for this.log is special and needs to be passed directly from
-    // the caller, or else it will lose the stack trace
-    const IGNORE_LIST = [this.log];
-
-    autoBindClassMethods(this, IGNORE_LIST);
-  }
-
-  // TODO: Document
-  registerShutdownHandler(fn) {
-    return this._shutdownHandlerStack.push(fn);
-  }
-
-  /**
    * Internally invoked after being constructed.
    *
    * IMPORTANT: Extensions which set isReady to false should call this
@@ -373,6 +349,30 @@ class PhantomCore extends DestructibleEventEmitter {
 
       // TODO: Force regular class properties to be null (as of July 30, 2021, not changing due to unforeseen consequences)
     }
+  }
+
+  /**
+   * Force scope binding of PhantomCore class methods to the instance they are
+   * defined in, regardless of how the method is invoked.
+   *
+   * IMPORTANT: Once a method is bound, it cannot be rebound to another class.
+   * @see https://stackoverflow.com/a/20925268
+   *
+   * @return {void}
+   */
+  autoBind() {
+    // TODO: Adding this.log to the ignore list may not be necessary if auto-binding in the logger itself
+
+    // Handling for this.log is special and needs to be passed directly from
+    // the caller, or else it will lose the stack trace
+    const IGNORE_LIST = [this.log];
+
+    autoBindClassMethods(this, IGNORE_LIST);
+  }
+
+  // TODO: Document
+  registerShutdownHandler(fn) {
+    return this._shutdownHandlerStack.push(fn);
   }
 
   /**
