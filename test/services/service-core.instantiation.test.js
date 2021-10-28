@@ -5,7 +5,7 @@ const { PhantomServiceCore, PhantomServiceManager } = PhantomCore;
 class TestService extends PhantomServiceCore {}
 
 test("service instantiation", async t => {
-  t.plan(10);
+  t.plan(11);
 
   const serviceManager = new PhantomServiceManager();
 
@@ -43,6 +43,13 @@ test("service instantiation", async t => {
     serviceManager.getServiceClasses(),
     [TestService],
     "TestService class is included in getServiceClasses call"
+  );
+
+  t.ok(
+    Array.isArray(
+      serviceManager.getServiceClasses(),
+      "getServiceClasses() returns an array"
+    )
   );
 
   const testServiceInstance = serviceManager.getServiceInstance(TestService);
