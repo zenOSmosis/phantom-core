@@ -11,8 +11,8 @@
   "main": "src/index.js",
   "scripts": {
     "test": "npm run test-node && npm run test-browser",
-    "test-node": "tape test/{,/**/}*.test.js",
-    "test-browser": "dotenv airtap --coverage --concurrency 1 -- test/{,/**/}*.test.js",
+    "test-node": "tape 'test/{,/**/}*.test.js'",
+    "test-browser": "dotenv airtap --coverage --concurrency 1 -- 'test/{,/**/}*.test.js'",
     "coverage": "nyc npm run test-node",
     "lint": "prettier --write '(**/)*.js'",
     "check-dep-updates": "npx npm-check-updates"
