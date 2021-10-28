@@ -315,6 +315,17 @@ class PhantomCore extends DestructibleEventEmitter {
   }
 
   /**
+   * Responder for instance.toString()
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol/toStringTag
+   *
+   * @return {string} i.e. "[object PhantomCore]"
+   */
+  get [Symbol.toStringTag]() {
+    return this.getTitle() || this.getClassName();
+  }
+
+  /**
    * @return {Promise<void>}
    */
   async destroy() {

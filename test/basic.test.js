@@ -491,3 +491,17 @@ test("phantom properties", async t => {
 
   t.end();
 });
+
+test("symbol toString()", t => {
+  t.plan(2);
+
+  const p1 = new PhantomCore();
+
+  t.equals(p1.toString(), "[object PhantomCore]");
+
+  p1.setTitle("some-test");
+
+  t.equals(p1.toString(), "[object some-test]");
+
+  t.end();
+});
