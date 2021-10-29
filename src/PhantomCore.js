@@ -55,9 +55,8 @@ const KEEP_ALIVE_SHUTDOWN_METHODS = [
 ];
 
 /**
- * Base class which Phantom Server components derive.
- *
- * TODO: Update description.
+ * Base class for zenOSmosis Phantom architecture, from which Speaker.app and
+ * ReShell classes derive.
  */
 class PhantomCore extends DestructibleEventEmitter {
   /**
@@ -381,7 +380,12 @@ class PhantomCore extends DestructibleEventEmitter {
     autoBindClassMethods(this, IGNORE_LIST);
   }
 
-  // TODO: Document
+  /**
+   * Registers a function to be executed AFTER EVT_DESTROYED is emit.
+   *
+   * @param {function} fn
+   * @return {void}
+   */
   registerShutdownHandler(fn) {
     return this._shutdownHandlerStack.push(fn);
   }
