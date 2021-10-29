@@ -3,6 +3,7 @@ const { EVT_READY, EVT_UPDATED, EVT_DESTROYED, EVT_NO_INIT_WARN } = PhantomCore;
 const PhantomCollection = require("./PhantomCollection");
 const PhantomServiceManager = require("./service-core-utils/PhantomServiceManager");
 const PhantomServiceCore = require("./service-core-utils/PhantomServiceCore");
+const PhantomState = require("./PhantomState");
 const Logger = require("./Logger");
 const {
   LOG_LEVEL_TRACE,
@@ -40,6 +41,7 @@ module.exports.logger = new Logger();
 
 module.exports.PhantomServiceManager = PhantomServiceManager;
 module.exports.PhantomServiceCore = PhantomServiceCore;
+module.exports.PhantomState = PhantomState;
 
 module.exports.getUnixTime = getUnixTime;
 module.exports.getUptime = getUptime;

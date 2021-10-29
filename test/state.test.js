@@ -1,15 +1,13 @@
 const test = require("tape");
-const { PhantomServiceCore, PhantomServiceManager } = require("../../src");
-const { EVT_UPDATED } = PhantomServiceCore;
+const { PhantomState } = require("../src");
+const { EVT_UPDATED } = PhantomState;
 
-test("service state", async t => {
+test("phantom state", async t => {
   t.plan(5);
 
-  class TestService extends PhantomServiceCore {
-    constructor({ ...args }) {
-      super({
-        ...args,
-      });
+  class ExtendedState extends PhantomState {
+    constructor() {
+      super();
 
       this.setState({
         someInitialFirstStateBoolean: true,
@@ -17,21 +15,17 @@ test("service state", async t => {
     }
   }
 
-  const serviceManager = new PhantomServiceManager();
-
-  serviceManager.startServiceClass(TestService);
+  const extendedState = new ExtendedState();
 
   t.deepEquals(
-    serviceManager.getServiceInstance(TestService).getState(),
+    extendedState.getState(),
     {
       someInitialFirstStateBoolean: true,
     },
-    "state is able to be obtained from linked service"
+    "state is able to be obtained from extended state"
   );
 
-  const testService = serviceManager.getServiceInstance(TestService);
-
-  testService.setState({
+  extendedState.setState({
     // someInitialFirstStateBoolean: false,
     test: 123,
     subObject: {
@@ -42,7 +36,7 @@ test("service state", async t => {
   });
 
   t.deepEquals(
-    testService.getState(),
+    extendedState.getState(),
     {
       someInitialFirstStateBoolean: true,
       test: 123,
@@ -55,7 +49,7 @@ test("service state", async t => {
     "setState performs shallow merging"
   );
 
-  testService.setState({
+  extendedState.setState({
     // someInitialFirstStateBoolean: false,
     test: 123,
     subObject: {
@@ -64,7 +58,7 @@ test("service state", async t => {
   });
 
   t.deepEquals(
-    testService.getState(),
+    extendedState.getState(),
     {
       someInitialFirstStateBoolean: true,
       test: 123,
@@ -77,7 +71,7 @@ test("service state", async t => {
 
   t.throws(
     () => {
-      testService.setState("abc");
+      extendedState.setState("abc");
     },
     TypeError,
     "setState must be called with an object"
@@ -85,9 +79,9 @@ test("service state", async t => {
 
   await Promise.all([
     new Promise(resolve => {
-      testService.once(EVT_UPDATED, () => {
+      extendedState.once(EVT_UPDATED, () => {
         t.deepEquals(
-          testService.getState(),
+          extendedState.getState(),
           {
             someInitialFirstStateBoolean: true,
             test: 456,
@@ -103,7 +97,7 @@ test("service state", async t => {
     }),
 
     new Promise(resolve => {
-      testService.setState({
+      extendedState.setState({
         test: 456,
       });
 

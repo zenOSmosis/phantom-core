@@ -56,5 +56,6 @@ Base package utilized in [Speaker App](https://speaker.app) / [https://github.co
   - Remove deep-merging of PhantomCore options and promote to a separate utility (deepMerge lives on its own)
   - Add registerShutdownHandler (and included function stack support)
   - Implement PhantomCollection iterator (i.e. [...collection] retrieves all collection children). NOTE: After a collection is destructed, it can no longer be iterated, and attempts to do so throw a TypeError. This functionality may change in the future.
+  - Implement PhantomState
 
 TODO: Build out this documentation

@@ -1,11 +1,11 @@
-const PhantomCore = require("../../PhantomCore");
+const PhantomState = require("../../PhantomState");
 const PhantomCollection = require("../../PhantomCollection");
 const {
   /** @export */
   EVT_UPDATED,
   /** @export */
   EVT_DESTROYED,
-} = PhantomCore;
+} = PhantomState;
 
 // TODO: Configure reporter channel (base class PhantomState, SyncObject or
 // equivalent (not sure if SyncObject would be useful here, but could enable
@@ -19,7 +19,7 @@ const {
 // collections as well), but want to keep it open to the possibility of
 // managing other types of collection-type data without the possibility of a
 // conflict (i.e. collections based on role, etc.)
-class PhantomServiceCore extends PhantomCore {
+class PhantomServiceCore extends PhantomState {
   constructor({ manager, useServiceClassHandler }) {
     super();
 
@@ -41,9 +41,6 @@ class PhantomServiceCore extends PhantomCore {
         "__MANAGED__useServiceClassHandler property should be set by the PhantomServiceManager which manages this service"
       );
     }
-
-    // TODO: Ensure this is cleared once destructed
-    this._state = {};
 
     // TODO: Refactor w/ setInitialState?
     /*
@@ -153,32 +150,6 @@ class PhantomServiceCore extends PhantomCore {
     // Coerce to array since map.keys() is not an array (it's an Iterator object)
     // @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/keys
     return [...this._collectionMap.keys()];
-  }
-
-  /**
-   * Sets partial next state, shallow merging any new changes.
-   *
-   * @param {Object} partialNextState
-   * @emits EVT_UPDATED
-   * @return {void}
-   */
-  setState(partialNextState = {}) {
-    if (typeof partialNextState !== "object") {
-      throw new TypeError("setState must be called with an object");
-    }
-
-    // IMPORTANT: This state is only shallow merged due to deep merging not
-    // working for certain native types
-    this._state = { ...this._state, ...partialNextState };
-
-    // IMPORTANT: At this time, emit is invoked regardless if there are actual
-    // updates
-    this.emit(EVT_UPDATED, partialNextState);
-  }
-
-  // TODO: Document
-  getState() {
-    return this._state;
   }
 }
 
