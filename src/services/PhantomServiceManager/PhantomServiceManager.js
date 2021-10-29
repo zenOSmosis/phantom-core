@@ -12,7 +12,11 @@ const {
   EVT_DESTROYED,
 } = PhantomCollection;
 
-// TODO: Document
+/**
+ * Manages a collection of PhantomServiceCore classes, treating each
+ * PhantomServiceCore instance as a singleton in respect to an instance of the
+ * current PhantomServiceManager instance.
+ */
 class PhantomServiceManager extends PhantomCollection {
   /**
    * @return {Promise<void>}
@@ -106,8 +110,9 @@ class PhantomServiceManager extends PhantomCollection {
     return this.addChild(ServiceClass);
   }
 
-  // TODO: Document
   /**
+   * Stops associated class instance.
+   *
    * @param {PhantomServiceCore} ServiceClass
    * @return {Promise<void>}
    */
@@ -119,14 +124,23 @@ class PhantomServiceManager extends PhantomCollection {
     }
   }
 
-  // TODO: Document
+  /**
+   * Retrieves associated class instance of the given ServiceClass.
+   *
+   * @param {PhantomServiceCore} ServiceClass Non-instantiated service class.
+   * @return {PhantomServiceCore} Instance of the service class.
+   */
   getServiceInstance(ServiceClass) {
     const cachedService = this.getChildWithKey(ServiceClass);
 
     return cachedService;
   }
 
-  // TODO: Document
+  /**
+   * Retrieves the active PhantomServiceCore classes managed by this manager.
+   *
+   * @return {PhantomServiceCore[]}
+   */
   getServiceClasses() {
     return this.getKeys();
   }
