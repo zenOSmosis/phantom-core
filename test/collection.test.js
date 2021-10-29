@@ -834,3 +834,37 @@ test("PhantomCollection diff", t => {
 
   t.end();
 });
+
+test("collection iterator", async t => {
+  t.plan(4);
+
+  const p1 = new PhantomCore();
+  const p2 = new PhantomCore();
+  const p3 = new PhantomCore();
+  const p4 = new PhantomCore();
+  const p5 = new PhantomCore();
+
+  const collection = new PhantomCollection([p1, p2, p3, p4, p5]);
+
+  t.equals([...collection].length, 5);
+
+  await p3.destroy();
+
+  t.equals([...collection].length, 4);
+
+  await p5.destroy();
+
+  t.equals([...collection].length, 3);
+
+  await collection.destroy();
+
+  t.throws(
+    () => {
+      [...collection];
+    },
+    TypeError,
+    "collection is no longer iterable after destruct"
+  );
+
+  t.end();
+});

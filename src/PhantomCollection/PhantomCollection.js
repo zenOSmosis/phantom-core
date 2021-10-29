@@ -143,6 +143,30 @@ class PhantomCollection extends PhantomCore {
   }
 
   /**
+   * Iterator handler for PhantomCollection.
+   *
+   * Example usage to retrieve an array of all children:
+   * [...collection]
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol/iterator
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#the_iterable_protocol
+   *
+   * @return {PhantomCore<IterableIterator>} FIXME: (jh) This may not be the correct type,
+   * but close enough?
+   * @throws {TypeError} After instance destruction, future attempts to try to
+   * iterate will throw a TypeError.
+   */
+  get [Symbol.iterator]() {
+    const children = this.getChildren();
+
+    return function* () {
+      for (const child of children) {
+        yield child;
+      }
+    };
+  }
+
+  /**
    * Adds a PhantomCore instance to the collection.
    *
    * @param {PhantomCore} phantomCoreInstance
