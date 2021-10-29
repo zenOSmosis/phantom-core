@@ -7,7 +7,8 @@ const {
   PhantomServiceManager,
   getUnixTime,
   getUptime,
-  getClassName /* symbolToUUID */,
+  getClassName,
+  getIsNodeJS /* symbolToUUID */,
 } = PhantomCore;
 
 test("time", async t => {
@@ -122,6 +123,16 @@ test("class name", t => {
     "TestService",
     "TestService is detected from class instance"
   );
+
+  t.end();
+});
+
+test("runtime environment", t => {
+  t.plan(1);
+
+  // IMPORTANT: The checked value is only used for test script and is not a
+  // suitable replacement for the conditions within getIsNodeJS, itself
+  t.equals(getIsNodeJS(), Boolean(typeof window === "undefined"));
 
   t.end();
 });
