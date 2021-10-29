@@ -3,7 +3,7 @@ const { PhantomState } = require("../src");
 const { EVT_UPDATED } = PhantomState;
 
 test("phantom state", async t => {
-  t.plan(5);
+  t.plan(7);
 
   class ExtendedState extends PhantomState {
     constructor() {
@@ -105,7 +105,15 @@ test("phantom state", async t => {
     }),
   ]);
 
-  // TODO: Add test to ensure state is cleared once destructed
+  t.notDeepEquals(
+    extendedState._state,
+    {},
+    "state is not cleared before destruct"
+  );
+
+  await extendedState.destroy();
+
+  t.deepEquals(extendedState._state, {}, "state is cleared after destruct");
 
   t.end();
 });
