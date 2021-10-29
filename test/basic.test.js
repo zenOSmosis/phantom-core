@@ -513,3 +513,62 @@ test("symbol toString()", t => {
 
   t.end();
 });
+
+test("shutdown handler stack", async t => {
+  t.plan(6);
+
+  const p1 = new PhantomCore();
+  const p2 = new PhantomCore();
+
+  t.throws(
+    () => {
+      p1.registerShutdownHandler("something");
+    },
+    TypeError,
+    "throws TypeError when trying to register non-function shutdown handler"
+  );
+
+  const badFn = () => {
+    t.ok(true, "badFn has been started");
+
+    throw new Error(
+      "INTENTIONAL ERROR. This does not indicate something is wrong w/ PhantomCore.  It is only used for testing."
+    );
+  };
+
+  p1.registerShutdownHandler(badFn);
+  p2.registerShutdownHandler(badFn);
+
+  let hasGoodAsyncFnRun = false;
+
+  const goodAsyncFn = async () => {
+    t.ok(true, `goodAsyncFn was executed`);
+
+    hasGoodAsyncFnRun = true;
+  };
+
+  p1.registerShutdownHandler(goodAsyncFn);
+  p2.registerShutdownHandler(goodAsyncFn);
+
+  const goodSyncFn = () => {
+    t.ok(
+      hasGoodAsyncFnRun,
+      `goodSyncFn was executed after goodAsyncFn (stack awaits promises before continuing)`
+    );
+  };
+
+  p1.registerShutdownHandler(goodSyncFn);
+  p2.registerShutdownHandler(goodSyncFn);
+
+  // Unregister badFn on p1 only
+  p1.unregisterShutdownHandler(badFn);
+
+  await p1.destroy();
+
+  // IMPORTANT: It should be noted that though p2 has a badFn in its shutdown
+  // handler stack, the error is ignored, and the other handlers continue as if
+  // there were no error
+  await p2.destroy();
+
+  t.end();
+});

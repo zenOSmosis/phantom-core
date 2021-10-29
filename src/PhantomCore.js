@@ -334,7 +334,7 @@ class PhantomCore extends DestructibleEventEmitter {
       delete _instances[this._uuid];
       await super.destroy();
 
-      await this._shutdownHandlerStack.exec();
+      await this._shutdownHandlerStack.exec(true);
 
       // TODO: Implement and call shutdown handlers before continuing (these will perform extra clean-up work, etc. and prevent having to bind to EVT_DESTROYED, etc.)
 
@@ -371,7 +371,8 @@ class PhantomCore extends DestructibleEventEmitter {
    * @return {void}
    */
   autoBind() {
-    // TODO: Adding this.log to the ignore list may not be necessary if auto-binding in the logger itself
+    // TODO: Adding this.log to the ignore list may not be necessary if
+    // auto-binding in the logger itself
 
     // Handling for this.log is special and needs to be passed directly from
     // the caller, or else it will lose the stack trace
@@ -381,13 +382,24 @@ class PhantomCore extends DestructibleEventEmitter {
   }
 
   /**
-   * Registers a function to be executed AFTER EVT_DESTROYED is emit.
+   * Registers a function to the shutdown handler stack, which is executed
+   * AFTER EVT_DESTROYED is emit.
    *
    * @param {function} fn
    * @return {void}
    */
   registerShutdownHandler(fn) {
     return this._shutdownHandlerStack.push(fn);
+  }
+
+  /**
+   * Unregisters a function from the shutdown handler stack.
+   *
+   * @param {function} fn
+   * @returns
+   */
+  unregisterShutdownHandler(fn) {
+    return this._shutdownHandlerStack.remove(fn);
   }
 
   /**

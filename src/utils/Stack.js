@@ -15,10 +15,19 @@ module.exports = class Stack {
    */
   push(fn) {
     if (typeof fn !== "function") {
-      throw new Error("fn must be a function");
+      throw new TypeError("fn must be a function");
     }
 
-    this._fns.push(fn);
+    this._fns = [...new Set([...this._fns, fn])];
+  }
+
+  /**
+   * Removes the given function from the stack.
+   *
+   * @param {function} fn
+   */
+  remove(fn) {
+    this._fns = this._fns.filter(pred => pred !== fn);
   }
 
   /**
@@ -26,15 +35,28 @@ module.exports = class Stack {
    * FIFO (first in, first out), until there are no remaining functions to
    * execute.
    *
+   * IMPORTANT: This method recursively calls itself until there are not more
+   * items in the stack.
+   *
+   * @param {boolean} ignoreErrors? [default = false]
    * @return {Promise<void>}
    */
-  async exec() {
+  async exec(ignoreErrors = false) {
     if (this._fns.length) {
       // Obtain the first function of the array, and resize the array
       const fn = this._fns.shift();
 
-      await fn();
+      try {
+        await fn();
+      } catch (err) {
+        if (!ignoreErrors) {
+          throw err;
+        } else {
+          console.error(err);
+        }
+      }
 
+      // Recursively call itself, executing the next stack index, if exists
       return this.exec();
     }
   }
