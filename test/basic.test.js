@@ -497,11 +497,19 @@ test("symbol toString()", t => {
 
   const p1 = new PhantomCore();
 
-  t.equals(p1.toString(), "[object PhantomCore]");
+  t.equals(
+    p1.toString(),
+    "[object PhantomCore]",
+    "resolves non-titled instance as expected"
+  );
 
   p1.setTitle("some-test");
 
-  t.equals(p1.toString(), "[object some-test]");
+  t.equals(
+    p1.toString(),
+    "[object some-test]",
+    "resolves titled instance as expected"
+  );
 
   t.end();
 });
