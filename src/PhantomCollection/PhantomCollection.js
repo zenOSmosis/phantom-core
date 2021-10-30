@@ -187,8 +187,11 @@ class PhantomCollection extends PhantomCore {
     }
 
     if (!PhantomCore.getIsInstance(phantomCoreInstance)) {
+      // FIXME: (jh) Create a way to bypass this error when doing development or prototypes
+      // Perhaps use a global state tied into LOA (i.e. root-controlled global state / config)
+      // @see https://github.com/zenOSmosis/phantom-core/issues/60
       throw new TypeError(
-        "The phantomCoreInstance is not a PhantomCore instance"
+        "PhantomCollection cannot add a child that is not a known PhantomCore instance. Perhaps the child is of a different PhantomCore symbol than this library recognizes."
       );
     }
 
