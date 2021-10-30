@@ -266,13 +266,13 @@ class PhantomCore extends DestructibleEventEmitter {
 
       setImmediate(() => this.emit(EVT_READY));
     } else {
-      // IMPORTANT: Implementations which set isAsync to true must call _init
-      // on their own
+      // IMPORTANT: Implementations which set isAsync to true must call
+      // PhantomCore superclass _init on their own
 
       // Warn if _init() is not invoked in a short time period
       const initTimeout = setTimeout(() => {
         this.logger.warn(
-          "_init has not been called in a reasonable amount of time"
+          "PhantomCore superclass _init has not been called in a reasonable amount of time.  All instances which use isAsync option must call _init on the PhantomCore superclass."
         );
 
         this.emit(EVT_NO_INIT_WARN);
