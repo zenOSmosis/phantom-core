@@ -1,7 +1,7 @@
 const test = require("tape");
 const { PhantomServiceCore, PhantomServiceManager } = require("../../src");
 
-test("ciruclar service constructors", async t => {
+test("circular service constructors", async t => {
   t.plan(2);
 
   class TestServiceB extends PhantomServiceCore {

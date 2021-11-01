@@ -11,8 +11,13 @@ const {
  * A simple, object-based state management utility.
  */
 class PhantomState extends PhantomCore {
-  constructor(initialState = {}) {
-    super();
+  /**
+   * @param {Object} initialState? [default = {}]
+   * @param {Object} superOptions? [default = {}] If set, these options are
+   * passed to the super instance.
+   */
+  constructor(initialState = {}, superOptions = {}) {
+    super(superOptions);
 
     this._state = Object.freeze(initialState);
 

@@ -5,7 +5,7 @@ const { PhantomServiceCore, PhantomServiceManager } = PhantomCore;
 class TestService extends PhantomServiceCore {}
 
 test("service instantiation", async t => {
-  t.plan(11);
+  t.plan(13);
 
   const serviceManager = new PhantomServiceManager();
 
@@ -33,9 +33,13 @@ test("service instantiation", async t => {
     "services must be instantiated by a manager"
   );
 
-  t.throws(() => {
-    serviceManager.startServiceClass(new PhantomServiceCore({}));
-  });
+  t.throws(
+    () => {
+      serviceManager.startServiceClass(new PhantomServiceCore({}));
+    },
+    ReferenceError,
+    "startServiceClass does not accept already instantiated service"
+  );
 
   serviceManager.startServiceClass(TestService);
 
@@ -88,6 +92,18 @@ test("service instantiation", async t => {
 
   const extendedTestServiceInstance =
     serviceManager.getServiceInstance(ExtendedTestService);
+
+  t.notOk(
+    extendedTestServiceInstance.getIsReady(),
+    "service is not ready by default"
+  );
+
+  await extendedTestServiceInstance.onceReady();
+
+  t.ok(
+    extendedTestServiceInstance.getIsReady(),
+    "service is ready once it emits ready event"
+  );
 
   await serviceManager.destroy();
 
