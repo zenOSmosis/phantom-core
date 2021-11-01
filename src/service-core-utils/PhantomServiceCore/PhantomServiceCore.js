@@ -22,6 +22,8 @@ const {
 class PhantomServiceCore extends PhantomState {
   constructor({ manager, useServiceClassHandler }) {
     super(null, {
+      // Services register immediately in their managers, but are not ready to
+      // go until the _init method has run
       isAsync: true,
     });
 
@@ -60,15 +62,25 @@ class PhantomServiceCore extends PhantomState {
     // Set default title
     this.setTitle(`[non-aliased-service]:${this.getClassName()}`);
 
+    // Auto-init this async service.
+    //
     // IMPORTANT: The setImmediate handler fixes issue where _init is invoked
     // before extension constructors have a chance to initialize, despite the
     // fact it is an async method (without it, it fails a test case in
     // service-core.instantiation.test.js)
     (global || window).setImmediate(() => {
-      // _init is an extendable async function, but it must call super._init() in
-      // order to not trigger a warning. Refer to isAsync handling in PhantomCore.
       this._init();
     });
+  }
+
+  /**
+   * This can be extended with any custom async handling.  Custom
+   * implementations must call super._init().
+   *
+   * @return {Promise<void>}
+   */
+  async _init() {
+    return super._init();
   }
 
   /**
