@@ -1,5 +1,6 @@
 const PhantomCollection = require("../../PhantomCollection");
 const PhantomServiceCore = require("../PhantomServiceCore");
+const getClassName = require("../../utils/getClassName");
 
 const {
   /** @export */
@@ -18,6 +19,19 @@ const {
  * current PhantomServiceManager instance.
  */
 class PhantomServiceManager extends PhantomCollection {
+  constructor() {
+    super();
+
+    // Keeps track of pending service class instances to help avoid maximum
+    // recursion error if two or more services are circular dependencies of one
+    // another
+    this._pendingServiceClassInstanceSet = new Set();
+
+    this.registerShutdownHandler(() => {
+      this._pendingServiceClassInstanceSet.clear();
+    });
+  }
+
   /**
    * @return {Promise<void>}
    */
@@ -58,6 +72,8 @@ class PhantomServiceManager extends PhantomCollection {
       return cachedService;
     }
 
+    this._pendingServiceClassInstanceSet.add(ServiceClass);
+
     let service;
 
     // IMPORTANT: This try / catch block is solely for checking instantiation
@@ -81,13 +97,25 @@ class PhantomServiceManager extends PhantomCollection {
             );
           }
 
+          if (this._pendingServiceClassInstanceSet.has(ChildServiceClass)) {
+            throw new ReferenceError(
+              `ChildServiceClass "${getClassName(
+                ChildServiceClass
+              )}" is trying to be initialized before ServiceClass "${getClassName(
+                ServiceClass
+              )}" has had a chance to fully initialize. Are there circular dependencies in the constructors?`
+            );
+          }
+
           return this.startServiceClass(ChildServiceClass);
         },
       });
     } catch (err) {
       if (err instanceof TypeError) {
         this.log.error(
-          `Could not instantiate service class "${ServiceClass.name}".  Ensure that {...args} are passed through the constructor to the super instance.`
+          `Could not instantiate service class "${getClassName(
+            ServiceClass
+          )}".  Ensure that {...args} are passed through the constructor to the super instance.`
         );
       }
 
@@ -95,10 +123,14 @@ class PhantomServiceManager extends PhantomCollection {
     }
 
     if (!(service instanceof PhantomServiceCore)) {
-      throw new TypeError("Service is not a PhantomServiceCore instance");
+      throw new TypeError(
+        "Cannot initialize service which is not a PhantomServiceCore instance"
+      );
     }
 
     super.addChild(service, ServiceClass);
+
+    this._pendingServiceClassInstanceSet.delete(ServiceClass);
 
     return service;
   }
