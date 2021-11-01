@@ -118,6 +118,20 @@ test("phantom state", async t => {
   t.end();
 });
 
+test("null initial state", t => {
+  t.plan(1);
+
+  const phantomState = new PhantomState(null);
+
+  t.equals(
+    typeof phantomState.getState(),
+    "object",
+    "getState returns object even if initial state is null"
+  );
+
+  t.end();
+});
+
 test("phantom state async init", t => {
   t.plan(2);
 

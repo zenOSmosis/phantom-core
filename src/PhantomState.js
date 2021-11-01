@@ -19,7 +19,7 @@ class PhantomState extends PhantomCore {
   constructor(initialState = {}, superOptions = {}) {
     super(superOptions);
 
-    this._state = Object.freeze(initialState);
+    this._state = Object.freeze(initialState || {});
 
     // Reset state on destruct
     this.registerShutdownHandler(() => {
