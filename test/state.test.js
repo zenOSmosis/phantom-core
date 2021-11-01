@@ -117,3 +117,45 @@ test("phantom state", async t => {
 
   t.end();
 });
+
+test("phantom state async init", t => {
+  t.plan(2);
+
+  class AsyncPhantomState extends PhantomState {
+    constructor() {
+      super({}, { isAsync: true });
+
+      this._init();
+    }
+
+    async _init() {
+      t.ok("async _init is called in AsyncPhantomState");
+
+      super._init();
+    }
+  }
+
+  new AsyncPhantomState();
+
+  class SyncPhantomState extends PhantomState {
+    constructor() {
+      super({}, { isAsync: false });
+
+      this._init();
+    }
+
+    async _init() {
+      super._init();
+    }
+  }
+
+  t.throws(
+    () => {
+      new SyncPhantomState();
+    },
+    TypeError,
+    "_init cannot be called with SyncPhantomState"
+  );
+
+  t.end();
+});
