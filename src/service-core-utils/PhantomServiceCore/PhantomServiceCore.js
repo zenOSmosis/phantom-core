@@ -21,25 +21,33 @@ const {
 // conflict (i.e. collections based on role, etc.)
 class PhantomServiceCore extends PhantomState {
   constructor({ manager, useServiceClassHandler }) {
-    super();
+    super(null, {
+      isAsync: true,
+    });
 
-    // Ensure we're managed by a PhantomServiceManager
-    (() => {
+    // A map of collections, attached to this service core
+    this._collectionMap = new Map();
+
+    this.__MANAGED__useServiceClassHandler = useServiceClassHandler;
+
+    // Ensure we're properly bound to a service manager
+    try {
       const PhantomServiceManager = require("../PhantomServiceManager");
-
       if (!(manager instanceof PhantomServiceManager)) {
         throw new ReferenceError(
           "PhantomServiceCore must be started by a PhantomServiceManager"
         );
       }
-    })();
 
-    this.__MANAGED__useServiceClassHandler = useServiceClassHandler;
+      if (typeof this.__MANAGED__useServiceClassHandler !== "function") {
+        throw new ReferenceError(
+          "__MANAGED__useServiceClassHandler property should be set by the PhantomServiceManager which manages this service"
+        );
+      }
+    } catch (err) {
+      this.destroy();
 
-    if (typeof this.__MANAGED__useServiceClassHandler !== "function") {
-      throw new ReferenceError(
-        "__MANAGED__useServiceClassHandler property should be set by the PhantomServiceManager which manages this service"
-      );
+      throw err;
     }
 
     // TODO: Refactor w/ setInitialState?
@@ -49,11 +57,12 @@ class PhantomServiceCore extends PhantomState {
     );
     */
 
-    // A map of collections, attached to this service core
-    this._collectionMap = new Map();
-
     // Set default title
     this.setTitle(`[non-aliased-service]:${this.getClassName()}`);
+
+    // _init is an extendable async function, but it must call super._init() in
+    // order to not trigger a warning. Refer to isAsync handling in PhantomCore.
+    this._init();
   }
 
   /**
