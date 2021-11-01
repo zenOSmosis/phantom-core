@@ -33,9 +33,13 @@ test("service instantiation", async t => {
     "services must be instantiated by a manager"
   );
 
-  t.throws(() => {
-    serviceManager.startServiceClass(new PhantomServiceCore({}));
-  });
+  t.throws(
+    () => {
+      serviceManager.startServiceClass(new PhantomServiceCore({}));
+    },
+    ReferenceError,
+    "startServiceClass does not accept already instantiated service"
+  );
 
   serviceManager.startServiceClass(TestService);
 
