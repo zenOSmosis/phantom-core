@@ -62,7 +62,9 @@ class PhantomServiceCore extends PhantomState {
 
     // _init is an extendable async function, but it must call super._init() in
     // order to not trigger a warning. Refer to isAsync handling in PhantomCore.
-    this._init();
+    (global || window).setImmediate(() => {
+      this._init();
+    });
   }
 
   /**
