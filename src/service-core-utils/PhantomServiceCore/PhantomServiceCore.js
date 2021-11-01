@@ -60,9 +60,13 @@ class PhantomServiceCore extends PhantomState {
     // Set default title
     this.setTitle(`[non-aliased-service]:${this.getClassName()}`);
 
-    // _init is an extendable async function, but it must call super._init() in
-    // order to not trigger a warning. Refer to isAsync handling in PhantomCore.
+    // IMPORTANT: The setImmediate handler fixes issue where _init is invoked
+    // before extension constructors have a chance to initialize, despite the
+    // fact it is an async method (without it, it fails a test case in
+    // service-core.instantiation.test.js)
     (global || window).setImmediate(() => {
+      // _init is an extendable async function, but it must call super._init() in
+      // order to not trigger a warning. Refer to isAsync handling in PhantomCore.
       this._init();
     });
   }
