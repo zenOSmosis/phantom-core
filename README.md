@@ -28,6 +28,7 @@ Base package utilized in [Speaker App](https://speaker.app) / [https://github.co
   - Event constants: Internal events are exposed as module exports (i.e. EVT_UPDATED, EVT_DESTROYED)
   - Instance lookup by UUID / Symbol: If the UUID or Symbol is known for a given PhantomCore instance, that instance can be returned by the lookup function (i.e. PhantomCore.getInstanceWithUUID() or PhantomCore.getInstanceWithSymbol() static methods)
   - Logger, inspired by [loglevel](https://www.npmjs.com/package/loglevel), with log level support, and exposes original stack trace to console (node and browser)
+  - Slightly opinionated deep object merging (based on [deepmerge](https://www.npmjs.com/package/deepmerge)))
   - PhantomCollection
     - Maintains a collection of arbitrary PhantomCore (and derived) instances
     - Can broadcast events to all of its children
@@ -37,5 +38,27 @@ Base package utilized in [Speaker App](https://speaker.app) / [https://github.co
     - Can contain other collections as children (linked collections)
     - Accepts an optional key when adding a child to make it easier to extend with coerced types; the relevant child can be looked up by this key
     - Can optionally destruct all associated children
+
+## Changelog
+
+### Version 1.0.0 (Sept. 10, 2021)
+  - Base PhantomCore, PhantomCollection and Logger support
+
+### Version 1.0.1 (Sept. 25, 2021)
+  - Fix issue where calling Logger.log method directly would lose stack trace
+
+### Version 2.0.0 (TBD)
+
+  - Enhanced precautions against memory leaks
+  - Add global setImmediate regardless of context.  To use in a browser, require PhantomCore somewhere in the program before calling setImmediate.
+  - Add version reporting as static method: PhantomCore.getPhantomCoreVersion()
+  - Deprecate optional isReady parameter; using isAsync instead
+  - Base PhantomCore off of DestructibleEventEmitter
+  - Implement default auto-bind support to PhantomCore classes and derivatives (can be disabled by setting hasAutomaticBindings to false in constructor options)
+  - Implement PhantomServiceCore and PhantomServiceManager servicing
+  - Remove deep-merging of PhantomCore options and promote to a separate utility (deepMerge lives on its own)
+  - Add registerShutdownHandler (and included function stack support)
+  - Implement PhantomCollection iterator (i.e. [...collection] retrieves all collection children). NOTE: After a collection is destructed, it can no longer be iterated, and attempts to do so throw a TypeError. This functionality may change in the future.
+  - Implement PhantomState
 
 TODO: Build out this documentation

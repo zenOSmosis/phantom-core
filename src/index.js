@@ -1,6 +1,9 @@
 const PhantomCore = require("./PhantomCore");
 const { EVT_READY, EVT_UPDATED, EVT_DESTROYED, EVT_NO_INIT_WARN } = PhantomCore;
 const PhantomCollection = require("./PhantomCollection");
+const PhantomServiceManager = require("./service-core-utils/PhantomServiceManager");
+const PhantomServiceCore = require("./service-core-utils/PhantomServiceCore");
+const PhantomState = require("./PhantomState");
 const Logger = require("./Logger");
 const {
   LOG_LEVEL_TRACE,
@@ -10,8 +13,12 @@ const {
   LOG_LEVEL_ERROR,
   LOG_LEVEL_SILENT,
 } = Logger;
+
 const getUnixTime = require("./utils/getUnixTime");
 const getUptime = require("./utils/getUptime");
+const getIsNodeJS = require("./utils/getIsNodeJS");
+const deepMerge = require("./utils/deepMerge");
+const getClassName = require("./utils/getClassName");
 // const symbolToUUID = require("./utils/symbolToUUID");
 
 module.exports = PhantomCore;
@@ -32,6 +39,13 @@ module.exports.LOG_LEVEL_SILENT = LOG_LEVEL_SILENT;
 // console.log)
 module.exports.logger = new Logger();
 
+module.exports.PhantomServiceManager = PhantomServiceManager;
+module.exports.PhantomServiceCore = PhantomServiceCore;
+module.exports.PhantomState = PhantomState;
+
 module.exports.getUnixTime = getUnixTime;
 module.exports.getUptime = getUptime;
+module.exports.getIsNodeJS = getIsNodeJS;
+module.exports.deepMerge = deepMerge;
+module.exports.getClassName = getClassName;
 // module.exports.symbolToUUID = symbolToUUID;
