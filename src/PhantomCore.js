@@ -21,13 +21,13 @@ const autoBindClassMethods = require("./utils/autoBindClassMethods");
 const ASYNC_INIT_GRACE_TIME = 5000;
 
 /** @export */
+const EVT_NO_INIT_WARN = "no-init-warn";
+/** @export */
 const EVT_READY = "ready";
 /** @export */
 const EVT_UPDATED = "updated";
 /** @export */
 const { EVT_DESTROYED } = DestructibleEventEmitter;
-/** @export */
-const EVT_NO_INIT_WARN = "no-init-warn";
 
 // Instances for this particular thread
 const _instances = {};
@@ -697,7 +697,7 @@ class PhantomCore extends DestructibleEventEmitter {
 }
 
 module.exports = PhantomCore;
+module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;
 module.exports.EVT_READY = EVT_READY;
 module.exports.EVT_UPDATED = EVT_UPDATED;
 module.exports.EVT_DESTROYED = EVT_DESTROYED;
-module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;

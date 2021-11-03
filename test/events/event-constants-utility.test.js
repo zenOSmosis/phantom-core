@@ -1,14 +1,15 @@
 const test = require("tape");
-const PhantomCore = require("../src");
+const PhantomCore = require("../../src");
 const { EVT_READY, EVT_DESTROYED } = PhantomCore;
 const {
   checkEvents,
   extractEvents,
   compareExportedEvents,
-} = require("../src/utils/testing-utils/eventConstantCheckingUtils");
+} = require("../../src/utils/testing-utils/eventConstantCheckingUtils");
 
 // Validate event testing utility works as expected
 test("test utility checker", t => {
+  // TODO: Implement
   // t.plan()
 
   // TODO: Add error type and description
@@ -120,8 +121,3 @@ test("proto event checking", t => {
 
   t.end();
 });
-
-// throw new Error("TODO: Implement");
-
-// const test = require("tape");
-// const PhantomCore = require("../src");

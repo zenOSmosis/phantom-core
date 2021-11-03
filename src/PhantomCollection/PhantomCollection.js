@@ -1,5 +1,14 @@
 const PhantomCore = require("../PhantomCore");
-const { EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
+const {
+  /** @export */
+  EVT_NO_INIT_WARN,
+  /** @export */
+  EVT_READY,
+  /** @export */
+  EVT_UPDATED,
+  /** @export */
+  EVT_DESTROYED,
+} = PhantomCore;
 
 /** @export */
 const EVT_CHILD_INSTANCE_ADDED = "child-instance-added";
@@ -390,6 +399,8 @@ class PhantomCollection extends PhantomCore {
 
 module.exports = PhantomCollection;
 
+module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;
+module.exports.EVT_READY = EVT_READY;
 module.exports.EVT_UPDATED = EVT_UPDATED;
 module.exports.EVT_DESTROYED = EVT_DESTROYED;
 

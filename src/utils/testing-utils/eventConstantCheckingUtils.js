@@ -74,6 +74,9 @@ function compareExportedEvents(
       );
     }
   }
+
+  checkEvents(exportsA);
+  checkEvents(exportsB);
 }
 
 module.exports = {
