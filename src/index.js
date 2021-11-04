@@ -21,6 +21,8 @@ const deepMerge = require("./utils/deepMerge");
 const getClassName = require("./utils/getClassName");
 // const symbolToUUID = require("./utils/symbolToUUID");
 
+const eventConstantCheckingUtils = require("./utils/testing-utils/eventConstantCheckingUtils");
+
 module.exports = PhantomCore;
 module.exports.PhantomCollection = PhantomCollection;
 module.exports.EVT_READY = EVT_READY;
@@ -49,3 +51,5 @@ module.exports.getIsNodeJS = getIsNodeJS;
 module.exports.deepMerge = deepMerge;
 module.exports.getClassName = getClassName;
 // module.exports.symbolToUUID = symbolToUUID;
+
+module.exports.eventConstantCheckingUtils = eventConstantCheckingUtils;

@@ -9,12 +9,9 @@ const {
   EVT_UPDATED,
   EVT_DESTROYED,
   EVT_NO_INIT_WARN,
+  eventConstantCheckingUtils,
 } = PhantomCore;
-const {
-  checkEvents,
-  extractEvents,
-  compareExportedEvents,
-} = require("../../src/utils/testing-utils/eventConstantCheckingUtils");
+const { compareExportedEvents } = eventConstantCheckingUtils;
 
 test("phantom-core events", t => {
   t.plan(1);

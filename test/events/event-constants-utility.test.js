@@ -1,16 +1,12 @@
 const test = require("tape");
 const PhantomCore = require("../../src");
-const { EVT_READY, EVT_DESTROYED } = PhantomCore;
-const {
-  checkEvents,
-  extractEvents,
-  compareExportedEvents,
-} = require("../../src/utils/testing-utils/eventConstantCheckingUtils");
+const { eventConstantCheckingUtils } = PhantomCore;
+const { checkEvents, extractEvents, compareExportedEvents } =
+  eventConstantCheckingUtils;
 
 // Validate event testing utility works as expected
 test("test utility checker", t => {
-  // TODO: Implement
-  // t.plan()
+  t.plan(8);
 
   // TODO: Add error type and description
   t.doesNotThrow(() => {
@@ -103,20 +99,6 @@ test("test utility checker", t => {
         EVT_FAKE_EVENT_B: "b-override",
       }
     );
-  });
-
-  t.end();
-});
-
-// TODO: Rename test
-test("proto event checking", t => {
-  // t.plan()
-
-  t.doesNotThrow(() => {
-    checkEvents({
-      EVT_READY,
-      EVT_DESTROYED,
-    });
   });
 
   t.end();
