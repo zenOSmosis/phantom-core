@@ -1,6 +1,7 @@
 [![MIT License][license-image]][license-url]
 [![ci][ci-image]][ci-url]
 [![CodeQL][codeql-image]][codeql-url]
+[![Known Vulnerabilities][snyk-image]][snyk-url]
 
 [license-image]: https://img.shields.io/github/license/zenosmosis/phantom-core
 [license-url]: https://raw.githubusercontent.com/zenOSmosis/phantom-core/main/LICENSE
@@ -8,6 +9,8 @@
 [ci-url]: https://github.com/zenOSmosis/phantom-core/actions/workflows/ci.yml
 [codeql-image]: https://github.com/zenosmosis/phantom-core/workflows/CodeQL/badge.svg
 [codeql-url]: https://github.com/zenOSmosis/phantom-core/actions/workflows/codeql-analysis.yml
+[snyk-image]: https://snyk.io/test/github/zenosmosis/phantom-core/badge.svg
+[snyk-url]: https://snyk.io/test/github/zenosmosis/phantom-core
 
 # Phantom Core
 
