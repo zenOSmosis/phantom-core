@@ -6,7 +6,7 @@ const { checkEvents, extractEvents, compareExportedEvents } =
 
 // Validate event testing utility works as expected
 test("test utility checker", t => {
-  t.plan(12);
+  t.plan(13);
 
   t.throws(() => {
     checkEvents({
