@@ -15,6 +15,7 @@ const getUnixTime = require("./utils/getUnixTime");
 const getClassPropertyNames = require("./utils/getClassPropertyNames");
 const getClassMethodNames = require("./utils/getClassMethodNames");
 const autoBindClassMethods = require("./utils/autoBindClassMethods");
+const shallowMerge = require("./utils/shallowMerge");
 
 // Amount of milliseconds to allow async inits to initialize before triggering
 // warning
@@ -125,6 +126,20 @@ class PhantomCore extends DestructibleEventEmitter {
   }
 
   /**
+   * Shallow-merges two objects together.
+   *
+   * IMPORTANT: The return is a COPY of the merged; no re-assignment takes place.
+   *
+   * @param {Object} objA? [optional; default = {}]
+   * @param {Object} objB? [optional; default = {}]
+   * @return {Object} Returns a shallow-merged clone of objects, where
+   * objB overrides objA.
+   */
+  static mergeOptions(objA, objB) {
+    return shallowMerge(objA, objB);
+  }
+
+  /**
    * TODO: Provide optional singleton support
    *
    * @param {Object} options? [default={}]
@@ -205,7 +220,9 @@ class PhantomCore extends DestructibleEventEmitter {
     };
 
     // Options should be considered immutable
-    this._options = Object.freeze({ ...DEFAULT_OPTIONS, ...options });
+    this._options = Object.freeze(
+      PhantomCore.mergeOptions(DEFAULT_OPTIONS, options)
+    );
 
     this._shutdownHandlerStack = new Stack();
 
@@ -266,13 +283,13 @@ class PhantomCore extends DestructibleEventEmitter {
 
       setImmediate(() => this.emit(EVT_READY));
     } else {
-      // IMPORTANT: Implementations which set isAsync to true must call _init
-      // on their own
+      // IMPORTANT: Implementations which set isAsync to true must call
+      // PhantomCore superclass _init on their own
 
       // Warn if _init() is not invoked in a short time period
       const initTimeout = setTimeout(() => {
         this.logger.warn(
-          "_init has not been called in a reasonable amount of time"
+          "PhantomCore superclass _init has not been called in a reasonable amount of time.  All instances which use isAsync option must call _init on the PhantomCore superclass."
         );
 
         this.emit(EVT_NO_INIT_WARN);
