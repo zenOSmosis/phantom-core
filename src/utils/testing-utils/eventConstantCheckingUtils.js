@@ -1,9 +1,10 @@
 const eventPrefix = "EVT_";
 
-// TODO: Build out
-
 /**
- * TODO: Finish documenting
+ * Ensures that given object of event constants contains valid, individual
+ * events in the formatting this project expects.
+ *
+ * If not valid, an error is raised, otherwise the return is void.
  *
  * @param {Object} events
  * @throws {ReferenceError | TypeError}
@@ -40,32 +41,51 @@ function checkEvents(events) {
   }
 }
 
-// TODO: Document and rename
+/**
+ * Retrieves a filtered object, based on the the given require object (i.e. via
+ * require('phantom-core')) which contains events, and nothing else.
+ *
+ * @param {Object} es5Import
+ * @return {Object}
+ */
 function extractEvents(es5Import) {
   const keys = Object.keys(es5Import).filter(predicate =>
     predicate.startsWith(eventPrefix)
   );
 
-  return Object.fromEntries(keys.map(key => [key, es5Import[key]]));
+  const events = Object.fromEntries(keys.map(key => [key, es5Import[key]]));
+
+  // Ensure the events are valid
+  checkEvents(events);
+
+  return events;
 }
 
-// TODO: Document and rename
+/**
+ * Compares the given extension import against the base import in order to see
+ * if the same events have been exported, with the exception of the exclusion
+ * list.
+ *
+ * @param {Object} baseES5Import
+ * @param {Object} extensionES5Import
+ * @param {Object} baseES5ImportExclusions? [default = {}]
+ */
 function compareExportedEvents(
-  baseImport,
-  extensionImport,
-  baseImportExclusions = {}
+  baseES5Import,
+  extensionES5Import,
+  baseES5ImportExclusions = {}
 ) {
-  const exportsA = extractEvents(baseImport);
-  const exportsB = extractEvents(extensionImport);
+  const exportsA = extractEvents(baseES5Import);
+  const exportsB = extractEvents(extensionES5Import);
 
-  // Check that extensionImport contains same events as baseImport, minus any exceptions
+  // Check that extensionES5Import contains same events as baseES5Import, minus any exceptions
   for (const [keyA, valueA] of Object.entries(exportsA)) {
     const valueB = exportsB[keyA];
 
     // Ensure that exportB contains same object and value, with exception of exclusions
     if (valueB !== valueA) {
       // Ignore exclusion, if exists
-      if (valueB === undefined && baseImportExclusions[keyA]) {
+      if (valueB === undefined && baseES5ImportExclusions[keyA]) {
         continue;
       }
 
@@ -74,9 +94,6 @@ function compareExportedEvents(
       );
     }
   }
-
-  checkEvents(exportsA);
-  checkEvents(exportsB);
 }
 
 module.exports = {
