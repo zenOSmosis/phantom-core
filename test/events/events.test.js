@@ -4,6 +4,7 @@ const {
   PhantomCollection,
   PhantomState,
   PhantomServiceCore,
+  PhantomServiceManager,
   EVT_READY,
   EVT_UPDATED,
   EVT_DESTROYED,
@@ -56,6 +57,16 @@ test("phantom-service-core events", t => {
   t.doesNotThrow(() => {
     compareExportedEvents(PhantomState, PhantomServiceCore);
   }, "phantom-service-core exports expected events");
+
+  t.end();
+});
+
+test("phantom-service-manager events", t => {
+  t.plan(1);
+
+  t.doesNotThrow(() => {
+    compareExportedEvents(PhantomCollection, PhantomServiceManager);
+  }, "phantom-service-manager exports expected events");
 
   t.end();
 });

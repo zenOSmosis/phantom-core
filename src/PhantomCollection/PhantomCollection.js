@@ -407,6 +407,8 @@ module.exports.EVT_DESTROYED = EVT_DESTROYED;
 module.exports.EVT_CHILD_INSTANCE_ADDED = EVT_CHILD_INSTANCE_ADDED;
 module.exports.EVT_CHILD_INSTANCE_REMOVED = EVT_CHILD_INSTANCE_REMOVED;
 
+// FIXME: (jh) Other than for testing, I'm not sure if these keys should be
+// exported. May need to consider refactoring.
 module.exports.KEY_META_CHILD_DESC_INSTANCE = KEY_META_CHILD_DESC_INSTANCE;
 module.exports.KEY_META_DESC_CHILD_KEY = KEY_META_DESC_CHILD_KEY;
 module.exports.KEY_META_CHILD_DESTROY_LISTENER =
