@@ -1,12 +1,15 @@
 const PhantomCollection = require("../../PhantomCollection");
 const PhantomServiceCore = require("../PhantomServiceCore");
 const getClassName = require("../../utils/getClassName");
-
 const {
   /** @export */
-  EVT_CHILD_INSTANCE_ADDED,
+  EVT_NO_INIT_WARN,
   /** @export */
-  EVT_CHILD_INSTANCE_REMOVED,
+  EVT_READY,
+  /** @export */
+  // EVT_CHILD_INSTANCE_ADDED,
+  /** @export */
+  // EVT_CHILD_INSTANCE_REMOVED,
   /** @export */
   EVT_UPDATED,
   /** @export */
@@ -181,7 +184,9 @@ class PhantomServiceManager extends PhantomCollection {
 }
 
 module.exports = PhantomServiceManager;
-module.exports.EVT_CHILD_INSTANCE_ADDED = EVT_CHILD_INSTANCE_ADDED;
-module.exports.EVT_CHILD_INSTANCE_REMOVED = EVT_CHILD_INSTANCE_REMOVED;
+module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;
+module.exports.EVT_READY = EVT_READY;
+// module.exports.EVT_CHILD_INSTANCE_ADDED = EVT_CHILD_INSTANCE_ADDED;
+// module.exports.EVT_CHILD_INSTANCE_REMOVED = EVT_CHILD_INSTANCE_REMOVED;
 module.exports.EVT_UPDATED = EVT_UPDATED;
 module.exports.EVT_DESTROYED = EVT_DESTROYED;

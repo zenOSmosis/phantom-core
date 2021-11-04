@@ -2,6 +2,10 @@ const PhantomState = require("../../PhantomState");
 const PhantomCollection = require("../../PhantomCollection");
 const {
   /** @export */
+  EVT_NO_INIT_WARN,
+  /** @export */
+  EVT_READY,
+  /** @export */
   EVT_UPDATED,
   /** @export */
   EVT_DESTROYED,
@@ -181,5 +185,7 @@ class PhantomServiceCore extends PhantomState {
 }
 
 module.exports = PhantomServiceCore;
+module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;
+module.exports.EVT_READY = EVT_READY;
 module.exports.EVT_UPDATED = EVT_UPDATED;
 module.exports.EVT_DESTROYED = EVT_DESTROYED;
