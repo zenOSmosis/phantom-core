@@ -1,5 +1,6 @@
 const test = require("tape");
 const PhantomCore = require("../../src");
+const PhantomSerialState = require("../../src/PhantomSerialState");
 const {
   PhantomCollection,
   PhantomState,
@@ -43,6 +44,16 @@ test("phantom-state events", t => {
 
   t.doesNotThrow(() => {
     compareExportedEvents(PhantomCore, PhantomState);
+  }, "phantom-state exports expected events");
+
+  t.end();
+});
+
+test("phantom-serial-state events", t => {
+  t.plan(1);
+
+  t.doesNotThrow(() => {
+    compareExportedEvents(PhantomState, PhantomSerialState);
   }, "phantom-state exports expected events");
 
   t.end();
