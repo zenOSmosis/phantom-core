@@ -1,4 +1,4 @@
-const test = require("tape-async");
+const test = require("tape");
 const PhantomCore = require("../src");
 const { EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
 const EventEmitter = require("events");
@@ -12,6 +12,25 @@ const {
 } = PhantomCollection;
 
 const _ChildEventBridge = require("../src/PhantomCollection/ChildEventBridge");
+
+test("PhantomCollection add multiple children without keys", async t => {
+  t.plan(1);
+
+  const collection = new PhantomCollection();
+
+  collection.addChild(new PhantomCore());
+  collection.addChild(new PhantomCore());
+  collection.addChild(new PhantomCore());
+  collection.addChild(new PhantomCore());
+
+  t.equals(
+    collection.getChildren().length,
+    4,
+    "Multiple children can be added without keys"
+  );
+
+  t.end();
+});
 
 test("PhantomCollection add / remove child; get children", async t => {
   t.plan(34);
@@ -517,6 +536,8 @@ test("PhantomCollection ChildEventBridge", async t => {
   (() => {
     const collection = new PhantomCollection();
     const child1 = new PhantomCore();
+
+    // FIXME: (jh) Use this somehow?
     // const child2 = new PhantomCore();
 
     class _TestChildEventBridge extends _ChildEventBridge {
@@ -809,6 +830,40 @@ test("PhantomCollection diff", t => {
       removed: [],
     },
     "uses empty arrays for added and removed when nothing has changed"
+  );
+
+  t.end();
+});
+
+test("collection iterator", async t => {
+  t.plan(4);
+
+  const p1 = new PhantomCore();
+  const p2 = new PhantomCore();
+  const p3 = new PhantomCore();
+  const p4 = new PhantomCore();
+  const p5 = new PhantomCore();
+
+  const collection = new PhantomCollection([p1, p2, p3, p4, p5]);
+
+  t.equals([...collection].length, 5);
+
+  await p3.destroy();
+
+  t.equals([...collection].length, 4);
+
+  await p5.destroy();
+
+  t.equals([...collection].length, 3);
+
+  await collection.destroy();
+
+  t.throws(
+    () => {
+      [...collection];
+    },
+    TypeError,
+    "collection is no longer iterable after destruct"
   );
 
   t.end();

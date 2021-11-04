@@ -1,4 +1,4 @@
-const test = require("tape-async");
+const test = require("tape");
 const { EventEmitter } = require("events");
 const PhantomCore = require("../src");
 const { EVT_UPDATED } = PhantomCore;

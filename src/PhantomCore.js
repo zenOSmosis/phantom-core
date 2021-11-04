@@ -1,25 +1,34 @@
-const EventEmitter = require("events");
+// @see https://github.com/YuzuJS/setImmediate
+// Exposes setImmediate as a global, regardless of context
+require("setimmediate");
+
+const DestructibleEventEmitter = require("./_DestructibleEventEmitter");
 const Logger = require("./Logger");
 const { LOG_LEVEL_INFO } = Logger;
+const getPackageJson = require("./utils/getPackageJson");
+const Stack = require("./utils/Stack");
+const getClassName = require("./utils/getClassName");
 const uuidv4 = require("uuid").v4;
 const shortUUID = require("short-uuid");
-const deepMerge = require("deepmerge");
 const dayjs = require("dayjs");
-
 const getUnixTime = require("./utils/getUnixTime");
+const getClassPropertyNames = require("./utils/getClassPropertyNames");
+const getClassMethodNames = require("./utils/getClassMethodNames");
+const autoBindClassMethods = require("./utils/autoBindClassMethods");
+const shallowMerge = require("./utils/shallowMerge");
 
 // Amount of milliseconds to allow async inits to initialize before triggering
 // warning
 const ASYNC_INIT_GRACE_TIME = 5000;
 
 /** @export */
+const EVT_NO_INIT_WARN = "no-init-warn";
+/** @export */
 const EVT_READY = "ready";
 /** @export */
 const EVT_UPDATED = "updated";
 /** @export */
-const EVT_DESTROYED = "destroyed";
-/** @export */
-const EVT_NO_INIT_WARN = "no-init-warn";
+const { EVT_DESTROYED } = DestructibleEventEmitter;
 
 // Instances for this particular thread
 const _instances = {};
@@ -47,11 +56,25 @@ const KEEP_ALIVE_SHUTDOWN_METHODS = [
 ];
 
 /**
- * Base class which Phantom Server components derive.
- *
- * TODO: Update description.
+ * Base class for zenOSmosis Phantom architecture, from which Speaker.app and
+ * ReShell classes derive.
  */
-class PhantomCore extends EventEmitter {
+class PhantomCore extends DestructibleEventEmitter {
+  /**
+   * Retrieves the version as defined in package.json.
+   *
+   * NOTE: As opposed to "getVersion" this longer naming is designed to reduce
+   * disambiguation for extended classes which might have a different version
+   * number.
+   *
+   * @return {string}
+   */
+  static getPhantomCoreVersion() {
+    const { version } = getPackageJson();
+
+    return version;
+  }
+
   /**
    * @param {Object} instance
    * @return {boolean} Whether or not the given instance is, or extends,
@@ -59,22 +82,6 @@ class PhantomCore extends EventEmitter {
    */
   static getIsInstance(instance) {
     return instance instanceof PhantomCore;
-  }
-
-  /**
-   * @param {Object} defaultOptions? [optional; default = {}]
-   * @param {Object} userLevelOptions? [optional; default = {}]
-   * @return {Object} Returns a deep merged clone of options, where
-   * userLevelOptions overrides defaultOptions.
-   */
-  static mergeOptions(defaultOptions = {}, userLevelOptions = {}) {
-    // Typecast null options to Object for robustness of implementors (i.e.
-    // media-stream-track-controller may pass null when merging optional
-    // MediaStreamTrack constraints)
-    if (defaultOptions === null) defaultOptions = {};
-    if (userLevelOptions === null) userLevelOptions = {};
-
-    return deepMerge(defaultOptions, userLevelOptions);
   }
 
   /**
@@ -119,12 +126,42 @@ class PhantomCore extends EventEmitter {
   }
 
   /**
+   * Shallow-merges two objects together.
+   *
+   * IMPORTANT: The return is a COPY of the merged; no re-assignment takes place.
+   *
+   * @param {Object} objA? [optional; default = {}]
+   * @param {Object} objB? [optional; default = {}]
+   * @return {Object} Returns a shallow-merged clone of objects, where
+   * objB overrides objA.
+   */
+  static mergeOptions(objA, objB) {
+    return shallowMerge(objA, objB);
+  }
+
+  /**
    * TODO: Provide optional singleton support
    *
    * @param {Object} options? [default={}]
    */
   constructor(options = {}) {
     super();
+
+    const deprecationNotices = [];
+
+    // FIXME: (jh) Remove after isReady has been removed
+    if (options && options.isReady !== undefined) {
+      deprecationNotices.push(
+        "isReady option will be changed to isAsync, defaulting to false"
+      );
+
+      if (options.isAsync === undefined) {
+        // Transform to new value
+        options.isAsync = !options.isReady;
+      }
+
+      delete options.isReady;
+    }
 
     // Provide "off" aliasing if it is not available (fixes issue where
     // PhantomCollection could not use off binding in browsers)
@@ -139,17 +176,20 @@ class PhantomCore extends EventEmitter {
     this._uuid = uuidv4();
     this._shortUUID = shortUUID().fromUUID(this._uuid);
 
+    _instances[this._uuid] = this;
+
     const DEFAULT_OPTIONS = {
       /**
-       * If set to false, this._init() MUST be called during the instance
-       * construction.
+       * If set to true, this._init() MUST be called during the instance
+       * construction, or shortly thereafter (otherwise a warning will be
+       * raised).
        *
-       * The ready state can be detected by checking this.getIsReady() or
-       * awaited for by this.onceReady().
+       * Note that if set to false, this._init will be discarded, regardless if
+       * it was defined in an extension class.
        *
        * @type {boolean}
        **/
-      isReady: true,
+      isAsync: false,
 
       /** @type {string | number} */
       logLevel: LOG_LEVEL_INFO,
@@ -169,12 +209,22 @@ class PhantomCore extends EventEmitter {
        * @type {string | null}
        **/
       title: null,
+
+      /**
+       * Whether or not to automatically bind PhantomCore class methods to the
+       * local PhantomCore class.
+       *
+       * @type {boolean}
+       */
+      hasAutomaticBindings: true,
     };
 
-    // Options should be considered immutable.
+    // Options should be considered immutable
     this._options = Object.freeze(
       PhantomCore.mergeOptions(DEFAULT_OPTIONS, options)
     );
+
+    this._shutdownHandlerStack = new Stack();
 
     this._symbol = (() => {
       if (this._options.symbol) {
@@ -209,36 +259,37 @@ class PhantomCore extends EventEmitter {
     });
 
     /**
+     * NOTE: This is called directly in order to not lose the stack trace.
+     *
      * @type {function} Calling this function directly will indirectly call
      * logger.info(); The logger.trace(), logger.debug(), logger.info(), logger.warn(), and
      * logger.error() properties can be called directly.
      */
     this.log = this.logger.log;
 
-    this._isDestroyed = false;
-
-    _instances[this._uuid] = this;
-
     /** @type {number} UTC Unix time */
     this._instanceStartTime = getUnixTime();
 
-    this._isReady = this._options.isReady || false;
+    this._isReady = !this._options.isAsync || false;
 
-    // Set _isReady flag to true once instance has initialized
-    this.once(EVT_READY, () => {
-      this._isReady = true;
-    });
+    // Force method scope binding to class instance
+    if (this._options.hasAutomaticBindings) {
+      this.autoBind();
+    }
 
     if (this._isReady) {
-      // IMPORTANT: Implementations which set isReady to false must call _init
-      // on their own
+      // This shouldn't be called if running isAsync
+      this._init = undefined;
 
-      this._init();
+      setImmediate(() => this.emit(EVT_READY));
     } else {
+      // IMPORTANT: Implementations which set isAsync to true must call
+      // PhantomCore superclass _init on their own
+
       // Warn if _init() is not invoked in a short time period
       const initTimeout = setTimeout(() => {
         this.logger.warn(
-          "_init has not been called in a reasonable amount of time"
+          "PhantomCore superclass _init has not been called in a reasonable amount of time.  All instances which use isAsync option must call _init on the PhantomCore superclass."
         );
 
         this.emit(EVT_NO_INIT_WARN);
@@ -247,6 +298,10 @@ class PhantomCore extends EventEmitter {
       this.once(EVT_READY, () => clearTimeout(initTimeout));
       this.once(EVT_DESTROYED, () => clearTimeout(initTimeout));
     }
+
+    deprecationNotices.forEach(deprecation => {
+      this.log.warn(`DEPRECATION NOTICE: ${deprecation}`);
+    });
   }
 
   /**
@@ -258,35 +313,53 @@ class PhantomCore extends EventEmitter {
    * @return {Promise<void>}
    */
   async _init() {
+    this._init = () => {
+      throw new ReferenceError("_init cannot be called more than once");
+    };
+
     // Await promise so that EVT_READY listeners can be invoked on next event
     // loop cycle
-    await new Promise(resolve =>
-      setTimeout(() => {
-        // NOTE (jh): I didn't add reject here due to potential breaking
-        // changes
-        if (!this._isDestroyed) {
-          this.emit(EVT_READY);
-        }
-
+    await new Promise((resolve, reject) => {
+      if (!this.getIsDestroyed()) {
+        this._isReady = true;
+        this.emit(EVT_READY);
         resolve();
-      })
-    );
+      } else {
+        reject();
+      }
+    });
+  }
+
+  /**
+   * Responder for instance.toString()
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol/toStringTag
+   *
+   * @return {string} i.e. "[object PhantomCore]"
+   */
+  get [Symbol.toStringTag]() {
+    return this.getTitle() || this.getClassName();
   }
 
   /**
    * @return {Promise<void>}
    */
   async destroy() {
-    if (!this._isDestroyed) {
+    if (!this.getIsDestroyed()) {
+      // Intentionally unregister w/ _instances and call super.destroy()
+      // handler first
       delete _instances[this._uuid];
+      await super.destroy();
 
-      // Note: Setting this flag before-hand is intentional
-      this._isDestroyed = true;
+      await this._shutdownHandlerStack.exec(true);
 
-      this.emit(EVT_DESTROYED);
+      // TODO: Implement and call shutdown handlers before continuing (these will perform extra clean-up work, etc. and prevent having to bind to EVT_DESTROYED, etc.)
 
-      // Unbind all listeners
-      this.removeAllListeners();
+      this.getPhantomProperties().forEach(phantomProp => {
+        this.log.warn(
+          `Lingering PhantomCore instance on prop name "${phantomProp}".  This could be a memory leak.  Ensure that all PhantomCore instances have been disposed of before class destruct.`
+        );
+      });
 
       for (const methodName of this.getMethodNames()) {
         // Force non-keep-alive methods to return undefined
@@ -306,10 +379,59 @@ class PhantomCore extends EventEmitter {
   }
 
   /**
-   * @return {boolean}
+   * Force scope binding of PhantomCore class methods to the instance they are
+   * defined in, regardless of how the method is invoked.
+   *
+   * IMPORTANT: Once a method is bound, it cannot be rebound to another class.
+   * @see https://stackoverflow.com/a/20925268
+   *
+   * @return {void}
    */
-  getIsDestroyed() {
-    return this._isDestroyed;
+  autoBind() {
+    // TODO: Adding this.log to the ignore list may not be necessary if
+    // auto-binding in the logger itself
+
+    // Handling for this.log is special and needs to be passed directly from
+    // the caller, or else it will lose the stack trace
+    const IGNORE_LIST = [this.log];
+
+    autoBindClassMethods(this, IGNORE_LIST);
+  }
+
+  /**
+   * Registers a function to the shutdown handler stack, which is executed
+   * AFTER EVT_DESTROYED is emit.
+   *
+   * @param {function} fn
+   * @return {void}
+   */
+  registerShutdownHandler(fn) {
+    return this._shutdownHandlerStack.push(fn);
+  }
+
+  /**
+   * Unregisters a function from the shutdown handler stack.
+   *
+   * @param {function} fn
+   * @returns
+   */
+  unregisterShutdownHandler(fn) {
+    return this._shutdownHandlerStack.remove(fn);
+  }
+
+  /**
+   * Retrieves the property names which are non-destructed PhantomCore
+   * instances.
+   *
+   * @return {string[]}
+   */
+  getPhantomProperties() {
+    return this.getPropertyNames().filter(
+      propName =>
+        propName !== "__proto__" &&
+        PhantomCore.getIsInstance(this[propName]) &&
+        !this[propName].getIsDestroyed()
+    );
   }
 
   /**
@@ -387,14 +509,7 @@ class PhantomCore extends EventEmitter {
    * @return {string[]}
    */
   getPropertyNames() {
-    const properties = new Set();
-    let currentObj = this;
-
-    do {
-      Object.getOwnPropertyNames(currentObj).map(item => properties.add(item));
-    } while ((currentObj = Object.getPrototypeOf(currentObj)));
-
-    return [...properties.keys()];
+    return getClassPropertyNames(this);
   }
 
   /**
@@ -405,9 +520,7 @@ class PhantomCore extends EventEmitter {
    * @return {string[]}
    */
   getMethodNames() {
-    const propertyNames = this.getPropertyNames();
-
-    return propertyNames.filter(item => typeof this[item] === "function");
+    return getClassMethodNames(this);
   }
 
   /**
@@ -460,10 +573,22 @@ class PhantomCore extends EventEmitter {
   }
 
   /**
+   * Retrieves the non-instantiated class definition.
+   *
+   * @return {function}
+   */
+  getClass() {
+    return this.constructor;
+  }
+
+  /**
+   * IMPORTANT: This is not safe to rely on and will be modified if the script
+   * is minified.
+   *
    * @return {string}
    */
   getClassName() {
-    return this.constructor.name;
+    return getClassName(this);
   }
 
   /**
@@ -580,7 +705,7 @@ class PhantomCore extends EventEmitter {
    * @return {number}
    */
   getInstanceUptime() {
-    if (!this._isDestroyed) {
+    if (!this.getIsDestroyed()) {
       return getUnixTime() - this._instanceStartTime;
     } else {
       return 0;
@@ -589,7 +714,7 @@ class PhantomCore extends EventEmitter {
 }
 
 module.exports = PhantomCore;
+module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;
 module.exports.EVT_READY = EVT_READY;
 module.exports.EVT_UPDATED = EVT_UPDATED;
 module.exports.EVT_DESTROYED = EVT_DESTROYED;
-module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;

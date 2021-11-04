@@ -1,10 +1,8 @@
 const PhantomCore = require("../PhantomCore");
 const { EVT_UPDATED } = PhantomCore;
 const PhantomCollection = require("./PhantomCollection");
-const {
-  EVT_CHILD_INSTANCE_ADDED,
-  EVT_CHILD_INSTANCE_REMOVED,
-} = PhantomCollection;
+const { EVT_CHILD_INSTANCE_ADDED, EVT_CHILD_INSTANCE_REMOVED } =
+  PhantomCollection;
 
 const DEFAULT_BRIDGE_EVENT_NAMES = [EVT_UPDATED];
 
@@ -42,6 +40,8 @@ class ChildEventBridge extends PhantomCore {
      */
     this._phantomCollection = phantomCollection;
 
+    this.registerShutdownHandler(() => delete this._phantomCollection);
+
     /**
      * @type {string[]} The event names this bridge currently (i.e. at any given
      * time) maintains mappings for events which can emit from child instances
@@ -57,9 +57,8 @@ class ChildEventBridge extends PhantomCore {
     this._linkedChildEventHandlers = {};
 
     this._handleChildInstanceAdded = this._handleChildInstanceAdded.bind(this);
-    this._handleChildInstanceRemoved = this._handleChildInstanceRemoved.bind(
-      this
-    );
+    this._handleChildInstanceRemoved =
+      this._handleChildInstanceRemoved.bind(this);
 
     // Bind child _...added/removed handlers
     (() => {
