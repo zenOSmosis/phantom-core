@@ -37,6 +37,7 @@ function checkEvents(events) {
   const lenUniqueEvents = uniqueEvents.length;
 
   if (lenEvents !== lenUniqueEvents) {
+    // FIXME: (jh) Add symbol support
     throw new ReferenceError("Events are not unique");
   }
 }
