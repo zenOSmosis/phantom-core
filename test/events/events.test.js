@@ -3,6 +3,7 @@ const PhantomCore = require("../../src");
 const {
   PhantomCollection,
   PhantomState,
+  PhantomServiceCore,
   EVT_READY,
   EVT_UPDATED,
   EVT_DESTROYED,
@@ -45,6 +46,16 @@ test("phantom-state events", t => {
   t.doesNotThrow(() => {
     compareExportedEvents(PhantomCore, PhantomState);
   }, "phantom-state exports expected events");
+
+  t.end();
+});
+
+test("phantom-service-core events", t => {
+  t.plan(1);
+
+  t.doesNotThrow(() => {
+    compareExportedEvents(PhantomState, PhantomServiceCore);
+  }, "phantom-service-core exports expected events");
 
   t.end();
 });
