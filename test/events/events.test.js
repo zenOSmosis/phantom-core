@@ -14,6 +14,9 @@ const {
 } = PhantomCore;
 const { compareExportedEvents } = eventConstantCheckingUtils;
 
+// TODO: Refactor these tests once event deps are included in PhantomCore
+// @see https://github.com/zenOSmosis/phantom-core/issues/93
+
 test("phantom-core events", t => {
   t.plan(1);
 
