@@ -19,11 +19,11 @@ const {
 class PhantomSerializableState extends PhantomState {
   /**
    * Serializes the given object into a string.
-   * 
-   * @param {Object} obj 
+   *
+   * @param {Object} obj
    * @return {string}
    */
-   static serialize(obj) {
+  static serialize(obj) {
     if (typeof obj !== "object") {
       throw new TypeError("Expected object type");
     }
@@ -48,8 +48,8 @@ class PhantomSerializableState extends PhantomState {
 
   /**
    * Converts the given string into an Object.
-   * 
-   * @param {string} str 
+   *
+   * @param {string} str
    * @return {Object}
    */
   static unserialize(str) {
@@ -69,14 +69,16 @@ class PhantomSerializableState extends PhantomState {
     // Run through obj->serial->obj conversion to ensure partial next state can
     // be serialized, while storing it in memory as an object, to enable
     // subsequent partial updates
-    partialNextState = PhantomSerializableState.unserialize(PhantomSerializableState.serialize(partialNextState));
+    partialNextState = PhantomSerializableState.unserialize(
+      PhantomSerializableState.serialize(partialNextState)
+    );
 
     return super.setState(partialNextState);
   }
 
   /**
    * Retrieves the current state, as a serialized string.
-   * 
+   *
    * @return {string}
    */
   getSerializedState() {

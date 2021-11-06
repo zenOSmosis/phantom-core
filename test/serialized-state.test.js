@@ -42,10 +42,16 @@ test("phantom serialized state", async t => {
   t.equals(serialState.getSerializedState(), serializedState);
 
   // TODO: Add description
-  t.deepEquals(PhantomSerializableState.unserialize(serializedState), initialState);
+  t.deepEquals(
+    PhantomSerializableState.unserialize(serializedState),
+    initialState
+  );
 
   // TODO: Add description
-  t.equals(PhantomSerializableState.serialize(serialState.getState()), serializedState);
+  t.equals(
+    PhantomSerializableState.serialize(serialState.getState()),
+    serializedState
+  );
 
   // TODO: Add additional testing for invalid types
 
