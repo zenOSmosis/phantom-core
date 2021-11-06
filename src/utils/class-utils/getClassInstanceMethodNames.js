@@ -1,4 +1,4 @@
-const getClassPropertyNames = require("./getClassPropertyNames");
+const getClassInstancePropertyNames = require("./getClassInstancePropertyNames");
 
 /**
  * Retrieves an array of class method names for the given JavaScript class.
@@ -9,8 +9,8 @@ const getClassPropertyNames = require("./getClassPropertyNames");
  * @param {function} classInstance JavaScript class instance
  * @return {string[]} An array of method names
  */
-module.exports = function getClassMethodNames(classInstance) {
-  const propertyNames = getClassPropertyNames(classInstance);
+module.exports = function getClassInstanceMethodNames(classInstance) {
+  const propertyNames = getClassInstancePropertyNames(classInstance);
 
   return propertyNames.filter(
     item => typeof classInstance[item] === "function"

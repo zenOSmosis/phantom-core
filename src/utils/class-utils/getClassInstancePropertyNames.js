@@ -1,6 +1,5 @@
 const getIsClassInstance = require("./getIsClassInstance");
 
-// TODO: Rename to prevent vagueness of class vs. instance
 /**
  * Retrieves an array of the given class property names.
  *
@@ -10,7 +9,7 @@ const getIsClassInstance = require("./getIsClassInstance");
  * @param {function} classInstance JavaScript class instance
  * @return {string[]} An array of property names
  */
-module.exports = function getClassPropertyNames(classInstance) {
+module.exports = function getClassInstancePropertyNames(classInstance) {
   if (!getIsClassInstance(classInstance)) {
     throw new TypeError("classInstance must be an instance of a class");
   }

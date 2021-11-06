@@ -140,21 +140,29 @@ test("runtime environment", t => {
   t.end();
 });
 
-test('super class', t => {
-  t.plan(3)
-  
+test("super class", t => {
+  t.plan(3);
+
   class ExtensionA extends PhantomCore {}
 
-  t.equals(getSuperClass(ExtensionA), PhantomCore, 'getSuperClass works for non-instantiated classes')
-  t.equals(getSuperClass(new ExtensionA()), PhantomCore, 'getSuperClass works for instantiated classes')
+  t.equals(
+    getSuperClass(ExtensionA),
+    PhantomCore,
+    "getSuperClass works for non-instantiated classes"
+  );
+  t.equals(
+    getSuperClass(new ExtensionA()),
+    PhantomCore,
+    "getSuperClass works for instantiated classes"
+  );
 
-  t.notOk(getSuperClass(class ABC {}))
+  t.notOk(getSuperClass(class ABC {}));
 
-  t.end()
-})
+  t.end();
+});
 
 test("super parents", t => {
-  t.plan(1)
+  t.plan(1);
 
   class ExtensionA extends PhantomCore {}
   class ExtensionB extends ExtensionA {}
@@ -163,9 +171,17 @@ test("super parents", t => {
   class ExtensionE extends ExtensionD {}
 
   // This isn't directly exported from src
-  const DestructibleEventEmitter = getSuperClass(PhantomCore)
+  const DestructibleEventEmitter = getSuperClass(PhantomCore);
 
-  t.deepEquals(getClassInheritance(ExtensionE), [ExtensionD, ExtensionC, ExtensionB, ExtensionA, PhantomCore, DestructibleEventEmitter, EventEmitter])
+  t.deepEquals(getClassInheritance(ExtensionE), [
+    ExtensionD,
+    ExtensionC,
+    ExtensionB,
+    ExtensionA,
+    PhantomCore,
+    DestructibleEventEmitter,
+    EventEmitter,
+  ]);
 
   t.end();
 });

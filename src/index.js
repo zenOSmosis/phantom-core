@@ -21,7 +21,7 @@ const getIsNodeJS = require("./utils/getIsNodeJS");
 const deepMerge = require("./utils/deepMerge");
 const getClassName = require("./utils/class-utils/getClassName");
 const getClassInheritance = require("./utils/class-utils/getClassInheritance");
-const getSuperClass = require('./utils/class-utils/getSuperClass')
+const getSuperClass = require("./utils/class-utils/getSuperClass");
 // const symbolToUUID = require("./utils/symbolToUUID");
 
 const eventConstantCheckingUtils = require("./utils/testing-utils/eventConstantCheckingUtils");

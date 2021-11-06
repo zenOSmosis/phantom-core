@@ -12,8 +12,8 @@ const uuidv4 = require("uuid").v4;
 const shortUUID = require("short-uuid");
 const dayjs = require("dayjs");
 const getUnixTime = require("./utils/getUnixTime");
-const getClassPropertyNames = require("./utils/class-utils/getClassPropertyNames");
-const getClassMethodNames = require("./utils/class-utils/getClassMethodNames");
+const getClassInstancePropertyNames = require("./utils/class-utils/getClassInstancePropertyNames");
+const getClassInstanceMethodNames = require("./utils/class-utils/getClassInstanceMethodNames");
 const autoBindClassInstanceMethods = require("./utils/class-utils/autoBindClassInstanceMethods");
 const shallowMerge = require("./utils/shallowMerge");
 
@@ -509,7 +509,7 @@ class PhantomCore extends DestructibleEventEmitter {
    * @return {string[]}
    */
   getPropertyNames() {
-    return getClassPropertyNames(this);
+    return getClassInstancePropertyNames(this);
   }
 
   /**
@@ -520,7 +520,7 @@ class PhantomCore extends DestructibleEventEmitter {
    * @return {string[]}
    */
   getMethodNames() {
-    return getClassMethodNames(this);
+    return getClassInstanceMethodNames(this);
   }
 
   /**

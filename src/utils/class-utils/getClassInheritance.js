@@ -3,7 +3,7 @@ const getSuperClass = require("./getSuperClass");
 /**
  * Retrieves an array of JavaScript classes which form the inheritance of the
  * given instanceOrClass.
- * 
+ *
  * @param {function | Object} instanceOrClass
  * @return {function[]}
  */

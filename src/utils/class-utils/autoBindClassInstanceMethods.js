@@ -1,4 +1,4 @@
-const getClassMethodNames = require("./getClassMethodNames");
+const getClassInstanceMethodNames = require("./getClassInstanceMethodNames");
 const getIsClassInstance = require("./getIsClassInstance");
 
 /**
@@ -24,7 +24,7 @@ module.exports = function autoBindClassInstanceMethods(
     throw new TypeError("classInstance must be an instance of a class");
   }
 
-  getClassMethodNames(classInstance).forEach(methodName => {
+  getClassInstanceMethodNames(classInstance).forEach(methodName => {
     const method = classInstance[methodName];
 
     if (
