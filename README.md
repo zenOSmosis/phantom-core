@@ -50,7 +50,7 @@ Base package utilized in [Speaker App](https://speaker.app) / [https://github.co
 ### Version 1.0.1 (Sept. 25, 2021)
   - Fix issue where calling Logger.log method directly would lose stack trace
 
-### Version 2.0.0 (TBD)
+### Version 2.0.0 (Nov. 6, 2021)
 
   - Enhanced precautions against memory leaks
   - Add global setImmediate regardless of context.  To use in a browser, require PhantomCore somewhere in the program before calling setImmediate.
