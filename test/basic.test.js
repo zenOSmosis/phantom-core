@@ -1,4 +1,4 @@
-const test = require("tape-async");
+const test = require("tape");
 const PhantomCore = require("../src");
 const { EVT_READY, EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
 
@@ -78,9 +78,10 @@ test("get options", t => {
   t.deepEquals(phantom.getOptions(), {
     testOption: 123,
     logLevel: 4,
-    isReady: true,
+    isAsync: false,
     symbol: null,
     title: null,
+    hasAutomaticBindings: true,
   });
 
   t.equals(phantom.getOption("testOption"), 123, "retrieves testOption option");
@@ -136,90 +137,6 @@ test("get instance with symbol", t => {
   t.end();
 });
 
-test("deep merge options of same type", t => {
-  t.plan(1);
-
-  // NOTE: Despite the similarities, these data structures are not the same as
-  // MediaStreamTrack constraints
-  const defaultOptions = {
-    audio: {
-      quality: {
-        echoCancellation: true,
-        noiseSuppression: true,
-        autoGainControl: true,
-        sampleRate: 48000,
-        sampleSize: 16,
-      },
-    },
-    video: {
-      resolution: {
-        width: 1920,
-        height: 1280,
-      },
-    },
-  };
-
-  const userLevelOptions = {
-    audio: {
-      quality: {
-        autoGainControl: false,
-      },
-    },
-
-    video: {
-      resolution: {
-        width: 640,
-        height: 480,
-      },
-    },
-  };
-
-  t.deepEquals(PhantomCore.mergeOptions(defaultOptions, userLevelOptions), {
-    audio: {
-      quality: {
-        echoCancellation: true,
-        noiseSuppression: true,
-        autoGainControl: false,
-        sampleRate: 48000,
-        sampleSize: 16,
-      },
-    },
-    video: {
-      resolution: {
-        width: 640,
-        height: 480,
-      },
-    },
-  });
-
-  t.end();
-});
-
-test("handles null options", t => {
-  t.plan(2);
-
-  const DEFAULT_OPTIONS = {
-    a: 123,
-    b: () => "hello",
-  };
-
-  const USER_OPTIONS = null;
-
-  t.deepEquals(
-    PhantomCore.mergeOptions(DEFAULT_OPTIONS, USER_OPTIONS),
-    DEFAULT_OPTIONS,
-    "accepts null user options"
-  );
-
-  t.deepEquals(
-    PhantomCore.mergeOptions(null, null),
-    {},
-    "accepts null values for all merge options parameters"
-  );
-
-  t.end();
-});
-
 test("title support", async t => {
   t.plan(2);
 
@@ -250,99 +167,18 @@ test("title support", async t => {
   t.end();
 });
 
-test("deep merge options of altered type", t => {
+test("determines class name", async t => {
   t.plan(3);
 
-  const defaultOptions = {
-    audio: true,
-    video: true,
-  };
-
-  const userLevelOptions = {
-    audio: {
-      quality: {
-        echoCancellation: true,
-        noiseSuppression: true,
-        autoGainControl: true,
-        sampleRate: 48000,
-        sampleSize: 16,
-      },
-    },
-    video: {
-      resolution: {
-        width: 1920,
-        height: 1280,
-      },
-    },
-  };
-
-  t.deepEquals(
-    PhantomCore.mergeOptions(defaultOptions, {
-      audio: userLevelOptions.audio,
-    }),
-    {
-      audio: {
-        quality: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-          sampleRate: 48000,
-          sampleSize: 16,
-        },
-      },
-      video: true,
-    },
-    "changes audio from boolean to object type"
-  );
-
-  t.deepEquals(
-    PhantomCore.mergeOptions(defaultOptions, {
-      video: userLevelOptions.video,
-    }),
-    {
-      audio: true,
-      video: {
-        resolution: {
-          width: 1920,
-          height: 1280,
-        },
-      },
-    },
-    "changes video from boolean to object type"
-  );
-
-  t.deepEquals(
-    PhantomCore.mergeOptions(defaultOptions, userLevelOptions),
-    {
-      audio: {
-        quality: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-          sampleRate: 48000,
-          sampleSize: 16,
-        },
-      },
-      video: {
-        resolution: {
-          width: 1920,
-          height: 1280,
-        },
-      },
-    },
-    "merges multiple type changes"
-  );
-
-  t.end();
-});
-
-test("determines class name", async t => {
   const phantom1 = new PhantomCore();
 
-  t.ok(
-    phantom1.getClassName() === "PhantomCore",
+  t.equals(
+    phantom1.getClassName(),
+    "PhantomCore",
     "determines its own class name"
   );
+
+  t.ok(phantom1.getClass() === PhantomCore, "determines its own class");
 
   class Phantom2 extends PhantomCore {}
 
@@ -360,6 +196,8 @@ test("determines class name", async t => {
 });
 
 test("onceReady handling", async t => {
+  t.plan(3);
+
   const phantom = new PhantomCore();
 
   t.ok(phantom.getIsReady(), "ready by default");
@@ -375,7 +213,9 @@ test("onceReady handling", async t => {
   t.end();
 });
 
-test("emits EVT_READY", async t => {
+test("emits EVT_READY (even in sync mode)", async t => {
+  t.plan(1);
+
   const phantom = new PhantomCore();
 
   await new Promise(resolve => {
@@ -391,7 +231,9 @@ test("emits EVT_READY", async t => {
   t.end();
 });
 
-test("same instance detection", async t => {
+test("same instance detection", t => {
+  t.plan(4);
+
   const phantom1 = new PhantomCore();
   const phantom1UUID = phantom1.getUUID();
 
@@ -420,6 +262,8 @@ test("same instance detection", async t => {
 });
 
 test("determines instance uptime", async t => {
+  t.plan(3);
+
   const phantom = new PhantomCore();
 
   t.ok(
@@ -441,6 +285,8 @@ test("determines instance uptime", async t => {
 });
 
 test("events and destruct", async t => {
+  t.plan(8);
+
   const phantom = new PhantomCore();
 
   t.notOk(
@@ -596,6 +442,133 @@ test("total listener count", async t => {
     0,
     "total listener count is set to 0 after instance destruct"
   );
+
+  t.end();
+});
+
+test("phantom properties", async t => {
+  t.plan(1);
+
+  class ExtendedCore extends PhantomCore {}
+
+  class ExtendedCore2 extends PhantomCore {
+    constructor(...args) {
+      super(...args);
+    }
+  }
+
+  class TestPhantomProperties extends PhantomCore {
+    constructor() {
+      super();
+
+      this._pred1 = {};
+
+      this._pred2 = new PhantomCore();
+
+      this._pred3 = () => null;
+
+      this._pred4 = "hello";
+
+      this._pred5 = new ExtendedCore();
+
+      this._pred6 = new ExtendedCore2();
+
+      this._pred7 = ExtendedCore;
+      this._pred8 = ExtendedCore2;
+      this._pred9 = PhantomCore;
+    }
+  }
+
+  const testPhantom = new TestPhantomProperties();
+
+  t.deepEquals(testPhantom.getPhantomProperties(), [
+    "_pred2",
+    "_pred5",
+    "_pred6",
+  ]);
+
+  await testPhantom.destroy();
+
+  t.end();
+});
+
+test("symbol toString()", t => {
+  t.plan(2);
+
+  const p1 = new PhantomCore();
+
+  t.equals(
+    p1.toString(),
+    "[object PhantomCore]",
+    "resolves non-titled instance as expected"
+  );
+
+  p1.setTitle("some-test");
+
+  t.equals(
+    p1.toString(),
+    "[object some-test]",
+    "resolves titled instance as expected"
+  );
+
+  t.end();
+});
+
+test("shutdown handler stack", async t => {
+  t.plan(6);
+
+  const p1 = new PhantomCore();
+  const p2 = new PhantomCore();
+
+  t.throws(
+    () => {
+      p1.registerShutdownHandler("something");
+    },
+    TypeError,
+    "throws TypeError when trying to register non-function shutdown handler"
+  );
+
+  const badFn = () => {
+    t.ok(true, "badFn has been started");
+
+    throw new Error(
+      "INTENTIONAL ERROR. This does not indicate something is wrong w/ PhantomCore.  It is only used for testing."
+    );
+  };
+
+  p1.registerShutdownHandler(badFn);
+  p2.registerShutdownHandler(badFn);
+
+  let hasGoodAsyncFnRun = false;
+
+  const goodAsyncFn = async () => {
+    t.ok(true, `goodAsyncFn was executed`);
+
+    hasGoodAsyncFnRun = true;
+  };
+
+  p1.registerShutdownHandler(goodAsyncFn);
+  p2.registerShutdownHandler(goodAsyncFn);
+
+  const goodSyncFn = () => {
+    t.ok(
+      hasGoodAsyncFnRun,
+      `goodSyncFn was executed after goodAsyncFn (stack awaits promises before continuing)`
+    );
+  };
+
+  p1.registerShutdownHandler(goodSyncFn);
+  p2.registerShutdownHandler(goodSyncFn);
+
+  // Unregister badFn on p1 only
+  p1.unregisterShutdownHandler(badFn);
+
+  await p1.destroy();
+
+  // IMPORTANT: It should be noted that though p2 has a badFn in its shutdown
+  // handler stack, the error is ignored, and the other handlers continue as if
+  // there were no error
+  await p2.destroy();
 
   t.end();
 });
