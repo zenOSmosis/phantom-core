@@ -15,13 +15,13 @@
 [codefactor-image]: https://www.codefactor.io/repository/github/zenOSmosis/phantom-core/badge
 [codefactor-url]: https://www.codefactor.io/repository/github/zenOSmosis/phantom-core
 
-# Phantom Core
+# PhantomCore
 
 <img src="phantom.svg" alt="Phantom" width="200"/>
 
 Common base package utilized in [Speaker App](https://speaker.app) / [ReShell](https://reshell.org) which most other classes derive from.
 
-Phantom Core provides a common architecture between browsers and Node.js and does not expose any DOM-related functionality directly.
+PhantomCore provides a common architecture between browsers and Node.js and does not expose any DOM-related functionality directly.
 
 ## Characteristics
 
