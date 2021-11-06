@@ -5,7 +5,7 @@ require("setimmediate");
 const DestructibleEventEmitter = require("./_DestructibleEventEmitter");
 const Logger = require("./Logger");
 const { LOG_LEVEL_INFO } = Logger;
-const getPackageJson = require("./utils/getPackageJson");
+const getPackageJSON = require("./utils/getPackageJSON");
 const FunctionStack = require("./FunctionStack");
 const getClassName = require("./utils/class-utils/getClassName");
 const uuidv4 = require("uuid").v4;
@@ -70,7 +70,7 @@ class PhantomCore extends DestructibleEventEmitter {
    * @return {string}
    */
   static getPhantomCoreVersion() {
-    const { version } = getPackageJson();
+    const { version } = getPackageJSON();
 
     return version;
   }
