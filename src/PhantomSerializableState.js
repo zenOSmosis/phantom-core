@@ -13,25 +13,12 @@ const {
 
 class PhantomSerializableState extends PhantomState {
   /**
-   * Sets the next state, using shallow-merge strategy.
-   *
-   * NOTE: The previous state object will be re-referenced.
-   *
-   * @param {Object} partialNextState
-   * @emits EVT_UPDATED With partialNextState
-   * @return {void}
+   * Serializes the given object into a string.
+   * 
+   * @param {Object} obj 
+   * @return {string}
    */
-  setState(partialNextState) {
-    // Run through obj->serial->obj conversion to ensure partial next state can
-    // be serialized, while storing it in memory as an object, to enable
-    // subsequent partial updates
-    partialNextState = this.unserialize(this.serialize(partialNextState));
-
-    return super.setState(partialNextState);
-  }
-
-  // TODO: Document
-  serialize(obj) {
+   static serialize(obj) {
     if (typeof obj !== "object") {
       throw new TypeError("Expected object type");
     }
@@ -54,14 +41,41 @@ class PhantomSerializableState extends PhantomState {
     return JSON.stringify(obj);
   }
 
-  // TODO: Document
-  unserialize(str) {
+  /**
+   * Converts the given string into an Object.
+   * 
+   * @param {string} str 
+   * @return {Object}
+   */
+  static unserialize(str) {
     return JSON.parse(str);
   }
 
-  // TODO: Document
+  /**
+   * Sets the next state, using shallow-merge strategy.
+   *
+   * NOTE: The previous state object will be re-referenced.
+   *
+   * @param {Object} partialNextState
+   * @emits EVT_UPDATED With partialNextState
+   * @return {void}
+   */
+  setState(partialNextState) {
+    // Run through obj->serial->obj conversion to ensure partial next state can
+    // be serialized, while storing it in memory as an object, to enable
+    // subsequent partial updates
+    partialNextState = PhantomSerializableState.unserialize(PhantomSerializableState.serialize(partialNextState));
+
+    return super.setState(partialNextState);
+  }
+
+  /**
+   * Retrieves the current state, as a serialized string.
+   * 
+   * @return {string}
+   */
   getSerializedState() {
-    return this.serialize(this.getState());
+    return PhantomSerializableState.serialize(this.getState());
   }
 }
 
