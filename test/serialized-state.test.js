@@ -1,6 +1,5 @@
 const test = require("tape");
 const { PhantomSerializableState } = require("../src");
-// const { EVT_UPDATED } = PhantomSerializableState;
 
 test("phantom serialized state", async t => {
   t.plan(14);
