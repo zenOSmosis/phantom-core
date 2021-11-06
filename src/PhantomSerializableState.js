@@ -11,6 +11,11 @@ const {
   EVT_DESTROYED,
 } = PhantomState;
 
+/**
+ * A simple, object-based state management utility, which piggy-backs off of
+ * PhantomState and enforces serializable state so that the state can be
+ * transmitted over network, etc.
+ */
 class PhantomSerializableState extends PhantomState {
   /**
    * Serializes the given object into a string.
