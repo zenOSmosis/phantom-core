@@ -1,6 +1,6 @@
 const PhantomCollection = require("../../PhantomCollection");
 const PhantomServiceCore = require("../PhantomServiceCore");
-const getClassName = require("../../utils/getClassName");
+const getClassName = require("../../utils/class-utils/getClassName");
 const {
   /** @export */
   EVT_NO_INIT_WARN,

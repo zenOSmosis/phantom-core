@@ -7,14 +7,14 @@ const Logger = require("./Logger");
 const { LOG_LEVEL_INFO } = Logger;
 const getPackageJson = require("./utils/getPackageJson");
 const Stack = require("./utils/Stack");
-const getClassName = require("./utils/getClassName");
+const getClassName = require("./utils/class-utils/getClassName");
 const uuidv4 = require("uuid").v4;
 const shortUUID = require("short-uuid");
 const dayjs = require("dayjs");
 const getUnixTime = require("./utils/getUnixTime");
-const getClassPropertyNames = require("./utils/getClassPropertyNames");
-const getClassMethodNames = require("./utils/getClassMethodNames");
-const autoBindClassMethods = require("./utils/autoBindClassMethods");
+const getClassPropertyNames = require("./utils/class-utils/getClassPropertyNames");
+const getClassMethodNames = require("./utils/class-utils/getClassMethodNames");
+const autoBindClassMethods = require("./utils/class-utils/autoBindClassMethods");
 const shallowMerge = require("./utils/shallowMerge");
 
 // Amount of milliseconds to allow async inits to initialize before triggering

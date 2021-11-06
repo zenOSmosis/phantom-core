@@ -1,5 +1,6 @@
 const getIsClassInstance = require("./getIsClassInstance");
 
+// TODO: Rename to prevent vagueness of class vs. instance
 /**
  * Retrieves an array of the given class property names.
  *

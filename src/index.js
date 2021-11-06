@@ -19,7 +19,7 @@ const getUnixTime = require("./utils/getUnixTime");
 const getUptime = require("./utils/getUptime");
 const getIsNodeJS = require("./utils/getIsNodeJS");
 const deepMerge = require("./utils/deepMerge");
-const getClassName = require("./utils/getClassName");
+const getClassName = require("./utils/class-utils/getClassName");
 // const symbolToUUID = require("./utils/symbolToUUID");
 
 const eventConstantCheckingUtils = require("./utils/testing-utils/eventConstantCheckingUtils");
