@@ -41,6 +41,7 @@ Base package utilized in [Speaker App](https://speaker.app) / [https://github.co
     - Can contain other collections as children (linked collections)
     - Accepts an optional key when adding a child to make it easier to extend with coerced types; the relevant child can be looked up by this key
     - Can optionally destruct all associated children
+  - PhantomState / PhantomSerializedState: Simple, object-based state stores with a shallow-merging update strategy
 
 ## Changelog
 
@@ -62,6 +63,6 @@ Base package utilized in [Speaker App](https://speaker.app) / [https://github.co
   - Remove deep-merging of PhantomCore options and promote to a separate utility (deepMerge lives on its own)
   - Add registerShutdownHandler (and included function stack support)
   - Implement PhantomCollection iterator (i.e. [...collection] retrieves all collection children). NOTE: After a collection is destructed, it can no longer be iterated, and attempts to do so throw a TypeError. This functionality may change in the future.
-  - Implement PhantomState
+  - Implement PhantomState & PhantomSerializedState
 
 TODO: Build out this documentation
