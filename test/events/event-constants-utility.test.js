@@ -149,7 +149,7 @@ test("test utility checker", t => {
         EVT_FAKE_EVENT_B: "b-override",
       }
     );
-  }, 'throws when constant event names do not match');
+  }, "throws when constant event names do not match");
 
   t.end();
 });
