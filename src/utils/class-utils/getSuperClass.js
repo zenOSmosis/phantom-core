@@ -1,4 +1,5 @@
 const getClass = require("./getClass");
+const getIsClass = require('./getIsClass')
 
 /**
  * Retrieves the given class instance's super class.
@@ -12,7 +13,7 @@ module.exports = function getSuperClass(classOrInstance) {
 
   const predicate = Object.getPrototypeOf(JSClass);
 
-  if (typeof predicate === 'function' && predicate.name) {
+  if (getIsClass(predicate)) {
     return predicate
   }
 };
