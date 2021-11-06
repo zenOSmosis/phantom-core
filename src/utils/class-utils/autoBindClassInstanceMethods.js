@@ -1,9 +1,9 @@
-const getClassMethodNames = require("./getClassMethodNames");
+const getClassInstanceMethodNames = require("./getClassInstanceMethodNames");
 const getIsClassInstance = require("./getIsClassInstance");
 
 /**
- * Force scope binding of class methods to the class itself, regardless of how
- * the method is invoked.
+ * Force scope binding of JavaScript class methods to the class itself,
+ * regardless of how or where the method is invoked.
  *
  * IMPORTANT: Once a method is bound, it cannot be rebound to another class.
  * @see https://stackoverflow.com/a/20925268
@@ -16,7 +16,7 @@ const getIsClassInstance = require("./getIsClassInstance");
  * themselves.
  * @return {void}
  */
-module.exports = function autoBindClassMethods(
+module.exports = function autoBindClassInstanceMethods(
   classInstance,
   ignoreMethods = []
 ) {
@@ -24,7 +24,7 @@ module.exports = function autoBindClassMethods(
     throw new TypeError("classInstance must be an instance of a class");
   }
 
-  getClassMethodNames(classInstance).forEach(methodName => {
+  getClassInstanceMethodNames(classInstance).forEach(methodName => {
     const method = classInstance[methodName];
 
     if (

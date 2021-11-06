@@ -44,7 +44,7 @@ test("sub-service", async t => {
 
   await testService.destroy();
 
-  // TODO: Should this be changed
+  // TODO: Should this be changed?
   t.equals(
     serviceManager.getServiceClasses().length,
     1,

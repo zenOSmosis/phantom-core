@@ -8,7 +8,9 @@ const {
   getUnixTime,
   getUptime,
   getClassName,
-  getIsNodeJS /* symbolToUUID */,
+  getIsNodeJS,
+  getSuperClass,
+  getClassInheritance,
 } = PhantomCore;
 
 test("time", async t => {
@@ -31,6 +33,7 @@ test("time", async t => {
     "getUptime() returns a number"
   );
 
+  // Wait at least a second to ensure seconds clock up as expected
   await new Promise(resolve => setTimeout(resolve, 1000));
 
   t.ok(getUnixTime() > timeStart, "unixTime increments as expected");
@@ -38,17 +41,17 @@ test("time", async t => {
 
   const phantom = new PhantomCore();
 
+  t.equals(
+    phantom.getInstanceUptime(),
+    0,
+    "new phantom instance uptime starts at 0"
+  );
+
   // Due to previous awaits, phantom instance uptime shouldn't equal current (non-phantom) getUptime()
   t.notEquals(
     phantom.getInstanceUptime(),
     getUptime(),
     "phantom instance uptime does not equal getUptime after greater than one second await"
-  );
-
-  t.equals(
-    phantom.getInstanceUptime(),
-    0,
-    "new phantom instance uptime starts at 0"
   );
 
   await new Promise(resolve => setTimeout(resolve, 1000));
@@ -133,6 +136,52 @@ test("runtime environment", t => {
   // IMPORTANT: The checked value is only used for test script and is not a
   // suitable replacement for the conditions within getIsNodeJS, itself
   t.equals(getIsNodeJS(), Boolean(typeof window === "undefined"));
+
+  t.end();
+});
+
+test("super class", t => {
+  t.plan(3);
+
+  class ExtensionA extends PhantomCore {}
+
+  t.equals(
+    getSuperClass(ExtensionA),
+    PhantomCore,
+    "getSuperClass works for non-instantiated classes"
+  );
+  t.equals(
+    getSuperClass(new ExtensionA()),
+    PhantomCore,
+    "getSuperClass works for instantiated classes"
+  );
+
+  t.notOk(getSuperClass(class ABC {}));
+
+  t.end();
+});
+
+test("super parents", t => {
+  t.plan(1);
+
+  class ExtensionA extends PhantomCore {}
+  class ExtensionB extends ExtensionA {}
+  class ExtensionC extends ExtensionB {}
+  class ExtensionD extends ExtensionC {}
+  class ExtensionE extends ExtensionD {}
+
+  // This isn't directly exported from src
+  const DestructibleEventEmitter = getSuperClass(PhantomCore);
+
+  t.deepEquals(getClassInheritance(ExtensionE), [
+    ExtensionD,
+    ExtensionC,
+    ExtensionB,
+    ExtensionA,
+    PhantomCore,
+    DestructibleEventEmitter,
+    EventEmitter,
+  ]);
 
   t.end();
 });

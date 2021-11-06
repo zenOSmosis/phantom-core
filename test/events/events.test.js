@@ -1,5 +1,6 @@
 const test = require("tape");
 const PhantomCore = require("../../src");
+const PhantomSerializableState = require("../../src/PhantomSerializableState");
 const {
   PhantomCollection,
   PhantomState,
@@ -12,6 +13,9 @@ const {
   eventConstantCheckingUtils,
 } = PhantomCore;
 const { compareExportedEvents } = eventConstantCheckingUtils;
+
+// TODO: Refactor these tests once event deps are included in PhantomCore
+// @see https://github.com/zenOSmosis/phantom-core/issues/93
 
 test("phantom-core events", t => {
   t.plan(1);
@@ -43,6 +47,16 @@ test("phantom-state events", t => {
 
   t.doesNotThrow(() => {
     compareExportedEvents(PhantomCore, PhantomState);
+  }, "phantom-state exports expected events");
+
+  t.end();
+});
+
+test("phantom-serial-state events", t => {
+  t.plan(1);
+
+  t.doesNotThrow(() => {
+    compareExportedEvents(PhantomState, PhantomSerializableState);
   }, "phantom-state exports expected events");
 
   t.end();

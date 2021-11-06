@@ -2,7 +2,7 @@
  * Registers an array of functions, which can be executed synchronously
  * (regardless if they are promises) by using the exec command.
  */
-module.exports = class Stack {
+module.exports = class FunctionStack {
   constructor() {
     this._fns = [];
   }
@@ -18,6 +18,7 @@ module.exports = class Stack {
       throw new TypeError("fn must be a function");
     }
 
+    // Ensure a duplicate function is not pushed to the stack
     this._fns = [...new Set([...this._fns, fn])];
   }
 

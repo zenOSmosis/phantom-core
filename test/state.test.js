@@ -3,15 +3,24 @@ const { PhantomState } = require("../src");
 const { EVT_UPDATED } = PhantomState;
 
 test("phantom state", async t => {
-  t.plan(7);
+  t.plan(9);
 
   class ExtendedState extends PhantomState {
     constructor() {
-      super();
+      super({ someInitialFirstStateBoolean: true }, { fakeOption: true });
 
-      this.setState({
-        someInitialFirstStateBoolean: true,
-      });
+      t.deepEquals(
+        this.getState(),
+        {
+          someInitialFirstStateBoolean: true,
+        },
+        "initial state is set in constructor"
+      );
+
+      t.ok(
+        this.getOptions().fakeOption,
+        "options are passed through constructor"
+      );
     }
   }
 

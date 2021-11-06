@@ -5,16 +5,16 @@ require("setimmediate");
 const DestructibleEventEmitter = require("./_DestructibleEventEmitter");
 const Logger = require("./Logger");
 const { LOG_LEVEL_INFO } = Logger;
-const getPackageJson = require("./utils/getPackageJson");
-const Stack = require("./utils/Stack");
-const getClassName = require("./utils/getClassName");
+const getPackageJSON = require("./utils/getPackageJSON");
+const FunctionStack = require("./FunctionStack");
+const getClassName = require("./utils/class-utils/getClassName");
 const uuidv4 = require("uuid").v4;
 const shortUUID = require("short-uuid");
 const dayjs = require("dayjs");
 const getUnixTime = require("./utils/getUnixTime");
-const getClassPropertyNames = require("./utils/getClassPropertyNames");
-const getClassMethodNames = require("./utils/getClassMethodNames");
-const autoBindClassMethods = require("./utils/autoBindClassMethods");
+const getClassInstancePropertyNames = require("./utils/class-utils/getClassInstancePropertyNames");
+const getClassInstanceMethodNames = require("./utils/class-utils/getClassInstanceMethodNames");
+const autoBindClassInstanceMethods = require("./utils/class-utils/autoBindClassInstanceMethods");
 const shallowMerge = require("./utils/shallowMerge");
 
 // Amount of milliseconds to allow async inits to initialize before triggering
@@ -70,7 +70,7 @@ class PhantomCore extends DestructibleEventEmitter {
    * @return {string}
    */
   static getPhantomCoreVersion() {
-    const { version } = getPackageJson();
+    const { version } = getPackageJSON();
 
     return version;
   }
@@ -224,7 +224,7 @@ class PhantomCore extends DestructibleEventEmitter {
       PhantomCore.mergeOptions(DEFAULT_OPTIONS, options)
     );
 
-    this._shutdownHandlerStack = new Stack();
+    this._shutdownHandlerStack = new FunctionStack();
 
     this._symbol = (() => {
       if (this._options.symbol) {
@@ -395,7 +395,7 @@ class PhantomCore extends DestructibleEventEmitter {
     // the caller, or else it will lose the stack trace
     const IGNORE_LIST = [this.log];
 
-    autoBindClassMethods(this, IGNORE_LIST);
+    autoBindClassInstanceMethods(this, IGNORE_LIST);
   }
 
   /**
@@ -509,7 +509,7 @@ class PhantomCore extends DestructibleEventEmitter {
    * @return {string[]}
    */
   getPropertyNames() {
-    return getClassPropertyNames(this);
+    return getClassInstancePropertyNames(this);
   }
 
   /**
@@ -520,7 +520,7 @@ class PhantomCore extends DestructibleEventEmitter {
    * @return {string[]}
    */
   getMethodNames() {
-    return getClassMethodNames(this);
+    return getClassInstanceMethodNames(this);
   }
 
   /**

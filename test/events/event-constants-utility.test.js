@@ -138,7 +138,6 @@ test("test utility checker", t => {
     );
   }, "incorrect exclusion event does not throw, as it is not checked");
 
-  // TODO: Add error type and description
   t.throws(() => {
     compareExportedEvents(
       {
@@ -150,7 +149,7 @@ test("test utility checker", t => {
         EVT_FAKE_EVENT_B: "b-override",
       }
     );
-  });
+  }, "throws when constant event names do not match");
 
   t.end();
 });
