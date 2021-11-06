@@ -42,7 +42,7 @@ PhantomCore provides a common architecture between browsers and Node.js and does
     - Can contain other collections as children (linked collections)
     - Accepts an optional key when adding a child to make it easier to extend with coerced types; the relevant child can be looked up by this key
     - Can optionally destruct all associated children
-  - PhantomState / PhantomSerializedState: Simple, object-based state stores with a shallow-merging update strategy
+  - PhantomState / PhantomSerializableState: Simple, object-based state stores with a shallow-merging update strategy
   - PhantomServiceCore / PhantomServiceManager:
     - Wraps PhantomState and PhantomCollection with the ability to instantiate and manage services
     - PhantomServiceCore instances act as singletons within a PhantomServiceManager context, instead of a global context
@@ -69,6 +69,6 @@ PhantomCore provides a common architecture between browsers and Node.js and does
   - Implement FunctionStack, which manages an arbitrary stack of functions
   - Implement registerShutdownHandler (via FunctionStack), which manages a stack functions to be run when a PhantomCore instance is destructing
   - Implement PhantomCollection iterator (i.e. [...collection] retrieves all collection children). NOTE: After a collection is destructed, it can no longer be iterated, and attempts to do so throw a TypeError. This functionality may change in the future.
-  - Implement PhantomState & PhantomSerializedState
+  - Implement PhantomState & PhantomSerializableState
 
 TODO: Build out this documentation
