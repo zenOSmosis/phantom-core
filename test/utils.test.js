@@ -41,17 +41,17 @@ test("time", async t => {
 
   const phantom = new PhantomCore();
 
+  t.equals(
+    phantom.getInstanceUptime(),
+    0,
+    "new phantom instance uptime starts at 0"
+  );
+
   // Due to previous awaits, phantom instance uptime shouldn't equal current (non-phantom) getUptime()
   t.notEquals(
     phantom.getInstanceUptime(),
     getUptime(),
     "phantom instance uptime does not equal getUptime after greater than one second await"
-  );
-
-  t.equals(
-    phantom.getInstanceUptime(),
-    0,
-    "new phantom instance uptime starts at 0"
   );
 
   await new Promise(resolve => setTimeout(resolve, 1000));
