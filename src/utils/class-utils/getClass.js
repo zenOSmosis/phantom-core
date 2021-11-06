@@ -5,7 +5,7 @@ const getIsClassInstance = require("./getIsClassInstance");
  *
  * If a class is passed in, the original class is returned.
  *
- * @param {Object} instanceOrClass
+ * @param {function | Object} instanceOrClass
  * @return {function}
  */
 module.exports = function getClass(instanceOrClass) {
