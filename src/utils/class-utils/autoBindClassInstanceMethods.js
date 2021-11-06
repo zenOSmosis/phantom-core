@@ -16,7 +16,7 @@ const getIsClassInstance = require("./getIsClassInstance");
  * themselves.
  * @return {void}
  */
-module.exports = function autoBindClassMethods(
+module.exports = function autoBindClassInstanceMethods(
   classInstance,
   ignoreMethods = []
 ) {

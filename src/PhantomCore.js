@@ -14,7 +14,7 @@ const dayjs = require("dayjs");
 const getUnixTime = require("./utils/getUnixTime");
 const getClassPropertyNames = require("./utils/class-utils/getClassPropertyNames");
 const getClassMethodNames = require("./utils/class-utils/getClassMethodNames");
-const autoBindClassMethods = require("./utils/class-utils/autoBindClassMethods");
+const autoBindClassInstanceMethods = require("./utils/class-utils/autoBindClassInstanceMethods");
 const shallowMerge = require("./utils/shallowMerge");
 
 // Amount of milliseconds to allow async inits to initialize before triggering
@@ -395,7 +395,7 @@ class PhantomCore extends DestructibleEventEmitter {
     // the caller, or else it will lose the stack trace
     const IGNORE_LIST = [this.log];
 
-    autoBindClassMethods(this, IGNORE_LIST);
+    autoBindClassInstanceMethods(this, IGNORE_LIST);
   }
 
   /**
