@@ -1,8 +1,8 @@
 const PhantomCore = require("./PhantomCore");
 const { EVT_READY, EVT_UPDATED, EVT_DESTROYED, EVT_NO_INIT_WARN } = PhantomCore;
 const PhantomCollection = require("./PhantomCollection");
-const PhantomServiceManager = require("./service-core-utils/PhantomServiceManager");
-const PhantomServiceCore = require("./service-core-utils/PhantomServiceCore");
+const PhantomServiceManager = require("./PhantomServiceManager");
+const PhantomServiceCore = require("./PhantomServiceCore");
 const PhantomState = require("./PhantomState");
 const PhantomSerializableState = require("./PhantomSerializableState");
 const Logger = require("./Logger");

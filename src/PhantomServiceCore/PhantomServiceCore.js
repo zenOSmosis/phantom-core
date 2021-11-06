@@ -1,5 +1,5 @@
-const PhantomState = require("../../PhantomState");
-const PhantomCollection = require("../../PhantomCollection");
+const PhantomState = require("../PhantomState");
+const PhantomCollection = require("../PhantomCollection");
 const {
   /** @export */
   EVT_NO_INIT_WARN,
