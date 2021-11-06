@@ -2,7 +2,7 @@ const test = require("tape");
 const { PhantomSerializableState } = require("../src");
 const { EVT_UPDATED } = PhantomSerializableState;
 
-test("phantom serial state", async t => {
+test("phantom serialized state", async t => {
   // TODO: Implement
   // t.plan()
 
@@ -42,10 +42,10 @@ test("phantom serial state", async t => {
   t.equals(serialState.getSerializedState(), serializedState);
 
   // TODO: Add description
-  t.deepEquals(serialState.toObject(serializedState), initialState);
+  t.deepEquals(serialState.unserialize(serializedState), initialState);
 
   // TODO: Add description
-  t.equals(serialState.toSerial(serialState.getState()), serializedState);
+  t.equals(serialState.serialize(serialState.getState()), serializedState);
 
   // TODO: Add additional testing for invalid types
 

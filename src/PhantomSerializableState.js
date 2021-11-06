@@ -25,13 +25,13 @@ class PhantomSerializableState extends PhantomState {
     // Run through obj->serial->obj conversion to ensure partial next state can
     // be serialized, while storing it in memory as an object, to enable
     // subsequent partial updates
-    partialNextState = this.toObject(this.toSerial(partialNextState));
+    partialNextState = this.unserialize(this.serialize(partialNextState));
 
     return super.setState(partialNextState);
   }
 
   // TODO: Document
-  toSerial(obj) {
+  serialize(obj) {
     if (typeof obj !== "object") {
       throw new TypeError("Expected object type");
     }
@@ -55,13 +55,13 @@ class PhantomSerializableState extends PhantomState {
   }
 
   // TODO: Document
-  toObject(str) {
+  unserialize(str) {
     return JSON.parse(str);
   }
 
   // TODO: Document
   getSerializedState() {
-    return this.toSerial(this.getState());
+    return this.serialize(this.getState());
   }
 }
 
