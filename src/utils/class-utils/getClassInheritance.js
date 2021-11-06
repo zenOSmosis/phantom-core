@@ -7,7 +7,7 @@ const getSuperClass = require("./getSuperClass");
  * @param {function | Object} instanceOrClass
  * @return {function[]}
  */
-module.exports = function getClassParents(instanceOrClass) {
+module.exports = function getClassInheritance(instanceOrClass) {
   const parents = [];
 
   let predicate = instanceOrClass;

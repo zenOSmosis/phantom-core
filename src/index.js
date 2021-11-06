@@ -20,7 +20,7 @@ const getUptime = require("./utils/getUptime");
 const getIsNodeJS = require("./utils/getIsNodeJS");
 const deepMerge = require("./utils/deepMerge");
 const getClassName = require("./utils/class-utils/getClassName");
-const getClassParents = require("./utils/class-utils/getClassParents");
+const getClassInheritance = require("./utils/class-utils/getClassInheritance");
 const getSuperClass = require('./utils/class-utils/getSuperClass')
 // const symbolToUUID = require("./utils/symbolToUUID");
 
@@ -54,7 +54,7 @@ module.exports.getUptime = getUptime;
 module.exports.getIsNodeJS = getIsNodeJS;
 module.exports.deepMerge = deepMerge;
 module.exports.getClassName = getClassName;
-module.exports.getClassParents = getClassParents;
+module.exports.getClassInheritance = getClassInheritance;
 module.exports.getSuperClass = getSuperClass;
 // module.exports.symbolToUUID = symbolToUUID;
 

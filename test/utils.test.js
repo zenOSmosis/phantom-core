@@ -10,7 +10,7 @@ const {
   getClassName,
   getIsNodeJS,
   getSuperClass,
-  getClassParents,
+  getClassInheritance,
 } = PhantomCore;
 
 test("time", async t => {
@@ -165,7 +165,7 @@ test("super parents", t => {
   // This isn't directly exported from src
   const DestructibleEventEmitter = getSuperClass(PhantomCore)
 
-  t.deepEquals(getClassParents(ExtensionE), [ExtensionD, ExtensionC, ExtensionB, ExtensionA, PhantomCore, DestructibleEventEmitter, EventEmitter])
+  t.deepEquals(getClassInheritance(ExtensionE), [ExtensionD, ExtensionC, ExtensionB, ExtensionA, PhantomCore, DestructibleEventEmitter, EventEmitter])
 
   t.end();
 });
