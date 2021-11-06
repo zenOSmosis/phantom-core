@@ -2,8 +2,8 @@ const getClassMethodNames = require("./getClassMethodNames");
 const getIsClassInstance = require("./getIsClassInstance");
 
 /**
- * Force scope binding of class methods to the class itself, regardless of how
- * the method is invoked.
+ * Force scope binding of JavaScript class methods to the class itself,
+ * regardless of how or where the method is invoked.
  *
  * IMPORTANT: Once a method is bound, it cannot be rebound to another class.
  * @see https://stackoverflow.com/a/20925268

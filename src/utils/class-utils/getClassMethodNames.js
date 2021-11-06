@@ -1,18 +1,15 @@
 const getClassPropertyNames = require("./getClassPropertyNames");
-const getIsClassInstance = require("./getIsClassInstance");
 
-// TODO: Rename to prevent vagueness of class vs. instance
 /**
- * Retrieves an array of the given class method names.
+ * Retrieves an array of class method names for the given JavaScript class.
  *
- * @param {function} classInstance JavaScript class instance.
- * @return {string[]} An array of method names.
+ * IMPORTANT: This retrieves an array of strings, and not pointers to the
+ * methods themselves.
+ *
+ * @param {function} classInstance JavaScript class instance
+ * @return {string[]} An array of method names
  */
 module.exports = function getClassMethodNames(classInstance) {
-  if (!getIsClassInstance(classInstance)) {
-    throw new TypeError("classInstance must be an instance of a class");
-  }
-
   const propertyNames = getClassPropertyNames(classInstance);
 
   return propertyNames.filter(

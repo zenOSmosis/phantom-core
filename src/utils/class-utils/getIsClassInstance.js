@@ -1,7 +1,7 @@
 /**
- * Determines if the given object is a class instance.
+ * Determines if the given JavaScript class or class instance is a class instance.
  *
- * @param {Object} instanceOrClass
+ * @param {function | Object} instanceOrClass
  * @return {boolean}
  */
 module.exports = function getIsClassInstance(instanceOrClass) {

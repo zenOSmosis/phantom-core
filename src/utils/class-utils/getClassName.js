@@ -1,11 +1,13 @@
 const getClass = require("./getClass");
 
 /**
- * @param {Object} instanceOrClass
+ * Retrieves the JavaScript class name of the given class or class instance.
+ *
+ * @param {function | Object} instanceOrClass
  * @return {string}
  */
 module.exports = function getClassName(instanceOrClass) {
-  const reservedWord_class = getClass(instanceOrClass);
+  const JSClass = getClass(instanceOrClass);
 
-  return reservedWord_class.name;
+  return JSClass.name;
 };
