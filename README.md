@@ -71,4 +71,8 @@ PhantomCore provides a common architecture between browsers and Node.js and does
   - Implement PhantomCollection iterator (i.e. [...collection] retrieves all collection children). NOTE: After a collection is destructed, it can no longer be iterated, and attempts to do so throw a TypeError. This functionality may change in the future.
   - Implement PhantomState & PhantomSerializableState
 
+### Version 2.0.1 (Nov. 13, 2021)
+
+  - Fix incorrect version reported by PhantomCore.getPhantomCoreVersion() static method
+
 TODO: Build out this documentation
