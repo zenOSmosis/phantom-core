@@ -2,6 +2,7 @@
 // Exposes setImmediate as a global, regardless of context
 require("setimmediate");
 
+const EventEmitter = require("events");
 const DestructibleEventEmitter = require("./_DestructibleEventEmitter");
 const Logger = require("./Logger");
 const { LOG_LEVEL_INFO } = Logger;
@@ -20,6 +21,9 @@ const shallowMerge = require("./utils/shallowMerge");
 // Amount of milliseconds to allow async inits to initialize before triggering
 // warning
 const ASYNC_INIT_GRACE_TIME = 5000;
+
+/** @export */
+const globalLogger = new Logger();
 
 /** @export */
 const EVT_NO_INIT_WARN = "no-init-warn";
@@ -76,12 +80,35 @@ class PhantomCore extends DestructibleEventEmitter {
   }
 
   /**
+   * Determines whether or not the given instance is a PhantomCore instance,
+   * matching the exact version of this PhantomCore class.
+   *
    * @param {Object} instance
-   * @return {boolean} Whether or not the given instance is, or extends,
-   * PhantomCore.
+   * @return {boolean}
    */
   static getIsInstance(instance) {
     return instance instanceof PhantomCore;
+  }
+
+  /**
+   * Determines whether or not the given instance is a PhantomCore instance,
+   * matching any version of the PhantomCore library.
+   *
+   * IMPORTANT: This should only be used in situations where another library
+   * may use a different version of PhantomCore internally.  It does not
+   * guarantee there will not be version conflicts, but may help situations
+   * where updating PhantomCore itself requires updating other extension
+   * libraries due to minor changes.
+   *
+   * @param {Object} instance
+   * @return {boolean}
+   */
+  static getIsLooseInstance(instance) {
+    return Boolean(
+      instance instanceof EventEmitter &&
+        typeof instance.getIsDestroyed === "function" &&
+        typeof instance.destroy === "function"
+    );
   }
 
   /**
@@ -714,6 +741,7 @@ class PhantomCore extends DestructibleEventEmitter {
 }
 
 module.exports = PhantomCore;
+module.exports.globalLogger = globalLogger;
 module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;
 module.exports.EVT_READY = EVT_READY;
 module.exports.EVT_UPDATED = EVT_UPDATED;

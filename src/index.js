@@ -1,5 +1,11 @@
 const PhantomCore = require("./PhantomCore");
-const { EVT_READY, EVT_UPDATED, EVT_DESTROYED, EVT_NO_INIT_WARN } = PhantomCore;
+const {
+  EVT_READY,
+  EVT_UPDATED,
+  EVT_DESTROYED,
+  EVT_NO_INIT_WARN,
+  globalLogger,
+} = PhantomCore;
 const Logger = require("./Logger");
 const {
   LOG_LEVEL_TRACE,
@@ -20,7 +26,7 @@ Object.assign(module.exports, {
   Logger,
 
   // Global logger instance
-  logger: new Logger(),
+  logger: globalLogger,
 
   LOG_LEVEL_TRACE,
   LOG_LEVEL_DEBUG,
