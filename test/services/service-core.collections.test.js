@@ -3,11 +3,11 @@ const {
   PhantomCollection,
   PhantomServiceCore,
   PhantomServiceManager,
+  EVT_UPDATED,
 } = require("../../src");
-// const { EVT_UPDATED } = PhantomServiceCore;
 
 test("service collections", async t => {
-  t.plan(15);
+  t.plan(19);
 
   class TestCollection1 extends PhantomCollection {}
   class TestCollection2 extends PhantomCollection {}
@@ -41,11 +41,48 @@ test("service collections", async t => {
       "cannot bind non-collection class as a collection";
   });
 
-  testService.bindCollectionClass(TestCollection1);
-  testService.bindCollectionClass(TestCollection2);
+  const testCollectionInstance1A =
+    testService.bindCollectionClass(TestCollection1);
+  const testCollectionInstance1B =
+    testService.bindCollectionClass(TestCollection1);
+
+  const testCollectionInstance2A =
+    testService.bindCollectionClass(TestCollection2);
+
   testService.bindCollectionClass(TestCollection3);
   testService.bindCollectionClass(TestCollection4);
   testService.bindCollectionClass(TestCollection5);
+
+  await Promise.all([
+    new Promise(resolve => {
+      testService.once(EVT_UPDATED, data => {
+        t.ok(
+          data === "test data",
+          "EVT_UPDATED events emit from service collection are proxied through the service with the associated data"
+        );
+
+        resolve();
+      });
+    }),
+    testService
+      .getCollectionInstance(TestCollection1)
+      .emit(EVT_UPDATED, "test data"),
+  ]);
+
+  t.ok(
+    testCollectionInstance1A instanceof TestCollection1,
+    "bindCollectionClass returns instance of collection"
+  );
+
+  t.ok(
+    Object.is(testCollectionInstance1B, testCollectionInstance1A),
+    "subsequent calls to bindCollectionClass with the same collection class return the same class instance"
+  );
+
+  t.ok(
+    !Object.is(testCollectionInstance2A, testCollectionInstance1A),
+    "bindCollectionClass returns separate instance for separate collection class"
+  );
 
   t.equals(
     testService.getCollectionClasses().length,

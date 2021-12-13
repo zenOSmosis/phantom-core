@@ -4,8 +4,8 @@ browsers:
     version: latest
   - name: chrome
     version: latest
-  - name: safari
-    version: latest
+  # - name: safari
+  #  version: latest
   - name: edge
     version: latest
   - name: and_chr
