@@ -75,4 +75,8 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 
   - Fix incorrect version reported by PhantomCore.getPhantomCoreVersion() static method
 
+## Version 2.1.1 (Dec. 13, 2021)
+
+  - Return collection class instance when running bindCollectionClass on a service.
+
 TODO: Build out this documentation
