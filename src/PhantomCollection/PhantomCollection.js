@@ -195,7 +195,7 @@ class PhantomCollection extends PhantomCore {
       return;
     }
 
-    if (!PhantomCore.getIsInstance(phantomCoreInstance)) {
+    if (!PhantomCore.getIsLooseInstance(phantomCoreInstance)) {
       // FIXME: (jh) Create a way to bypass this error when doing development or prototypes
       // Perhaps use a global state tied into LOA (i.e. root-controlled global state / config)
       // @see https://github.com/zenOSmosis/phantom-core/issues/60
