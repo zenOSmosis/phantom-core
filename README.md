@@ -79,4 +79,9 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 
   - Return collection class instance when running bindCollectionClass on a service.
 
+### Version 2.1.2 (Dec. 13, 2021)
+
+  - Relax same PhantomCore version requirements for PhantomCollection child instances.
+
+
 TODO: Build out this documentation (include sections for testing [SauceLabs / airtap], development, etc.)
