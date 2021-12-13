@@ -99,41 +99,36 @@ class PhantomServiceCore extends PhantomState {
     return super.destroy();
   }
 
-  // TODO: Use consistency in naming
   /**
    * Starts a new service class instance, or retrieves an existing one which
-   * matches the given class.
+   * matches the given class, unique to the associated PhantomServiceManager.
+   *
+   * This service class is treated as a singleton, relative to the associated
+   * PhantomServiceManager instead of the global scope.
    *
    * @param {PhantomServiceCore} ServiceClass
-   * @return {PhantomServiceCore} Service class instance
+   * @return {PhantomServiceCore} Service class instance.
    */
   useServiceClass(ServiceClass) {
     return this.__MANAGED__useServiceClassHandler(ServiceClass);
   }
 
-  // TODO: Implement ability to get attached service classes
-
-  // TODO: Use consistency in naming
   /**
-   * Binds a non-instantiated PhantomCollection to this service, propagating
-   * EVT_UPDATED through the class.
+   * Binds a PhantomCollection to this service, instantiating it a singleton
+   * relative to service instance (instead of the global scope), proxying
+   * EVT_UPDATED events from the collection through the service.
    *
    * IMPORTANT: Bound collection classes shared with multiple services using
    * bindCollectionClass will use separate instances of the collection.
    *
    * @param {PhantomCollection} CollectionClass
-   * @return {void}
+   * @return {PhantomCollection} Instance of CollectionClass.
    */
   bindCollectionClass(CollectionClass) {
-    // Prevent duplicate collections from being bound
-    if (this._collectionMap.get(CollectionClass)) {
-      this.log.warn(
-        `Collection class "${
-          CollectionClass.name
-        }" is already bound to service "${this.getClassName()}". Ignoring duplicate call.`
-      );
+    const prevCollectionInstance = this._collectionMap.get(CollectionClass);
 
-      return;
+    if (prevCollectionInstance) {
+      return prevCollectionInstance;
     }
 
     const collectionInstance = new CollectionClass();
@@ -145,7 +140,9 @@ class PhantomServiceCore extends PhantomState {
     }
 
     // Proxy collection EVT_UPDATED through the service core
-    this.proxyOn(collectionInstance, EVT_UPDATED, () => this.emit(EVT_UPDATED));
+    this.proxyOn(collectionInstance, EVT_UPDATED, data =>
+      this.emit(EVT_UPDATED, data)
+    );
 
     this._collectionMap.set(CollectionClass, collectionInstance);
 
@@ -153,9 +150,17 @@ class PhantomServiceCore extends PhantomState {
     collectionInstance.once(EVT_DESTROYED, () => {
       this._collectionMap.delete(CollectionClass);
     });
+
+    return collectionInstance;
   }
 
-  // TODO: Document
+  /**
+   * Unbinds the given CollectionClass from this service and destructs the
+   * instance.
+   *
+   * @param {CollectionClass} CollectionClass
+   * @return {Promise<void>}
+   */
   async unbindCollectionClass(CollectionClass) {
     const collectionInstance = this.getCollectionInstance(CollectionClass);
 

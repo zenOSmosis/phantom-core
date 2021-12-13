@@ -56,10 +56,10 @@ test("service instantiation", async t => {
     )
   );
 
-  const testServiceInstance = serviceManager.getServiceInstance(TestService);
+  const testCollectionInstance = serviceManager.getServiceInstance(TestService);
 
   t.ok(
-    testServiceInstance instanceof TestService,
+    testCollectionInstance instanceof TestService,
     "TestService instance is available in getServiceInstance call"
   );
 
@@ -90,18 +90,18 @@ test("service instantiation", async t => {
     "serviceManager reports two service classes after adding in new service"
   );
 
-  const extendedTestServiceInstance =
+  const extendedtestCollectionInstance =
     serviceManager.getServiceInstance(ExtendedTestService);
 
   t.notOk(
-    extendedTestServiceInstance.getIsReady(),
+    extendedtestCollectionInstance.getIsReady(),
     "service is not ready by default"
   );
 
-  await extendedTestServiceInstance.onceReady();
+  await extendedtestCollectionInstance.onceReady();
 
   t.ok(
-    extendedTestServiceInstance.getIsReady(),
+    extendedtestCollectionInstance.getIsReady(),
     "service is ready once it emits ready event"
   );
 
@@ -109,8 +109,8 @@ test("service instantiation", async t => {
 
   t.ok(
     serviceManager.getIsDestroyed() &&
-      testServiceInstance.getIsDestroyed() &&
-      extendedTestServiceInstance.getIsDestroyed(),
+      testCollectionInstance.getIsDestroyed() &&
+      extendedtestCollectionInstance.getIsDestroyed(),
     "TestService instance is destructed when ServiceManager is destructed"
   );
 
@@ -125,9 +125,9 @@ test("arbitrary service stopping", async t => {
 
   t.equals(serviceManager.getServiceClasses().length, 1);
 
-  const testServiceInstance = serviceManager.getServiceInstance(TestService);
+  const testCollectionInstance = serviceManager.getServiceInstance(TestService);
 
-  await testServiceInstance.destroy();
+  await testCollectionInstance.destroy();
 
   t.equals(serviceManager.getServiceClasses().length, 0);
 
