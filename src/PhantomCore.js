@@ -633,7 +633,7 @@ class PhantomCore extends DestructibleEventEmitter {
    * @return {void}
    */
   proxyOn(proxyInstance, eventName, eventHandler) {
-    if (!PhantomCore.getIsInstance(proxyInstance)) {
+    if (!PhantomCore.getIsLooseInstance(proxyInstance)) {
       throw new ReferenceError("proxyInstance is not a PhantomCore instance");
     }
 
