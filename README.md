@@ -83,5 +83,9 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 
   - Relax same PhantomCore version requirements for PhantomCollection child instances.
 
+### Version 2.1.3 (Dec. 15, 2021)
+
+  - Relax same PhantomCore version requirements for event proxying.
+
 
 TODO: Build out this documentation (include sections for testing [SauceLabs / airtap], development, etc.)
