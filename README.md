@@ -50,6 +50,10 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 
 ## Changelog
 
+### Version 2.2.1 (Dec. 16, 2021)
+
+  - Relax same PhantomCore version requirements for proxyOnce and proxyOff methods.  These should have been included in v2.1.3.
+
 ### Version 2.2.0 (Dec. 16, 2021)
 
   - Add ArbitraryPhantomWrapper, an extension to PhantomCore which wraps an arbitrary object, enabling it to adapt the PhantomCore event lifecycle.
