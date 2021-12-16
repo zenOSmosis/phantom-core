@@ -35,6 +35,7 @@ Object.assign(module.exports, {
   LOG_LEVEL_ERROR,
   LOG_LEVEL_SILENT,
 
+  ArbitraryPhantomWrapper: require("./ArbitraryPhantomWrapper"),
   PhantomCollection: require("./PhantomCollection"),
   PhantomServiceCore: require("./PhantomServiceCore"),
   PhantomServiceManager: require("./PhantomServiceManager"),
