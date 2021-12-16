@@ -50,11 +50,21 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 
 ## Changelog
 
-### Version 1.0.0 (Sept. 10, 2021)
-  - Base PhantomCore, PhantomCollection and Logger support
+### Version 2.1.3 (Dec. 15, 2021)
 
-### Version 1.0.1 (Sept. 25, 2021)
-  - Fix issue where calling Logger.log method directly would lose stack trace
+  - Relax same PhantomCore version requirements for event proxying.
+
+### Version 2.1.2 (Dec. 13, 2021)
+
+  - Relax same PhantomCore version requirements for PhantomCollection child instances.
+
+### Version 2.1.1 (Dec. 13, 2021)
+
+  - Return collection class instance when running bindCollectionClass on a service.
+
+### Version 2.0.1 (Nov. 13, 2021)
+
+  - Fix incorrect version reported by PhantomCore.getPhantomCoreVersion() static method
 
 ### Version 2.0.0 (Nov. 6, 2021)
 
@@ -71,21 +81,10 @@ PhantomCore provides a common architecture between browsers and Node.js and does
   - Implement PhantomCollection iterator (i.e. [...collection] retrieves all collection children). NOTE: After a collection is destructed, it can no longer be iterated, and attempts to do so throw a TypeError. This functionality may change in the future.
   - Implement PhantomState & PhantomSerializableState
 
-### Version 2.0.1 (Nov. 13, 2021)
+### Version 1.0.1 (Sept. 25, 2021)
+  - Fix issue where calling Logger.log method directly would lose stack trace
 
-  - Fix incorrect version reported by PhantomCore.getPhantomCoreVersion() static method
-
-### Version 2.1.1 (Dec. 13, 2021)
-
-  - Return collection class instance when running bindCollectionClass on a service.
-
-### Version 2.1.2 (Dec. 13, 2021)
-
-  - Relax same PhantomCore version requirements for PhantomCollection child instances.
-
-### Version 2.1.3 (Dec. 15, 2021)
-
-  - Relax same PhantomCore version requirements for event proxying.
-
+### Version 1.0.0 (Sept. 10, 2021)
+  - Base PhantomCore, PhantomCollection and Logger support
 
 TODO: Build out this documentation (include sections for testing [SauceLabs / airtap], development, etc.)
