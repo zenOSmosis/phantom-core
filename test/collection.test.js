@@ -835,7 +835,19 @@ test("PhantomCollection diff", t => {
   t.end();
 });
 
-test("collection iterator", async t => {
+test("PhantomCollection empty destroyAllChildren() call", async t => {
+  t.plan(1);
+
+  const collection = new PhantomCollection();
+
+  await collection.destroyAllChildren();
+
+  t.ok("does not throw if calling destroyAllChildren() with no added children");
+
+  t.end();
+});
+
+test("PhantomCollection iterator", async t => {
   t.plan(4);
 
   const p1 = new PhantomCore();
