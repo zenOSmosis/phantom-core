@@ -2,7 +2,7 @@ const PhantomCore = require("./PhantomCore");
 const { EVT_NO_INIT_WARN, EVT_READY, EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
 
 /**
- * Wraps an arbitrary object with
+ * Wraps an arbitrary object with a PhantomCore instance.
  */
 class ArbitraryPhantomWrapper extends PhantomCore {
   /**
