@@ -50,6 +50,10 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 
 ## Changelog
 
+### Version 2.2.2 (Jan. 4, 2022)
+
+  - Fix issue where, under some circumstances, destructed children could appear in collection.getChildren() results.
+
 ### Version 2.2.1 (Dec. 16, 2021)
 
   - Relax same PhantomCore version requirements for proxyOnce and proxyOff methods.  These should have been included in v2.1.3.
