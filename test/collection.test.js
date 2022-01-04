@@ -880,3 +880,86 @@ test("PhantomCollection iterator", async t => {
 
   t.end();
 });
+
+test("collection children immediately reflects destructed child", async t => {
+  t.plan(4);
+
+  const child = new PhantomCore();
+
+  const collection1 = new PhantomCollection([child]);
+  const collection2 = new PhantomCollection([child]);
+
+  t.ok(collection1.getChildren().length === 1);
+  t.ok(collection2.getChildren().length === 1);
+
+  await Promise.all([
+    new Promise(resolve => {
+      child.once(EVT_DESTROYED, () => {
+        t.ok(collection1.getChildren().length === 0);
+
+        t.ok(collection2.getChildren().length === 0);
+
+        t.end();
+
+        resolve();
+      });
+    }),
+    child.destroy(),
+  ]);
+});
+
+test("child to collection to master collection event passing", async t => {
+  t.plan(8);
+
+  const child = new PhantomCore();
+
+  const collection1 = new PhantomCollection([child]);
+  const collection2 = new PhantomCollection([child]);
+
+  const masterCollection = new PhantomCollection([collection1, collection2]);
+
+  t.ok(collection1.getChildren().length === 1);
+  t.ok(collection2.getChildren().length === 1);
+
+  await Promise.all([
+    new Promise(resolve => {
+      collection1.on(EVT_UPDATED, data => {
+        if (data === "testing 1 2 3") {
+          t.ok(true, "collection1 received expected test data from child");
+        } else if (collection1.getChildren().length === 0) {
+          t.ok(true, "collection1 successfully deregistered child");
+
+          resolve();
+        }
+      });
+    }),
+    new Promise(resolve => {
+      collection2.on(EVT_UPDATED, data => {
+        if (data === "testing 1 2 3") {
+          t.ok(true, "collection2 received expected test data from child");
+        } else if (collection2.getChildren().length === 0) {
+          t.ok(true, "collection2 successfully deregistered child");
+
+          resolve();
+        }
+      });
+    }),
+    new Promise(resolve => {
+      masterCollection.on(EVT_UPDATED, data => {
+        if (data === "testing 1 2 3") {
+          // This will be invoked twice since collection1 and collection2 will update
+          t.ok(
+            true,
+            "master collection received expected test data from proxied child"
+          );
+
+          resolve();
+        }
+      });
+    }),
+    child.emit(EVT_UPDATED, "testing 1 2 3"),
+    child.destroy(),
+  ]);
+
+  t.end();
+});
