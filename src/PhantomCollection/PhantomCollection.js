@@ -292,12 +292,14 @@ class PhantomCollection extends PhantomCore {
   /**
    * Retrieves an array of PhantomCore children for this collection.
    *
+   * Destructed children will not appear in this list.
+   *
    * @return {PhantomCore[]}
    */
   getChildren() {
-    return this._childMetaDescriptions.map(
-      ({ [KEY_META_CHILD_DESC_INSTANCE]: childInstance }) => childInstance
-    );
+    return this._childMetaDescriptions
+      .map(({ [KEY_META_CHILD_DESC_INSTANCE]: childInstance }) => childInstance)
+      .filter(child => !child.getIsDestroyed());
   }
 
   /**

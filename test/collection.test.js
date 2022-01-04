@@ -963,3 +963,46 @@ test("child to collection to master collection event passing", async t => {
 
   t.end();
 });
+
+test("collection does not contain destructed children", async t => {
+  t.plan(4);
+
+  class TestCollection extends PhantomCollection {
+    addChild(child) {
+      // NOTE: Though not typical, if adding the EVT_DESTROYED handler to the
+      // call BEFORE adding it to the collection, that initial EVT_DESTROYED
+      // handler will be invoked before the collection invokes its own handler,
+      // making it appear that the collection has more children than it should
+      // during that event loop cycle if destructed children are not filtered
+      // out
+      child.once(EVT_DESTROYED, () => {
+        t.ok(
+          this.getChildren().length === 0,
+          "does not contain destructed children from getChildren() call"
+        );
+        t.ok(
+          [...this].length === 0,
+          "does not contain destructed members in [...iteration]"
+        );
+      });
+
+      super.addChild(child);
+
+      t.ok(
+        this.getChildren().length === 1,
+        "contains initial added child in getChildren() call"
+      );
+      t.ok(
+        [...this].length === 1,
+        "contains initial added child in [...iteration]"
+      );
+    }
+  }
+
+  const child = new PhantomCore();
+  new TestCollection([child]);
+
+  await child.destroy();
+
+  t.end();
+});
