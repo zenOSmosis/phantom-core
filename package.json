@@ -1,6 +1,6 @@
 {
   "name": "phantom-core",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "Node.js and browser compatible, base JavaScript EventEmitter-based class with base utility methods, logging, event proxies, collections, and destroy handling",
   "author": {
     "name": "zenOSmosis",
