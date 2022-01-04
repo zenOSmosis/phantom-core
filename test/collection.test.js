@@ -899,13 +899,13 @@ test("collection children immediately reflects destructed child", async t => {
 
         t.ok(collection2.getChildren().length === 0);
 
-        t.end();
-
         resolve();
       });
     }),
     child.destroy(),
   ]);
+
+  t.end();
 });
 
 test("child to collection to master collection event passing", async t => {
