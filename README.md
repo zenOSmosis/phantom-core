@@ -32,7 +32,7 @@ PhantomCore provides a common architecture between browsers and Node.js and does
   - Destruct method: Unbinds event listeners and nullifies internal method calls
   - Event proxies: Events (i.e. on / once) can be mapped to other PhantomCore instances and are automatically unbound once the proxying host is destructed
   - Instance lookup by UUID / Symbol: If the UUID or Symbol is known for a given PhantomCore instance, that instance can be returned by the lookup function (i.e. PhantomCore.getInstanceWithUUID() or PhantomCore.getInstanceWithSymbol() static methods)
-  - Slightly opinionated deep object merging (based on [deepmerge](https://www.npmjs.com/package/deepmerge)))
+  - Slightly opinionated deep object merging (based on [deepmerge](https://www.npmjs.com/package/deepmerge))
   - PhantomCollection:
     - Maintains a collection of arbitrary PhantomCore (and derived) instances
     - Can broadcast events to all of its children
