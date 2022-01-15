@@ -13,7 +13,7 @@ const {
   getClassInheritance,
   sleep,
 } = PhantomCore;
-const { performance } = require("perf_hooks");
+const { performance: libPerformance } = require("perf_hooks");
 
 test("time", async t => {
   t.plan(7);
@@ -274,6 +274,8 @@ test("symbol to UUID", t => {
 
 test("sleep", async t => {
   t.plan(2);
+
+  const performance = libPerformance || window.performance;
 
   await (async () => {
     const beforeStart = performance.now();
