@@ -11,7 +11,9 @@ const {
   getIsNodeJS,
   getSuperClass,
   getClassInheritance,
+  sleep,
 } = PhantomCore;
+const { performance: libPerformance } = require("perf_hooks");
 
 test("time", async t => {
   t.plan(7);
@@ -269,3 +271,28 @@ test("symbol to UUID", t => {
   t.end();
 });
 */
+
+test("sleep", async t => {
+  t.plan(2);
+
+  const performance = libPerformance || window.performance;
+
+  await (async () => {
+    const beforeStart = performance.now();
+    await sleep();
+    const afterEnd = performance.now();
+    t.ok(afterEnd - beforeStart >= 1000, "sleep() defaults to 1000 ms");
+  })();
+
+  await (async () => {
+    const beforeStart = performance.now();
+    await sleep(1500);
+    const afterEnd = performance.now();
+    t.ok(
+      afterEnd - beforeStart >= 1500,
+      "sleep() accepts default argument for milliseconds"
+    );
+  })();
+
+  t.end();
+});
