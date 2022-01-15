@@ -1,5 +1,5 @@
 /**
- * Registers an array of functions, which can be executed synchronously
+ * Registers an array of functions, which will run one after the other
  * (regardless if they are promises) by using the exec command.
  */
 module.exports = class FunctionStack {
