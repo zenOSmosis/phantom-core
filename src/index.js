@@ -51,6 +51,7 @@ Object.assign(module.exports, {
   getUnixTime: require("./utils/getUnixTime"),
   getUptime: require("./utils/getUptime"),
   shallowMerge: require("./utils/shallowMerge"),
+  sleep: require("./utils/sleep"),
 
   // Utilities for working with JavaScript classes
   autoBindClassInstanceMethods: require("./utils/class-utils/autoBindClassInstanceMethods"),
