@@ -50,6 +50,10 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 
 ## Changelog
 
+### Version 2.3.0 (Jan. 14, 2022)
+
+  - Add sleep utility
+
 ### Version 2.2.2 (Jan. 4, 2022)
 
   - Fix issue where, under some circumstances, destructed children could appear in collection.getChildren() results.
