@@ -50,13 +50,17 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 
 ## Changelog
 
+### Version 2.3.1 (Jan. 19, 2022)
+
+  - Fix issue where bound service collections from another phantom-core version would trigger "not a collection" errors
+
 ### Version 2.3.0 (Jan. 14, 2022)
 
   - Add sleep utility
 
 ### Version 2.2.2 (Jan. 4, 2022)
 
-  - Fix issue where, under some circumstances, destructed children could appear in collection.getChildren() results.
+  - Fix issue where, under some circumstances, destructed children could appear in collection.getChildren() results
 
 ### Version 2.2.1 (Dec. 16, 2021)
 
@@ -64,19 +68,19 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 
 ### Version 2.2.0 (Dec. 16, 2021)
 
-  - Add ArbitraryPhantomWrapper, an extension to PhantomCore which wraps an arbitrary object, enabling it to adapt the PhantomCore event lifecycle.
+  - Add ArbitraryPhantomWrapper, an extension to PhantomCore which wraps an arbitrary object, enabling it to adapt the PhantomCore event lifecycle
 
 ### Version 2.1.3 (Dec. 15, 2021)
 
-  - Relax same PhantomCore version requirements for event proxying.
+  - Relax same PhantomCore version requirements for event proxying
 
 ### Version 2.1.2 (Dec. 13, 2021)
 
-  - Relax same PhantomCore version requirements for PhantomCollection child instances.
+  - Relax same PhantomCore version requirements for PhantomCollection child instances
 
 ### Version 2.1.1 (Dec. 13, 2021)
 
-  - Return collection class instance when running bindCollectionClass on a service.
+  - Return collection class instance when running bindCollectionClass on a service
 
 ### Version 2.0.1 (Nov. 13, 2021)
 
