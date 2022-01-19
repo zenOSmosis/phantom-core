@@ -41,6 +41,34 @@ const KEY_META_CHILD_DESTROY_LISTENER = "destroyListener";
  */
 class PhantomCollection extends PhantomCore {
   /**
+   * Loosely determines whether or not the given instance is a
+   * PhantomCollection instance.
+   *
+   * IMPORTANT: This does not guarantee strict version integrity and bugs may
+   * be present by using this across incompatible versions.
+   *
+   * @param {Object} instance
+   * @return {boolean}
+   */
+  static getIsLooseInstance(instance) {
+    if (
+      PhantomCore.getIsLooseInstance(instance) &&
+      typeof instance.addChild === "function" &&
+      typeof instance.removeChild === "function" &&
+      typeof instance.getChildren === "function" &&
+      typeof instance.getKeys === "function" &&
+      typeof instance.getChildMetaDescription === "function" &&
+      typeof instance.broadcast === "function" &&
+      typeof instance.removeAllChildren === "function" &&
+      typeof instance.destroyAllChildren === "function"
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /**
    * Determines added and removed children from the given previous and current
    * children.
    *

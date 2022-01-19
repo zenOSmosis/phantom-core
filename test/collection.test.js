@@ -13,6 +13,25 @@ const {
 
 const _ChildEventBridge = require("../src/PhantomCollection/ChildEventBridge");
 
+test("collection loose instance detection", t => {
+  t.plan(2);
+
+  const collection = new PhantomCollection();
+  const phantom = new PhantomCore();
+
+  t.ok(
+    PhantomCollection.getIsLooseInstance(collection),
+    "collection is loose instance of PhantomCollection"
+  );
+
+  t.notOk(
+    PhantomCollection.getIsLooseInstance(phantom),
+    "phantom is not a loose instance of PhantomCollection"
+  );
+
+  t.end();
+});
+
 test("PhantomCollection add multiple children without keys", async t => {
   t.plan(1);
 
