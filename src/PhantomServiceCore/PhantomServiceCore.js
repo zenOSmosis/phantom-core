@@ -135,7 +135,11 @@ class PhantomServiceCore extends PhantomState {
 
     // FIXME: (jh) A better check would be to determine this before
     // instantiation, if possible
-    if (!(collectionInstance instanceof PhantomCollection)) {
+    //
+    // IMPORTANT: Loose instance detection is provided here so that collections
+    // may be bound from different PhantomCore versions.  It does not guarantee
+    // strict version integrity.
+    if (!PhantomCollection.getIsLooseInstance(collectionInstance)) {
       throw new TypeError("collectionInstance is not a PhantomCollection");
     }
 
