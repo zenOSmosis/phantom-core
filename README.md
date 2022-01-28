@@ -50,6 +50,10 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 
 ## Changelog
 
+### Version 2.3.3 (Jan. 23, 2022)
+
+  - Fix issue where PhantomCore superclass could potentially run destroy handler more than once if called multiple times
+
 ### Version 2.3.2 (Jan. 28, 2022)
 
   - Fix issue where events emit from registerShutdownHandler would not emit through PhantomCore

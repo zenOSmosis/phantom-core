@@ -377,7 +377,10 @@ class PhantomCore extends DestructibleEventEmitter {
    * @return {Promise<void>}
    */
   async destroy() {
-    if (!this.getIsDestroyed()) {
+    // IMPORTANT: This check for instance UUID should not run asynchronous
+    // because certain conditions may cause the destruct handler to be called
+    // more than once
+    if (_instances[this._uuid]) {
       // Intentionally unregister w/ _instances and call super.destroy()
       // handler first
       delete _instances[this._uuid];
