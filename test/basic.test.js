@@ -278,7 +278,8 @@ test("determines instance uptime", async t => {
     "knows that it has been up for at least 1 second"
   );
 
-  phantom.destroy();
+  await phantom.destroy();
+
   t.ok(phantom.getInstanceUptime() === 0, "destroyed phantom returns 0 uptime");
 
   t.end();
@@ -509,6 +510,63 @@ test("symbol toString()", t => {
     p1.toString(),
     "[object some-test]",
     "resolves titled instance as expected"
+  );
+
+  t.end();
+});
+
+test("can emit events during shutdown phase", async t => {
+  t.plan(3);
+
+  const phantom = new PhantomCore();
+  phantom.registerShutdownHandler(() =>
+    phantom.emit("__TESTING__-shutdown-handler-invoked", "test-data-a")
+  );
+
+  phantom.once(EVT_DESTROYED, () => {
+    phantom.emit("__TESTING__-destruct-event-emitted", "test-data-b");
+  });
+
+  const orderOps = [];
+
+  await Promise.all([
+    new Promise(resolve => {
+      phantom.once("__TESTING__-shutdown-handler-invoked", data => {
+        orderOps.push("__TESTING__-shutdown-handler-invoked");
+
+        if (data === "test-data-a") {
+          t.ok(
+            true,
+            "received expected event data during shutdown handler phase"
+          );
+
+          resolve();
+        }
+      });
+    }),
+
+    new Promise(resolve => {
+      phantom.once("__TESTING__-destruct-event-emitted", data => {
+        orderOps.push("__TESTING__-destruct-event-emitted");
+
+        if (data === "test-data-b") {
+          t.ok(
+            true,
+            "received expected event data during destruct event phase"
+          );
+
+          resolve();
+        }
+      });
+    }),
+
+    phantom.destroy(),
+  ]);
+
+  t.equals(
+    orderOps[0],
+    "__TESTING__-shutdown-handler-invoked",
+    "shutdown handler invoked before EVT_DESTROYED"
   );
 
   t.end();

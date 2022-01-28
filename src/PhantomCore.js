@@ -369,6 +369,11 @@ class PhantomCore extends DestructibleEventEmitter {
   }
 
   /**
+   * NOTE: Order of operations for shutdown handling:
+   *
+   *  1. registerShutdownHandler call stack
+   *  2. EVT_DESTROYED triggers
+   *
    * @return {Promise<void>}
    */
   async destroy() {
@@ -376,9 +381,13 @@ class PhantomCore extends DestructibleEventEmitter {
       // Intentionally unregister w/ _instances and call super.destroy()
       // handler first
       delete _instances[this._uuid];
-      await super.destroy();
 
+      // Execute the shutdown handler before calling super.destroy, so that any
+      // last minute events can be handled
       await this._shutdownHandlerStack.exec(true);
+
+      // NOTE: EVT_DESTROYED is emit here
+      await super.destroy();
 
       // TODO: Implement and call shutdown handlers before continuing (these will perform extra clean-up work, etc. and prevent having to bind to EVT_DESTROYED, etc.)
 
