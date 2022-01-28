@@ -736,7 +736,7 @@ test("PhantomCollection coerced type support", async t => {
   t.end();
 });
 
-test("PhantomCollection destruct all children", async t => {
+test("multiple PhantomCollection destruct all children", async t => {
   t.plan(17);
 
   const child1 = new PhantomCore();
