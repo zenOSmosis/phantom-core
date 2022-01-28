@@ -50,6 +50,10 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 
 ## Changelog
 
+### Version 2.3.2 (Jn. 28, 2022)
+
+  - Fix issue where events emit from registerShutdownHandler would not emit through PhantomCore
+
 ### Version 2.3.1 (Jan. 19, 2022)
 
   - Fix issue where bound service collections from another phantom-core version would trigger "not a collection" errors

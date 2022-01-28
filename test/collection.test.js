@@ -13,7 +13,7 @@ const {
 
 const _ChildEventBridge = require("../src/PhantomCollection/ChildEventBridge");
 
-test("collection loose instance detection", t => {
+test("PhantomCollection loose instance detection", t => {
   t.plan(2);
 
   const collection = new PhantomCollection();
@@ -736,7 +736,7 @@ test("PhantomCollection coerced type support", async t => {
   t.end();
 });
 
-test("PhantomCollection destruct all children", async t => {
+test("multiple PhantomCollection destruct all children", async t => {
   t.plan(17);
 
   const child1 = new PhantomCore();
@@ -780,7 +780,7 @@ test("PhantomCollection destruct all children", async t => {
     );
   });
 
-  await coll2.destroyAllChildren();
+  await Promise.all([coll2.destroyAllChildren()]);
 
   [child1, child2, child3, child4, child5].forEach((child, idx) => {
     t.ok(
@@ -796,6 +796,60 @@ test("PhantomCollection destruct all children", async t => {
     0,
     "coll2 reports 0 children after all children have been destructed"
   );
+
+  t.end();
+});
+
+test("PhantomCollection child event proxies during shutdown", async t => {
+  t.plan(2);
+
+  const child1 = new PhantomCore();
+  const child2 = new PhantomCore();
+
+  const child3 = new PhantomCore();
+  child3.registerShutdownHandler(() =>
+    child3.emit("__TESTING__-shutdown-handler-invoked", "test-data-a")
+  );
+  child3.once(EVT_DESTROYED, () => {
+    child3.emit("__TESTING__-destruct-event-emitted", "test-data-b");
+  });
+
+  const child4 = new PhantomCore();
+  const child5 = new PhantomCore();
+
+  const coll = new PhantomCollection([child1, child2, child3, child4, child5]);
+  coll.bindChildEventName("__TESTING__-shutdown-handler-invoked");
+  coll.bindChildEventName("__TESTING__-destruct-event-emitted");
+
+  await Promise.all([
+    new Promise(resolve => {
+      coll.once("__TESTING__-shutdown-handler-invoked", data => {
+        if (data === "test-data-a") {
+          t.ok(
+            true,
+            "received expected event data during shutdown handler phase"
+          );
+
+          resolve();
+        }
+      });
+    }),
+
+    new Promise(resolve => {
+      coll.once("__TESTING__-destruct-event-emitted", data => {
+        if (data === "test-data-b") {
+          t.ok(
+            true,
+            "received expected event data during destruct event phase"
+          );
+
+          resolve();
+        }
+      });
+    }),
+
+    child3.destroy(),
+  ]);
 
   t.end();
 });
