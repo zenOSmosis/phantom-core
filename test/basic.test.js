@@ -334,6 +334,31 @@ test("events and destruct", async t => {
   t.end();
 });
 
+test("destruct handler only runs once", async t => {
+  t.plan(1);
+
+  const phantom = new PhantomCore();
+
+  let destructIterations = 0;
+
+  phantom.on(EVT_DESTROYED, () => ++destructIterations);
+
+  for (let i = 0; i < 10; i++) {
+    // Intentionally not awaiting these
+    phantom.destroy();
+  }
+
+  await phantom.destroy();
+
+  t.equals(
+    destructIterations,
+    1,
+    "destruct handler is only run once, regardless of number of times called"
+  );
+
+  t.end();
+});
+
 test("retrieves methods and properties", t => {
   t.plan(2);
 
