@@ -13,7 +13,7 @@ const {
 
 const _ChildEventBridge = require("../src/PhantomCollection/ChildEventBridge");
 
-test("collection loose instance detection", t => {
+test("PhantomCollection loose instance detection", t => {
   t.plan(2);
 
   const collection = new PhantomCollection();
