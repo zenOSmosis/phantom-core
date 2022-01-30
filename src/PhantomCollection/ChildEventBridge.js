@@ -62,16 +62,14 @@ class ChildEventBridge extends PhantomCore {
 
     // Bind child _...added/removed handlers
     (() => {
-      // NOTE: Since this instance is bound directly to the PhantomCollection
-      // "off" event handlers aren't added here; they could work but just
-      // aren't needed
-
-      this._phantomCollection.on(
+      this.proxyOn(
+        this._phantomCollection,
         EVT_CHILD_INSTANCE_ADDED,
         this._handleChildInstanceAdded
       );
 
-      this._phantomCollection.on(
+      this.proxyOn(
+        this._phantomCollection,
         EVT_CHILD_INSTANCE_REMOVED,
         this._handleChildInstanceRemoved
       );
@@ -100,19 +98,6 @@ class ChildEventBridge extends PhantomCore {
    * @return {Promise<void>}
    */
   async destroy() {
-    // Unbind child _...added/removed handlers
-    (() => {
-      this._phantomCollection.off(
-        EVT_CHILD_INSTANCE_ADDED,
-        this._handleChildInstanceAdded
-      );
-
-      this._phantomCollection.off(
-        EVT_CHILD_INSTANCE_REMOVED,
-        this._handleChildInstanceRemoved
-      );
-    })();
-
     // Unmap all associated bridge event handlers from the children
     (() => {
       const children = this.getChildren();
