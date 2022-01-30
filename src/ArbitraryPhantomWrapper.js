@@ -1,5 +1,11 @@
 const PhantomCore = require("./PhantomCore");
-const { EVT_NO_INIT_WARN, EVT_READY, EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
+const {
+  EVT_NO_INIT_WARN,
+  EVT_READY,
+  EVT_UPDATED,
+  EVT_BEFORE_DESTROY,
+  EVT_DESTROYED,
+} = PhantomCore;
 
 /**
  * Wraps an arbitrary object with a PhantomCore instance.
@@ -64,4 +70,5 @@ module.exports = ArbitraryPhantomWrapper;
 module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;
 module.exports.EVT_READY = EVT_READY;
 module.exports.EVT_UPDATED = EVT_UPDATED;
+module.exports.EVT_BEFORE_DESTROY = EVT_BEFORE_DESTROY;
 module.exports.EVT_DESTROYED = EVT_DESTROYED;

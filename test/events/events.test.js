@@ -9,6 +9,7 @@ const {
   PhantomServiceManager,
   EVT_READY,
   EVT_UPDATED,
+  EVT_BEFORE_DESTROY,
   EVT_DESTROYED,
   EVT_NO_INIT_WARN,
   eventConstantCheckingUtils,
@@ -25,6 +26,7 @@ test("phantom-core events", t => {
     compareExportedEvents(PhantomCore, {
       EVT_READY,
       EVT_UPDATED,
+      EVT_BEFORE_DESTROY,
       EVT_DESTROYED,
       EVT_NO_INIT_WARN,
     });

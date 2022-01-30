@@ -2,6 +2,7 @@ const PhantomCore = require("./PhantomCore");
 const {
   EVT_READY,
   EVT_UPDATED,
+  EVT_BEFORE_DESTROY,
   EVT_DESTROYED,
   EVT_NO_INIT_WARN,
   globalLogger,
@@ -21,6 +22,7 @@ module.exports = PhantomCore;
 Object.assign(module.exports, {
   EVT_READY,
   EVT_UPDATED,
+  EVT_BEFORE_DESTROY,
   EVT_DESTROYED,
   EVT_NO_INIT_WARN,
   Logger,

@@ -8,6 +8,8 @@ const {
   /** @export */
   EVT_UPDATED,
   /** @export */
+  EVT_BEFORE_DESTROY,
+  /** @export */
   EVT_DESTROYED,
 } = PhantomState;
 
@@ -203,4 +205,5 @@ module.exports = PhantomServiceCore;
 module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;
 module.exports.EVT_READY = EVT_READY;
 module.exports.EVT_UPDATED = EVT_UPDATED;
+module.exports.EVT_BEFORE_DESTROY = EVT_BEFORE_DESTROY;
 module.exports.EVT_DESTROYED = EVT_DESTROYED;

@@ -32,7 +32,7 @@ const EVT_READY = "ready";
 /** @export */
 const EVT_UPDATED = "updated";
 /** @export */
-const { EVT_DESTROYED } = DestructibleEventEmitter;
+const { EVT_BEFORE_DESTROY, EVT_DESTROYED } = DestructibleEventEmitter;
 
 // Instances for this particular thread
 const _instances = {};
@@ -43,6 +43,7 @@ const KEEP_ALIVE_SHUTDOWN_METHODS = [
   "removeListener",
   "log",
   "listenerCount",
+  "getIsDestroying",
   "getIsDestroyed",
   "getInstanceUptime",
   "getTotalListenerCount",
@@ -762,4 +763,5 @@ module.exports.globalLogger = globalLogger;
 module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;
 module.exports.EVT_READY = EVT_READY;
 module.exports.EVT_UPDATED = EVT_UPDATED;
+module.exports.EVT_BEFORE_DESTROY = EVT_BEFORE_DESTROY;
 module.exports.EVT_DESTROYED = EVT_DESTROYED;

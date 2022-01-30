@@ -13,6 +13,8 @@ const {
   /** @export */
   EVT_UPDATED,
   /** @export */
+  EVT_BEFORE_DESTROY,
+  /** @export */
   EVT_DESTROYED,
 } = PhantomCollection;
 
@@ -191,4 +193,5 @@ module.exports.EVT_READY = EVT_READY;
 // module.exports.EVT_CHILD_INSTANCE_ADDED = EVT_CHILD_INSTANCE_ADDED;
 // module.exports.EVT_CHILD_INSTANCE_REMOVED = EVT_CHILD_INSTANCE_REMOVED;
 module.exports.EVT_UPDATED = EVT_UPDATED;
+module.exports.EVT_BEFORE_DESTROY = EVT_BEFORE_DESTROY;
 module.exports.EVT_DESTROYED = EVT_DESTROYED;

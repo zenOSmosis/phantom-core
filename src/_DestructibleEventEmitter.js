@@ -1,6 +1,9 @@
 const EventEmitter = require("events");
 
 /** @export */
+const EVT_BEFORE_DESTROY = "beforedestroy";
+
+/** @export */
 const EVT_DESTROYED = "destroyed";
 
 /**
@@ -20,6 +23,13 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
   /**
    * @return {boolean}
    */
+  getIsDestroying() {
+    return this._isDestroying;
+  }
+
+  /**
+   * @return {boolean}
+   */
   getIsDestroyed() {
     return this._isDestroyed;
   }
@@ -31,19 +41,24 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
    */
   async destroy(destroyHandler = () => null) {
     if (!this._isDestroying) {
+      this.emit(EVT_BEFORE_DESTROY);
       this._isDestroying = true;
 
       await destroyHandler();
 
-      // Note: Setting this flag before-hand is intentional
+      // NOTE: Setting this flag before-hand is intentional
       this._isDestroyed = true;
 
+      // IMPORTANT: This must come before removal of all listeners
       this.emit(EVT_DESTROYED);
 
       // Unbind all listeners
       this.removeAllListeners();
+
+      this._isDestroying = false;
     }
   }
 };
 
+module.exports.EVT_BEFORE_DESTROY = EVT_BEFORE_DESTROY;
 module.exports.EVT_DESTROYED = EVT_DESTROYED;
