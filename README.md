@@ -46,9 +46,14 @@ PhantomCore provides a common architecture between browsers and Node.js and does
   - PhantomServiceCore / PhantomServiceManager:
     - Wraps PhantomState and PhantomCollection with the ability to instantiate and manage services
     - PhantomServiceCore instances act as singletons within a PhantomServiceManager context, instead of a global context
-    - Currently being protoyped for usage with [ReShell](https://reshell.org) desktop prototype
+    - Currently being prototyped for usage with [ReShell](https://reshell.org) desktop prototype
 
 ## Changelog
+
+### Version 2.4.0 (Jan. 30, 2022)
+
+  - Implement EVT_BEFORE_DESTROY event and PhantomCore#getIsDestroying() lifecycle method
+  - Perform general housekeeping
 
 ### Version 2.3.3 (Jan. 23, 2022)
 
@@ -56,7 +61,7 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 
 ### Version 2.3.2 (Jan. 28, 2022)
 
-  - Fix issue where events emit from registerShutdownHandler would not emit through PhantomCore
+  - Fix issue where events emit from PhantomCore#registerShutdownHandler would not emit through PhantomCore
 
 ### Version 2.3.1 (Jan. 19, 2022)
 
@@ -68,11 +73,11 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 
 ### Version 2.2.2 (Jan. 4, 2022)
 
-  - Fix issue where, under some circumstances, destructed children could appear in collection.getChildren() results
+  - Fix issue where, under some circumstances, destructed children could appear in PhantomCollection#getChildren() results
 
 ### Version 2.2.1 (Dec. 16, 2021)
 
-  - Relax same PhantomCore version requirements for proxyOnce and proxyOff methods.  These should have been included in v2.1.3.
+  - Relax same PhantomCore version requirements for PhantomCore#proxyOnce and PhantomCore#proxyOff methods.  These should have been included in v2.1.3.
 
 ### Version 2.2.0 (Dec. 16, 2021)
 
