@@ -177,9 +177,7 @@ class PhantomServiceManager extends PhantomCollection {
     // Destruct all services on collection destruct
     await this.destroyAllChildren();
 
-    const ret = await super.destroy();
-
-    return ret;
+    return super.destroy();
   }
 }
 
