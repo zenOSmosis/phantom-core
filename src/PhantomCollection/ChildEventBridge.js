@@ -49,11 +49,7 @@ class ChildEventBridge extends PhantomCore {
      */
     this._bridgeEventNames = [...DEFAULT_BRIDGE_EVENT_NAMES];
 
-    /**
-     * FIXME: This type isn't really valid, but describes the structure enough
-     * for human parsing
-     * @type {Object<key: uuid, value: Object: <key: eventName, value: eventHandler>>}
-     */
+    /** @type {{key: uuid, value: {key: eventName, value: eventHandler}}} */
     this._linkedChildEventHandlers = {};
 
     this._handleChildInstanceAdded = this._handleChildInstanceAdded.bind(this);
