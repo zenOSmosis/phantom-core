@@ -181,15 +181,21 @@ class PhantomServiceCore extends PhantomState {
   }
 
   /**
+   * @param {Function} destroyHandler? [optional] If defined, will execute
+   * prior to normal destruct operations for this class.
    * @return {Promise<void>}
    */
-  async destroy() {
-    // Destruct all attached collections
-    await Promise.all(
-      [...this._collectionMap.values()].map(collection => collection.destroy())
-    );
+  async destroy(destroyHandler = () => null) {
+    return super.destroy(async () => {
+      await destroyHandler();
 
-    return super.destroy();
+      // Destruct all attached collections
+      await Promise.all(
+        [...this._collectionMap.values()].map(collection =>
+          collection.destroy()
+        )
+      );
+    });
   }
 }
 

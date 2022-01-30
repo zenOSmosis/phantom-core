@@ -13,6 +13,7 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
   constructor() {
     super();
 
+    this._isDestroying = false;
     this._isDestroyed = false;
   }
 
@@ -24,16 +25,24 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
   }
 
   /**
+   * @param {Function} destroyHandler? [optional] If defined, will execute
+   * prior to normal destruct operations for this class.
    * @return {Promise<void>}
    */
-  async destroy() {
-    // Note: Setting this flag before-hand is intentional
-    this._isDestroyed = true;
+  async destroy(destroyHandler = () => null) {
+    if (!this._isDestroying) {
+      this._isDestroying = true;
 
-    this.emit(EVT_DESTROYED);
+      await destroyHandler();
 
-    // Unbind all listeners
-    this.removeAllListeners();
+      // Note: Setting this flag before-hand is intentional
+      this._isDestroyed = true;
+
+      this.emit(EVT_DESTROYED);
+
+      // Unbind all listeners
+      this.removeAllListeners();
+    }
   }
 };
 

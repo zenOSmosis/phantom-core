@@ -1,12 +1,11 @@
 const test = require("tape");
 const PhantomCore = require("../src");
-const { EVT_READY, EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
+const { EVT_READY, EVT_UPDATED, EVT_DESTROYED, sleep } = PhantomCore;
 
 /**
  * Tests instantiation and destroying of PhantomCore with the default options
  * (no options passed).
  */
-
 test("registers and unregisters instances", async t => {
   t.plan(2);
 
@@ -344,8 +343,7 @@ test("destruct handler only runs once", async t => {
   phantom.on(EVT_DESTROYED, () => ++destructIterations);
 
   for (let i = 0; i < 10; i++) {
-    // Intentionally not awaiting these
-    phantom.destroy();
+    await phantom.destroy();
   }
 
   await phantom.destroy();
@@ -513,6 +511,15 @@ test("phantom properties", async t => {
     "_pred6",
   ]);
 
+  // Silence memory leak warnings
+  testPhantom.registerShutdownHandler(async () => {
+    await Promise.all([
+      testPhantom._pred2.destroy(),
+      testPhantom._pred5.destroy(),
+      testPhantom._pred6.destroy(),
+    ]);
+  });
+
   await testPhantom.destroy();
 
   t.end();
@@ -598,10 +605,9 @@ test("can emit events during shutdown phase", async t => {
 });
 
 test("shutdown handler stack", async t => {
-  t.plan(6);
+  t.plan(4);
 
   const p1 = new PhantomCore();
-  const p2 = new PhantomCore();
 
   t.throws(
     () => {
@@ -611,47 +617,49 @@ test("shutdown handler stack", async t => {
     "throws TypeError when trying to register non-function shutdown handler"
   );
 
-  const badFn = () => {
-    t.ok(true, "badFn has been started");
+  p1.registerShutdownHandler(() => {
+    throw new Error("Expected error");
+  });
 
-    throw new Error(
-      "INTENTIONAL ERROR. This does not indicate something is wrong w/ PhantomCore.  It is only used for testing."
-    );
-  };
-
-  p1.registerShutdownHandler(badFn);
-  p2.registerShutdownHandler(badFn);
-
-  let hasGoodAsyncFnRun = false;
-
-  const goodAsyncFn = async () => {
-    t.ok(true, `goodAsyncFn was executed`);
-
-    hasGoodAsyncFnRun = true;
-  };
-
-  p1.registerShutdownHandler(goodAsyncFn);
-  p2.registerShutdownHandler(goodAsyncFn);
-
-  const goodSyncFn = () => {
+  try {
+    await p1.destroy();
+  } catch (err) {
     t.ok(
-      hasGoodAsyncFnRun,
-      `goodSyncFn was executed after goodAsyncFn (stack awaits promises before continuing)`
+      err.message === "Expected error",
+      "errors in shutdown stack throw out the PhantomCore instance"
     );
-  };
 
-  p1.registerShutdownHandler(goodSyncFn);
-  p2.registerShutdownHandler(goodSyncFn);
+    t.notOk(
+      p1.getIsDestroyed(),
+      "phantom does not register as destroyed if shutdown stack errors"
+    );
+  }
 
-  // Unregister badFn on p1 only
-  p1.unregisterShutdownHandler(badFn);
+  const p2 = new PhantomCore();
 
-  await p1.destroy();
+  let opsRecords = [];
 
-  // IMPORTANT: It should be noted that though p2 has a badFn in its shutdown
-  // handler stack, the error is ignored, and the other handlers continue as if
-  // there were no error
+  p2.registerShutdownHandler(() => {
+    opsRecords.push("a");
+  });
+
+  p2.registerShutdownHandler(async () => {
+    await sleep(1000);
+
+    opsRecords.push("b");
+  });
+
+  p2.registerShutdownHandler(() => {
+    opsRecords.push("c");
+  });
+
   await p2.destroy();
+
+  t.deepEquals(
+    opsRecords,
+    ["a", "b", "c"],
+    "shutdown functions are executed in order (FIFO) and maintain proper order if promises are used"
+  );
 
   t.end();
 });

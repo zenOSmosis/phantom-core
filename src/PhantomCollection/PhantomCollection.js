@@ -418,15 +418,19 @@ class PhantomCollection extends PhantomCore {
   }
 
   /**
+   * @param {Function} destroyHandler? [optional] If defined, will execute
+   * prior to normal destruct operations for this class.
    * @return {Promise<void>}
    */
-  async destroy() {
-    // Empty out the collection
-    await this.removeAllChildren();
+  async destroy(destroyHandler = () => null) {
+    return super.destroy(async () => {
+      await destroyHandler();
 
-    await this._childEventBridge.destroy();
+      // Empty out the collection
+      await this.removeAllChildren();
 
-    return super.destroy();
+      await this._childEventBridge.destroy();
+    });
   }
 }
 

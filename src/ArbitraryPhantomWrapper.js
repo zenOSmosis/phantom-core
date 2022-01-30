@@ -45,14 +45,18 @@ class ArbitraryPhantomWrapper extends PhantomCore {
   }
 
   /**
+   * @param {Function} destroyHandler? [optional] If defined, will execute
+   * prior to normal destruct operations for this class.
    * @return {Promise<void>}
    */
-  async destroy() {
-    await super.destroy();
+  async destroy(destroyHandler = () => null) {
+    return super.destroy(async () => {
+      await destroyHandler();
 
-    // IMPORTANT: Setting this AFTER super destroy so that it can potentially
-    // be intercepted by other destruct handlers in extension classes
-    this._wrappedValue = null;
+      // IMPORTANT: Setting this AFTER super destroy so that it can potentially
+      // be intercepted by other destruct handlers in extension classes
+      this._wrappedValue = null;
+    });
   }
 }
 

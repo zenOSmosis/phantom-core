@@ -238,15 +238,15 @@ class ChildEventBridge extends PhantomCore {
    * @return {Promise<void>}
    */
   async destroy() {
-    // Unmap all associated bridge event handlers from the children
-    const children = this.getChildren();
-    for (const child of children) {
-      for (const eventName of this._bridgeEventNames) {
-        this._unmapChildEvent(child, eventName);
+    return super.destroy(async () => {
+      // Unmap all associated bridge event handlers from the children
+      const children = this.getChildren();
+      for (const child of children) {
+        for (const eventName of this._bridgeEventNames) {
+          this._unmapChildEvent(child, eventName);
+        }
       }
-    }
-
-    return super.destroy();
+    });
   }
 }
 

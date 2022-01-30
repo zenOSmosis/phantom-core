@@ -299,6 +299,8 @@ class PhantomCore extends DestructibleEventEmitter {
 
     this._isReady = !this._options.isAsync || false;
 
+    this._isPostDestroyOpStarted = false;
+
     // Force method scope binding to class instance
     if (this._options.hasAutomaticBindings) {
       this.autoBind();
@@ -708,23 +710,28 @@ class PhantomCore extends DestructibleEventEmitter {
    *  1. registerShutdownHandler call stack
    *  2. EVT_DESTROYED triggers
    *
+   * @param {Function} destroyHandler? [optional] If defined, will execute
+   * prior to normal destruct operations for this class.
    * @return {Promise<void>}
    */
-  async destroy() {
-    // IMPORTANT: This check for instance UUID should not run asynchronous
-    // because certain conditions may cause the destruct handler to be called
-    // more than once
-    if (_instances[this._uuid]) {
+  async destroy(destroyHandler = () => null) {
+    const ret = await super.destroy(async () => {
       // Intentionally unregister w/ _instances and call super.destroy()
       // handler first
       delete _instances[this._uuid];
 
+      await destroyHandler();
+
       // Execute the shutdown handler before calling super.destroy, so that any
       // last minute events can be handled
-      await this._shutdownHandlerStack.exec(true);
+      await this._shutdownHandlerStack.exec();
+    });
 
-      // NOTE: EVT_DESTROYED is emit here
-      await super.destroy();
+    // Post-destruct operations
+    if (!this._isPostDestroyOpStarted) {
+      this._isPostDestroyOpStarted = true;
+
+      // TODO: Force regular class properties to be null (as of July 30, 2021, not changing due to unforeseen consequences)
 
       this.getPhantomProperties().forEach(phantomProp => {
         this.log.warn(
@@ -744,9 +751,9 @@ class PhantomCore extends DestructibleEventEmitter {
         //  `Cannot call this.${method}() after class ${className} is destroyed`
         // );
       }
-
-      // TODO: Force regular class properties to be null (as of July 30, 2021, not changing due to unforeseen consequences)
     }
+
+    return ret;
   }
 }
 

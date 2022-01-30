@@ -171,13 +171,17 @@ class PhantomServiceManager extends PhantomCollection {
   }
 
   /**
+   * @param {Function} destroyHandler? [optional] If defined, will execute
+   * prior to normal destruct operations for this class.
    * @return {Promise<void>}
    */
-  async destroy() {
-    // Destruct all services on collection destruct
-    await this.destroyAllChildren();
+  async destroy(destroyHandler = () => null) {
+    return super.destroy(async () => {
+      await destroyHandler();
 
-    return super.destroy();
+      // Destruct all services on collection destruct
+      await this.destroyAllChildren();
+    });
   }
 }
 

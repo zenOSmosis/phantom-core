@@ -39,23 +39,14 @@ module.exports = class FunctionStack {
    * IMPORTANT: This method recursively calls itself until there are not more
    * items in the stack.
    *
-   * @param {boolean} ignoreErrors? [default = false]
    * @return {Promise<void>}
    */
-  async exec(ignoreErrors = false) {
+  async exec() {
     if (this._fns.length) {
       // Obtain the first function of the array, and resize the array
       const fn = this._fns.shift();
 
-      try {
-        await fn();
-      } catch (err) {
-        if (!ignoreErrors) {
-          throw err;
-        } else {
-          console.error(err);
-        }
-      }
+      await fn();
 
       // Recursively call itself, executing the next stack index, if exists
       return this.exec();
