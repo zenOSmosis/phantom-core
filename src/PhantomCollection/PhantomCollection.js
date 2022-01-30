@@ -155,18 +155,6 @@ class PhantomCollection extends PhantomCore {
   }
 
   /**
-   * @return {Promise<void>}
-   */
-  async destroy() {
-    // Empty out the collection
-    await this.removeAllChildren();
-
-    await this._childEventBridge.destroy();
-
-    return super.destroy();
-  }
-
-  /**
    * Destroys all currently associated children in the collection.
    *
    * IMPORTANT: This is a helper method for extension classes; It is not to be
@@ -427,6 +415,18 @@ class PhantomCollection extends PhantomCore {
    */
   getBoundChildEventNames() {
     return this._childEventBridge.getBridgeEventNames();
+  }
+
+  /**
+   * @return {Promise<void>}
+   */
+  async destroy() {
+    // Empty out the collection
+    await this.removeAllChildren();
+
+    await this._childEventBridge.destroy();
+
+    return super.destroy();
   }
 }
 

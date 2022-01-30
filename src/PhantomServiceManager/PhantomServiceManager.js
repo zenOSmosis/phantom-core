@@ -36,18 +36,6 @@ class PhantomServiceManager extends PhantomCollection {
   }
 
   /**
-   * @return {Promise<void>}
-   */
-  async destroy() {
-    // Destruct all services on collection destruct
-    await this.destroyAllChildren();
-
-    const ret = await super.destroy();
-
-    return ret;
-  }
-
-  /**
    * Starts a new ServiceCoreClass instance or retrieves an existing one, if
    * the same class is managed by this manager.
    *
@@ -180,6 +168,18 @@ class PhantomServiceManager extends PhantomCollection {
    */
   getServiceClasses() {
     return this.getKeys();
+  }
+
+  /**
+   * @return {Promise<void>}
+   */
+  async destroy() {
+    // Destruct all services on collection destruct
+    await this.destroyAllChildren();
+
+    const ret = await super.destroy();
+
+    return ret;
   }
 }
 

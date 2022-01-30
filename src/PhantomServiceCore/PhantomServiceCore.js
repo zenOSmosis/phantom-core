@@ -88,18 +88,6 @@ class PhantomServiceCore extends PhantomState {
   }
 
   /**
-   * @return {Promise<void>}
-   */
-  async destroy() {
-    // Destruct all attached collections
-    await Promise.all(
-      [...this._collectionMap.values()].map(collection => collection.destroy())
-    );
-
-    return super.destroy();
-  }
-
-  /**
    * Starts a new service class instance, or retrieves an existing one which
    * matches the given class, unique to the associated PhantomServiceManager.
    *
@@ -190,6 +178,18 @@ class PhantomServiceCore extends PhantomState {
     // Coerce to array since map.keys() is not an array (it's an Iterator object)
     // @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/keys
     return [...this._collectionMap.keys()];
+  }
+
+  /**
+   * @return {Promise<void>}
+   */
+  async destroy() {
+    // Destruct all attached collections
+    await Promise.all(
+      [...this._collectionMap.values()].map(collection => collection.destroy())
+    );
+
+    return super.destroy();
   }
 }
 

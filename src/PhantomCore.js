@@ -369,55 +369,6 @@ class PhantomCore extends DestructibleEventEmitter {
   }
 
   /**
-   * NOTE: Order of operations for shutdown handling:
-   *
-   *  1. registerShutdownHandler call stack
-   *  2. EVT_DESTROYED triggers
-   *
-   * @return {Promise<void>}
-   */
-  async destroy() {
-    // IMPORTANT: This check for instance UUID should not run asynchronous
-    // because certain conditions may cause the destruct handler to be called
-    // more than once
-    if (_instances[this._uuid]) {
-      // Intentionally unregister w/ _instances and call super.destroy()
-      // handler first
-      delete _instances[this._uuid];
-
-      // Execute the shutdown handler before calling super.destroy, so that any
-      // last minute events can be handled
-      await this._shutdownHandlerStack.exec(true);
-
-      // NOTE: EVT_DESTROYED is emit here
-      await super.destroy();
-
-      // TODO: Implement and call shutdown handlers before continuing (these will perform extra clean-up work, etc. and prevent having to bind to EVT_DESTROYED, etc.)
-
-      this.getPhantomProperties().forEach(phantomProp => {
-        this.log.warn(
-          `Lingering PhantomCore instance on prop name "${phantomProp}".  This could be a memory leak.  Ensure that all PhantomCore instances have been disposed of before class destruct.`
-        );
-      });
-
-      for (const methodName of this.getMethodNames()) {
-        // Force non-keep-alive methods to return undefined
-        if (!KEEP_ALIVE_SHUTDOWN_METHODS.includes(methodName)) {
-          this[methodName] = () => undefined;
-        }
-
-        // TODO: Reimplement and conditionally silence w/ instance options
-        // or env
-        // this.logger.warn(
-        //  `Cannot call this.${method}() after class ${className} is destroyed`
-        // );
-      }
-
-      // TODO: Force regular class properties to be null (as of July 30, 2021, not changing due to unforeseen consequences)
-    }
-  }
-
-  /**
    * Force scope binding of PhantomCore class methods to the instance they are
    * defined in, regardless of how the method is invoked.
    *
@@ -748,6 +699,55 @@ class PhantomCore extends DestructibleEventEmitter {
       return getUnixTime() - this._instanceStartTime;
     } else {
       return 0;
+    }
+  }
+
+  /**
+   * NOTE: Order of operations for shutdown handling:
+   *
+   *  1. registerShutdownHandler call stack
+   *  2. EVT_DESTROYED triggers
+   *
+   * @return {Promise<void>}
+   */
+  async destroy() {
+    // IMPORTANT: This check for instance UUID should not run asynchronous
+    // because certain conditions may cause the destruct handler to be called
+    // more than once
+    if (_instances[this._uuid]) {
+      // Intentionally unregister w/ _instances and call super.destroy()
+      // handler first
+      delete _instances[this._uuid];
+
+      // Execute the shutdown handler before calling super.destroy, so that any
+      // last minute events can be handled
+      await this._shutdownHandlerStack.exec(true);
+
+      // NOTE: EVT_DESTROYED is emit here
+      await super.destroy();
+
+      // TODO: Implement and call shutdown handlers before continuing (these will perform extra clean-up work, etc. and prevent having to bind to EVT_DESTROYED, etc.)
+
+      this.getPhantomProperties().forEach(phantomProp => {
+        this.log.warn(
+          `Lingering PhantomCore instance on prop name "${phantomProp}".  This could be a memory leak.  Ensure that all PhantomCore instances have been disposed of before class destruct.`
+        );
+      });
+
+      for (const methodName of this.getMethodNames()) {
+        // Force non-keep-alive methods to return undefined
+        if (!KEEP_ALIVE_SHUTDOWN_METHODS.includes(methodName)) {
+          this[methodName] = () => undefined;
+        }
+
+        // TODO: Reimplement and conditionally silence w/ instance options
+        // or env
+        // this.logger.warn(
+        //  `Cannot call this.${method}() after class ${className} is destroyed`
+        // );
+      }
+
+      // TODO: Force regular class properties to be null (as of July 30, 2021, not changing due to unforeseen consequences)
     }
   }
 }

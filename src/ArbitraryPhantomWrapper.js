@@ -17,17 +17,6 @@ class ArbitraryPhantomWrapper extends PhantomCore {
   }
 
   /**
-   * @return {Promise<void>}
-   */
-  async destroy() {
-    await super.destroy();
-
-    // IMPORTANT: Setting this AFTER super destroy so that it can potentially
-    // be intercepted by other destruct handlers in extension classes
-    this._wrappedValue = null;
-  }
-
-  /**
    * Internally sets the wrapped element.
    *
    * @param {any} wrappedValue
@@ -53,6 +42,17 @@ class ArbitraryPhantomWrapper extends PhantomCore {
    */
   getWrappedValue() {
     return this._wrappedValue;
+  }
+
+  /**
+   * @return {Promise<void>}
+   */
+  async destroy() {
+    await super.destroy();
+
+    // IMPORTANT: Setting this AFTER super destroy so that it can potentially
+    // be intercepted by other destruct handlers in extension classes
+    this._wrappedValue = null;
   }
 }
 
