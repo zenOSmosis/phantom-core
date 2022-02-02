@@ -291,9 +291,15 @@ test("sleep", async t => {
     t.ok(
       // NOTE: Intentionally testing w/ 100 ms "grace buffer" (>= 1400 instead
       // of 1500) in case of potential timing fluctuation in the JS engine
-      // clock
+      // clock (which fixes a bug sometimes exposed by Chrome when running on
+      // SauceLab's virtual machines). This "could be" due to before / after
+      // timestamps being calculated with a high resolution timestamp, while
+      // sleep() is based on setTimeout, which is a lower precision.
+      //
+      // The main purpose of this test is not for precision, but to ensure that
+      // the time attribute actually affects sleep time.
       afterEnd - beforeStart >= 1400,
-      "sleep() accepts default argument for milliseconds"
+      "sleep() responds to argument for milliseconds"
     );
   })();
 
