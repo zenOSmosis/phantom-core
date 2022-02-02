@@ -70,17 +70,13 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
       // await destroyHandler();
       this._destroyHandlerQueue.push(destroyHandler);
 
-      await sleep(0);
+      // Increase potential max listeners by one to prevent potential
+      // MaxListenersExceededWarning
+      this.setMaxListeners(this.getMaxListeners() + 1);
 
-      if (!this._isDestroyed) {
-        // Increase potential max listeners by one to prevent potential
-        // MaxListenersExceededWarning
-        this.setMaxListeners(this.getMaxListeners() + 1);
-
-        // Wait for the instance to be destroyed before resolving (all subsequent
-        // destroy() calls should resolve at the same time)
-        return new Promise(resolve => this.once(EVT_DESTROYED, resolve));
-      }
+      // Wait for the instance to be destroyed before resolving (all subsequent
+      // destroy() calls should resolve at the same time)
+      return new Promise(resolve => this.once(EVT_DESTROYED, resolve));
     }
   }
 };
