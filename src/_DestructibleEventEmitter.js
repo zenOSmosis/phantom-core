@@ -41,6 +41,9 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
    */
   async destroy(destroyHandler = () => null) {
     if (!this._isDestroying) {
+      // TODO: Remove
+      console.log("performing destroy");
+
       this.emit(EVT_BEFORE_DESTROY);
       this._isDestroying = true;
 
