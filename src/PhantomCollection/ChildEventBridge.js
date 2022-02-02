@@ -97,7 +97,9 @@ class ChildEventBridge extends PhantomCore {
    * @return {PhantomCore[]}
    */
   getChildren() {
-    return this._phantomCollection.getChildren();
+    return (
+      (this._phantomCollection && this._phantomCollection.getChildren()) || []
+    );
   }
 
   /**
