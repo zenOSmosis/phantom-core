@@ -22,6 +22,9 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
     this._isDestroyed = false;
 
     this._destroyHandlerQueue = new FunctionStack();
+
+    // TODO: Throw an error if EVT_DESTROYED is emit without _isDestroyed
+    // being set to true (prevent arbitrary calls to EVT_DESTROYED)
   }
 
   /**
