@@ -60,15 +60,14 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
       );
     }
 
-    this.emit(EVT_BEFORE_DESTROY);
     this._isDestroying = true;
+    this.emit(EVT_BEFORE_DESTROY);
 
+    // Invoke wrapped destroy handler
     await destroyHandler();
 
-    // NOTE: Setting this flag before-hand is intentional
-    this._isDestroyed = true;
-
     // IMPORTANT: This must come before removal of all listeners
+    this._isDestroyed = true;
     this.emit(EVT_DESTROYED);
 
     this.removeAllListeners();
