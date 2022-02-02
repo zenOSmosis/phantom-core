@@ -2,7 +2,7 @@ const EventEmitter = require("events");
 const getClassName = require("./utils/class-utils/getClassName");
 
 /** @export */
-const EVT_BEFORE_DESTROY = "beforedestroy";
+const EVT_BEFORE_DESTROY = "before-destroy";
 
 /** @export */
 const EVT_DESTROYED = "destroyed";
@@ -19,9 +19,6 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
 
     this._isDestroying = false;
     this._isDestroyed = false;
-
-    // TODO: Remove?
-    // this._postDestructOpTimeout = null;
   }
 
   /**
