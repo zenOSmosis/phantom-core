@@ -32,6 +32,15 @@ module.exports = class FunctionStack {
   }
 
   /**
+   * Removes all functions from the stack.
+   *
+   * @return {void}
+   */
+  clear() {
+    this._fns = [];
+  }
+
+  /**
    * Execute all of the functions pushed to the stack until, one at a time,
    * FIFO (first in, first out), until there are no remaining functions to
    * execute.

@@ -94,6 +94,10 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
         } finally {
           clearTimeout(longRespondDestroyHandlerTimeout);
 
+          // Remove remaining functions from stack, if exist (this should
+          // already have happened automatically once the stack was executed)
+          this._destroyHandlerStack.clear();
+
           // Remove reference to destroy handler stack
           this._destroyHandlerStack = null;
         }
