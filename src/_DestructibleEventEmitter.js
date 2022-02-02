@@ -42,9 +42,6 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
    */
   async destroy(destroyHandler = () => null) {
     if (!this._isDestroying) {
-      // TODO: Remove
-      console.log("performing destroy");
-
       this.emit(EVT_BEFORE_DESTROY);
       this._isDestroying = true;
 
@@ -55,9 +52,6 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
 
       // IMPORTANT: This must come before removal of all listeners
       this.emit(EVT_DESTROYED);
-
-      // TODO: Remove; attempting sleep to see if there is some sort of race issue with collection event updating when child is removed
-      await sleep(500);
 
       // Unbind all listeners
       this.removeAllListeners();
