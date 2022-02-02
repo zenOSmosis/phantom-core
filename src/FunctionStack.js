@@ -10,7 +10,7 @@ module.exports = class FunctionStack {
   /**
    * Adds a new function to the stack.
    *
-   * @param {function} fn
+   * @param {Function} fn
    * @return {void}
    */
   push(fn) {
@@ -25,7 +25,7 @@ module.exports = class FunctionStack {
   /**
    * Removes the given function from the stack.
    *
-   * @param {function} fn
+   * @param {Function} fn
    */
   remove(fn) {
     this._fns = this._fns.filter(pred => pred !== fn);
