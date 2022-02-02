@@ -1,5 +1,6 @@
 const EventEmitter = require("events");
-const getClassName = require("./utils/class-utils/getClassName");
+const FunctionStack = require("./FunctionStack");
+const sleep = require("./utils/sleep");
 
 /** @export */
 const EVT_BEFORE_DESTROY = "before-destroy";
@@ -19,6 +20,8 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
 
     this._isDestroying = false;
     this._isDestroyed = false;
+
+    this._destroyHandlerQueue = new FunctionStack();
   }
 
   /**
@@ -41,12 +44,14 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
    * @return {Promise<void>}
    */
   async destroy(destroyHandler = () => null) {
-    if (!this._isDestroyed && !this._isDestroying) {
+    if (!this._isDestroying) {
       this._isDestroying = true;
+
       this.emit(EVT_BEFORE_DESTROY);
 
-      // Invoke wrapped destroy handler
-      await destroyHandler();
+      this._destroyHandlerQueue.push(destroyHandler);
+
+      await this._destroyHandlerQueue.exec();
 
       // IMPORTANT: This must come before removal of all listeners
       this._isDestroyed = true;
@@ -55,6 +60,20 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
       this.removeAllListeners();
 
       this._isDestroying = false;
+    } else if (!this._isDestroyed) {
+      // Enable subsequent call with another destroyHandler; this fixes an
+      // issue with Chrome / Safari MediaStreamTrackControllerFactory not
+      // properly emitting EVT_UPDATED when a child controller is destructed
+      // await destroyHandler();
+      this._destroyHandlerQueue.push(destroyHandler);
+
+      // Increase potential max listeners by one to prevent potential
+      // MaxListenersExceededWarning
+      this.setMaxListeners(this.getMaxListeners() + 1);
+
+      // Wait for the instance to be destroyed before resolving (all subsequent
+      // destroy() calls should resolve at the same time)
+      return new Promise(resolve => this.once(EVT_DESTROYED, resolve));
     }
   }
 };

@@ -1,6 +1,7 @@
 const test = require("tape");
 const PhantomCore = require("../src");
-const { EVT_READY, EVT_UPDATED, EVT_DESTROYED, sleep } = PhantomCore;
+const { EVT_READY, EVT_UPDATED, EVT_BEFORE_DESTROY, EVT_DESTROYED, sleep } =
+  PhantomCore;
 
 /**
  * Tests instantiation and destroying of PhantomCore with the default options
@@ -333,25 +334,82 @@ test("events and destruct", async t => {
   t.end();
 });
 
-test("destruct handler only runs once", async t => {
-  t.plan(1);
+test("subsequent calls to destroy with different destroyHandler methods", async t => {
+  t.plan(3);
 
   const phantom = new PhantomCore();
 
-  let destructIterations = 0;
+  let preDestructEventIterations = 0;
+  phantom.on(EVT_BEFORE_DESTROY, () => ++preDestructEventIterations);
 
-  phantom.on(EVT_DESTROYED, () => ++destructIterations);
+  let postDestructEventIterations = 0;
+  phantom.on(EVT_DESTROYED, () => ++postDestructEventIterations);
+
+  let ab = [];
 
   for (let i = 0; i < 10; i++) {
-    await phantom.destroy();
+    // Sync destroy call
+    phantom.destroy(() => {
+      ab.push(i);
+    });
+
+    // Async destroy call
+    phantom.destroy(async () => {
+      return new Promise(resolve => {
+        ab.push(i);
+
+        resolve();
+      });
+    });
   }
 
-  await phantom.destroy();
+  // Prolonged wait async destroy call
+  phantom.destroy(async () => {
+    await sleep(1000);
+
+    ab.push("before-end");
+  });
+
+  // Final destroy call
+  await phantom.destroy(() => {
+    ab.push("end");
+  });
+
+  t.deepEquals(ab, [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5,
+    6,
+    6,
+    7,
+    7,
+    8,
+    8,
+    9,
+    9,
+    "before-end",
+    "end",
+  ]);
 
   t.equals(
-    destructIterations,
+    preDestructEventIterations,
     1,
-    "destruct handler is only run once, regardless of number of times called"
+    "EVT_BEFORE_DESTROY event emits only once regardless of times destroy method is called"
+  );
+
+  t.equals(
+    postDestructEventIterations,
+    1,
+    "EVT_DESTROYED event emits only once regardless of times destroy method is called"
   );
 
   t.end();
