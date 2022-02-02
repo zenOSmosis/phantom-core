@@ -35,7 +35,7 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
   }
 
   /**
-   * Retrieves whether or not the
+   * Retrieves whether or not the class is currently being destroyed.
    *
    * @return {boolean}
    */
@@ -44,6 +44,8 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
   }
 
   /**
+   * Retrieves whether or not the instance is currently destroyed.
+   *
    * @return {boolean}
    */
   getIsDestroyed() {
@@ -51,9 +53,23 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
   }
 
   /**
+   * NOTE: This method may be called more than once should there be two calls
+   * with different "destroyHandler" callback functions.  A potential scenario
+   * for this is using PhantomCollection extensions which may have intricate
+   * shutdown handler event ties.
+   *
+   * Subsequent calls will add the user-defined destroyHandler callback to a
+   * queue managed by FunctionStack.
+   *
    * @param {Function} destroyHandler? [optional] If defined, will execute
    * prior to normal destruct operations for this class.
    * @return {Promise<void>}
+   * @emits EVT_BEFORE_DESTROY Emits a single time, regardless of calls to the
+   * destroy() method, before the destroy handler stack is executed.
+   * @emits EVT_DESTROY_STACK_TIMED_OUT Emits if the destroy handler stack
+   * takes longer than expected to execute.
+   * @emits EVT_DESTROYED Emits a single time, regardless of calls to the
+   * destroy() method, after the destroy handler stack has executed.
    */
   async destroy(destroyHandler = () => null) {
     if (!this._isDestroying) {
