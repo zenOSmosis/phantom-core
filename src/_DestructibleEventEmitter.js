@@ -41,35 +41,21 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
    * @return {Promise<void>}
    */
   async destroy(destroyHandler = () => null) {
-    if (this._isDestroyed) {
-      throw new Error(
-        `${getClassName(
-          this
-        )} is already destroyed. The subsequent request was rejected.`
-      );
+    if (!this._isDestroyed && !this._isDestroying) {
+      this._isDestroying = true;
+      this.emit(EVT_BEFORE_DESTROY);
+
+      // Invoke wrapped destroy handler
+      await destroyHandler();
+
+      // IMPORTANT: This must come before removal of all listeners
+      this._isDestroyed = true;
+      this.emit(EVT_DESTROYED);
+
+      this.removeAllListeners();
+
+      this._isDestroying = false;
     }
-
-    if (this._isDestroying) {
-      throw new Error(
-        `${getClassName(
-          this
-        )} is already in the process of being destroyed. The subsequent request was rejected.`
-      );
-    }
-
-    this._isDestroying = true;
-    this.emit(EVT_BEFORE_DESTROY);
-
-    // Invoke wrapped destroy handler
-    await destroyHandler();
-
-    // IMPORTANT: This must come before removal of all listeners
-    this._isDestroyed = true;
-    this.emit(EVT_DESTROYED);
-
-    this.removeAllListeners();
-
-    this._isDestroying = false;
   }
 };
 
