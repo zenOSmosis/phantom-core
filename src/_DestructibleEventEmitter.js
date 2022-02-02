@@ -1,4 +1,5 @@
 const EventEmitter = require("events");
+const sleep = require("./utils/sleep");
 
 /** @export */
 const EVT_BEFORE_DESTROY = "beforedestroy";
@@ -41,8 +42,9 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
    */
   async destroy(destroyHandler = () => null) {
     if (!this._isDestroying) {
-      // TODO: Remove
+      // TODO: Remove (comment and sleep); attempting sleep to see if there is some sort of race issue with collection event updating when child is removed
       console.log("performing destroy");
+      await sleep(500);
 
       this.emit(EVT_BEFORE_DESTROY);
       this._isDestroying = true;
