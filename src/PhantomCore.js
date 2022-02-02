@@ -290,7 +290,7 @@ class PhantomCore extends DestructibleEventEmitter {
     /**
      * NOTE: This is called directly in order to not lose the stack trace.
      *
-     * @type {function} Calling this function directly will indirectly call
+     * @type {Function} Calling this function directly will indirectly call
      * logger.info(); The logger.trace(), logger.debug(), logger.info(), logger.warn(), and
      * logger.error() properties can be called directly.
      */
@@ -402,7 +402,7 @@ class PhantomCore extends DestructibleEventEmitter {
    * Registers a function to the shutdown handler stack, which is executed
    * AFTER EVT_DESTROYED is emit.
    *
-   * @param {function} fn
+   * @param {Function} fn
    * @return {void}
    */
   registerShutdownHandler(fn) {
@@ -412,7 +412,7 @@ class PhantomCore extends DestructibleEventEmitter {
   /**
    * Unregisters a function from the shutdown handler stack.
    *
-   * @param {function} fn
+   * @param {Function} fn
    * @returns
    */
   unregisterShutdownHandler(fn) {
@@ -575,7 +575,7 @@ class PhantomCore extends DestructibleEventEmitter {
   /**
    * Retrieves the non-instantiated class definition.
    *
-   * @return {function}
+   * @return {Function}
    */
   getClass() {
     return this.constructor;
@@ -602,7 +602,7 @@ class PhantomCore extends DestructibleEventEmitter {
    *
    * @param {PhantomCore} proxyInstance
    * @param {string | symbol} eventName
-   * @param {function} eventHandler
+   * @param {Function} eventHandler
    * @return {void}
    */
   proxyOn(proxyInstance, eventName, eventHandler) {
@@ -633,7 +633,7 @@ class PhantomCore extends DestructibleEventEmitter {
    *
    * @param {PhantomCore} proxyInstance
    * @param {string | symbol} eventName
-   * @param {function} eventHandler
+   * @param {Function} eventHandler
    * @return {void}
    */
   proxyOnce(proxyInstance, eventName, eventHandler) {
@@ -671,7 +671,7 @@ class PhantomCore extends DestructibleEventEmitter {
    *
    * @param {PhantomCore} proxyInstance
    * @param {string | symbol} eventName
-   * @param {function} eventHandler
+   * @param {Function} eventHandler
    * @return {void}
    */
   proxyOff(proxyInstance, eventName, eventHandler) {

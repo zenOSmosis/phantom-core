@@ -6,7 +6,7 @@ const getClassInstancePropertyNames = require("./getClassInstancePropertyNames")
  * IMPORTANT: This retrieves an array of strings, and not pointers to the
  * methods themselves.
  *
- * @param {function} classInstance JavaScript class instance
+ * @param {Function} classInstance JavaScript class instance
  * @return {string[]} An array of method names
  */
 module.exports = function getClassInstanceMethodNames(classInstance) {
