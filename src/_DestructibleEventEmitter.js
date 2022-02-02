@@ -93,6 +93,9 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
           throw err;
         } finally {
           clearTimeout(longRespondDestroyHandlerTimeout);
+
+          // Remove reference to destroy handler stack
+          this._destroyHandlerStack = null;
         }
       })();
 
