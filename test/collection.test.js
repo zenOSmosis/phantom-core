@@ -981,6 +981,34 @@ test("collection children immediately reflects destructed child", async t => {
   t.end();
 });
 
+test("collection emits EVT_UPDATED on child destruct", async t => {
+  t.plan(3);
+
+  const child = new PhantomCore();
+  const collection = new PhantomCollection([child]);
+
+  t.equals(collection.getChildren().length, 1, "collection has one child");
+
+  await Promise.all([
+    new Promise(resolve => {
+      collection.on(EVT_UPDATED, () => {
+        t.ok(child.getIsDestroyed(), "child is destructed");
+
+        t.equals(
+          collection.getChildren().length,
+          0,
+          "collection has no remaining children"
+        );
+
+        resolve();
+      });
+    }),
+    child.destroy(),
+  ]);
+
+  t.end();
+});
+
 test("child to collection to master collection event passing", async t => {
   t.plan(8);
 
