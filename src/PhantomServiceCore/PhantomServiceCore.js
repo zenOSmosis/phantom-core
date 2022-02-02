@@ -173,10 +173,9 @@ class PhantomServiceCore extends PhantomState {
     return this._collectionMap.get(CollectionClass);
   }
 
-  // TODO: Document
   /**
    * @return {PhantomCollection[]} An array of PhantomCollection classes (not
-   * instances).
+   * instances) which are bound to the service.
    */
   getCollectionClasses() {
     // Coerce to array since map.keys() is not an array (it's an Iterator object)
