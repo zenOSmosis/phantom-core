@@ -308,7 +308,7 @@ test("events and destruct", async t => {
 
     t.ok(
       phantom.getIsDestroyed(),
-      "destroy state is true after EVT_DESTROYED emit"
+      "destroy state is true when EVT_DESTROYED emit"
     );
   });
 
