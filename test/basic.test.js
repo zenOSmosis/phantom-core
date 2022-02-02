@@ -1,13 +1,7 @@
 const test = require("tape");
 const PhantomCore = require("../src");
-const {
-  EVT_READY,
-  EVT_UPDATED,
-  EVT_BEFORE_DESTROY,
-  EVT_DESTROY_STACK_TIMED_OUT,
-  EVT_DESTROYED,
-  sleep,
-} = PhantomCore;
+const { EVT_READY, EVT_UPDATED, EVT_BEFORE_DESTROY, EVT_DESTROYED, sleep } =
+  PhantomCore;
 
 /**
  * Tests instantiation and destroying of PhantomCore with the default options
@@ -415,43 +409,6 @@ test("multiple destroyHandler calls", async t => {
     1,
     "EVT_DESTROYED event emits only once regardless of times destroy method is called"
   );
-
-  t.end();
-});
-
-test("destroyHandler gridlock", async t => {
-  t.plan(1);
-
-  class TestGridLockPhantom extends PhantomCore {}
-
-  const p1 = new TestGridLockPhantom();
-  const p2 = new TestGridLockPhantom();
-
-  await Promise.race([
-    p1.destroy(async () => {
-      await p2.destroy();
-    }),
-
-    p2.destroy(async () => {
-      await p1.destroy();
-    }),
-
-    Promise.all([
-      new Promise(resolve => {
-        p1.once(EVT_DESTROY_STACK_TIMED_OUT, () => {
-          resolve();
-        });
-      }),
-
-      new Promise(resolve => {
-        p2.once(EVT_DESTROY_STACK_TIMED_OUT, () => {
-          resolve();
-        });
-      }),
-    ]),
-  ]);
-
-  t.ok(true, "emits EVT_DESTROY_STACK_TIMED_OUT in gridlock situation");
 
   t.end();
 });
