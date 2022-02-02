@@ -1,5 +1,5 @@
 const EventEmitter = require("events");
-const sleep = require("./utils/sleep");
+const getClassName = require("./utils/class-utils/getClassName");
 
 /** @export */
 const EVT_BEFORE_DESTROY = "beforedestroy";
@@ -19,6 +19,9 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
 
     this._isDestroying = false;
     this._isDestroyed = false;
+
+    // TODO: Remove?
+    // this._postDestructOpTimeout = null;
   }
 
   /**
@@ -41,23 +44,36 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
    * @return {Promise<void>}
    */
   async destroy(destroyHandler = () => null) {
-    if (!this._isDestroying) {
-      this.emit(EVT_BEFORE_DESTROY);
-      this._isDestroying = true;
-
-      await destroyHandler();
-
-      // NOTE: Setting this flag before-hand is intentional
-      this._isDestroyed = true;
-
-      // IMPORTANT: This must come before removal of all listeners
-      this.emit(EVT_DESTROYED);
-
-      // Unbind all listeners
-      this.removeAllListeners();
-
-      this._isDestroying = false;
+    if (this._isDestroyed) {
+      throw new Error(
+        `${getClassName(
+          this
+        )} is already destroyed. The subsequent request was rejected.`
+      );
     }
+
+    if (this._isDestroying) {
+      throw new Error(
+        `${getClassName(
+          this
+        )} is already in the process of being destroyed. The subsequent request was rejected.`
+      );
+    }
+
+    this.emit(EVT_BEFORE_DESTROY);
+    this._isDestroying = true;
+
+    await destroyHandler();
+
+    // NOTE: Setting this flag before-hand is intentional
+    this._isDestroyed = true;
+
+    // IMPORTANT: This must come before removal of all listeners
+    this.emit(EVT_DESTROYED);
+
+    this.removeAllListeners();
+
+    this._isDestroying = false;
   }
 };
 
