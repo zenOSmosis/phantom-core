@@ -61,21 +61,24 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
 
       this.emit(EVT_BEFORE_DESTROY);
 
-      this._destroyHandlerStack.push(destroyHandler);
+      // Handle the destroy handler stack
+      await (async () => {
+        this._destroyHandlerStack.push(destroyHandler);
 
-      let longRespondDestroyHandlerTimeout = setTimeout(() => {
-        this.emit(EVT_DESTROY_STACK_TIMED_OUT);
-      }, DESTROY_STACK_GRACE_PERIOD);
+        let longRespondDestroyHandlerTimeout = setTimeout(() => {
+          this.emit(EVT_DESTROY_STACK_TIMED_OUT);
+        }, DESTROY_STACK_GRACE_PERIOD);
 
-      // This try / catch fixes an issue where an error in the callstack
-      // doesn't clear the longRespondDestroyHandlerTimeout
-      try {
-        await this._destroyHandlerStack.exec();
-      } catch (err) {
-        throw err;
-      } finally {
-        clearTimeout(longRespondDestroyHandlerTimeout);
-      }
+        // This try / catch fixes an issue where an error in the callstack
+        // doesn't clear the longRespondDestroyHandlerTimeout
+        try {
+          await this._destroyHandlerStack.exec();
+        } catch (err) {
+          throw err;
+        } finally {
+          clearTimeout(longRespondDestroyHandlerTimeout);
+        }
+      })();
 
       // IMPORTANT: This must come before removal of all listeners
       this._isDestroyed = true;
