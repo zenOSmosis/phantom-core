@@ -50,7 +50,7 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 
 ## Changelog
 
-### Version 2.4.0 (TBD)
+### Version 2.4.0 (TBD -- TODO: Update)
 
   - Implement EVT_BEFORE_DESTROY event and PhantomCore#getIsDestroying() lifecycle method
   - Implement destroyHandler argument in PhantomCore#destroy() and extension classes.  This is beneficial because:
