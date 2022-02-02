@@ -10,6 +10,7 @@ const {
   EVT_READY,
   EVT_UPDATED,
   EVT_BEFORE_DESTROY,
+  EVT_DESTROY_STACK_TIMED_OUT,
   EVT_DESTROYED,
   EVT_NO_INIT_WARN,
   eventConstantCheckingUtils,
@@ -27,6 +28,7 @@ test("phantom-core events", t => {
       EVT_READY,
       EVT_UPDATED,
       EVT_BEFORE_DESTROY,
+      EVT_DESTROY_STACK_TIMED_OUT,
       EVT_DESTROYED,
       EVT_NO_INIT_WARN,
     });

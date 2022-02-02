@@ -521,8 +521,8 @@ test("PhantomCollection ChildEventBridge", async t => {
 
     t.equals(
       prevTotalChildEvents,
-      20,
-      "initial mapped child events before initial collection destruct is 20"
+      24,
+      "initial mapped child events before initial collection destruct is 24"
     );
 
     await collection.destroy();

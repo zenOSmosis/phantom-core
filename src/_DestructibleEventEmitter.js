@@ -6,7 +6,14 @@ const sleep = require("./utils/sleep");
 const EVT_BEFORE_DESTROY = "before-destroy";
 
 /** @export */
+const EVT_DESTROY_STACK_TIMED_OUT = "destroy-stack-timed-out";
+
+/** @export */
 const EVT_DESTROYED = "destroyed";
+
+// Number of milliseconds the destroyHandlerStack has to execute before
+// warnings are generated
+const DESTROY_STACK_GRACE_PERIOD = 5000;
 
 /**
  * Common base class for PhantomCore and any utilities which PhantomCore may
@@ -21,13 +28,15 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
     this._isDestroying = false;
     this._isDestroyed = false;
 
-    this._destroyHandlerQueue = new FunctionStack();
+    this._destroyHandlerStack = new FunctionStack();
 
     // TODO: Throw an error if EVT_DESTROYED is emit without _isDestroyed
     // being set to true (prevent arbitrary calls to EVT_DESTROYED)
   }
 
   /**
+   * Retrieves whether or not the
+   *
    * @return {boolean}
    */
   getIsDestroying() {
@@ -52,9 +61,21 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
 
       this.emit(EVT_BEFORE_DESTROY);
 
-      this._destroyHandlerQueue.push(destroyHandler);
+      this._destroyHandlerStack.push(destroyHandler);
 
-      await this._destroyHandlerQueue.exec();
+      let longRespondDestroyHandlerTimeout = setTimeout(() => {
+        this.emit(EVT_DESTROY_STACK_TIMED_OUT);
+      }, DESTROY_STACK_GRACE_PERIOD);
+
+      // This try / catch fixes an issue where an error in the callstack
+      // doesn't clear the longRespondDestroyHandlerTimeout
+      try {
+        await this._destroyHandlerStack.exec();
+      } catch (err) {
+        throw err;
+      } finally {
+        clearTimeout(longRespondDestroyHandlerTimeout);
+      }
 
       // IMPORTANT: This must come before removal of all listeners
       this._isDestroyed = true;
@@ -68,7 +89,7 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
       // issue with Chrome / Safari MediaStreamTrackControllerFactory not
       // properly emitting EVT_UPDATED when a child controller is destructed
       // await destroyHandler();
-      this._destroyHandlerQueue.push(destroyHandler);
+      this._destroyHandlerStack.push(destroyHandler);
 
       // Increase potential max listeners by one to prevent potential
       // MaxListenersExceededWarning
@@ -82,4 +103,5 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
 };
 
 module.exports.EVT_BEFORE_DESTROY = EVT_BEFORE_DESTROY;
+module.exports.EVT_DESTROY_STACK_TIMED_OUT = EVT_DESTROY_STACK_TIMED_OUT;
 module.exports.EVT_DESTROYED = EVT_DESTROYED;

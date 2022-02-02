@@ -18,7 +18,7 @@ const getClassInstanceMethodNames = require("./utils/class-utils/getClassInstanc
 const autoBindClassInstanceMethods = require("./utils/class-utils/autoBindClassInstanceMethods");
 const shallowMerge = require("./utils/shallowMerge");
 
-// Amount of milliseconds to allow async inits to initialize before triggering
+// Number of milliseconds to allow async inits to initialize before triggering
 // warning
 const ASYNC_INIT_GRACE_TIME = 5000;
 
@@ -32,15 +32,14 @@ const EVT_READY = "ready";
 /** @export */
 const EVT_UPDATED = "updated";
 /** @export */
-const { EVT_BEFORE_DESTROY, EVT_DESTROYED } = DestructibleEventEmitter;
+const { EVT_BEFORE_DESTROY, EVT_DESTROY_STACK_TIMED_OUT, EVT_DESTROYED } =
+  DestructibleEventEmitter;
 
 // Instances for this particular thread
 const _instances = {};
 
 // Methods which should continue working after class destruct
 const KEEP_ALIVE_SHUTDOWN_METHODS = [
-  "off",
-  "removeListener",
   "log",
   "listenerCount",
   "getIsDestroying",
@@ -48,6 +47,8 @@ const KEEP_ALIVE_SHUTDOWN_METHODS = [
   "getInstanceUptime",
   "getTotalListenerCount",
   // super method names
+  "off",
+  "removeListener",
   "eventNames",
   "listenerCount",
   //
@@ -295,6 +296,12 @@ class PhantomCore extends DestructibleEventEmitter {
      */
     this.log = this.logger.log;
 
+    this.once(EVT_DESTROY_STACK_TIMED_OUT, () => {
+      this.log.error(
+        "The destruct callstack is taking longer to execute than expected. Ensure a potential gridlock situation is not happening, where two or more PhantomCore instances are awaiting one another to shut down."
+      );
+    });
+
     /** @type {number} UTC Unix time */
     this._instanceStartTime = getUnixTime();
 
@@ -317,7 +324,7 @@ class PhantomCore extends DestructibleEventEmitter {
       // PhantomCore superclass _init on their own
 
       // Warn if _init() is not invoked in a short time period
-      const initTimeout = setTimeout(() => {
+      const longRespondInitWarnTimeout = setTimeout(() => {
         this.logger.warn(
           "PhantomCore superclass _init has not been called in a reasonable amount of time.  All instances which use isAsync option must call _init on the PhantomCore superclass."
         );
@@ -325,8 +332,8 @@ class PhantomCore extends DestructibleEventEmitter {
         this.emit(EVT_NO_INIT_WARN);
       }, ASYNC_INIT_GRACE_TIME);
 
-      this.once(EVT_READY, () => clearTimeout(initTimeout));
-      this.once(EVT_DESTROYED, () => clearTimeout(initTimeout));
+      this.once(EVT_READY, () => clearTimeout(longRespondInitWarnTimeout));
+      this.once(EVT_DESTROYED, () => clearTimeout(longRespondInitWarnTimeout));
     }
 
     deprecationNotices.forEach(deprecation => {
@@ -764,4 +771,5 @@ module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;
 module.exports.EVT_READY = EVT_READY;
 module.exports.EVT_UPDATED = EVT_UPDATED;
 module.exports.EVT_BEFORE_DESTROY = EVT_BEFORE_DESTROY;
+module.exports.EVT_DESTROY_STACK_TIMED_OUT = EVT_DESTROY_STACK_TIMED_OUT;
 module.exports.EVT_DESTROYED = EVT_DESTROYED;
