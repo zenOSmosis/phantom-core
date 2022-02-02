@@ -103,12 +103,17 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
         }
       })();
 
-      // IMPORTANT: This must come before removal of all listeners
+      // Set the state before the event is emit so that any listeners will know
+      // the correct state
       this._isDestroyed = true;
+
+      // IMPORTANT: This must come before removal of all listeners
       this.emit(EVT_DESTROYED);
 
+      // Remove all event listeners; we're stopped
       this.removeAllListeners();
 
+      // No longer in "destroying" phase, and destroyed at this point
       this._isDestroying = false;
     } else if (!this._isDestroyed) {
       // Enable subsequent call with another destroyHandler; this fixes an
