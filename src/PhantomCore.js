@@ -723,7 +723,7 @@ class PhantomCore extends DestructibleEventEmitter {
    * @return {Promise<void>}
    */
   async destroy(destroyHandler = () => null) {
-    const ret = await super.destroy(async () => {
+    await super.destroy(async () => {
       // Intentionally unregister w/ _instances and call super.destroy()
       // handler first
       delete _instances[this._uuid];
@@ -760,8 +760,6 @@ class PhantomCore extends DestructibleEventEmitter {
         // );
       }
     }
-
-    return ret;
   }
 }
 
