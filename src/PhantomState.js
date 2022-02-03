@@ -34,7 +34,7 @@ class PhantomState extends PhantomCore {
 
     // Reset state on destruct
     this.registerShutdownHandler(() => {
-      this._state = {};
+      this._state = null;
     });
   }
 
@@ -53,17 +53,22 @@ class PhantomState extends PhantomCore {
    * NOTE: The previous state object will be re-referenced.
    *
    * @param {Object} partialNextState
+   * @param {boolean} isMerge? [default = true]
    * @emits EVT_UPDATED With partialNextState
    * @return {void}
    */
-  setState(partialNextState) {
-    if (typeof partialNextState !== "object") {
-      throw new TypeError("setState must be called with an object");
+  setState(nextState, isMerge = true) {
+    if (typeof nextState !== "object") {
+      throw new TypeError("nextState must be an object");
     }
 
-    this._state = { ...this._state, ...partialNextState };
+    if (isMerge) {
+      this._state = { ...this._state, ...nextState };
+    } else {
+      this._state = nextState;
+    }
 
-    this.emit(EVT_UPDATED, partialNextState);
+    this.emit(EVT_UPDATED, nextState);
   }
 }
 

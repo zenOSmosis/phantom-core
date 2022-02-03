@@ -3,7 +3,7 @@ const { PhantomState } = require("../src");
 const { EVT_UPDATED } = PhantomState;
 
 test("phantom state", async t => {
-  t.plan(9);
+  t.plan(10);
 
   class ExtendedState extends PhantomState {
     constructor() {
@@ -55,7 +55,7 @@ test("phantom state", async t => {
         nl: null,
       },
     },
-    "setState performs shallow merging"
+    "setState performs shallow merging by default"
   );
 
   extendedState.setState({
@@ -114,6 +114,15 @@ test("phantom state", async t => {
     }),
   ]);
 
+  // Non-merge
+  extendedState.setState({ hello: "world" }, false);
+
+  t.deepEquals(
+    extendedState.getState(),
+    { hello: "world" },
+    "non-merge strategy sets full state as expected"
+  );
+
   t.notDeepEquals(
     extendedState._state,
     {},
@@ -122,7 +131,7 @@ test("phantom state", async t => {
 
   await extendedState.destroy();
 
-  t.deepEquals(extendedState._state, {}, "state is cleared after destruct");
+  t.deepEquals(extendedState._state, null, "state is null after destruct");
 
   t.end();
 });
