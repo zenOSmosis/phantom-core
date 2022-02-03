@@ -1,6 +1,6 @@
 const EventEmitter = require("events");
 const FunctionStack = require("./FunctionStack");
-const sleep = require("./utils/sleep");
+const getClassName = require("./utils/class-utils/getClassName");
 
 /** @export */
 const EVT_BEFORE_DESTROY = "before-destroy";
@@ -72,6 +72,17 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
    * destroy() method, after the destroy handler stack has executed.
    */
   async destroy(destroyHandler = () => null) {
+    // FIXME: (jh) Improve this handling
+    if (this._isDestroyed) {
+      console.warn(
+        `"${getClassName(
+          this
+        )}" is already destroyed.  Ignoring subsequent destroy() call.`
+      );
+
+      return;
+    }
+
     if (!this._isDestroying) {
       this._isDestroying = true;
 
