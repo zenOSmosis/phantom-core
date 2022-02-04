@@ -72,7 +72,6 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
    * destroy() method, after the destroy handler stack has executed.
    */
   async destroy(destroyHandler = () => null) {
-    // FIXME: (jh) Improve this handling
     if (this._isDestroyed) {
       console.warn(
         `"${getClassName(
