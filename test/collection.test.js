@@ -491,6 +491,7 @@ test("PhantomCollection ChildEventBridge", async t => {
 
         collection.once(EVT_UPDATED, eventRejectHandler);
 
+        // FIXME: (jh) Remove?  Why is this needed?
         setTimeout(() => {
           collection.off(EVT_UPDATED, eventRejectHandler);
 
