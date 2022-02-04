@@ -374,8 +374,10 @@ test("no subsequent usage of destroy() after full destruct", async t => {
 
   try {
     await phantom.destroy();
+
+    t.ok(true, "silently ignores final destruct attempt");
   } catch (err) {
-    t.ok(true, "throws if calling destroy() after full destruct()");
+    throw err;
   }
 });
 
