@@ -1,6 +1,6 @@
 const test = require("tape");
 const PhantomCore = require("../src");
-const { EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
+const { EVT_UPDATED, EVT_BEFORE_DESTROY, EVT_DESTROYED } = PhantomCore;
 const EventEmitter = require("events");
 const PhantomCollection = require("../src/PhantomCollection");
 const {
@@ -955,27 +955,56 @@ test("PhantomCollection iterator", async t => {
   t.end();
 });
 
-test("collection children immediately reflects destructed child", async t => {
-  t.plan(4);
+test("collection children ignored destructing / destructed children", async t => {
+  t.plan(6);
 
   const child = new PhantomCore();
 
   const collection1 = new PhantomCollection([child]);
   const collection2 = new PhantomCollection([child]);
 
-  t.ok(collection1.getChildren().length === 1);
-  t.ok(collection2.getChildren().length === 1);
+  t.ok(
+    collection1.getChildren().length === 1,
+    "collection1 shows 1 child before destructing"
+  );
+  t.ok(
+    collection2.getChildren().length === 1,
+    "collection2 shows 1 child before destructing"
+  );
 
   await Promise.all([
     new Promise(resolve => {
-      child.once(EVT_DESTROYED, () => {
-        t.ok(collection1.getChildren().length === 0);
+      child.once(EVT_BEFORE_DESTROY, () => {
+        t.ok(
+          collection1.getChildren().length === 0,
+          "collection1 shows no children when destructing"
+        );
 
-        t.ok(collection2.getChildren().length === 0);
+        t.ok(
+          collection2.getChildren().length === 0,
+          "collection2 shows no children when destructing"
+        );
 
         resolve();
       });
     }),
+
+    new Promise(resolve => {
+      child.once(EVT_DESTROYED, () => {
+        t.ok(
+          collection1.getChildren().length === 0,
+          "collection1 shows no children when destructed"
+        );
+
+        t.ok(
+          collection2.getChildren().length === 0,
+          "collection2 shows no children when destructing"
+        );
+
+        resolve();
+      });
+    }),
+
     child.destroy(),
   ]);
 
