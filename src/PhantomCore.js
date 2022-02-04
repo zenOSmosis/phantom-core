@@ -23,9 +23,6 @@ const shallowMerge = require("./utils/shallowMerge");
 const ASYNC_INIT_GRACE_TIME = 5000;
 
 /** @export */
-const globalLogger = new Logger();
-
-/** @export */
 const EVT_NO_INIT_WARN = "no-init-warn";
 /** @export */
 const EVT_READY = "ready";
@@ -764,7 +761,6 @@ class PhantomCore extends DestructibleEventEmitter {
 }
 
 module.exports = PhantomCore;
-module.exports.globalLogger = globalLogger;
 module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;
 module.exports.EVT_READY = EVT_READY;
 module.exports.EVT_UPDATED = EVT_UPDATED;
