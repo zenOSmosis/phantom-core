@@ -362,6 +362,23 @@ test("no incorrect usage of EVT_DESTROYED", async t => {
   t.end();
 });
 
+test("no subsequent usage of destroy() after full destruct", async t => {
+  t.plan(1);
+
+  const phantom = new PhantomCore();
+
+  // Don't await
+  phantom.destroy();
+
+  await new Promise(resolve => phantom.once(EVT_DESTROYED, resolve));
+
+  try {
+    await phantom.destroy();
+  } catch (err) {
+    t.ok(true, "throws if calling destroy() after full destruct()");
+  }
+});
+
 test("multiple destroyHandler calls", async t => {
   t.plan(3);
 
