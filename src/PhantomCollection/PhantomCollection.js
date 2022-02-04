@@ -431,7 +431,7 @@ class PhantomCollection extends PhantomCore {
       await destroyHandler();
 
       // Empty out the collection
-      await this.removeAllChildren();
+      this.removeAllChildren();
 
       await this._childEventBridge.destroy();
     });
