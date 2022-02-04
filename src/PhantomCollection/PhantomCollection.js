@@ -244,7 +244,7 @@ class PhantomCollection extends PhantomCore {
 
     // Called when the collection instance is destroyed before the collection
     const destroyListener = () => {
-      if (!phantomCoreInstance.getIsDestroying()) {
+      if (!phantomCoreInstance.getIsDestroyed()) {
         this.removeChild(phantomCoreInstance);
       }
     };
