@@ -11,6 +11,7 @@ const {
   getIsNodeJS,
   getSuperClass,
   getClassInheritance,
+  getClassInstancePropertyNames,
   sleep,
 } = PhantomCore;
 const { performance: libPerformance } = require("perf_hooks");
@@ -184,6 +185,34 @@ test("super parents", t => {
     DestructibleEventEmitter,
     EventEmitter,
   ]);
+
+  t.end();
+});
+
+test("class instance property names", t => {
+  t.plan(3);
+
+  const phantom = new PhantomCore();
+
+  const fakeThing = function () {};
+
+  t.throws(
+    () => getClassInstancePropertyNames(fakeThing),
+    "throws TypeError if using function"
+  );
+
+  const propNames = getClassInstancePropertyNames(phantom);
+
+  t.ok(
+    propNames.every(propName => typeof propName === "string"),
+    "every property name is a string"
+  );
+
+  t.equals(
+    propNames.length,
+    [...new Set(propNames)].length,
+    "every property name is unique"
+  );
 
   t.end();
 });
