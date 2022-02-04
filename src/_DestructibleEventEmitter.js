@@ -79,7 +79,7 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
    * Subsequent calls will add the user-defined destroyHandler callback to a
    * queue managed by FunctionStack.
    *
-   * @param {Function} destroyHandler? [optional] If defined, will execute
+   * @param {Function || null} destroyHandler? [optional] If defined, will execute
    * prior to normal destruct operations for this class.
    * @return {Promise<void>}
    * @emits EVT_BEFORE_DESTROY Emits a single time, regardless of calls to the
@@ -89,10 +89,15 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
    * @emits EVT_DESTROYED Emits a single time, regardless of calls to the
    * destroy() method, after the destroy handler stack has executed.
    */
-  async destroy(destroyHandler = () => null) {
+  async destroy(destroyHandler = null) {
     if (this._isDestroyed) {
-      // TODO: Either redescribe this error or change it to a warning
-      throw new Error(`"${getClassName(this)}" is completely destroyed`);
+      if (typeof destroyHandler === "function") {
+        throw new Error(
+          `"${getClassName(
+            this
+          )}" has been called with a functional destroyHandler after destruct.  The destroyHandler was not invoked.`
+        );
+      }
     }
 
     if (!this._isDestroying) {
@@ -102,7 +107,9 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
 
       // Handle the destroy handler stack
       await (async () => {
-        this._destroyHandlerStack.push(destroyHandler);
+        if (typeof destroyHandler === "function") {
+          this._destroyHandlerStack.push(destroyHandler);
+        }
 
         let longRespondDestroyHandlerTimeout = setTimeout(() => {
           this.emit(EVT_DESTROY_STACK_TIMED_OUT);
