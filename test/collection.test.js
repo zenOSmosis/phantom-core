@@ -160,7 +160,7 @@ test("PhantomCollection add / remove child; get children", async t => {
   );
 
   const ec2 = new PhantomCoreTestClass();
-  const lenEC2InitialEvents = ec2.listenerCount();
+  const lenEC2InitialDestroyedEvents = ec2.listenerCount(EVT_DESTROYED);
 
   await Promise.all([
     new Promise(resolve => {
@@ -288,7 +288,7 @@ test("PhantomCollection add / remove child; get children", async t => {
 
   t.equals(
     ec2.listenerCount(EVT_DESTROYED),
-    lenEC2InitialEvents + 1,
+    lenEC2InitialDestroyedEvents + 1,
     "adds EVT_DESTROYED handler to instance when added to collection"
   );
 
@@ -329,7 +329,7 @@ test("PhantomCollection add / remove child; get children", async t => {
 
   t.equals(
     ec2.listenerCount(EVT_DESTROYED),
-    lenEC2InitialEvents,
+    lenEC2InitialDestroyedEvents,
     "removes EVT_DESTROYED handler from instance when removed from collection"
   );
 
@@ -491,6 +491,7 @@ test("PhantomCollection ChildEventBridge", async t => {
 
         collection.once(EVT_UPDATED, eventRejectHandler);
 
+        // FIXME: (jh) Remove?  Why is this needed?
         setTimeout(() => {
           collection.off(EVT_UPDATED, eventRejectHandler);
 
@@ -521,8 +522,8 @@ test("PhantomCollection ChildEventBridge", async t => {
 
     t.equals(
       prevTotalChildEvents,
-      20,
-      "initial mapped child events before initial collection destruct is 20"
+      28,
+      "initial mapped child events before initial collection destruct is 28"
     );
 
     await collection.destroy();
@@ -971,6 +972,34 @@ test("collection children immediately reflects destructed child", async t => {
         t.ok(collection1.getChildren().length === 0);
 
         t.ok(collection2.getChildren().length === 0);
+
+        resolve();
+      });
+    }),
+    child.destroy(),
+  ]);
+
+  t.end();
+});
+
+test("collection emits EVT_UPDATED on child destruct", async t => {
+  t.plan(3);
+
+  const child = new PhantomCore();
+  const collection = new PhantomCollection([child]);
+
+  t.equals(collection.getChildren().length, 1, "collection has one child");
+
+  await Promise.all([
+    new Promise(resolve => {
+      collection.on(EVT_UPDATED, () => {
+        t.ok(child.getIsDestroyed(), "child is destructed");
+
+        t.equals(
+          collection.getChildren().length,
+          0,
+          "collection has no remaining children"
+        );
 
         resolve();
       });

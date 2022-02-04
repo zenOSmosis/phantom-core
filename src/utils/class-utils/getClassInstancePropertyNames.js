@@ -6,7 +6,7 @@ const getIsClassInstance = require("./getIsClassInstance");
  * IMPORTANT: This retrieves an array of strings, and not pointers to the
  * properties themselves.
  *
- * @param {function} classInstance JavaScript class instance
+ * @param {Function} classInstance JavaScript class instance
  * @return {string[]} An array of property names
  */
 module.exports = function getClassInstancePropertyNames(classInstance) {

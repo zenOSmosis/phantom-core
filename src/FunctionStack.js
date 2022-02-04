@@ -10,7 +10,7 @@ module.exports = class FunctionStack {
   /**
    * Adds a new function to the stack.
    *
-   * @param {function} fn
+   * @param {Function} fn
    * @return {void}
    */
   push(fn) {
@@ -25,10 +25,19 @@ module.exports = class FunctionStack {
   /**
    * Removes the given function from the stack.
    *
-   * @param {function} fn
+   * @param {Function} fn
    */
   remove(fn) {
     this._fns = this._fns.filter(pred => pred !== fn);
+  }
+
+  /**
+   * Removes all functions from the stack.
+   *
+   * @return {void}
+   */
+  clear() {
+    this._fns = [];
   }
 
   /**
@@ -39,23 +48,14 @@ module.exports = class FunctionStack {
    * IMPORTANT: This method recursively calls itself until there are not more
    * items in the stack.
    *
-   * @param {boolean} ignoreErrors? [default = false]
    * @return {Promise<void>}
    */
-  async exec(ignoreErrors = false) {
+  async exec() {
     if (this._fns.length) {
       // Obtain the first function of the array, and resize the array
       const fn = this._fns.shift();
 
-      try {
-        await fn();
-      } catch (err) {
-        if (!ignoreErrors) {
-          throw err;
-        } else {
-          console.error(err);
-        }
-      }
+      await fn();
 
       // Recursively call itself, executing the next stack index, if exists
       return this.exec();

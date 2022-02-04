@@ -1,5 +1,12 @@
 const PhantomCore = require("./PhantomCore");
-const { EVT_NO_INIT_WARN, EVT_READY, EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
+const {
+  EVT_NO_INIT_WARN,
+  EVT_READY,
+  EVT_UPDATED,
+  EVT_BEFORE_DESTROY,
+  EVT_DESTROY_STACK_TIMED_OUT,
+  EVT_DESTROYED,
+} = PhantomCore;
 
 /**
  * Wraps an arbitrary object with a PhantomCore instance.
@@ -14,17 +21,6 @@ class ArbitraryPhantomWrapper extends PhantomCore {
 
     this._wrappedValue = null;
     this._setWrappedValue(wrappedValue);
-  }
-
-  /**
-   * @return {Promise<void>}
-   */
-  async destroy() {
-    await super.destroy();
-
-    // IMPORTANT: Setting this AFTER super destroy so that it can potentially
-    // be intercepted by other destruct handlers in extension classes
-    this._wrappedValue = null;
   }
 
   /**
@@ -54,10 +50,27 @@ class ArbitraryPhantomWrapper extends PhantomCore {
   getWrappedValue() {
     return this._wrappedValue;
   }
+
+  /**
+   * @param {Function} destroyHandler? [optional] If defined, will execute
+   * prior to normal destruct operations for this class.
+   * @return {Promise<void>}
+   */
+  async destroy(destroyHandler = () => null) {
+    return super.destroy(async () => {
+      await destroyHandler();
+
+      // IMPORTANT: Setting this AFTER super destroy so that it can potentially
+      // be intercepted by other destruct handlers in extension classes
+      this._wrappedValue = null;
+    });
+  }
 }
 
 module.exports = ArbitraryPhantomWrapper;
 module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;
 module.exports.EVT_READY = EVT_READY;
 module.exports.EVT_UPDATED = EVT_UPDATED;
+module.exports.EVT_BEFORE_DESTROY = EVT_BEFORE_DESTROY;
+module.exports.EVT_DESTROY_STACK_TIMED_OUT = EVT_DESTROY_STACK_TIMED_OUT;
 module.exports.EVT_DESTROYED = EVT_DESTROYED;

@@ -7,6 +7,10 @@ const {
   /** @export */
   EVT_UPDATED,
   /** @export */
+  EVT_BEFORE_DESTROY,
+  /** @export */
+  EVT_DESTROY_STACK_TIMED_OUT,
+  /** @export */
   EVT_DESTROYED,
 } = PhantomCore;
 
@@ -152,18 +156,6 @@ class PhantomCollection extends PhantomCore {
       this.on(EVT_CHILD_INSTANCE_ADDED, _handleChildrenUpdate);
       this.on(EVT_CHILD_INSTANCE_REMOVED, _handleChildrenUpdate);
     })();
-  }
-
-  /**
-   * @return {Promise<void>}
-   */
-  async destroy() {
-    // Empty out the collection
-    await this.removeAllChildren();
-
-    await this._childEventBridge.destroy();
-
-    return super.destroy();
   }
 
   /**
@@ -428,6 +420,22 @@ class PhantomCollection extends PhantomCore {
   getBoundChildEventNames() {
     return this._childEventBridge.getBridgeEventNames();
   }
+
+  /**
+   * @param {Function} destroyHandler? [optional] If defined, will execute
+   * prior to normal destruct operations for this class.
+   * @return {Promise<void>}
+   */
+  async destroy(destroyHandler = () => null) {
+    return super.destroy(async () => {
+      await destroyHandler();
+
+      // Empty out the collection
+      await this.removeAllChildren();
+
+      await this._childEventBridge.destroy();
+    });
+  }
 }
 
 module.exports = PhantomCollection;
@@ -435,6 +443,8 @@ module.exports = PhantomCollection;
 module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;
 module.exports.EVT_READY = EVT_READY;
 module.exports.EVT_UPDATED = EVT_UPDATED;
+module.exports.EVT_BEFORE_DESTROY = EVT_BEFORE_DESTROY;
+module.exports.EVT_DESTROY_STACK_TIMED_OUT = EVT_DESTROY_STACK_TIMED_OUT;
 module.exports.EVT_DESTROYED = EVT_DESTROYED;
 
 module.exports.EVT_CHILD_INSTANCE_ADDED = EVT_CHILD_INSTANCE_ADDED;

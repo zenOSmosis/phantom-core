@@ -18,12 +18,9 @@ const getClassInstanceMethodNames = require("./utils/class-utils/getClassInstanc
 const autoBindClassInstanceMethods = require("./utils/class-utils/autoBindClassInstanceMethods");
 const shallowMerge = require("./utils/shallowMerge");
 
-// Amount of milliseconds to allow async inits to initialize before triggering
+// Number of milliseconds to allow async inits to initialize before triggering
 // warning
 const ASYNC_INIT_GRACE_TIME = 5000;
-
-/** @export */
-const globalLogger = new Logger();
 
 /** @export */
 const EVT_NO_INIT_WARN = "no-init-warn";
@@ -32,21 +29,23 @@ const EVT_READY = "ready";
 /** @export */
 const EVT_UPDATED = "updated";
 /** @export */
-const { EVT_DESTROYED } = DestructibleEventEmitter;
+const { EVT_BEFORE_DESTROY, EVT_DESTROY_STACK_TIMED_OUT, EVT_DESTROYED } =
+  DestructibleEventEmitter;
 
 // Instances for this particular thread
 const _instances = {};
 
 // Methods which should continue working after class destruct
 const KEEP_ALIVE_SHUTDOWN_METHODS = [
-  "off",
-  "removeListener",
   "log",
   "listenerCount",
+  "getIsDestroying",
   "getIsDestroyed",
   "getInstanceUptime",
   "getTotalListenerCount",
   // super method names
+  "off",
+  "removeListener",
   "eventNames",
   "listenerCount",
   //
@@ -288,16 +287,24 @@ class PhantomCore extends DestructibleEventEmitter {
     /**
      * NOTE: This is called directly in order to not lose the stack trace.
      *
-     * @type {function} Calling this function directly will indirectly call
+     * @type {Function} Calling this function directly will indirectly call
      * logger.info(); The logger.trace(), logger.debug(), logger.info(), logger.warn(), and
      * logger.error() properties can be called directly.
      */
     this.log = this.logger.log;
 
+    this.once(EVT_DESTROY_STACK_TIMED_OUT, () => {
+      this.log.error(
+        "The destruct callstack is taking longer to execute than expected. Ensure a potential gridlock situation is not happening, where two or more PhantomCore instances are awaiting one another to shut down."
+      );
+    });
+
     /** @type {number} UTC Unix time */
     this._instanceStartTime = getUnixTime();
 
     this._isReady = !this._options.isAsync || false;
+
+    this._isPostDestroyOpStarted = false;
 
     // Force method scope binding to class instance
     if (this._options.hasAutomaticBindings) {
@@ -314,7 +321,7 @@ class PhantomCore extends DestructibleEventEmitter {
       // PhantomCore superclass _init on their own
 
       // Warn if _init() is not invoked in a short time period
-      const initTimeout = setTimeout(() => {
+      const longRespondInitWarnTimeout = setTimeout(() => {
         this.logger.warn(
           "PhantomCore superclass _init has not been called in a reasonable amount of time.  All instances which use isAsync option must call _init on the PhantomCore superclass."
         );
@@ -322,8 +329,8 @@ class PhantomCore extends DestructibleEventEmitter {
         this.emit(EVT_NO_INIT_WARN);
       }, ASYNC_INIT_GRACE_TIME);
 
-      this.once(EVT_READY, () => clearTimeout(initTimeout));
-      this.once(EVT_DESTROYED, () => clearTimeout(initTimeout));
+      this.once(EVT_READY, () => clearTimeout(longRespondInitWarnTimeout));
+      this.once(EVT_DESTROYED, () => clearTimeout(longRespondInitWarnTimeout));
     }
 
     deprecationNotices.forEach(deprecation => {
@@ -369,55 +376,6 @@ class PhantomCore extends DestructibleEventEmitter {
   }
 
   /**
-   * NOTE: Order of operations for shutdown handling:
-   *
-   *  1. registerShutdownHandler call stack
-   *  2. EVT_DESTROYED triggers
-   *
-   * @return {Promise<void>}
-   */
-  async destroy() {
-    // IMPORTANT: This check for instance UUID should not run asynchronous
-    // because certain conditions may cause the destruct handler to be called
-    // more than once
-    if (_instances[this._uuid]) {
-      // Intentionally unregister w/ _instances and call super.destroy()
-      // handler first
-      delete _instances[this._uuid];
-
-      // Execute the shutdown handler before calling super.destroy, so that any
-      // last minute events can be handled
-      await this._shutdownHandlerStack.exec(true);
-
-      // NOTE: EVT_DESTROYED is emit here
-      await super.destroy();
-
-      // TODO: Implement and call shutdown handlers before continuing (these will perform extra clean-up work, etc. and prevent having to bind to EVT_DESTROYED, etc.)
-
-      this.getPhantomProperties().forEach(phantomProp => {
-        this.log.warn(
-          `Lingering PhantomCore instance on prop name "${phantomProp}".  This could be a memory leak.  Ensure that all PhantomCore instances have been disposed of before class destruct.`
-        );
-      });
-
-      for (const methodName of this.getMethodNames()) {
-        // Force non-keep-alive methods to return undefined
-        if (!KEEP_ALIVE_SHUTDOWN_METHODS.includes(methodName)) {
-          this[methodName] = () => undefined;
-        }
-
-        // TODO: Reimplement and conditionally silence w/ instance options
-        // or env
-        // this.logger.warn(
-        //  `Cannot call this.${method}() after class ${className} is destroyed`
-        // );
-      }
-
-      // TODO: Force regular class properties to be null (as of July 30, 2021, not changing due to unforeseen consequences)
-    }
-  }
-
-  /**
    * Force scope binding of PhantomCore class methods to the instance they are
    * defined in, regardless of how the method is invoked.
    *
@@ -441,7 +399,7 @@ class PhantomCore extends DestructibleEventEmitter {
    * Registers a function to the shutdown handler stack, which is executed
    * AFTER EVT_DESTROYED is emit.
    *
-   * @param {function} fn
+   * @param {Function} fn
    * @return {void}
    */
   registerShutdownHandler(fn) {
@@ -451,7 +409,7 @@ class PhantomCore extends DestructibleEventEmitter {
   /**
    * Unregisters a function from the shutdown handler stack.
    *
-   * @param {function} fn
+   * @param {Function} fn
    * @returns
    */
   unregisterShutdownHandler(fn) {
@@ -614,7 +572,7 @@ class PhantomCore extends DestructibleEventEmitter {
   /**
    * Retrieves the non-instantiated class definition.
    *
-   * @return {function}
+   * @return {Function}
    */
   getClass() {
     return this.constructor;
@@ -641,7 +599,7 @@ class PhantomCore extends DestructibleEventEmitter {
    *
    * @param {PhantomCore} proxyInstance
    * @param {string | symbol} eventName
-   * @param {function} eventHandler
+   * @param {Function} eventHandler
    * @return {void}
    */
   proxyOn(proxyInstance, eventName, eventHandler) {
@@ -672,7 +630,7 @@ class PhantomCore extends DestructibleEventEmitter {
    *
    * @param {PhantomCore} proxyInstance
    * @param {string | symbol} eventName
-   * @param {function} eventHandler
+   * @param {Function} eventHandler
    * @return {void}
    */
   proxyOnce(proxyInstance, eventName, eventHandler) {
@@ -710,7 +668,7 @@ class PhantomCore extends DestructibleEventEmitter {
    *
    * @param {PhantomCore} proxyInstance
    * @param {string | symbol} eventName
-   * @param {function} eventHandler
+   * @param {Function} eventHandler
    * @return {void}
    */
   proxyOff(proxyInstance, eventName, eventHandler) {
@@ -750,11 +708,68 @@ class PhantomCore extends DestructibleEventEmitter {
       return 0;
     }
   }
+
+  /**
+   * NOTE: This method may be called more than once should there be two calls
+   * with different "destroyHandler" callback functions.  A potential scenario
+   * for this is using PhantomCollection extensions which may have intricate
+   * shutdown handler event ties.
+   *
+   * NOTE: Order of operations for shutdown handling:
+   *
+   *  1. [implementation defined] destroyHandler
+   *  2. registerShutdownHandler call stack
+   *  3. EVT_DESTROYED triggers
+   *
+   * @param {Function} destroyHandler? [optional] If defined, will execute
+   * prior to normal destruct operations for this class.
+   * @return {Promise<void>}
+   */
+  async destroy(destroyHandler = () => null) {
+    await super.destroy(async () => {
+      // Intentionally unregister w/ _instances and call super.destroy()
+      // handler first
+      delete _instances[this._uuid];
+
+      await destroyHandler();
+
+      // Execute the shutdown handler before calling super.destroy, so that any
+      // last minute events can be handled
+      await this._shutdownHandlerStack.exec();
+    });
+
+    // Post-destruct operations
+    if (!this._isPostDestroyOpStarted) {
+      this._isPostDestroyOpStarted = true;
+
+      // TODO: Force regular class properties to be null (as of July 30, 2021, not changing due to unforeseen consequences)
+
+      this.getPhantomProperties().forEach(phantomProp => {
+        this.log.warn(
+          `Lingering PhantomCore instance on prop name "${phantomProp}".  This could be a memory leak.  Ensure that all PhantomCore instances have been disposed of before class destruct.`
+        );
+      });
+
+      for (const methodName of this.getMethodNames()) {
+        // Force non-keep-alive methods to return undefined
+        if (!KEEP_ALIVE_SHUTDOWN_METHODS.includes(methodName)) {
+          this[methodName] = () => undefined;
+        }
+
+        // TODO: Reimplement and conditionally silence w/ instance options
+        // or env
+        // this.logger.warn(
+        //  `Cannot call this.${method}() after class ${className} is destroyed`
+        // );
+      }
+    }
+  }
 }
 
 module.exports = PhantomCore;
-module.exports.globalLogger = globalLogger;
 module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;
 module.exports.EVT_READY = EVT_READY;
 module.exports.EVT_UPDATED = EVT_UPDATED;
+module.exports.EVT_BEFORE_DESTROY = EVT_BEFORE_DESTROY;
+module.exports.EVT_DESTROY_STACK_TIMED_OUT = EVT_DESTROY_STACK_TIMED_OUT;
 module.exports.EVT_DESTROYED = EVT_DESTROYED;

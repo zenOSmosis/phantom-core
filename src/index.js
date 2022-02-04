@@ -2,9 +2,10 @@ const PhantomCore = require("./PhantomCore");
 const {
   EVT_READY,
   EVT_UPDATED,
+  EVT_BEFORE_DESTROY,
+  EVT_DESTROY_STACK_TIMED_OUT,
   EVT_DESTROYED,
   EVT_NO_INIT_WARN,
-  globalLogger,
 } = PhantomCore;
 const Logger = require("./Logger");
 const {
@@ -21,12 +22,14 @@ module.exports = PhantomCore;
 Object.assign(module.exports, {
   EVT_READY,
   EVT_UPDATED,
+  EVT_BEFORE_DESTROY,
+  EVT_DESTROY_STACK_TIMED_OUT,
   EVT_DESTROYED,
   EVT_NO_INIT_WARN,
   Logger,
 
   // Global logger instance
-  logger: globalLogger,
+  logger: require("./globalLogger"),
 
   LOG_LEVEL_TRACE,
   LOG_LEVEL_DEBUG,

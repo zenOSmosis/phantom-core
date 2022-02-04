@@ -90,18 +90,18 @@ test("service instantiation", async t => {
     "serviceManager reports two service classes after adding in new service"
   );
 
-  const extendedtestCollectionInstance =
+  const extendedTestCollectionInstance =
     serviceManager.getServiceInstance(ExtendedTestService);
 
   t.notOk(
-    extendedtestCollectionInstance.getIsReady(),
+    extendedTestCollectionInstance.getIsReady(),
     "service is not ready by default"
   );
 
-  await extendedtestCollectionInstance.onceReady();
+  await extendedTestCollectionInstance.onceReady();
 
   t.ok(
-    extendedtestCollectionInstance.getIsReady(),
+    extendedTestCollectionInstance.getIsReady(),
     "service is ready once it emits ready event"
   );
 
@@ -110,7 +110,7 @@ test("service instantiation", async t => {
   t.ok(
     serviceManager.getIsDestroyed() &&
       testCollectionInstance.getIsDestroyed() &&
-      extendedtestCollectionInstance.getIsDestroyed(),
+      extendedTestCollectionInstance.getIsDestroyed(),
     "TestService instance is destructed when ServiceManager is destructed"
   );
 

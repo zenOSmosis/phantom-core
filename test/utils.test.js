@@ -11,6 +11,7 @@ const {
   getIsNodeJS,
   getSuperClass,
   getClassInheritance,
+  getClassInstancePropertyNames,
   sleep,
 } = PhantomCore;
 const { performance: libPerformance } = require("perf_hooks");
@@ -188,6 +189,34 @@ test("super parents", t => {
   t.end();
 });
 
+test("class instance property names", t => {
+  t.plan(3);
+
+  const phantom = new PhantomCore();
+
+  const fakeThing = function () {};
+
+  t.throws(
+    () => getClassInstancePropertyNames(fakeThing),
+    "throws TypeError if using function"
+  );
+
+  const propNames = getClassInstancePropertyNames(phantom);
+
+  t.ok(
+    propNames.every(propName => typeof propName === "string"),
+    "every property name is a string"
+  );
+
+  t.equals(
+    propNames.length,
+    [...new Set(propNames)].length,
+    "every property name is unique"
+  );
+
+  t.end();
+});
+
 /*
 test("symbol to UUID", t => {
   t.plan(16);
@@ -289,8 +318,17 @@ test("sleep", async t => {
     await sleep(1500);
     const afterEnd = performance.now();
     t.ok(
-      afterEnd - beforeStart >= 1500,
-      "sleep() accepts default argument for milliseconds"
+      // NOTE: Intentionally testing w/ 100 ms "grace buffer" (>= 1400 instead
+      // of 1500) in case of potential timing fluctuation in the JS engine
+      // clock (which fixes a bug sometimes exposed by Chrome when running on
+      // SauceLab's virtual machines). This "could be" due to before / after
+      // timestamps being calculated with a high resolution timestamp, while
+      // sleep() is based on setTimeout, which is a lower precision.
+      //
+      // The main purpose of this test is not for precision, but to ensure that
+      // the time attribute actually affects sleep time.
+      afterEnd - beforeStart >= 1400,
+      "sleep() responds to argument for milliseconds"
     );
   })();
 

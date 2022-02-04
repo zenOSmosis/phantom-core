@@ -8,6 +8,10 @@ const {
   /** @export */
   EVT_UPDATED,
   /** @export */
+  EVT_BEFORE_DESTROY,
+  /** @export */
+  EVT_DESTROY_STACK_TIMED_OUT,
+  /** @export */
   EVT_DESTROYED,
 } = PhantomState;
 
@@ -85,18 +89,6 @@ class PhantomServiceCore extends PhantomState {
    */
   async _init() {
     return super._init();
-  }
-
-  /**
-   * @return {Promise<void>}
-   */
-  async destroy() {
-    // Destruct all attached collections
-    await Promise.all(
-      [...this._collectionMap.values()].map(collection => collection.destroy())
-    );
-
-    return super.destroy();
   }
 
   /**
@@ -181,15 +173,32 @@ class PhantomServiceCore extends PhantomState {
     return this._collectionMap.get(CollectionClass);
   }
 
-  // TODO: Document
   /**
    * @return {PhantomCollection[]} An array of PhantomCollection classes (not
-   * instances).
+   * instances) which are bound to the service.
    */
   getCollectionClasses() {
     // Coerce to array since map.keys() is not an array (it's an Iterator object)
     // @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/keys
     return [...this._collectionMap.keys()];
+  }
+
+  /**
+   * @param {Function} destroyHandler? [optional] If defined, will execute
+   * prior to normal destruct operations for this class.
+   * @return {Promise<void>}
+   */
+  async destroy(destroyHandler = () => null) {
+    return super.destroy(async () => {
+      await destroyHandler();
+
+      // Destruct all attached collections
+      await Promise.all(
+        [...this._collectionMap.values()].map(collection =>
+          collection.destroy()
+        )
+      );
+    });
   }
 }
 
@@ -197,4 +206,6 @@ module.exports = PhantomServiceCore;
 module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;
 module.exports.EVT_READY = EVT_READY;
 module.exports.EVT_UPDATED = EVT_UPDATED;
+module.exports.EVT_BEFORE_DESTROY = EVT_BEFORE_DESTROY;
+module.exports.EVT_DESTROY_STACK_TIMED_OUT = EVT_DESTROY_STACK_TIMED_OUT;
 module.exports.EVT_DESTROYED = EVT_DESTROYED;

@@ -49,11 +49,7 @@ class ChildEventBridge extends PhantomCore {
      */
     this._bridgeEventNames = [...DEFAULT_BRIDGE_EVENT_NAMES];
 
-    /**
-     * FIXME: This type isn't really valid, but describes the structure enough
-     * for human parsing
-     * @type {Object<key: uuid, value: Object: <key: eventName, value: eventHandler>>}
-     */
+    /** @type {{key: uuid, value: {key: eventName, value: eventHandler}}} */
     this._linkedChildEventHandlers = {};
 
     this._handleChildInstanceAdded = this._handleChildInstanceAdded.bind(this);
@@ -62,16 +58,14 @@ class ChildEventBridge extends PhantomCore {
 
     // Bind child _...added/removed handlers
     (() => {
-      // NOTE: Since this instance is bound directly to the PhantomCollection
-      // "off" event handlers aren't added here; they could work but just
-      // aren't needed
-
-      this._phantomCollection.on(
+      this.proxyOn(
+        this._phantomCollection,
         EVT_CHILD_INSTANCE_ADDED,
         this._handleChildInstanceAdded
       );
 
-      this._phantomCollection.on(
+      this.proxyOn(
+        this._phantomCollection,
         EVT_CHILD_INSTANCE_REMOVED,
         this._handleChildInstanceRemoved
       );
@@ -97,43 +91,15 @@ class ChildEventBridge extends PhantomCore {
   }
 
   /**
-   * @return {Promise<void>}
-   */
-  async destroy() {
-    // Unbind child _...added/removed handlers
-    (() => {
-      this._phantomCollection.off(
-        EVT_CHILD_INSTANCE_ADDED,
-        this._handleChildInstanceAdded
-      );
-
-      this._phantomCollection.off(
-        EVT_CHILD_INSTANCE_REMOVED,
-        this._handleChildInstanceRemoved
-      );
-    })();
-
-    // Unmap all associated bridge event handlers from the children
-    (() => {
-      const children = this.getChildren();
-      for (const child of children) {
-        for (const eventName of this._bridgeEventNames) {
-          this._unmapChildEvent(child, eventName);
-        }
-      }
-    })();
-
-    return super.destroy();
-  }
-
-  /**
    * Retrieves an array of PhantomCore children for the associated
    * PhantomCollection.
    *
    * @return {PhantomCore[]}
    */
   getChildren() {
-    return this._phantomCollection.getChildren();
+    return (
+      (this._phantomCollection && this._phantomCollection.getChildren()) || []
+    );
   }
 
   /**
@@ -268,6 +234,21 @@ class ChildEventBridge extends PhantomCore {
    */
   getBridgeEventNames() {
     return this._bridgeEventNames;
+  }
+
+  /**
+   * @return {Promise<void>}
+   */
+  async destroy() {
+    return super.destroy(async () => {
+      // Unmap all associated bridge event handlers from the children
+      const children = this.getChildren();
+      for (const child of children) {
+        for (const eventName of this._bridgeEventNames) {
+          this._unmapChildEvent(child, eventName);
+        }
+      }
+    });
   }
 }
 

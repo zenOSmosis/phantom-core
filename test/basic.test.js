@@ -1,12 +1,12 @@
 const test = require("tape");
 const PhantomCore = require("../src");
-const { EVT_READY, EVT_UPDATED, EVT_DESTROYED } = PhantomCore;
+const { EVT_READY, EVT_UPDATED, EVT_BEFORE_DESTROY, EVT_DESTROYED, sleep } =
+  PhantomCore;
 
 /**
  * Tests instantiation and destroying of PhantomCore with the default options
  * (no options passed).
  */
-
 test("registers and unregisters instances", async t => {
   t.plan(2);
 
@@ -308,7 +308,7 @@ test("events and destruct", async t => {
 
     t.ok(
       phantom.getIsDestroyed(),
-      "destroy state is true after EVT_DESTROYED emit"
+      "destroy state is true when EVT_DESTROYED emit"
     );
   });
 
@@ -334,26 +334,125 @@ test("events and destruct", async t => {
   t.end();
 });
 
-test("destruct handler only runs once", async t => {
+test("no incorrect usage of EVT_DESTROYED", async t => {
+  t.plan(3);
+
+  const phantom = new PhantomCore();
+
+  t.throws(
+    () => phantom.emit(EVT_DESTROYED),
+    Error,
+    "throws Error if EVT_DESTROYED is arbitrarily emit on instance"
+  );
+
+  t.ok(
+    phantom.getIsDestroying(),
+    true,
+    "proceeds to destroying phase once EVT_DESTROYED is improperly emit"
+  );
+
+  await new Promise(resolve => phantom.once(EVT_DESTROYED, resolve));
+
+  t.ok(
+    phantom.getIsDestroyed(),
+    true,
+    "shuts down after winding up in destroying phase"
+  );
+
+  t.end();
+});
+
+test("no subsequent usage of destroy() after full destruct", async t => {
   t.plan(1);
 
   const phantom = new PhantomCore();
 
-  let destructIterations = 0;
+  // Don't await
+  phantom.destroy();
 
-  phantom.on(EVT_DESTROYED, () => ++destructIterations);
+  await new Promise(resolve => phantom.once(EVT_DESTROYED, resolve));
+
+  try {
+    await phantom.destroy();
+  } catch (err) {
+    t.ok(true, "throws if calling destroy() after full destruct()");
+  }
+});
+
+test("multiple destroyHandler calls", async t => {
+  t.plan(3);
+
+  const phantom = new PhantomCore();
+
+  let preDestructEventIterations = 0;
+  phantom.on(EVT_BEFORE_DESTROY, () => ++preDestructEventIterations);
+
+  let postDestructEventIterations = 0;
+  phantom.on(EVT_DESTROYED, () => ++postDestructEventIterations);
+
+  let ab = [];
 
   for (let i = 0; i < 10; i++) {
-    // Intentionally not awaiting these
-    phantom.destroy();
+    // Sync destroy call
+    phantom.destroy(() => {
+      ab.push(i);
+    });
+
+    // Async destroy call
+    phantom.destroy(async () => {
+      return new Promise(resolve => {
+        ab.push(i);
+
+        resolve();
+      });
+    });
   }
 
-  await phantom.destroy();
+  // Prolonged wait async destroy call
+  phantom.destroy(async () => {
+    ab.push("before-end");
+  });
+
+  // Final destroy call
+  await phantom.destroy(() => {
+    ab.push("end");
+  });
+
+  t.deepEquals(ab, [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5,
+    6,
+    6,
+    7,
+    7,
+    8,
+    8,
+    9,
+    9,
+    "before-end",
+    "end",
+  ]);
 
   t.equals(
-    destructIterations,
+    preDestructEventIterations,
     1,
-    "destruct handler is only run once, regardless of number of times called"
+    "EVT_BEFORE_DESTROY event emits only once regardless of times destroy method is called"
+  );
+
+  t.equals(
+    postDestructEventIterations,
+    1,
+    "EVT_DESTROYED event emits only once regardless of times destroy method is called"
   );
 
   t.end();
@@ -513,6 +612,15 @@ test("phantom properties", async t => {
     "_pred6",
   ]);
 
+  // Silence memory leak warnings
+  testPhantom.registerShutdownHandler(async () => {
+    await Promise.all([
+      testPhantom._pred2.destroy(),
+      testPhantom._pred5.destroy(),
+      testPhantom._pred6.destroy(),
+    ]);
+  });
+
   await testPhantom.destroy();
 
   t.end();
@@ -540,7 +648,7 @@ test("symbol toString()", t => {
   t.end();
 });
 
-test("can emit events during shutdown phase", async t => {
+test("shutdown phase event handling", async t => {
   t.plan(3);
 
   const phantom = new PhantomCore();
@@ -598,10 +706,9 @@ test("can emit events during shutdown phase", async t => {
 });
 
 test("shutdown handler stack", async t => {
-  t.plan(6);
+  t.plan(4);
 
   const p1 = new PhantomCore();
-  const p2 = new PhantomCore();
 
   t.throws(
     () => {
@@ -611,47 +718,49 @@ test("shutdown handler stack", async t => {
     "throws TypeError when trying to register non-function shutdown handler"
   );
 
-  const badFn = () => {
-    t.ok(true, "badFn has been started");
+  p1.registerShutdownHandler(() => {
+    throw new Error("Expected error");
+  });
 
-    throw new Error(
-      "INTENTIONAL ERROR. This does not indicate something is wrong w/ PhantomCore.  It is only used for testing."
-    );
-  };
-
-  p1.registerShutdownHandler(badFn);
-  p2.registerShutdownHandler(badFn);
-
-  let hasGoodAsyncFnRun = false;
-
-  const goodAsyncFn = async () => {
-    t.ok(true, `goodAsyncFn was executed`);
-
-    hasGoodAsyncFnRun = true;
-  };
-
-  p1.registerShutdownHandler(goodAsyncFn);
-  p2.registerShutdownHandler(goodAsyncFn);
-
-  const goodSyncFn = () => {
+  try {
+    await p1.destroy();
+  } catch (err) {
     t.ok(
-      hasGoodAsyncFnRun,
-      `goodSyncFn was executed after goodAsyncFn (stack awaits promises before continuing)`
+      err.message === "Expected error",
+      "errors in shutdown stack are thrown from the PhantomCore instance"
     );
-  };
 
-  p1.registerShutdownHandler(goodSyncFn);
-  p2.registerShutdownHandler(goodSyncFn);
+    t.notOk(
+      p1.getIsDestroyed(),
+      "phantom does not register as destroyed if shutdown stack errors"
+    );
+  }
 
-  // Unregister badFn on p1 only
-  p1.unregisterShutdownHandler(badFn);
+  const p2 = new PhantomCore();
 
-  await p1.destroy();
+  let opsRecords = [];
 
-  // IMPORTANT: It should be noted that though p2 has a badFn in its shutdown
-  // handler stack, the error is ignored, and the other handlers continue as if
-  // there were no error
+  p2.registerShutdownHandler(() => {
+    opsRecords.push("a");
+  });
+
+  p2.registerShutdownHandler(async () => {
+    await sleep(1000);
+
+    opsRecords.push("b");
+  });
+
+  p2.registerShutdownHandler(() => {
+    opsRecords.push("c");
+  });
+
   await p2.destroy();
+
+  t.deepEquals(
+    opsRecords,
+    ["a", "b", "c"],
+    "shutdown functions are executed in order (FIFO) and maintain proper order if promises are used"
+  );
 
   t.end();
 });

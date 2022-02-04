@@ -13,6 +13,10 @@ const {
   /** @export */
   EVT_UPDATED,
   /** @export */
+  EVT_BEFORE_DESTROY,
+  /** @export */
+  EVT_DESTROY_STACK_TIMED_OUT,
+  /** @export */
   EVT_DESTROYED,
 } = PhantomCollection;
 
@@ -33,18 +37,6 @@ class PhantomServiceManager extends PhantomCollection {
     this.registerShutdownHandler(() => {
       this._pendingServiceClassInstanceSet.clear();
     });
-  }
-
-  /**
-   * @return {Promise<void>}
-   */
-  async destroy() {
-    // Destruct all services on collection destruct
-    await this.destroyAllChildren();
-
-    const ret = await super.destroy();
-
-    return ret;
   }
 
   /**
@@ -181,6 +173,20 @@ class PhantomServiceManager extends PhantomCollection {
   getServiceClasses() {
     return this.getKeys();
   }
+
+  /**
+   * @param {Function} destroyHandler? [optional] If defined, will execute
+   * prior to normal destruct operations for this class.
+   * @return {Promise<void>}
+   */
+  async destroy(destroyHandler = () => null) {
+    return super.destroy(async () => {
+      await destroyHandler();
+
+      // Destruct all services on collection destruct
+      await this.destroyAllChildren();
+    });
+  }
 }
 
 module.exports = PhantomServiceManager;
@@ -189,4 +195,6 @@ module.exports.EVT_READY = EVT_READY;
 // module.exports.EVT_CHILD_INSTANCE_ADDED = EVT_CHILD_INSTANCE_ADDED;
 // module.exports.EVT_CHILD_INSTANCE_REMOVED = EVT_CHILD_INSTANCE_REMOVED;
 module.exports.EVT_UPDATED = EVT_UPDATED;
+module.exports.EVT_BEFORE_DESTROY = EVT_BEFORE_DESTROY;
+module.exports.EVT_DESTROY_STACK_TIMED_OUT = EVT_DESTROY_STACK_TIMED_OUT;
 module.exports.EVT_DESTROYED = EVT_DESTROYED;

@@ -10,7 +10,7 @@ const getIsClassInstance = require("./getIsClassInstance");
  *
  * Additional reading: https://gist.github.com/dfoverdx/2582340cab70cff83634c8d56b4417cd
  *
- * @param {function} classInstance JavaScript class
+ * @param {Function} classInstance JavaScript class
  * @param {function[]} ignoreMethods? An array of class methods to ignore.
  * These must be references to the actual method and not the method names
  * themselves.
