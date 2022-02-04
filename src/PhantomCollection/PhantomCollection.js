@@ -243,7 +243,6 @@ class PhantomCollection extends PhantomCore {
     }
 
     // Called when the collection instance is destroyed before the collection
-    // TODO: Rename destroyListener
     const destroyListener = () => this.removeChild(phantomCoreInstance);
 
     // Register w/ _childMetaDescriptions property
@@ -253,7 +252,7 @@ class PhantomCollection extends PhantomCore {
       [KEY_META_CHILD_DESTROY_LISTENER]: destroyListener,
     });
 
-    phantomCoreInstance.registerShutdownHandler(destroyListener);
+    phantomCoreInstance.once(EVT_DESTROYED, destroyListener);
 
     this.emit(EVT_CHILD_INSTANCE_ADDED, phantomCoreInstance);
     this.emit(EVT_UPDATED);
@@ -280,7 +279,8 @@ class PhantomCollection extends PhantomCore {
           return true;
         } else {
           // Remove destroy handler from instance
-          phantomCoreInstance.unregisterShutdownHandler(
+          phantomCoreInstance.off(
+            EVT_DESTROYED,
             metaDescription[KEY_META_CHILD_DESTROY_LISTENER]
           );
 
