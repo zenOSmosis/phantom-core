@@ -17,10 +17,7 @@ const {
 } = PhantomCore;
 const { compareExportedEvents } = eventConstantCheckingUtils;
 
-// TODO: Refactor these tests once event deps are included in PhantomCore
-// @see https://github.com/zenOSmosis/phantom-core/issues/93
-
-test("phantom-core events", t => {
+test("PhantomCore events", t => {
   t.plan(1);
 
   t.doesNotThrow(() => {
@@ -32,67 +29,67 @@ test("phantom-core events", t => {
       EVT_DESTROYED,
       EVT_NO_INIT_WARN,
     });
-  }, "phantom-core exports expected events");
+  }, "PhantomCore exports expected events");
 
   t.end();
 });
 
-test("arbitrary-phantom-wrapper events", t => {
+test("ArbitraryPhantomWrapperr events", t => {
   t.plan(1);
 
   t.doesNotThrow(() => {
     compareExportedEvents(PhantomCore, ArbitraryPhantomWrapper);
-  }, "arbitrary-phantom-wrapper exports expected events");
+  }, "ArbitraryPhantomWrapper exports expected events");
 
   t.end();
 });
 
-test("phantom-collection events", t => {
+test("PhantomCollection events", t => {
   t.plan(1);
 
   t.doesNotThrow(() => {
     compareExportedEvents(PhantomCore, PhantomCollection);
-  }, "phantom-collection exports expected events");
+  }, "PhantomCollection exports expected events");
 
   t.end();
 });
 
-test("phantom-state events", t => {
+test("PhantomState events", t => {
   t.plan(1);
 
   t.doesNotThrow(() => {
     compareExportedEvents(PhantomCore, PhantomState);
-  }, "phantom-state exports expected events");
+  }, "PhantomState exports expected events");
 
   t.end();
 });
 
-test("phantom-serial-state events", t => {
+test("PhantomSerializableState events", t => {
   t.plan(1);
 
   t.doesNotThrow(() => {
     compareExportedEvents(PhantomState, PhantomSerializableState);
-  }, "phantom-state exports expected events");
+  }, "PhantomSerializableState exports expected events");
 
   t.end();
 });
 
-test("phantom-service-core events", t => {
+test("PhantomServiceCore events", t => {
   t.plan(1);
 
   t.doesNotThrow(() => {
     compareExportedEvents(PhantomState, PhantomServiceCore);
-  }, "phantom-service-core exports expected events");
+  }, "PhantomServiceCore exports expected events");
 
   t.end();
 });
 
-test("phantom-service-manager events", t => {
+test("PhantomServiceManager events", t => {
   t.plan(1);
 
   t.doesNotThrow(() => {
     compareExportedEvents(PhantomCollection, PhantomServiceManager);
-  }, "phantom-service-manager exports expected events");
+  }, "PhantomServiceManager exports expected events");
 
   t.end();
 });
