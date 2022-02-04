@@ -145,7 +145,7 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
 
       // No longer in "destroying" phase, and destroyed at this point
       // this._isDestroying = false;
-    } else if (!this._isDestroyed) {
+    } else {
       // Enable subsequent call with another destroyHandler; this fixes an
       // issue with Chrome / Safari MediaStreamTrackControllerFactory not
       // properly emitting EVT_UPDATED when a child controller is destructed
