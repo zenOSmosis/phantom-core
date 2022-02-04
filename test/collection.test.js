@@ -160,7 +160,7 @@ test("PhantomCollection add / remove child; get children", async t => {
   );
 
   const ec2 = new PhantomCoreTestClass();
-  const lenEC2InitialEvents = ec2.listenerCount();
+  const lenEC2InitialDestroyedEvents = ec2.listenerCount(EVT_DESTROYED);
 
   await Promise.all([
     new Promise(resolve => {
@@ -288,7 +288,7 @@ test("PhantomCollection add / remove child; get children", async t => {
 
   t.equals(
     ec2.listenerCount(EVT_DESTROYED),
-    lenEC2InitialEvents + 1,
+    lenEC2InitialDestroyedEvents + 1,
     "adds EVT_DESTROYED handler to instance when added to collection"
   );
 
@@ -329,7 +329,7 @@ test("PhantomCollection add / remove child; get children", async t => {
 
   t.equals(
     ec2.listenerCount(EVT_DESTROYED),
-    lenEC2InitialEvents,
+    lenEC2InitialDestroyedEvents,
     "removes EVT_DESTROYED handler from instance when removed from collection"
   );
 
@@ -522,8 +522,8 @@ test("PhantomCollection ChildEventBridge", async t => {
 
     t.equals(
       prevTotalChildEvents,
-      24,
-      "initial mapped child events before initial collection destruct is 24"
+      28,
+      "initial mapped child events before initial collection destruct is 28"
     );
 
     await collection.destroy();

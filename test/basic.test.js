@@ -334,6 +334,34 @@ test("events and destruct", async t => {
   t.end();
 });
 
+test("no incorrect usage of EVT_DESTROYED", async t => {
+  t.plan(3);
+
+  const phantom = new PhantomCore();
+
+  t.throws(
+    () => phantom.emit(EVT_DESTROYED),
+    Error,
+    "throws Error if EVT_DESTROYED is arbitrarily emit on instance"
+  );
+
+  t.ok(
+    phantom.getIsDestroying(),
+    true,
+    "proceeds to destroying phase once EVT_DESTROYED is improperly emit"
+  );
+
+  await new Promise(resolve => phantom.once(EVT_DESTROYED, resolve));
+
+  t.ok(
+    phantom.getIsDestroyed(),
+    true,
+    "shuts down after winding up in destroying phase"
+  );
+
+  t.end();
+});
+
 test("multiple destroyHandler calls", async t => {
   t.plan(3);
 

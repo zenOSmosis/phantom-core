@@ -30,8 +30,20 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
 
     this._destroyHandlerStack = new FunctionStack();
 
-    // TODO: Throw an error if EVT_DESTROYED is emit without _isDestroyed
-    // being set to true (prevent arbitrary calls to EVT_DESTROYED)
+    // Prevent incorrect usage of EVT_DESTROYED; EVT_DESTROYED should only be
+    // emit internally during the shutdown phase
+    this.on(EVT_DESTROYED, () => {
+      if (!this._isDestroyed) {
+        // IMPORTANT: Don't await here; we want to throw the error and destruct
+        // the instance at the same time due to it being in a potentially invalid
+        // state
+        this.destroy();
+
+        throw new Error(
+          "EVT_DESTROYED was incorrectly emit without initially being in a destroyed state.  Destructed instance due to potential state invalidation."
+        );
+      }
+    });
   }
 
   /**
