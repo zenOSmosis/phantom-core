@@ -85,6 +85,7 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
    */
   async destroy(destroyHandler = () => null) {
     if (this._isDestroyed) {
+      // TODO: Either redescribe this error or change it to a warning
       throw new Error(`"${getClassName(this)}" is completely destroyed`);
     }
 
