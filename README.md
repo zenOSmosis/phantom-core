@@ -50,7 +50,7 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 
 ## Changelog
 
-### Version 2.4.0 (TBD -- TODO: Update)
+### Version 2.4.0 (Feb. 3, 2022)
 
   - Improve PhantomCore instance (and extension) shutdown phase coordination:
     - Add EVT_BEFORE_DESTROY event and PhantomCore#getIsDestroying() lifecycle method
