@@ -52,13 +52,11 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 
 ### Version 2.4.0 (TBD -- TODO: Update)
 
-  - Implement EVT_BEFORE_DESTROY event and PhantomCore#getIsDestroying() lifecycle method
-  - Implement destroyHandler argument in PhantomCore#destroy() and extension classes.  This is beneficial because:
-    - Extension shutdown handlers are wrapped by PhantomCore#getIsDestroying() state (if they utilize the destroyHandler argument in PhantomCore#destroy())
-    - PhantomCore extensions have more control over order of operations for shutdown handling in subsequent extensions
+  - Improve PhantomCore instance (and extension) shutdown phase coordination:
+    - Add EVT_BEFORE_DESTROY event and PhantomCore#getIsDestroying() lifecycle method
+    - Add destroyHandler argument to PhantomCore#destroy() (and extension) classes
   - PhantomCore#registerShutdownHandler callback methods no longer will ignore exceptions. If an exception is thrown, the underlying instance will not be treated as fully discarded (this may change in the future).
   - Add optional isMerge argument to PhantomState#setState() and PhantomSerializableState#setState(), which defaults to true.  If setting to false, the new state completely overrides the previous state.
-  - TODO: Mention "gridlock" (circular locking bug)
 
 ### Version 2.3.3 (Jan. 23, 2022)
 
