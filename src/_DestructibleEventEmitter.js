@@ -40,7 +40,7 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
         this.destroy();
 
         throw new Error(
-          "EVT_DESTROYED was incorrectly emit without initially being in a destroyed state.  Destructed instance due to potential state invalidation."
+          "EVT_DESTROYED was incorrectly emit without initially being in a destroyed state.  Destructing instance due to potential state invalidation."
         );
       }
     });
