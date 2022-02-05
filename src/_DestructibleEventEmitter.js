@@ -92,8 +92,6 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
         )}" has been destructed.  Ignoring subsequent destruct attempt.`
       );
 
-      // TODO: Add unit test to ensure subsequent destroyHandler is not invoked after shutdown
-
       return;
     }
 
