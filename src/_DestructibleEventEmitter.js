@@ -31,6 +31,9 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
 
     this._destroyHandlerStack = new FunctionStack();
 
+    // TODO: Remove?
+    this._destroyPhase = null;
+
     // Prevent incorrect usage of EVT_DESTROYED; EVT_DESTROYED should only be
     // emit internally during the shutdown phase
     this.on(EVT_DESTROYED, () => {
@@ -100,6 +103,9 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
     if (!this._isDestroying) {
       this._isDestroying = true;
 
+      // TODO: Remove?
+      this._destroyPhase = "a";
+
       this.emit(EVT_BEFORE_DESTROY);
 
       // Handle the destroy handler stack
@@ -113,10 +119,19 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
         // This try / catch fixes an issue where an error in the callstack
         // doesn't clear the longRespondDestroyHandlerTimeout
         try {
+          // TODO: Remove?
+          this._destroyPhase = "b";
+
           await this._destroyHandlerStack.exec();
         } catch (err) {
+          // TODO: Remove?
+          this._destroyPhase = "be";
+
           throw err;
         } finally {
+          // TODO: Remove?
+          this._destroyPhase = "c";
+
           clearTimeout(longRespondDestroyHandlerTimeout);
 
           // Remove remaining functions from stack, if exist (this should
@@ -125,8 +140,14 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
 
           // Remove reference to destroy handler stack
           this._destroyHandlerStack = null;
+
+          // TODO: Remove?
+          this._destroyPhase = "d";
         }
       })();
+
+      // TODO: Remove?
+      this._destroyPhase = "e";
 
       // Set the state before the event is emit so that any listeners will know
       // the correct state
@@ -137,6 +158,9 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
 
       // Remove all event listeners; we're stopped
       this.removeAllListeners();
+
+      // TODO: Remove?
+      this._destroyPhase = "f";
 
       // No longer in "destroying" phase, and destroyed at this point
       // this._isDestroying = false;
@@ -164,6 +188,7 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
         {
           isDestroyed: this._isDestroyed,
           isDestroying: this._isDestroying,
+          destroyPhase: this._destroyPhase,
           destroyHandler: destroyHandler.toString(),
         }
       );
