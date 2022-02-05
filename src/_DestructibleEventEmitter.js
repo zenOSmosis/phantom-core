@@ -117,6 +117,9 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
         } catch (err) {
           throw err;
         } finally {
+          // TODO: Remove
+          console.log("start finally");
+
           clearTimeout(longRespondDestroyHandlerTimeout);
 
           // Remove remaining functions from stack, if exist (this should
@@ -125,8 +128,14 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
 
           // Remove reference to destroy handler stack
           this._destroyHandlerStack = null;
+
+          // TODO: Remove
+          console.log("end finally");
         }
       })();
+
+      // TODO: Remove
+      console.log("final stretch");
 
       // Set the state before the event is emit so that any listeners will know
       // the correct state
@@ -137,6 +146,9 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
 
       // Remove all event listeners; we're stopped
       this.removeAllListeners();
+
+      // TODO: Remove
+      console.log("reached end");
 
       // No longer in "destroying" phase, and destroyed at this point
       // this._isDestroying = false;
