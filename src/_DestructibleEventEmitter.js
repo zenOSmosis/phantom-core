@@ -139,7 +139,7 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
 
       // No longer in "destroying" phase, and destroyed at this point
       // this._isDestroying = false;
-    } else {
+    } else if (this._destroyHandlerStack) {
       // Enable subsequent call with another destroyHandler; this fixes an
       // issue with Chrome / Safari MediaStreamTrackControllerFactory not
       // properly emitting EVT_UPDATED when a child controller is destructed
@@ -153,6 +153,11 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
       // Wait for the instance to be destroyed before resolving (all subsequent
       // destroy() calls should resolve at the same time)
       return new Promise(resolve => this.once(EVT_DESTROYED, resolve));
+    } else {
+      console.error(destroyHandler.toString());
+      throw new ReferenceError(
+        "Could not put new destroyHandler to shut down destroyHandlerStack"
+      );
     }
   }
 };
