@@ -85,7 +85,8 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
    * destroy() method, after the destroy handler stack has executed.
    */
   async destroy(destroyHandler = () => null) {
-    if (this._isDestroyed) {
+    // TODO: Clean up isDestroying checks
+    if (this._isDestroying || this._isDestroyed) {
       console.warn(
         `"${getClassName(
           this
