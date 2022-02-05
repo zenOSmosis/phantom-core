@@ -94,9 +94,7 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
       // TODO: Add unit test to ensure subsequent destroyHandler is not invoked after shutdown
 
       return;
-    }
-
-    if (!this._isDestroying) {
+    } else if (!this._isDestroying) {
       this._isDestroying = true;
 
       this.emit(EVT_BEFORE_DESTROY);
@@ -136,9 +134,6 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
 
       // Remove all event listeners; we're stopped
       this.removeAllListeners();
-
-      // No longer in "destroying" phase, and destroyed at this point
-      // this._isDestroying = false;
     } else {
       // Enable subsequent call with another destroyHandler; this fixes an
       // issue with Chrome / Safari MediaStreamTrackControllerFactory not
