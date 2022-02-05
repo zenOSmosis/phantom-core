@@ -285,7 +285,7 @@ test("determines instance uptime", async t => {
   t.end();
 });
 
-test("events and destruct", async t => {
+test("shutdown event handling", async t => {
   t.plan(8);
 
   const phantom = new PhantomCore();
@@ -329,6 +329,63 @@ test("events and destruct", async t => {
   t.ok(
     undefined === (await phantom.destroy()),
     "subsequent calls to destroy are ignored"
+  );
+
+  t.end();
+});
+
+test("shutdown phasing", async t => {
+  t.plan(10);
+
+  const phantom = new PhantomCore();
+
+  t.notOk(
+    phantom.getIsDestroying(),
+    "does not have is destroying state before shutdown"
+  );
+  t.notOk(
+    phantom.getIsDestroyed(),
+    "does not have destroyed state before shutdown"
+  );
+
+  phantom.once(EVT_BEFORE_DESTROY, () => {
+    t.ok(
+      phantom.getIsDestroying(),
+      "has destroying state after EVT_BEFORE_DESTROY emit"
+    );
+
+    t.notOk(
+      phantom.getIsDestroyed(),
+      "does not have destroyed state after EVT_BEFORE_DESTROY emit"
+    );
+  });
+
+  await phantom.destroy(() => {
+    t.ok(phantom.getIsDestroying(), "has destroying state during shutdown");
+    t.notOk(
+      phantom.getIsDestroyed(),
+      "does not have destroyed state during shutdown"
+    );
+
+    phantom.once(EVT_DESTROYED, () => {
+      t.ok(
+        phantom.getIsDestroying(),
+        "has destroying state after EVT_DESTROYED emit"
+      );
+      t.ok(
+        phantom.getIsDestroyed(),
+        "has destroyed state after EVT_DESTROYED emit"
+      );
+    });
+  });
+
+  t.ok(
+    phantom.getIsDestroying(),
+    "has destroying state after destroy() resolves"
+  );
+  t.ok(
+    phantom.getIsDestroyed(),
+    "has destroyed state after destroy() resolves"
   );
 
   t.end();
