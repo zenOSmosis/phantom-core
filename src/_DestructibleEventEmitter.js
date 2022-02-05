@@ -117,9 +117,6 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
         } catch (err) {
           throw err;
         } finally {
-          // TODO: Remove
-          console.log("start finally");
-
           clearTimeout(longRespondDestroyHandlerTimeout);
 
           // Remove remaining functions from stack, if exist (this should
@@ -128,14 +125,8 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
 
           // Remove reference to destroy handler stack
           this._destroyHandlerStack = null;
-
-          // TODO: Remove
-          console.log("end finally");
         }
       })();
-
-      // TODO: Remove
-      console.log("final stretch");
 
       // Set the state before the event is emit so that any listeners will know
       // the correct state
@@ -147,9 +138,6 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
       // Remove all event listeners; we're stopped
       this.removeAllListeners();
 
-      // TODO: Remove
-      console.log("reached end");
-
       // No longer in "destroying" phase, and destroyed at this point
       // this._isDestroying = false;
     } else if (this._destroyHandlerStack) {
@@ -159,9 +147,6 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
       // await destroyHandler();
       this._destroyHandlerStack.push(destroyHandler);
 
-      // TODO: Document if this works [debug issue where loop destroyHandlerStack may not be available after rapid invoke]
-      this._destroyHandlerStack.push(() => sleep(0));
-
       // Increase potential max listeners by one to prevent potential
       // MaxListenersExceededWarning
       this.setMaxListeners(this.getMaxListeners() + 1);
@@ -170,14 +155,17 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
       // destroy() calls should resolve at the same time)
       return new Promise(resolve => this.once(EVT_DESTROYED, resolve));
     } else {
-      console.error({
-        isDestroyed: this._isDestroyed,
-        isDestroying: this._isDestroying,
-        destroyHandler: destroyHandler.toString(),
-      });
-
-      throw new ReferenceError(
-        "Could not add new destroyHandler to an already destructed destroyHandlerStack"
+      // FIXME: (jh) This is able to be reproduced when rapidly starting and
+      // stopping an input media device in ReShell, and I'm not yet sure why it's
+      // happening.  Rather than throw, I want to treat it more as a warning
+      // for the time being.
+      console.error(
+        "Could not add new destroyHandler to an already destructed destroyHandlerStack",
+        {
+          isDestroyed: this._isDestroyed,
+          isDestroying: this._isDestroying,
+          destroyHandler: destroyHandler.toString(),
+        }
       );
     }
   }
