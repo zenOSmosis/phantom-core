@@ -823,3 +823,25 @@ test("shutdown handler stack", async t => {
 
   t.end();
 });
+
+test("unregister shutdown handler", async t => {
+  t.plan(1);
+
+  const phantom = new PhantomCore();
+
+  let wasInvoked = false;
+
+  const shutdownHandler = () => {
+    wasInvoked = true;
+  };
+
+  phantom.registerShutdownHandler(shutdownHandler);
+
+  phantom.unregisterShutdownHandler(shutdownHandler);
+
+  await phantom.destroy();
+
+  t.notOk(wasInvoked, "unregistered shutdown handler was not invoked");
+
+  t.end();
+});
