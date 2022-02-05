@@ -710,11 +710,6 @@ class PhantomCore extends DestructibleEventEmitter {
   }
 
   /**
-   * NOTE: This method may be called more than once should there be two calls
-   * with different "destroyHandler" callback functions.  A potential scenario
-   * for this is using PhantomCollection extensions which may have intricate
-   * shutdown handler event ties.
-   *
    * NOTE: Order of operations for shutdown handling:
    *
    *  1. [implementation defined] destroyHandler
