@@ -27,8 +27,6 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
     this._isDestroying = false;
     this._isDestroyed = false;
 
-    this._activeDestroyHandler = null;
-
     // Prevent incorrect usage of EVT_DESTROYED; EVT_DESTROYED should only be
     // emit internally during the shutdown phase
     this.on(EVT_DESTROYED, () => {
@@ -75,21 +73,11 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
    * destroy() method, after the destroy handler stack has executed.
    */
   async destroy(destroyHandler = () => null) {
-    if (!this._activeDestroyHandler) {
-      this._activeDestroyHandler = destroyHandler;
-    }
-
-    if (this._activeDestroyHandler !== destroyHandler) {
-      throw new ReferenceError(
-        "A subsequent call to destroy() does not contain the same destroyHandler reference.  This could lead to a potential error in expected state.  For safety, ensure destroyHandlers should only be used in class methods definitions and not called externally."
-      );
-    }
-
     if (this._isDestroying) {
       console.warn(
         `${getClassName(
           this
-        )} is already being destroyed.  Ensure callers are checking for destroy status before calling destroy().`
+        )} is already being destroyed.  The subsequent call has been ignored.  Ensure callers are checking for destroy status before calling destroy().`
       );
     } else if (this._isDestroyed) {
       throw new Error(`"${getClassName(this)}" has already been destroyed.`);
