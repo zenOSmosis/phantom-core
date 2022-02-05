@@ -108,43 +108,40 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
 
       this.emit(EVT_BEFORE_DESTROY);
 
-      // Handle the destroy handler stack
-      await (async () => {
-        this._destroyHandlerStack.push(destroyHandler);
+      this._destroyHandlerStack.push(destroyHandler);
 
-        let longRespondDestroyHandlerTimeout = setTimeout(() => {
-          this.emit(EVT_DESTROY_STACK_TIMED_OUT);
-        }, DESTROY_STACK_GRACE_PERIOD);
+      let longRespondDestroyHandlerTimeout = setTimeout(() => {
+        this.emit(EVT_DESTROY_STACK_TIMED_OUT);
+      }, DESTROY_STACK_GRACE_PERIOD);
 
-        // This try / catch fixes an issue where an error in the callstack
-        // doesn't clear the longRespondDestroyHandlerTimeout
-        try {
-          // TODO: Remove?
-          this._destroyPhase = "b";
+      // This try / catch fixes an issue where an error in the callstack
+      // doesn't clear the longRespondDestroyHandlerTimeout
+      try {
+        // TODO: Remove?
+        this._destroyPhase = "b";
 
-          await this._destroyHandlerStack.exec();
-        } catch (err) {
-          // TODO: Remove?
-          this._destroyPhase = "be";
+        await this._destroyHandlerStack.exec();
+      } catch (err) {
+        // TODO: Remove?
+        this._destroyPhase = "be";
 
-          throw err;
-        } finally {
-          // TODO: Remove?
-          this._destroyPhase = "c";
+        throw err;
+      } finally {
+        // TODO: Remove?
+        this._destroyPhase = "c";
 
-          clearTimeout(longRespondDestroyHandlerTimeout);
+        clearTimeout(longRespondDestroyHandlerTimeout);
 
-          // Remove remaining functions from stack, if exist (this should
-          // already have happened automatically once the stack was executed)
-          this._destroyHandlerStack.clear();
+        // Remove remaining functions from stack, if exist (this should
+        // already have happened automatically once the stack was executed)
+        this._destroyHandlerStack.clear();
 
-          // Remove reference to destroy handler stack
-          this._destroyHandlerStack = null;
+        // Remove reference to destroy handler stack
+        this._destroyHandlerStack = null;
 
-          // TODO: Remove?
-          this._destroyPhase = "d";
-        }
-      })();
+        // TODO: Remove?
+        this._destroyPhase = "d";
+      }
 
       // TODO: Remove?
       this._destroyPhase = "e";
