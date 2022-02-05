@@ -28,6 +28,7 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
     this._isDestroying = false;
     this._isDestroyed = false;
 
+    // TODO: Remove
     this._destroyHandlerStack = new FunctionStack();
 
     // Prevent incorrect usage of EVT_DESTROYED; EVT_DESTROYED should only be
@@ -84,17 +85,17 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
    * destroy() method, after the destroy handler stack has executed.
    */
   async destroy(destroyHandler = () => null) {
-    if (this._isDestroyed) {
+    if (this._isDestroying || this._isDestroyed) {
       console.warn(
         `"${getClassName(
           this
-        )}" has been destructed.  Ignoring subsequent destruct attempt.`
+        )}" is already being destructed.  Ignoring subsequent destruct attempt.`
       );
 
       // TODO: Add unit test to ensure subsequent destroyHandler is not invoked after shutdown
 
       return;
-    } else if (!this._isDestroying) {
+    } else {
       this._isDestroying = true;
 
       this.emit(EVT_BEFORE_DESTROY);
@@ -134,7 +135,8 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
 
       // Remove all event listeners; we're stopped
       this.removeAllListeners();
-    } else {
+    }
+    /* else {
       // Enable subsequent call with another destroyHandler; this fixes an
       // issue with Chrome / Safari MediaStreamTrackControllerFactory not
       // properly emitting EVT_UPDATED when a child controller is destructed
@@ -149,6 +151,7 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
       // destroy() calls should resolve at the same time)
       return new Promise(resolve => this.once(EVT_DESTROYED, resolve));
     }
+    */
   }
 };
 
