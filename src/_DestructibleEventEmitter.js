@@ -93,9 +93,7 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
       );
 
       return;
-    }
-
-    if (!this._isDestroying) {
+    } else if (!this._isDestroying) {
       this._isDestroying = true;
 
       this.emit(EVT_BEFORE_DESTROY);
