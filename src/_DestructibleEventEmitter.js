@@ -102,6 +102,8 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
 
       this._destroyHandlerStack.push(destroyHandler);
 
+      // Help ensure where to wind up in a circular awaiting "gridlock"
+      // situation, where two or more instances await on one another to shutdown
       let longRespondDestroyHandlerTimeout = setTimeout(() => {
         this.emit(EVT_DESTROY_STACK_TIMED_OUT);
       }, DESTROY_STACK_GRACE_PERIOD);
