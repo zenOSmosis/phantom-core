@@ -431,88 +431,34 @@ test("no subsequent usage of destroy() after full destruct", async t => {
 
   try {
     await phantom.destroy();
-
-    t.ok(true, "silently ignores final destruct attempt");
   } catch (err) {
-    throw err;
+    t.ok(true, "throws error if calling destroy() after full destruct");
   }
+
+  t.end();
 });
 
 test("multiple destroyHandler calls", async t => {
-  t.plan(3);
+  t.plan(1);
 
-  const phantom = new PhantomCore();
+  let i = 0;
 
-  let preDestructEventIterations = 0;
-  phantom.on(EVT_BEFORE_DESTROY, () => ++preDestructEventIterations);
-
-  let postDestructEventIterations = 0;
-  phantom.on(EVT_DESTROYED, () => ++postDestructEventIterations);
-
-  let ab = [];
-
-  for (let i = 0; i < 10; i++) {
-    // Sync destroy call
-    phantom.destroy(() => {
-      ab.push(i);
-    });
-
-    // Async destroy call
-    phantom.destroy(async () => {
-      return new Promise(resolve => {
-        ab.push(i);
-
-        resolve();
+  class TestPhantomCore extends PhantomCore {
+    async destroy() {
+      return super.destroy(() => {
+        ++i;
       });
-    });
+    }
   }
 
-  // Prolonged wait async destroy call
-  phantom.destroy(async () => {
-    ab.push("before-end");
-  });
+  const phantom = new TestPhantomCore();
 
-  // Final destroy call
-  await phantom.destroy(() => {
-    ab.push("end");
-  });
+  phantom.destroy();
+  phantom.destroy();
+  phantom.destroy();
+  phantom.destroy();
 
-  t.deepEquals(ab, [
-    0,
-    0,
-    1,
-    1,
-    2,
-    2,
-    3,
-    3,
-    4,
-    4,
-    5,
-    5,
-    6,
-    6,
-    7,
-    7,
-    8,
-    8,
-    9,
-    9,
-    "before-end",
-    "end",
-  ]);
-
-  t.equals(
-    preDestructEventIterations,
-    1,
-    "EVT_BEFORE_DESTROY event emits only once regardless of times destroy method is called"
-  );
-
-  t.equals(
-    postDestructEventIterations,
-    1,
-    "EVT_DESTROYED event emits only once regardless of times destroy method is called"
-  );
+  t.equals(i, 1, "destroy is only invoked once despite multiple calls");
 
   t.end();
 });
