@@ -88,6 +88,8 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
 
       await destroyHandler();
 
+      clearTimeout(longRespondDestroyHandlerTimeout);
+
       // Set the state before the event is emit so that any listeners will know
       // the correct state
       this._isDestroyed = true;
