@@ -109,22 +109,27 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
           this.emit(EVT_DESTROY_STACK_TIMED_OUT);
         }, DESTROY_STACK_GRACE_PERIOD);
 
-        // This try / catch fixes an issue where an error in the callstack
-        // doesn't clear the longRespondDestroyHandlerTimeout
-        try {
-          await this._destroyHandlerStack.exec();
-        } catch (err) {
-          throw err;
-        } finally {
-          clearTimeout(longRespondDestroyHandlerTimeout);
+        // This do / while loop attempts to fix an issue where rapidly invoking
+        // this method could cause an attempt to add to a destructed
+        // destroyHandlerStack
+        do {
+          // This try / catch fixes an issue where an error in the callstack
+          // doesn't clear the longRespondDestroyHandlerTimeout
+          try {
+            await this._destroyHandlerStack.exec();
+          } catch (err) {
+            throw err;
+          }
+        } while (this._destroyHandlerStack.getQueueDepth());
 
-          // Remove remaining functions from stack, if exist (this should
-          // already have happened automatically once the stack was executed)
-          this._destroyHandlerStack.clear();
+        clearTimeout(longRespondDestroyHandlerTimeout);
 
-          // Remove reference to destroy handler stack
-          this._destroyHandlerStack = null;
-        }
+        // Remove remaining functions from stack, if exist (this should
+        // already have happened automatically once the stack was executed)
+        this._destroyHandlerStack.clear();
+
+        // Remove reference to destroy handler stack
+        this._destroyHandlerStack = null;
       })();
 
       // Set the state before the event is emit so that any listeners will know
@@ -155,8 +160,9 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
       return new Promise(resolve => this.once(EVT_DESTROYED, resolve));
     } else {
       console.error(destroyHandler.toString());
+
       throw new ReferenceError(
-        "Could not add new destroyHandler to already shut down destroyHandlerStack"
+        "Could not add new destroyHandler to an already destructed destroyHandlerStack"
       );
     }
   }
