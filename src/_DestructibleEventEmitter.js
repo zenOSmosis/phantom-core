@@ -34,12 +34,6 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
     // emit internally during the shutdown phase
     this.on(EVT_DESTROYED, () => {
       if (!this._isDestroyed) {
-        // TODO: Remove
-        console.log({
-          isDestroyed: this._isDestroyed,
-          self: this,
-        });
-
         // IMPORTANT: Don't await here; we want to throw the error and destruct
         // the instance at the same time due to it being in a potentially invalid
         // state
