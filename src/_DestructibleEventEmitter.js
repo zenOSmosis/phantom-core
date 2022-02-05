@@ -156,7 +156,7 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
     } else {
       console.error(destroyHandler.toString());
       throw new ReferenceError(
-        "Could not put new destroyHandler to shut down destroyHandlerStack"
+        "Could not add new destroyHandler to already shut down destroyHandlerStack"
       );
     }
   }
