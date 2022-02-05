@@ -37,8 +37,16 @@ test("gridlock (awaiting circular destruct)", async t => {
   ]);
 
   t.ok(true, "emits EVT_DESTROY_STACK_TIMED_OUT in gridlock situation");
+
+  // These situations are tricky; p1 awaits p2 to be destroyed, but is never
+  // destroyed itself
+  //
+  // FIXME: (jh) This could be handled a bit better but the tests are currently
+  // running for consistency. Real-world usage should check with
+  // p1.getIsDestroying() before trying to destroy
   t.notOk(p1.getIsDestroyed(), "p1 is not destructed");
-  t.notOk(p2.getIsDestroyed(), "p2 is not destructed");
+
+  t.ok(p2.getIsDestroyed(), "p2 is destructed");
 
   t.end();
 });

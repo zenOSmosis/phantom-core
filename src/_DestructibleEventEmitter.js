@@ -1,5 +1,4 @@
 const EventEmitter = require("events");
-const FunctionStack = require("./FunctionStack");
 const getClassName = require("./utils/class-utils/getClassName");
 
 /** @export */
@@ -27,8 +26,6 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
 
     this._isDestroying = false;
     this._isDestroyed = false;
-
-    this._destroyHandlerStack = new FunctionStack();
 
     // Prevent incorrect usage of EVT_DESTROYED; EVT_DESTROYED should only be
     // emit internally during the shutdown phase
@@ -65,14 +62,6 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
   }
 
   /**
-   * NOTE: This method may be called more than once should there be two calls
-   * with different "destroyHandler" callback functions.  A potential scenario
-   * for this is using PhantomCollection extensions which may have intricate
-   * shutdown handler event ties.
-   *
-   * Subsequent calls will add the user-defined destroyHandler callback to a
-   * queue managed by FunctionStack.
-   *
    * @param {Function} destroyHandler? [optional] If defined, will execute
    * prior to normal destruct operations for this class.
    * @return {Promise<void>}
@@ -84,20 +73,18 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
    * destroy() method, after the destroy handler stack has executed.
    */
   async destroy(destroyHandler = () => null) {
-    if (this._isDestroyed) {
+    if (this._isDestroying) {
       console.warn(
-        `"${getClassName(
+        `${getClassName(
           this
-        )}" has been destructed.  Ignoring subsequent destruct attempt.`
+        )} is already being destroyed.  The subsequent call has been ignored.  Ensure callers are checking for destroy status before calling destroy().`
       );
-
-      return;
-    } else if (!this._isDestroying) {
+    } else if (this._isDestroyed) {
+      throw new Error(`"${getClassName(this)}" has already been destroyed.`);
+    } else {
       this._isDestroying = true;
 
       this.emit(EVT_BEFORE_DESTROY);
-
-      this._destroyHandlerStack.push(destroyHandler);
 
       // Help ensure where to wind up in a circular awaiting "gridlock"
       // situation, where two or more instances await on one another to shutdown
@@ -105,22 +92,9 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
         this.emit(EVT_DESTROY_STACK_TIMED_OUT);
       }, SHUT_DOWN_GRACE_PERIOD);
 
-      // This try / catch fixes an issue where an error in the callstack
-      // doesn't clear the longRespondDestroyHandlerTimeout
-      try {
-        await this._destroyHandlerStack.exec();
-      } catch (err) {
-        throw err;
-      } finally {
-        clearTimeout(longRespondDestroyHandlerTimeout);
+      await destroyHandler();
 
-        // Remove remaining functions from stack, if exist (this should
-        // already have happened automatically once the stack was executed)
-        this._destroyHandlerStack.clear();
-
-        // Remove reference to destroy handler stack
-        this._destroyHandlerStack = null;
-      }
+      clearTimeout(longRespondDestroyHandlerTimeout);
 
       // Set the state before the event is emit so that any listeners will know
       // the correct state
@@ -134,20 +108,6 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
 
       // No longer in "destroying" phase, and destroyed at this point
       this._isDestroying = false;
-    } else {
-      // Enable subsequent call with another destroyHandler; this fixes an
-      // issue with Chrome / Safari MediaStreamTrackControllerFactory not
-      // properly emitting EVT_UPDATED when a child controller is destructed
-      // await destroyHandler();
-      this._destroyHandlerStack.push(destroyHandler);
-
-      // Increase potential max listeners by one to prevent potential
-      // MaxListenersExceededWarning
-      this.setMaxListeners(this.getMaxListeners() + 1);
-
-      // Wait for the instance to be destroyed before resolving (all subsequent
-      // destroy() calls should resolve at the same time)
-      return new Promise(resolve => this.once(EVT_DESTROYED, resolve));
     }
   }
 };
