@@ -11,9 +11,9 @@ const EVT_DESTROY_STACK_TIMED_OUT = "destroy-stack-timed-out";
 /** @export */
 const EVT_DESTROYED = "destroyed";
 
-// Number of milliseconds the destroyHandlerStack has to execute before
-// warnings are generated
-const DESTROY_STACK_GRACE_PERIOD = 5000;
+// Number of milliseconds before the instance will warn about potential
+// destruct problems
+const SHUT_DOWN_GRACE_PERIOD = 5000;
 
 /**
  * Common base class for PhantomCore and any utilities which PhantomCore may
@@ -103,7 +103,7 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
       // situation, where two or more instances await on one another to shutdown
       let longRespondDestroyHandlerTimeout = setTimeout(() => {
         this.emit(EVT_DESTROY_STACK_TIMED_OUT);
-      }, DESTROY_STACK_GRACE_PERIOD);
+      }, SHUT_DOWN_GRACE_PERIOD);
 
       // This try / catch fixes an issue where an error in the callstack
       // doesn't clear the longRespondDestroyHandlerTimeout
