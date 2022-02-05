@@ -134,7 +134,7 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
       this.removeAllListeners();
 
       // No longer in "destroying" phase, and destroyed at this point
-      // this._isDestroying = false;
+      this._isDestroying = false;
     } else {
       // Enable subsequent call with another destroyHandler; this fixes an
       // issue with Chrome / Safari MediaStreamTrackControllerFactory not
