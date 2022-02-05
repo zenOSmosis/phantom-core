@@ -434,6 +434,7 @@ class PhantomCollection extends PhantomCore {
       this.removeAllChildren();
 
       await this._childEventBridge.destroy();
+      this._childEventBridge = null;
     });
   }
 }
