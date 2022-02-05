@@ -74,7 +74,7 @@ class PhantomServiceManager extends PhantomCollection {
     // IMPORTANT: This try / catch block is solely for checking instantiation
     // of SOMETHING, and additional error handling should be outside of this
     // block scope. This is to help diagnose if the required arguments are not
-    // passed to super.  Any other error checking in this try / catch can make
+    // passed to super. Any other error checking in this try / catch can make
     // things trickier to manage.
     try {
       service = new ServiceClass({
@@ -110,7 +110,7 @@ class PhantomServiceManager extends PhantomCollection {
         this.log.error(
           `Could not instantiate service class "${getClassName(
             ServiceClass
-          )}".  Ensure that {...args} are passed through the constructor to the super instance.`
+          )}". Ensure that {...args} are passed through the constructor to the super instance.`
         );
       }
 

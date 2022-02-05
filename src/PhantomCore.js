@@ -94,7 +94,7 @@ class PhantomCore extends DestructibleEventEmitter {
    * matching any version of the PhantomCore library.
    *
    * IMPORTANT: This should only be used in situations where another library
-   * may use a different version of PhantomCore internally.  It does not
+   * may use a different version of PhantomCore internally. It does not
    * guarantee there will not be version conflicts, but may help situations
    * where updating PhantomCore itself requires updating other extension
    * libraries due to minor changes.
@@ -123,7 +123,7 @@ class PhantomCore extends DestructibleEventEmitter {
   /**
    * Symbol is a built-in object whose constructor returns a symbol primitive —
    * also called a Symbol value or just a Symbol — that’s guaranteed to be
-   * unique.  Symbols are often used to add unique property keys to an object
+   * unique. Symbols are often used to add unique property keys to an object
    * that won’t collide with keys any other code might add to the object, and
    * which are hidden from any mechanisms other code will typically use to
    * access the object. That enables a form of weak encapsulation, or a weak
@@ -323,7 +323,7 @@ class PhantomCore extends DestructibleEventEmitter {
       // Warn if _init() is not invoked in a short time period
       const longRespondInitWarnTimeout = setTimeout(() => {
         this.logger.warn(
-          "PhantomCore superclass _init has not been called in a reasonable amount of time.  All instances which use isAsync option must call _init on the PhantomCore superclass."
+          "PhantomCore superclass _init has not been called in a reasonable amount of time. All instances which use isAsync option must call _init on the PhantomCore superclass."
         );
 
         this.emit(EVT_NO_INIT_WARN);
@@ -741,7 +741,7 @@ class PhantomCore extends DestructibleEventEmitter {
 
       this.getPhantomProperties().forEach(phantomProp => {
         this.log.warn(
-          `Lingering PhantomCore instance on prop name "${phantomProp}".  This could be a memory leak.  Ensure that all PhantomCore instances have been disposed of before class destruct.`
+          `Lingering PhantomCore instance on prop name "${phantomProp}". This could be a memory leak. Ensure that all PhantomCore instances have been disposed of before class destruct.`
         );
       });
 

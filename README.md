@@ -55,7 +55,7 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 
 ### Version 2.4.1 (Feb. 5, 2022)
 
-  - PhantomCollection: Don't include children which are in destructing phase in getChildren().  Previous version only included destructed instances.
+  - PhantomCollection: Don't include children which are in destructing phase in getChildren(). Previous version only included destructed instances.
   - Fix issue where shutdown handler could error if rapidly invoked
 
 ### Version 2.4.0 (Feb. 3, 2022)
@@ -63,8 +63,8 @@ PhantomCore provides a common architecture between browsers and Node.js and does
   - Improve PhantomCore instance (and extension) shutdown phase coordination:
     - Add EVT_BEFORE_DESTROY event and PhantomCore#getIsDestroying() lifecycle method
     - Add destroyHandler argument to PhantomCore#destroy() (and extension) classes
-  - PhantomCore#registerShutdownHandler callback methods no longer will ignore exceptions.  If an exception is thrown, the underlying instance will not be treated as fully discarded (this may change in the future).
-  - Add optional isMerge argument to PhantomState#setState() and PhantomSerializableState#setState(), which defaults to true.  If setting to false, the new state completely overrides the previous state.
+  - PhantomCore#registerShutdownHandler callback methods no longer will ignore exceptions. If an exception is thrown, the underlying instance will not be treated as fully discarded (this may change in the future).
+  - Add optional isMerge argument to PhantomState#setState() and PhantomSerializableState#setState(), which defaults to true. If setting to false, the new state completely overrides the previous state.
 
 ### Version 2.3.3 (Jan. 23, 2022)
 
@@ -88,7 +88,7 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 
 ### Version 2.2.1 (Dec. 16, 2021)
 
-  - Relax same PhantomCore version requirements for PhantomCore#proxyOnce and PhantomCore#proxyOff methods.  These should have been included in v2.1.3.
+  - Relax same PhantomCore version requirements for PhantomCore#proxyOnce and PhantomCore#proxyOff methods. These should have been included in v2.1.3.
 
 ### Version 2.2.0 (Dec. 16, 2021)
 
@@ -113,7 +113,7 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 ### Version 2.0.0 (Nov. 6, 2021)
 
   - Enhanced precautions against memory leaks
-  - Add global setImmediate regardless of context.  To use in a browser, require PhantomCore somewhere in the program before calling setImmediate.
+  - Add global setImmediate regardless of context. To use in a browser, require PhantomCore somewhere in the program before calling setImmediate.
   - Add version reporting as static method: PhantomCore.getPhantomCoreVersion()
   - Deprecate optional isReady parameter; using isAsync instead
   - Base PhantomCore off of DestructibleEventEmitter

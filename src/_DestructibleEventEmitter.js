@@ -37,7 +37,7 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
         this.destroy();
 
         throw new Error(
-          "EVT_DESTROYED was incorrectly emit without initially being in a destroyed state.  Destructing instance due to potential state invalidation."
+          "EVT_DESTROYED was incorrectly emit without initially being in a destroyed state. Destructing instance due to potential state invalidation."
         );
       }
     });
@@ -77,7 +77,7 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
       console.warn(
         `${getClassName(
           this
-        )} is already being destroyed.  The subsequent call has been ignored.  Ensure callers are checking for destroy status before calling destroy().`
+        )} is already being destroyed. The subsequent call has been ignored. Ensure callers are checking for destroy status before calling destroy().`
       );
     } else if (this._isDestroyed) {
       throw new Error(`"${getClassName(this)}" has already been destroyed.`);
