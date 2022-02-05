@@ -288,8 +288,8 @@ class PhantomCore extends DestructibleEventEmitter {
      * NOTE: This is called directly in order to not lose the stack trace.
      *
      * @type {Function} Calling this function directly will indirectly call
-     * logger.info(); The logger.trace(), logger.debug(), logger.info(), logger.warn(), and
-     * logger.error() properties can be called directly.
+     * logger.info(); The logger.trace(), logger.debug(), logger.info(),
+     * logger.warn(), and logger.error() properties can be called directly.
      */
     this.log = this.logger.log;
 
@@ -304,6 +304,8 @@ class PhantomCore extends DestructibleEventEmitter {
 
     this._isReady = !this._options.isAsync || false;
 
+    // Flag for additional cleanup handling, internally set to true after super
+    // destruct method has run
     this._isPostDestroyOpStarted = false;
 
     // Force method scope binding to class instance
