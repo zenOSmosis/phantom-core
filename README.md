@@ -50,6 +50,9 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 
 ## Changelog
 
+### Version 2.5.0 (Feb. 5, 2022)
+  - Remove destroyHandlerStack; warn if subsequent calls to destroy() are invoked before fully destructing; throw error if subsequent calls to destroy() are invoked after fully destructing
+
 ### Version 2.4.1 (Feb. 5, 2022)
 
   - PhantomCollection: Don't include children which are in destructing phase in getChildren().  Previous version only included destructed instances.
