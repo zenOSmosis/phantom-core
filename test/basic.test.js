@@ -379,9 +379,9 @@ test("shutdown phasing", async t => {
     });
   });
 
-  t.ok(
+  t.notOk(
     phantom.getIsDestroying(),
-    "has destroying state after destroy() resolves"
+    "does not have destroying state after destroy() resolves"
   );
   t.ok(
     phantom.getIsDestroyed(),
