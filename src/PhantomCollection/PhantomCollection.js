@@ -319,7 +319,7 @@ class PhantomCollection extends PhantomCore {
   getChildren() {
     return this._childMetaDescriptions
       .map(({ [KEY_META_CHILD_DESC_INSTANCE]: childInstance }) => childInstance)
-      .filter(child => !child.getIsDestroyed());
+      .filter(child => !child.getIsDestroying() && !child.getIsDestroyed());
   }
 
   /**
@@ -431,7 +431,7 @@ class PhantomCollection extends PhantomCore {
       await destroyHandler();
 
       // Empty out the collection
-      await this.removeAllChildren();
+      this.removeAllChildren();
 
       await this._childEventBridge.destroy();
     });

@@ -50,6 +50,11 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 
 ## Changelog
 
+### Version 2.4.1 (Feb. 5, 2022)
+
+  - PhantomCollection: Don't include children which are in destructing phase in getChildren().  Previous version only included destructed instances.
+  - Fix issue where shutdown handler could error if rapidly invoked
+
 ### Version 2.4.0 (Feb. 3, 2022)
 
   - Improve PhantomCore instance (and extension) shutdown phase coordination:

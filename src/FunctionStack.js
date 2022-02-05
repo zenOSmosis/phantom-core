@@ -41,6 +41,19 @@ module.exports = class FunctionStack {
   }
 
   /**
+   * Retrieves the number of callback functions registered at any given time in
+   * the stack, waiting to be invoked.
+   *
+   * Currently invoking functions are not part of this count, as they have
+   * already been removed from the queue.
+   *
+   * @return {number}
+   */
+  getQueueDepth() {
+    return this._fns.length;
+  }
+
+  /**
    * Execute all of the functions pushed to the stack until, one at a time,
    * FIFO (first in, first out), until there are no remaining functions to
    * execute.

@@ -11,9 +11,9 @@ const EVT_DESTROY_STACK_TIMED_OUT = "destroy-stack-timed-out";
 /** @export */
 const EVT_DESTROYED = "destroyed";
 
-// Number of milliseconds the destroyHandlerStack has to execute before
-// warnings are generated
-const DESTROY_STACK_GRACE_PERIOD = 5000;
+// Number of milliseconds before the instance will warn about potential
+// destruct problems
+const SHUT_DOWN_GRACE_PERIOD = 5000;
 
 /**
  * Common base class for PhantomCore and any utilities which PhantomCore may
@@ -40,7 +40,7 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
         this.destroy();
 
         throw new Error(
-          "EVT_DESTROYED was incorrectly emit without initially being in a destroyed state.  Destructed instance due to potential state invalidation."
+          "EVT_DESTROYED was incorrectly emit without initially being in a destroyed state.  Destructing instance due to potential state invalidation."
         );
       }
     });
@@ -85,39 +85,42 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
    */
   async destroy(destroyHandler = () => null) {
     if (this._isDestroyed) {
-      throw new Error(`"${getClassName(this)}" is completely destroyed`);
-    }
+      console.warn(
+        `"${getClassName(
+          this
+        )}" has been destructed.  Ignoring subsequent destruct attempt.`
+      );
 
-    if (!this._isDestroying) {
+      return;
+    } else if (!this._isDestroying) {
       this._isDestroying = true;
 
       this.emit(EVT_BEFORE_DESTROY);
 
-      // Handle the destroy handler stack
-      await (async () => {
-        this._destroyHandlerStack.push(destroyHandler);
+      this._destroyHandlerStack.push(destroyHandler);
 
-        let longRespondDestroyHandlerTimeout = setTimeout(() => {
-          this.emit(EVT_DESTROY_STACK_TIMED_OUT);
-        }, DESTROY_STACK_GRACE_PERIOD);
+      // Help ensure where to wind up in a circular awaiting "gridlock"
+      // situation, where two or more instances await on one another to shutdown
+      let longRespondDestroyHandlerTimeout = setTimeout(() => {
+        this.emit(EVT_DESTROY_STACK_TIMED_OUT);
+      }, SHUT_DOWN_GRACE_PERIOD);
 
-        // This try / catch fixes an issue where an error in the callstack
-        // doesn't clear the longRespondDestroyHandlerTimeout
-        try {
-          await this._destroyHandlerStack.exec();
-        } catch (err) {
-          throw err;
-        } finally {
-          clearTimeout(longRespondDestroyHandlerTimeout);
+      // This try / catch fixes an issue where an error in the callstack
+      // doesn't clear the longRespondDestroyHandlerTimeout
+      try {
+        await this._destroyHandlerStack.exec();
+      } catch (err) {
+        throw err;
+      } finally {
+        clearTimeout(longRespondDestroyHandlerTimeout);
 
-          // Remove remaining functions from stack, if exist (this should
-          // already have happened automatically once the stack was executed)
-          this._destroyHandlerStack.clear();
+        // Remove remaining functions from stack, if exist (this should
+        // already have happened automatically once the stack was executed)
+        this._destroyHandlerStack.clear();
 
-          // Remove reference to destroy handler stack
-          this._destroyHandlerStack = null;
-        }
-      })();
+        // Remove reference to destroy handler stack
+        this._destroyHandlerStack = null;
+      }
 
       // Set the state before the event is emit so that any listeners will know
       // the correct state
@@ -131,7 +134,7 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
 
       // No longer in "destroying" phase, and destroyed at this point
       this._isDestroying = false;
-    } else if (!this._isDestroyed) {
+    } else {
       // Enable subsequent call with another destroyHandler; this fixes an
       // issue with Chrome / Safari MediaStreamTrackControllerFactory not
       // properly emitting EVT_UPDATED when a child controller is destructed

@@ -285,7 +285,7 @@ test("determines instance uptime", async t => {
   t.end();
 });
 
-test("events and destruct", async t => {
+test("shutdown event handling", async t => {
   t.plan(8);
 
   const phantom = new PhantomCore();
@@ -334,6 +334,63 @@ test("events and destruct", async t => {
   t.end();
 });
 
+test("shutdown phasing", async t => {
+  t.plan(10);
+
+  const phantom = new PhantomCore();
+
+  t.notOk(
+    phantom.getIsDestroying(),
+    "does not have is destroying state before shutdown"
+  );
+  t.notOk(
+    phantom.getIsDestroyed(),
+    "does not have destroyed state before shutdown"
+  );
+
+  phantom.once(EVT_BEFORE_DESTROY, () => {
+    t.ok(
+      phantom.getIsDestroying(),
+      "has destroying state after EVT_BEFORE_DESTROY emit"
+    );
+
+    t.notOk(
+      phantom.getIsDestroyed(),
+      "does not have destroyed state after EVT_BEFORE_DESTROY emit"
+    );
+  });
+
+  await phantom.destroy(() => {
+    t.ok(phantom.getIsDestroying(), "has destroying state during shutdown");
+    t.notOk(
+      phantom.getIsDestroyed(),
+      "does not have destroyed state during shutdown"
+    );
+
+    phantom.once(EVT_DESTROYED, () => {
+      t.ok(
+        phantom.getIsDestroying(),
+        "has destroying state after EVT_DESTROYED emit"
+      );
+      t.ok(
+        phantom.getIsDestroyed(),
+        "has destroyed state after EVT_DESTROYED emit"
+      );
+    });
+  });
+
+  t.notOk(
+    phantom.getIsDestroying(),
+    "does not have destroying state after destroy() resolves"
+  );
+  t.ok(
+    phantom.getIsDestroyed(),
+    "has destroyed state after destroy() resolves"
+  );
+
+  t.end();
+});
+
 test("no incorrect usage of EVT_DESTROYED", async t => {
   t.plan(3);
 
@@ -374,8 +431,10 @@ test("no subsequent usage of destroy() after full destruct", async t => {
 
   try {
     await phantom.destroy();
+
+    t.ok(true, "silently ignores final destruct attempt");
   } catch (err) {
-    t.ok(true, "throws if calling destroy() after full destruct()");
+    throw err;
   }
 });
 
@@ -761,6 +820,28 @@ test("shutdown handler stack", async t => {
     ["a", "b", "c"],
     "shutdown functions are executed in order (FIFO) and maintain proper order if promises are used"
   );
+
+  t.end();
+});
+
+test("unregister shutdown handler", async t => {
+  t.plan(1);
+
+  const phantom = new PhantomCore();
+
+  let wasInvoked = false;
+
+  const shutdownHandler = () => {
+    wasInvoked = true;
+  };
+
+  phantom.registerShutdownHandler(shutdownHandler);
+
+  phantom.unregisterShutdownHandler(shutdownHandler);
+
+  await phantom.destroy();
+
+  t.notOk(wasInvoked, "unregistered shutdown handler was not invoked");
 
   t.end();
 });
