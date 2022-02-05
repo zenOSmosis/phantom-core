@@ -1,7 +1,6 @@
 const EventEmitter = require("events");
 const FunctionStack = require("./FunctionStack");
 const getClassName = require("./utils/class-utils/getClassName");
-const sleep = require("./utils/sleep");
 
 /** @export */
 const EVT_BEFORE_DESTROY = "before-destroy";
