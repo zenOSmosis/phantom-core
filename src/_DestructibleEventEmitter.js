@@ -1,6 +1,7 @@
 const EventEmitter = require("events");
 const FunctionStack = require("./FunctionStack");
 const getClassName = require("./utils/class-utils/getClassName");
+const sleep = require("./utils/sleep");
 
 /** @export */
 const EVT_BEFORE_DESTROY = "before-destroy";
@@ -145,6 +146,9 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
       // properly emitting EVT_UPDATED when a child controller is destructed
       // await destroyHandler();
       this._destroyHandlerStack.push(destroyHandler);
+
+      // TODO: Document if this works [debug issue where loop destroyHandlerStack may not be available after rapid invoke]
+      this._destroyHandlerStack.push(() => sleep(0));
 
       // Increase potential max listeners by one to prevent potential
       // MaxListenersExceededWarning
