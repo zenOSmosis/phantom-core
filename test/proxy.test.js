@@ -3,9 +3,7 @@ const { EventEmitter } = require("events");
 const PhantomCore = require("../src");
 const { EVT_UPDATED } = PhantomCore;
 
-// TODO: Ensure that events are added to the other instances, and not to the local
-
-test("basic proxy events", async t => {
+test("proxy error handling", async t => {
   t.plan(11);
 
   const p1 = new PhantomCore();
@@ -176,6 +174,148 @@ test("basic proxy events", async t => {
 
   t.end();
 });
+
+test("proxy event registration / unregistration", async t => {
+  // TODO: Implement plan
+
+  const p1 = new PhantomCore();
+  const p2 = new PhantomCore();
+  const p3 = new PhantomCore();
+
+  const lenUpdateEventListenerCount = p1.listenerCount(EVT_UPDATED);
+
+  t.equals(
+    lenUpdateEventListenerCount,
+    0,
+    "initial lenUpdateEventListenerCount is zero"
+  );
+
+  const _eventHandlerA = () => {
+    throw new Error("Should not get here");
+  };
+
+  const _eventHandlerB = () => {
+    throw new Error("Should not get here");
+  };
+
+  const _eventHandlerC = () => {
+    throw new Error("Should not get here");
+  };
+
+  const _eventHandlerD = () => {
+    throw new Error("Should not get here");
+  };
+
+  p1.proxyOn(p2, EVT_UPDATED, _eventHandlerA);
+  p1.proxyOnce(p2, EVT_UPDATED, _eventHandlerB);
+  p1.proxyOn(p2, "some-test-event", _eventHandlerC);
+  p1.proxyOnce(p2, "some-test-event", _eventHandlerD);
+
+  t.equals(
+    p3.listenerCount(EVT_UPDATED),
+    0,
+    "p3 contains zero EVT_UPDATED listeners before adding proxy events"
+  );
+
+  p1.proxyOn(p3, EVT_UPDATED, _eventHandlerA);
+  p1.proxyOnce(p3, EVT_UPDATED, _eventHandlerB);
+  p1.proxyOn(p3, "some-test-event", _eventHandlerC);
+  p1.proxyOnce(p3, "some-test-event", _eventHandlerD);
+
+  t.equals(
+    p1.listenerCount(EVT_UPDATED),
+    lenUpdateEventListenerCount,
+    "p1 EVT_UPDATED listener count does not increase when proxying events to p2 and p3"
+  );
+
+  t.equals(
+    p2.listenerCount(EVT_UPDATED),
+    lenUpdateEventListenerCount + 2,
+    "p2 EVT_UPDATED listener increments by two when issued proxied events from p1"
+  );
+
+  t.equals(
+    p3.listenerCount(EVT_UPDATED),
+    lenUpdateEventListenerCount + 2,
+    "p3 EVT_UPDATED listener increments by two when issued proxied events from p1"
+  );
+
+  t.equals(
+    p3.listenerCount("some-test-event"),
+    2,
+    'p3 contains two "some-test-event" listeners'
+  );
+
+  p1.proxyOff(p3, "some-test-event", _eventHandlerD);
+
+  t.equals(
+    p3.listenerCount("some-test-event"),
+    1,
+    'p3 contains one "some-test-event" listener after removing one once listener'
+  );
+
+  p1.proxyOff(p3, EVT_UPDATED, _eventHandlerB);
+
+  t.equals(
+    p3.listenerCount(EVT_UPDATED),
+    1,
+    "p3 contains one EVT_UPDATED listener after remove one on listener"
+  );
+
+  await p1.destroy();
+
+  t.equals(
+    p3.listenerCount("some-test-event"),
+    0,
+    'p3 contains zero "some-test-event" listeners after destructing p1'
+  );
+
+  t.equals(
+    p3.listenerCount(EVT_UPDATED),
+    0,
+    "p3 contains zero EVT_UPDATED listeners after destructing p1"
+  );
+
+  t.end();
+});
+
+/*
+test("same proxy event handler for on and once", async t => {
+  // TODO: Implement plan
+
+  const p1 = new PhantomCore();
+  const p2 = new PhantomCore();
+
+  const _eventHandler = () => {
+    throw new Error("Should not get here");
+  };
+
+  t.equals(
+    p2.listenerCount(EVT_UPDATED),
+    0,
+    "zero initial EVT_UPDATED listeners"
+  );
+
+  p1.proxyOn(p2, EVT_UPDATED, _eventHandler);
+  p1.proxyOnce(p2, EVT_UPDATED, _eventHandler);
+
+  t.equals(
+    p2.listenerCount(EVT_UPDATED),
+    2,
+    "two EVT_UPDATED listeners after on / once proxies"
+  );
+
+  p1.proxyOff(p2, EVT_UPDATED, _eventHandler);
+
+  t.equals(
+    p2.listenerCount(EVT_UPDATED),
+    0,
+    "zero remaining EVT_UPDATED listeners after proxyOff"
+  );
+
+  t.end();
+});
+*/
 
 test("proxy unregistration", async t => {
   // TODO: Implement plan
