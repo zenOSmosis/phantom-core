@@ -14,7 +14,8 @@ test("basic proxy events", async t => {
   t.throws(
     () => {
       p1.proxyOn(new EventEmitter(), EVT_UPDATED, () =>
-        // NOTE: Not throwing here because we want to make sure it comes from the class
+        // NOTE: Not throwing here because we want to make sure the error is
+        // thrown from the instance
         console.log("Should not get here")
       );
     },
@@ -25,7 +26,8 @@ test("basic proxy events", async t => {
   t.throws(
     () => {
       p1.proxyOn(p1, EVT_UPDATED, () =>
-        // NOTE: Not throwing here because we want to make sure it comes from the class
+        // NOTE: Not throwing here because we want to make sure the error is
+        // thrown from the instance
         console.log("Should not get here")
       );
     },
@@ -36,7 +38,8 @@ test("basic proxy events", async t => {
   t.throws(
     () => {
       p1.proxyOnce(new EventEmitter(), EVT_UPDATED, () =>
-        // NOTE: Not throwing here because we want to make sure it comes from the class
+        // NOTE: Not throwing here because we want to make sure the error is
+        // thrown from the instance
         console.log("Should not get here")
       );
     },
@@ -47,7 +50,8 @@ test("basic proxy events", async t => {
   t.throws(
     () => {
       p1.proxyOnce(p1, EVT_UPDATED, () =>
-        // NOTE: Not throwing here because we want to make sure it comes from the class
+        // NOTE: Not throwing here because we want to make sure the error is
+        // thrown from the instance
         console.log("Should not get here")
       );
     },
@@ -58,7 +62,8 @@ test("basic proxy events", async t => {
   t.throws(
     () => {
       p1.proxyOff(new EventEmitter(), EVT_UPDATED, () =>
-        // NOTE: Not throwing here because we want to make sure it comes from the class
+        // NOTE: Not throwing here because we want to make sure the error is
+        // thrown from the instance
         console.log("Should not get here")
       );
     },
@@ -69,7 +74,8 @@ test("basic proxy events", async t => {
   t.throws(
     () => {
       p1.proxyOff(p1, EVT_UPDATED, () =>
-        // NOTE: Not throwing here because we want to make sure it comes from the class
+        // NOTE: Not throwing here because we want to make sure the error is
+        // thrown from the instance
         console.log("Should not get here")
       );
     },
@@ -180,15 +186,15 @@ test("proxy unregistration", async t => {
     const p2 = new PhantomCore();
 
     const _eventHandlerA = () => {
-      throw new Error("should not be invoked");
+      throw new Error("Should not get here");
     };
 
     const _eventHandlerB = () => {
-      throw new Error("should not be invoked");
+      throw new Error("Should not get here");
     };
 
     const _eventHandlerC = () => {
-      throw new Error("should not be invoked");
+      throw new Error("Should not get here");
     };
 
     p1.proxyOn(p2, EVT_UPDATED, _eventHandlerA);
@@ -240,15 +246,15 @@ test("proxy unregistration", async t => {
     const p2 = new PhantomCore();
 
     const _eventHandlerA = () => {
-      throw new Error("should not be invoked");
+      throw new Error("Should not get here");
     };
 
     const _eventHandlerB = () => {
-      throw new Error("should not be invoked");
+      throw new Error("Should not get here");
     };
 
     const _eventHandlerC = () => {
-      throw new Error("should not be invoked");
+      throw new Error("Should not get here");
     };
 
     p1.proxyOnce(p2, EVT_UPDATED, _eventHandlerA);
@@ -295,15 +301,15 @@ test("proxy unregistration", async t => {
     const p2 = new PhantomCore();
 
     const _eventHandlerA = () => {
-      throw new Error("should not be invoked");
+      throw new Error("Should not get here");
     };
 
     const _eventHandlerB = () => {
-      throw new Error("should not be invoked");
+      throw new Error("Should not get here");
     };
 
     const _eventHandlerC = () => {
-      throw new Error("should not be invoked");
+      throw new Error("Should not get here");
     };
 
     p1.proxyOn(p2, EVT_UPDATED, _eventHandlerA);
@@ -345,19 +351,19 @@ test("proxy unregistration", async t => {
     const p3 = new PhantomCore();
 
     const _eventHandlerA = () => {
-      throw new Error("should not be invoked");
+      throw new Error("Should not get here");
     };
 
     const _eventHandlerB = () => {
-      throw new Error("should not be invoked");
+      throw new Error("Should not get here");
     };
 
     const _eventHandlerC = () => {
-      throw new Error("should not be invoked");
+      throw new Error("Should not get here");
     };
 
     const _eventHandlerD = () => {
-      throw new Error("should not be invoked");
+      throw new Error("Should not get here");
     };
 
     p1.proxyOn(p2, EVT_UPDATED, _eventHandlerA);
@@ -412,7 +418,7 @@ test("proxy unregistration", async t => {
     const p2 = new PhantomCore();
 
     const _eventHandler = () => {
-      throw new Error("should not be invoked");
+      throw new Error("Should not get here");
     };
 
     p1.proxyOnce(p2, EVT_UPDATED, _eventHandler);
