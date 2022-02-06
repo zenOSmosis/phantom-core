@@ -232,12 +232,6 @@ test("proxy unregistration", async t => {
         eventHandler: _eventHandlerC,
       },
     ]);
-
-    t.equals(
-      p1._proxyBinds.onListeners.length,
-      2,
-      "two registered on proxy listeners bound on p1"
-    );
   })();
 
   // once / off
@@ -260,12 +254,6 @@ test("proxy unregistration", async t => {
     p1.proxyOnce(p2, EVT_UPDATED, _eventHandlerA);
     p1.proxyOnce(p2, EVT_UPDATED, _eventHandlerB);
     p1.proxyOnce(p2, "some-test-event", _eventHandlerC);
-
-    t.equals(
-      p1._proxyBinds.onceListeners.length,
-      3,
-      "three registered once proxy listeners bound on p1"
-    );
 
     t.deepEquals(p1._proxyBinds.onceListeners, [
       {
@@ -299,12 +287,6 @@ test("proxy unregistration", async t => {
         eventHandler: _eventHandlerC,
       },
     ]);
-
-    t.equals(
-      p1._proxyBinds.onceListeners.length,
-      2,
-      "two registered once proxy listeners bound on p1"
-    );
   })();
 
   // on / destroy
@@ -354,12 +336,6 @@ test("proxy unregistration", async t => {
     await p2.destroy();
 
     t.deepEquals(p1._proxyBinds.onListeners, []);
-
-    t.equals(
-      p1._proxyBinds.onListeners.length,
-      0,
-      "zero registered on proxy listeners after p2 destroy"
-    );
   })();
 
   // on / once / mix / destroy
@@ -428,12 +404,6 @@ test("proxy unregistration", async t => {
         },
       ],
     });
-
-    t.equals(
-      p1._proxyBinds.onListeners.length,
-      0,
-      "zero registered on proxy listeners after p2 destroy"
-    );
   })();
 
   // once / destroy
@@ -463,12 +433,6 @@ test("proxy unregistration", async t => {
     await p2.destroy();
 
     t.deepEquals(p1._proxyBinds.onceListeners, []);
-
-    t.equals(
-      p1._proxyBinds.onceListeners.length,
-      0,
-      "zero registered once proxy listeners after p2 destroy"
-    );
   })();
 
   t.end();
