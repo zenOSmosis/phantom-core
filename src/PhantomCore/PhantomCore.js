@@ -752,7 +752,10 @@ class PhantomCore extends DestructibleEventEmitter {
     if (!this._isPostDestroyOpStarted) {
       this._isPostDestroyOpStarted = true;
 
-      // TODO: Force regular class properties to be null (as of July 30, 2021, not changing due to unforeseen consequences)
+      // TODO: Force regular class properties to be null (as of July 30, 2021,
+      // not changing due to unforeseen consequences):
+      // @see related issue: https://github.com/zenOSmosis/phantom-core/issues/34
+      // @see potentially related issue: https://github.com/zenOSmosis/phantom-core/issues/100
 
       this.getPhantomProperties().forEach(phantomProp => {
         this.log.warn(
