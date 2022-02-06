@@ -46,7 +46,7 @@ test("gridlock (awaiting circular destruct)", async t => {
   // p1.getIsDestroying() before trying to destroy
   t.notOk(p1.getIsDestroyed(), "p1 is not destructed");
 
-  t.ok(p2.getIsDestroyed(), "p2 is destructed");
+  t.notOk(p2.getIsDestroyed(), "p2 is not destructed");
 
   t.end();
 });
