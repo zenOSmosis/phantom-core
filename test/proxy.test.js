@@ -175,8 +175,8 @@ test("proxy error handling", async t => {
   t.end();
 });
 
-test("proxy event registration / unregistration", async t => {
-  // TODO: Implement plan
+test("proxy host destruct handling", async t => {
+  t.plan(10);
 
   const p1 = new PhantomCore();
   const p2 = new PhantomCore();
@@ -262,6 +262,7 @@ test("proxy event registration / unregistration", async t => {
     "p3 contains one EVT_UPDATED listener after remove one on listener"
   );
 
+  // Destruct the proxy host
   await p1.destroy();
 
   t.equals(
@@ -280,7 +281,7 @@ test("proxy event registration / unregistration", async t => {
 });
 
 test("same proxy event handler for on and once", async t => {
-  // TODO: Implement plan
+  t.plan(4);
 
   const p1 = new PhantomCore();
   const p2 = new PhantomCore();
@@ -323,196 +324,203 @@ test("same proxy event handler for on and once", async t => {
   t.end();
 });
 
-test("proxy unregistration", async t => {
-  // TODO: Implement plan
+test("proxy on / off", t => {
+  t.plan(2);
 
-  // on / off
-  await (async () => {
-    const p1 = new PhantomCore();
-    const p2 = new PhantomCore();
+  const p1 = new PhantomCore();
+  const p2 = new PhantomCore();
 
-    const _eventHandlerA = () => {
-      throw new Error("Should not get here");
-    };
+  const _eventHandlerA = () => {
+    throw new Error("Should not get here");
+  };
 
-    const _eventHandlerB = () => {
-      throw new Error("Should not get here");
-    };
+  const _eventHandlerB = () => {
+    throw new Error("Should not get here");
+  };
 
-    const _eventHandlerC = () => {
-      throw new Error("Should not get here");
-    };
+  const _eventHandlerC = () => {
+    throw new Error("Should not get here");
+  };
 
-    p1.proxyOn(p2, EVT_UPDATED, _eventHandlerA);
-    p1.proxyOn(p2, EVT_UPDATED, _eventHandlerB);
-    p1.proxyOn(p2, "some-test-event", _eventHandlerC);
+  p1.proxyOn(p2, EVT_UPDATED, _eventHandlerA);
+  p1.proxyOn(p2, EVT_UPDATED, _eventHandlerB);
+  p1.proxyOn(p2, "some-test-event", _eventHandlerC);
 
-    t.equals(
-      p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
-      3,
-      "three registered on proxy listeners bound on p1, to target p2"
-    );
+  t.equals(
+    p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
+    3,
+    "three registered on proxy listeners bound on p1, to target p2"
+  );
 
-    p1.proxyOff(p2, EVT_UPDATED, _eventHandlerB);
+  p1.proxyOff(p2, EVT_UPDATED, _eventHandlerB);
 
-    t.equals(
-      p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
-      2,
-      "two registered on proxy listeners bound on p1, to target p2"
-    );
-  })();
-
-  // once / off
-  await (async () => {
-    const p1 = new PhantomCore();
-    const p2 = new PhantomCore();
-
-    const _eventHandlerA = () => {
-      throw new Error("Should not get here");
-    };
-
-    const _eventHandlerB = () => {
-      throw new Error("Should not get here");
-    };
-
-    const _eventHandlerC = () => {
-      throw new Error("Should not get here");
-    };
-
-    p1.proxyOnce(p2, EVT_UPDATED, _eventHandlerA);
-    p1.proxyOnce(p2, EVT_UPDATED, _eventHandlerB);
-    p1.proxyOnce(p2, "some-test-event", _eventHandlerC);
-
-    t.equals(
-      p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
-      3,
-      "three registered once proxy listeners bound on p1, to target p2"
-    );
-
-    p1.proxyOff(p2, EVT_UPDATED, _eventHandlerB);
-
-    t.equals(
-      p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
-      2,
-      "two registered once proxy listeners bound on p1, to target p2"
-    );
-  })();
-
-  // on / destroy
-  await (async () => {
-    const p1 = new PhantomCore();
-    const p2 = new PhantomCore();
-
-    const _eventHandlerA = () => {
-      throw new Error("Should not get here");
-    };
-
-    const _eventHandlerB = () => {
-      throw new Error("Should not get here");
-    };
-
-    const _eventHandlerC = () => {
-      throw new Error("Should not get here");
-    };
-
-    p1.proxyOn(p2, EVT_UPDATED, _eventHandlerA);
-    p1.proxyOn(p2, EVT_UPDATED, _eventHandlerB);
-    p1.proxyOn(p2, "some-test-event", _eventHandlerC);
-
-    t.equals(
-      p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
-      3,
-      "three registered on proxy listeners bound on p1, to target p2"
-    );
-
-    await p2.destroy();
-
-    t.equals(
-      p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
-      0,
-      "zero registered on proxy listeners bound on p1, to target p2"
-    );
-  })();
-
-  // on / once / mix / destroy
-  await (async () => {
-    const p1 = new PhantomCore();
-    const p2 = new PhantomCore();
-    const p3 = new PhantomCore();
-
-    const _eventHandlerA = () => {
-      throw new Error("Should not get here");
-    };
-
-    const _eventHandlerB = () => {
-      throw new Error("Should not get here");
-    };
-
-    const _eventHandlerC = () => {
-      throw new Error("Should not get here");
-    };
-
-    const _eventHandlerD = () => {
-      throw new Error("Should not get here");
-    };
-
-    p1.proxyOn(p2, EVT_UPDATED, _eventHandlerA);
-    p1.proxyOn(p2, EVT_UPDATED, _eventHandlerB);
-    p1.proxyOn(p2, "some-test-event", _eventHandlerC);
-    p1.proxyOnce(p3, EVT_UPDATED, _eventHandlerD);
-
-    t.equals(
-      p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
-      3,
-      "three registered on proxy listeners bound on p1, to target p2"
-    );
-
-    t.equals(
-      p1._eventProxyStack.getTargetInstanceQueueDepth(p3),
-      1,
-      "one registered on proxy listeners bound on p1, to target p2"
-    );
-
-    await p2.destroy();
-
-    t.equals(
-      p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
-      0,
-      "zero registered on proxy listeners bound on p1, to target p2, after p2 destroy"
-    );
-
-    t.equals(
-      p1._eventProxyStack.getTargetInstanceQueueDepth(p3),
-      1,
-      "one registered on proxy listeners bound on p1, to target p3, after p2 destroy"
-    );
-  })();
-
-  // once / destroy
-  await (async () => {
-    const p1 = new PhantomCore();
-    const p2 = new PhantomCore();
-
-    const _eventHandler = () => {
-      throw new Error("Should not get here");
-    };
-
-    p1.proxyOnce(p2, EVT_UPDATED, _eventHandler);
-
-    t.equals(
-      p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
-      1,
-      "one registered on proxy listeners bound on p1, to target p2"
-    );
-
-    await p2.destroy();
-
-    t.equals(
-      p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
-      0,
-      "zero registered on proxy listeners bound on p1, to target p2, after p2 destroy"
-    );
-  })();
+  t.equals(
+    p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
+    2,
+    "two registered on proxy listeners bound on p1, to target p2"
+  );
 
   t.end();
+});
+
+test("proxy once / off", async t => {
+  t.plan(2);
+
+  const p1 = new PhantomCore();
+  const p2 = new PhantomCore();
+
+  const _eventHandlerA = () => {
+    throw new Error("Should not get here");
+  };
+
+  const _eventHandlerB = () => {
+    throw new Error("Should not get here");
+  };
+
+  const _eventHandlerC = () => {
+    throw new Error("Should not get here");
+  };
+
+  p1.proxyOnce(p2, EVT_UPDATED, _eventHandlerA);
+  p1.proxyOnce(p2, EVT_UPDATED, _eventHandlerB);
+  p1.proxyOnce(p2, "some-test-event", _eventHandlerC);
+
+  t.equals(
+    p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
+    3,
+    "three registered once proxy listeners bound on p1, to target p2"
+  );
+
+  p1.proxyOff(p2, EVT_UPDATED, _eventHandlerB);
+
+  t.equals(
+    p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
+    2,
+    "two registered once proxy listeners bound on p1, to target p2"
+  );
+
+  t.end();
+});
+
+test("proxy on / destroy", async t => {
+  t.plan(2);
+
+  const p1 = new PhantomCore();
+  const p2 = new PhantomCore();
+
+  const _eventHandlerA = () => {
+    throw new Error("Should not get here");
+  };
+
+  const _eventHandlerB = () => {
+    throw new Error("Should not get here");
+  };
+
+  const _eventHandlerC = () => {
+    throw new Error("Should not get here");
+  };
+
+  p1.proxyOn(p2, EVT_UPDATED, _eventHandlerA);
+  p1.proxyOn(p2, EVT_UPDATED, _eventHandlerB);
+  p1.proxyOn(p2, "some-test-event", _eventHandlerC);
+
+  t.equals(
+    p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
+    3,
+    "three registered on proxy listeners bound on p1, to target p2"
+  );
+
+  await p2.destroy();
+
+  t.equals(
+    p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
+    0,
+    "zero registered on proxy listeners bound on p1, to target p2"
+  );
+
+  t.end();
+});
+
+test("proxy on / once / mix / destroy", async t => {
+  t.plan(4);
+
+  const p1 = new PhantomCore();
+  const p2 = new PhantomCore();
+  const p3 = new PhantomCore();
+
+  const _eventHandlerA = () => {
+    throw new Error("Should not get here");
+  };
+
+  const _eventHandlerB = () => {
+    throw new Error("Should not get here");
+  };
+
+  const _eventHandlerC = () => {
+    throw new Error("Should not get here");
+  };
+
+  const _eventHandlerD = () => {
+    throw new Error("Should not get here");
+  };
+
+  p1.proxyOn(p2, EVT_UPDATED, _eventHandlerA);
+  p1.proxyOn(p2, EVT_UPDATED, _eventHandlerB);
+  p1.proxyOn(p2, "some-test-event", _eventHandlerC);
+  p1.proxyOnce(p3, EVT_UPDATED, _eventHandlerD);
+
+  t.equals(
+    p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
+    3,
+    "three registered on proxy listeners bound on p1, to target p2"
+  );
+
+  t.equals(
+    p1._eventProxyStack.getTargetInstanceQueueDepth(p3),
+    1,
+    "one registered on proxy listeners bound on p1, to target p2"
+  );
+
+  await p2.destroy();
+
+  t.equals(
+    p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
+    0,
+    "zero registered on proxy listeners bound on p1, to target p2, after p2 destroy"
+  );
+
+  t.equals(
+    p1._eventProxyStack.getTargetInstanceQueueDepth(p3),
+    1,
+    "one registered on proxy listeners bound on p1, to target p3, after p2 destroy"
+  );
+
+  t.end();
+});
+
+test("proxy once / destroy", async t => {
+  t.plan(2);
+
+  const p1 = new PhantomCore();
+  const p2 = new PhantomCore();
+
+  const _eventHandler = () => {
+    throw new Error("Should not get here");
+  };
+
+  p1.proxyOnce(p2, EVT_UPDATED, _eventHandler);
+
+  t.equals(
+    p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
+    1,
+    "one registered on proxy listeners bound on p1, to target p2"
+  );
+
+  await p2.destroy();
+
+  t.equals(
+    p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
+    0,
+    "zero registered on proxy listeners bound on p1, to target p2, after p2 destroy"
+  );
 });
