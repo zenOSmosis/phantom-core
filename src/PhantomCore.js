@@ -308,6 +308,14 @@ class PhantomCore extends DestructibleEventEmitter {
     // destruct method has run
     this._isPostDestroyOpStarted = false;
 
+    // Bound remote event handlers
+    this._proxyBinds = {
+      onListeners: [],
+      onceListeners: [],
+    };
+    this._proxyOnRemotes = [];
+    this._proxyOnceRemotes = [];
+
     // Force method scope binding to class instance
     if (this._options.hasAutomaticBindings) {
       this.autoBind();
@@ -597,7 +605,10 @@ class PhantomCore extends DestructibleEventEmitter {
    * intended to work the same way.
    *
    * NOTE: Unlike the original event emitter method, this does NOT return a
-   * reference to the underlying class for optional chaining.
+   * reference to the underlying class for optional chaining, and it currently
+   * does NOT support the optional "options" argument.
+   *
+   * @see {@link https://nodejs.org/api/events.html#eventsonemitter-eventname-options}
    *
    * @param {PhantomCore} proxyInstance
    * @param {string | symbol} eventName
@@ -613,12 +624,32 @@ class PhantomCore extends DestructibleEventEmitter {
       throw new ReferenceError("proxyInstance cannot be bound to itself");
     }
 
+    // Bind the event handler directly to the proxy instance
     proxyInstance.on(eventName, eventHandler);
 
-    // Unbind from proxy instance once local class is destroyed
-    this.once(EVT_DESTROYED, () =>
-      this.proxyOff(proxyInstance, eventName, eventHandler)
-    );
+    // Register the bound remote event handler, locally
+    this._proxyBinds.onListeners.push({
+      proxyInstance,
+      eventName,
+      eventHandler,
+    });
+
+    // Unbind from local if remote is destroyed
+    if (!this._proxyOnRemotes.includes(proxyInstance)) {
+      this._proxyOnRemotes.push(proxyInstance);
+
+      proxyInstance.once(EVT_DESTROYED, () => {
+        // Remove from proxy remotes
+        this._proxyOnRemotes = this._proxyOnRemotes.filter(
+          pred => pred !== proxyInstance
+        );
+
+        // Invoke proxyOff for bound onListeners
+        this._proxyBinds.onListeners.forEach(pred =>
+          this.proxyOff(pred.proxyInstance, pred.eventName, pred.eventHandler)
+        );
+      });
+    }
   }
 
   /**
@@ -628,7 +659,10 @@ class PhantomCore extends DestructibleEventEmitter {
    * intended to work the same way.
    *
    * NOTE: Unlike the original event emitter method, this does NOT return a
-   * reference to the underlying class for optional chaining.
+   * reference to the underlying class for optional chaining, and it currently
+   * does NOT support the optional "options" argument.
+   *
+   * @see {@link https://nodejs.org/api/events.html#eventsonceemitter-name-options}
    *
    * @param {PhantomCore} proxyInstance
    * @param {string | symbol} eventName
@@ -644,18 +678,38 @@ class PhantomCore extends DestructibleEventEmitter {
       throw new ReferenceError("proxyInstance cannot be bound to itself");
     }
 
+    // Bind the event handler directly to the proxy instance
     proxyInstance.once(eventName, eventHandler);
 
-    // Unbind from proxy instance once local class is destroyed
-    //
-    // FIXME: Try to automatically unbind destroyed handler once proxy instance
-    // once runs. NOTE: Wrapping eventHandler will not work as intended because
-    // when trying to externally unbind with proxyOff (i.e. via unit tests or
-    // implementation usage [not the following line]) the original event
-    // handler reference is lost.
-    this.once(EVT_DESTROYED, () =>
-      this.proxyOff(proxyInstance, eventName, eventHandler)
-    );
+    // Register the bound remote event handler, locally
+    this._proxyBinds.onceListeners.push({
+      proxyInstance,
+      eventName,
+      eventHandler,
+    });
+
+    // FIXME: (jh) Try to automatically unbind destroyed handler once proxy
+    // instance emits once event. Wrapping eventHandler will not work as
+    // intended because when trying to externally unbind with proxyOff the
+    // original event handler is lost if calling from unit tests or other
+    // parts of the program.
+
+    // Unbind from local if remote is destroyed
+    if (!this._proxyOnceRemotes.includes(proxyInstance)) {
+      this._proxyOnceRemotes.push(proxyInstance);
+
+      proxyInstance.once(EVT_DESTROYED, () => {
+        // Remove from proxy remotes
+        this._proxyOnceRemotes = this._proxyOnceRemotes.filter(
+          pred => pred !== proxyInstance
+        );
+
+        // Invoke proxyOff for bound onceListeners
+        this._proxyBinds.onceListeners.forEach(pred =>
+          this.proxyOff(pred.proxyInstance, pred.eventName, pred.eventHandler)
+        );
+      });
+    }
   }
 
   /**
@@ -667,6 +721,8 @@ class PhantomCore extends DestructibleEventEmitter {
    *
    * NOTE: Unlike the original event emitter method, this does NOT return a
    * reference to the underlying class for optional chaining.
+   *
+   * @see {@link https://nodejs.org/api/events.html#emitteroffeventname-listener}
    *
    * @param {PhantomCore} proxyInstance
    * @param {string | symbol} eventName
@@ -682,8 +738,36 @@ class PhantomCore extends DestructibleEventEmitter {
       throw new ReferenceError("proxyInstance cannot be bound to itself");
     }
 
-    // Unbind from proxy instance
+    // Unbind the event handler from the proxy instance
     proxyInstance.off(eventName, eventHandler);
+
+    // Unregister the bound remote event handler, locally
+    this._proxyBinds.onListeners = this._proxyBinds.onListeners.filter(pred => {
+      if (pred.proxyInstance !== proxyInstance) {
+        return true;
+      } else if (pred.eventName !== eventName) {
+        return true;
+      } else if (pred.eventHandler !== eventHandler) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+
+    // Unregister the bound remote event handler, locally
+    this._proxyBinds.onceListeners = this._proxyBinds.onceListeners.filter(
+      pred => {
+        if (pred.proxyInstance !== proxyInstance) {
+          return true;
+        } else if (pred.eventName !== eventName) {
+          return true;
+        } else if (pred.eventHandler !== eventHandler) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+    );
   }
 
   /**
@@ -733,6 +817,18 @@ class PhantomCore extends DestructibleEventEmitter {
       // Execute the shutdown handler before calling super.destroy, so that any
       // last minute events can be handled
       await this._shutdownHandlerStack.exec();
+
+      this._proxyBinds.onListeners.forEach(
+        ({ proxyInstance, eventName, eventHandler }) => {
+          this.proxyOff(proxyInstance, eventName, eventHandler);
+        }
+      );
+
+      this._proxyBinds.onceListeners.forEach(
+        ({ proxyInstance, eventName, eventHandler }) => {
+          this.proxyOff(proxyInstance, eventName, eventHandler);
+        }
+      );
     });
 
     // Post-destruct operations
