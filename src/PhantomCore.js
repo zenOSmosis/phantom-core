@@ -313,8 +313,8 @@ class PhantomCore extends DestructibleEventEmitter {
       onListeners: [],
       onceListeners: [],
     };
-    this._proxyOnRemotes = [];
-    this._proxyOnceRemotes = [];
+    this._targetOnInstances = [];
+    this._targetOnceInstances = [];
 
     // Force method scope binding to class instance
     if (this._options.hasAutomaticBindings) {
@@ -610,48 +610,48 @@ class PhantomCore extends DestructibleEventEmitter {
    *
    * @see {@link https://nodejs.org/api/events.html#eventsonemitter-eventname-options}
    *
-   * @param {PhantomCore} proxyInstance
+   * @param {PhantomCore} targetInstance
    * @param {string | symbol} eventName
    * @param {Function} eventHandler
    * @return {void}
    */
-  proxyOn(proxyInstance, eventName, eventHandler) {
-    if (!PhantomCore.getIsLooseInstance(proxyInstance)) {
-      throw new ReferenceError("proxyInstance is not a PhantomCore instance");
+  proxyOn(targetInstance, eventName, eventHandler) {
+    if (!PhantomCore.getIsLooseInstance(targetInstance)) {
+      throw new ReferenceError("targetInstance is not a PhantomCore instance");
     }
 
-    if (this.getIsSameInstance(proxyInstance)) {
-      throw new ReferenceError("proxyInstance cannot be bound to itself");
+    if (this.getIsSameInstance(targetInstance)) {
+      throw new ReferenceError("targetInstance cannot be bound to itself");
     }
 
     // Bind the event handler directly to the proxy instance
-    proxyInstance.on(eventName, eventHandler);
+    targetInstance.on(eventName, eventHandler);
 
     // Register the bound remote event handler, locally
     this._proxyBinds.onListeners.push({
-      proxyInstance,
+      targetInstance,
       eventName,
       eventHandler,
     });
 
-    // Handle scenario where proxyInstance is destructed before local instance
+    // Handle scenario where targetInstance is destructed before local instance
     //
     // NOTE: In the opposite scenario, if the local instance is destructed
-    // before the proxyInstance, the destroy() method of the local instance
+    // before the targetInstance, the destroy() method of the local instance
     // will invoke the needed functionality to remove the proxied events from
-    // the proxyInstance
-    if (!this._proxyOnRemotes.includes(proxyInstance)) {
-      this._proxyOnRemotes.push(proxyInstance);
+    // the targetInstance
+    if (!this._targetOnInstances.includes(targetInstance)) {
+      this._targetOnInstances.push(targetInstance);
 
-      proxyInstance.once(EVT_DESTROYED, () => {
-        // Remove from the _proxyOnRemotes
-        this._proxyOnRemotes = this._proxyOnRemotes.filter(
-          pred => pred !== proxyInstance
+      targetInstance.once(EVT_DESTROYED, () => {
+        // Remove from the _targetOnInstances
+        this._targetOnInstances = this._targetOnInstances.filter(
+          pred => pred !== targetInstance
         );
 
         // Invoke proxyOff for bound onListeners
         this._proxyBinds.onListeners.forEach(pred =>
-          this.proxyOff(pred.proxyInstance, pred.eventName, pred.eventHandler)
+          this.proxyOff(pred.targetInstance, pred.eventName, pred.eventHandler)
         );
       });
     }
@@ -669,26 +669,26 @@ class PhantomCore extends DestructibleEventEmitter {
    *
    * @see {@link https://nodejs.org/api/events.html#eventsonceemitter-name-options}
    *
-   * @param {PhantomCore} proxyInstance
+   * @param {PhantomCore} targetInstance
    * @param {string | symbol} eventName
    * @param {Function} eventHandler
    * @return {void}
    */
-  proxyOnce(proxyInstance, eventName, eventHandler) {
-    if (!PhantomCore.getIsLooseInstance(proxyInstance)) {
-      throw new ReferenceError("proxyInstance is not a PhantomCore instance");
+  proxyOnce(targetInstance, eventName, eventHandler) {
+    if (!PhantomCore.getIsLooseInstance(targetInstance)) {
+      throw new ReferenceError("targetInstance is not a PhantomCore instance");
     }
 
-    if (this.getIsSameInstance(proxyInstance)) {
-      throw new ReferenceError("proxyInstance cannot be bound to itself");
+    if (this.getIsSameInstance(targetInstance)) {
+      throw new ReferenceError("targetInstance cannot be bound to itself");
     }
 
     // Bind the event handler directly to the proxy instance
-    proxyInstance.once(eventName, eventHandler);
+    targetInstance.once(eventName, eventHandler);
 
     // Register the bound remote event handler, locally
     this._proxyBinds.onceListeners.push({
-      proxyInstance,
+      targetInstance,
       eventName,
       eventHandler,
     });
@@ -699,24 +699,24 @@ class PhantomCore extends DestructibleEventEmitter {
     // original event handler is lost if calling from unit tests or other
     // parts of the program.
 
-    // Handle scenario where proxyInstance is destructed before local instance
+    // Handle scenario where targetInstance is destructed before local instance
     //
     // NOTE: In the opposite scenario, if the local instance is destructed
-    // before the proxyInstance, the destroy() method of the local instance
+    // before the targetInstance, the destroy() method of the local instance
     // will invoke the needed functionality to remove the proxied events from
-    // the proxyInstance
-    if (!this._proxyOnceRemotes.includes(proxyInstance)) {
-      this._proxyOnceRemotes.push(proxyInstance);
+    // the targetInstance
+    if (!this._targetOnceInstances.includes(targetInstance)) {
+      this._targetOnceInstances.push(targetInstance);
 
-      proxyInstance.once(EVT_DESTROYED, () => {
-        // Remove from the _proxyOnceRemotes
-        this._proxyOnceRemotes = this._proxyOnceRemotes.filter(
-          pred => pred !== proxyInstance
+      targetInstance.once(EVT_DESTROYED, () => {
+        // Remove from the _targetOnceInstances
+        this._targetOnceInstances = this._targetOnceInstances.filter(
+          pred => pred !== targetInstance
         );
 
         // Unregister the bound onceListeners
         this._proxyBinds.onceListeners.forEach(pred =>
-          this.proxyOff(pred.proxyInstance, pred.eventName, pred.eventHandler)
+          this.proxyOff(pred.targetInstance, pred.eventName, pred.eventHandler)
         );
       });
     }
@@ -734,29 +734,29 @@ class PhantomCore extends DestructibleEventEmitter {
    *
    * @see {@link https://nodejs.org/api/events.html#emitteroffeventname-listener}
    *
-   * @param {PhantomCore} proxyInstance
+   * @param {PhantomCore} targetInstance
    * @param {string | symbol} eventName
    * @param {Function} eventHandler
    * @return {void}
    */
-  proxyOff(proxyInstance, eventName, eventHandler) {
-    if (!PhantomCore.getIsLooseInstance(proxyInstance)) {
-      throw new ReferenceError("proxyInstance is not a PhantomCore instance");
+  proxyOff(targetInstance, eventName, eventHandler) {
+    if (!PhantomCore.getIsLooseInstance(targetInstance)) {
+      throw new ReferenceError("targetInstance is not a PhantomCore instance");
     }
 
-    if (this.getIsSameInstance(proxyInstance)) {
-      throw new ReferenceError("proxyInstance cannot be bound to itself");
+    if (this.getIsSameInstance(targetInstance)) {
+      throw new ReferenceError("targetInstance cannot be bound to itself");
     }
 
     // Unbind the event handler from the proxy instance
-    proxyInstance.off(eventName, eventHandler);
+    targetInstance.off(eventName, eventHandler);
 
     // Unregister the bound remote event handler from the onListeners /
     // onceListeners
     ["onListeners", "onceListeners"].forEach(listenerType => {
       this._proxyBinds[listenerType] = this._proxyBinds[listenerType].filter(
         pred => {
-          if (pred.proxyInstance !== proxyInstance) {
+          if (pred.targetInstance !== targetInstance) {
             return true;
           } else if (pred.eventName !== eventName) {
             return true;
@@ -821,8 +821,8 @@ class PhantomCore extends DestructibleEventEmitter {
       // Unregister the proxied events from the remotes
       ["onListeners", "onceListeners"].forEach(listenerType => {
         this._proxyBinds[listenerType].forEach(
-          ({ proxyInstance, eventName, eventHandler }) => {
-            this.proxyOff(proxyInstance, eventName, eventHandler);
+          ({ targetInstance, eventName, eventHandler }) => {
+            this.proxyOff(targetInstance, eventName, eventHandler);
           }
         );
       });

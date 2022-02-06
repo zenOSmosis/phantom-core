@@ -352,17 +352,17 @@ test("proxy unregistration", async t => {
 
     t.deepEquals(p1._proxyBinds.onListeners, [
       {
-        proxyInstance: p2,
+        targetInstance: p2,
         eventName: "updated",
         eventHandler: _eventHandlerA,
       },
       {
-        proxyInstance: p2,
+        targetInstance: p2,
         eventName: "updated",
         eventHandler: _eventHandlerB,
       },
       {
-        proxyInstance: p2,
+        targetInstance: p2,
         eventName: "some-test-event",
         eventHandler: _eventHandlerC,
       },
@@ -372,12 +372,12 @@ test("proxy unregistration", async t => {
 
     t.deepEquals(p1._proxyBinds.onListeners, [
       {
-        proxyInstance: p2,
+        targetInstance: p2,
         eventName: "updated",
         eventHandler: _eventHandlerA,
       },
       {
-        proxyInstance: p2,
+        targetInstance: p2,
         eventName: "some-test-event",
         eventHandler: _eventHandlerC,
       },
@@ -407,17 +407,17 @@ test("proxy unregistration", async t => {
 
     t.deepEquals(p1._proxyBinds.onceListeners, [
       {
-        proxyInstance: p2,
+        targetInstance: p2,
         eventName: "updated",
         eventHandler: _eventHandlerA,
       },
       {
-        proxyInstance: p2,
+        targetInstance: p2,
         eventName: "updated",
         eventHandler: _eventHandlerB,
       },
       {
-        proxyInstance: p2,
+        targetInstance: p2,
         eventName: "some-test-event",
         eventHandler: _eventHandlerC,
       },
@@ -427,12 +427,12 @@ test("proxy unregistration", async t => {
 
     t.deepEquals(p1._proxyBinds.onceListeners, [
       {
-        proxyInstance: p2,
+        targetInstance: p2,
         eventName: "updated",
         eventHandler: _eventHandlerA,
       },
       {
-        proxyInstance: p2,
+        targetInstance: p2,
         eventName: "some-test-event",
         eventHandler: _eventHandlerC,
       },
@@ -467,17 +467,17 @@ test("proxy unregistration", async t => {
 
     t.deepEquals(p1._proxyBinds.onListeners, [
       {
-        proxyInstance: p2,
+        targetInstance: p2,
         eventName: "updated",
         eventHandler: _eventHandlerA,
       },
       {
-        proxyInstance: p2,
+        targetInstance: p2,
         eventName: "updated",
         eventHandler: _eventHandlerB,
       },
       {
-        proxyInstance: p2,
+        targetInstance: p2,
         eventName: "some-test-event",
         eventHandler: _eventHandlerC,
       },
@@ -518,24 +518,24 @@ test("proxy unregistration", async t => {
     t.deepEquals(p1._proxyBinds, {
       onListeners: [
         {
-          proxyInstance: p2,
+          targetInstance: p2,
           eventName: "updated",
           eventHandler: _eventHandlerA,
         },
         {
-          proxyInstance: p2,
+          targetInstance: p2,
           eventName: "updated",
           eventHandler: _eventHandlerB,
         },
         {
-          proxyInstance: p2,
+          targetInstance: p2,
           eventName: "some-test-event",
           eventHandler: _eventHandlerC,
         },
       ],
       onceListeners: [
         {
-          proxyInstance: p3,
+          targetInstance: p3,
           eventName: "updated",
           eventHandler: _eventHandlerD,
         },
@@ -548,7 +548,7 @@ test("proxy unregistration", async t => {
       onListeners: [],
       onceListeners: [
         {
-          proxyInstance: p3,
+          targetInstance: p3,
           eventName: "updated",
           eventHandler: _eventHandlerD,
         },
@@ -574,7 +574,7 @@ test("proxy unregistration", async t => {
 
     t.deepEquals(p1._proxyBinds.onceListeners, [
       {
-        proxyInstance: p2,
+        targetInstance: p2,
         eventName: "updated",
         eventHandler: _eventHandler,
       },
