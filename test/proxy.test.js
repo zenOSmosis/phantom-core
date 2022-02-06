@@ -3,6 +3,8 @@ const { EventEmitter } = require("events");
 const PhantomCore = require("../src");
 const { EVT_UPDATED } = PhantomCore;
 
+// TODO: Ensure that events are added to the other instances, and not to the local
+
 test("basic proxy events", async t => {
   t.plan(11);
 
@@ -352,6 +354,80 @@ test("proxy unregistration", async t => {
     await p2.destroy();
 
     t.deepEquals(p1._proxyBinds.onListeners, []);
+
+    t.equals(
+      p1._proxyBinds.onListeners.length,
+      0,
+      "zero registered on proxy listeners after p2 destroy"
+    );
+  })();
+
+  // on / once / mix / destroy
+  await (async () => {
+    const p1 = new PhantomCore();
+    const p2 = new PhantomCore();
+    const p3 = new PhantomCore();
+
+    const _eventHandlerA = () => {
+      throw new Error("should not be invoked");
+    };
+
+    const _eventHandlerB = () => {
+      throw new Error("should not be invoked");
+    };
+
+    const _eventHandlerC = () => {
+      throw new Error("should not be invoked");
+    };
+
+    const _eventHandlerD = () => {
+      throw new Error("should not be invoked");
+    };
+
+    p1.proxyOn(p2, EVT_UPDATED, _eventHandlerA);
+    p1.proxyOn(p2, EVT_UPDATED, _eventHandlerB);
+    p1.proxyOn(p2, "some-test-event", _eventHandlerC);
+    p1.proxyOnce(p3, EVT_UPDATED, _eventHandlerD);
+
+    t.deepEquals(p1._proxyBinds, {
+      onListeners: [
+        {
+          proxyInstance: p2,
+          eventName: "updated",
+          eventHandler: _eventHandlerA,
+        },
+        {
+          proxyInstance: p2,
+          eventName: "updated",
+          eventHandler: _eventHandlerB,
+        },
+        {
+          proxyInstance: p2,
+          eventName: "some-test-event",
+          eventHandler: _eventHandlerC,
+        },
+      ],
+      onceListeners: [
+        {
+          proxyInstance: p3,
+          eventName: "updated",
+          eventHandler: _eventHandlerD,
+        },
+      ],
+    });
+
+    await p2.destroy();
+
+    t.deepEquals(p1._proxyBinds, {
+      onListeners: [],
+      onceListeners: [
+        {
+          proxyInstance: p3,
+          eventName: "updated",
+          eventHandler: _eventHandlerD,
+        },
+      ],
+    });
 
     t.equals(
       p1._proxyBinds.onListeners.length,
