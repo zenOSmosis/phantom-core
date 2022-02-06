@@ -634,12 +634,17 @@ class PhantomCore extends DestructibleEventEmitter {
       eventHandler,
     });
 
-    // Unbind from local if remote is destroyed
+    // Handle scenario where proxyInstance is destructed before local instance
+    //
+    // NOTE: In the opposite scenario, if the local instance is destructed
+    // before the proxyInstance, the destroy() method of the local instance
+    // will invoke the needed functionality to remove the proxied events from
+    // the proxyInstance
     if (!this._proxyOnRemotes.includes(proxyInstance)) {
       this._proxyOnRemotes.push(proxyInstance);
 
       proxyInstance.once(EVT_DESTROYED, () => {
-        // Remove from proxy remotes
+        // Remove from the _proxyOnRemotes
         this._proxyOnRemotes = this._proxyOnRemotes.filter(
           pred => pred !== proxyInstance
         );
@@ -694,17 +699,22 @@ class PhantomCore extends DestructibleEventEmitter {
     // original event handler is lost if calling from unit tests or other
     // parts of the program.
 
-    // Unbind from local if remote is destroyed
+    // Handle scenario where proxyInstance is destructed before local instance
+    //
+    // NOTE: In the opposite scenario, if the local instance is destructed
+    // before the proxyInstance, the destroy() method of the local instance
+    // will invoke the needed functionality to remove the proxied events from
+    // the proxyInstance
     if (!this._proxyOnceRemotes.includes(proxyInstance)) {
       this._proxyOnceRemotes.push(proxyInstance);
 
       proxyInstance.once(EVT_DESTROYED, () => {
-        // Remove from proxy remotes
+        // Remove from the _proxyOnceRemotes
         this._proxyOnceRemotes = this._proxyOnceRemotes.filter(
           pred => pred !== proxyInstance
         );
 
-        // Invoke proxyOff for bound onceListeners
+        // Unregister the bound onceListeners
         this._proxyBinds.onceListeners.forEach(pred =>
           this.proxyOff(pred.proxyInstance, pred.eventName, pred.eventHandler)
         );
@@ -741,7 +751,8 @@ class PhantomCore extends DestructibleEventEmitter {
     // Unbind the event handler from the proxy instance
     proxyInstance.off(eventName, eventHandler);
 
-    // Unregister the bound remote event handler from the onListeners / onceListeners
+    // Unregister the bound remote event handler from the onListeners /
+    // onceListeners
     ["onListeners", "onceListeners"].forEach(listenerType => {
       this._proxyBinds[listenerType] = this._proxyBinds[listenerType].filter(
         pred => {
@@ -807,7 +818,7 @@ class PhantomCore extends DestructibleEventEmitter {
       // last minute events can be handled
       await this._shutdownHandlerStack.exec();
 
-      // Drain the onListeners / onceListeners
+      // Unregister the proxied events from the remotes
       ["onListeners", "onceListeners"].forEach(listenerType => {
         this._proxyBinds[listenerType].forEach(
           ({ proxyInstance, eventName, eventHandler }) => {
