@@ -407,7 +407,7 @@ class PhantomCore extends DestructibleEventEmitter {
 
   /**
    * Registers a function to the shutdown handler stack, which is executed
-   * AFTER EVT_DESTROYED is emit.
+   * BEFORE EVT_DESTROYED is emit.
    *
    * @param {Function} fn
    * @return {void}
