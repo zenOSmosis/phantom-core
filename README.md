@@ -50,6 +50,12 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 
 ## Changelog
 
+### Version 2.5.1 (Feb. 6, 2022)
+
+  - PhantomCore proxy event binding fixes:
+    - Fix issue where proxy binding stacks up EVT_DESTROYED listeners on proxy instance
+    - Rename proxyInstance arguments to targetInstance for clarification (no public API changes)
+
 ### Version 2.5.0 (Feb. 5, 2022)
   - Remove destroyHandlerStack; warn if subsequent calls to destroy() are invoked before fully destructing; throw error if subsequent calls to destroy() are invoked after fully destructing
 
