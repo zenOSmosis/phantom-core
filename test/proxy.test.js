@@ -3,6 +3,9 @@ const { EventEmitter } = require("events");
 const PhantomCore = require("../src");
 const { EVT_UPDATED } = PhantomCore;
 
+// TODO: Add testing for proxyOnRemotes
+// TODO: Ensure there is no persistent memory leakage after destruct
+
 test("proxy error handling", async t => {
   t.plan(11);
 
@@ -279,6 +282,7 @@ test("proxy event registration / unregistration", async t => {
   t.end();
 });
 
+// TODO: Uncomment
 /*
 test("same proxy event handler for on and once", async t => {
   // TODO: Implement plan
