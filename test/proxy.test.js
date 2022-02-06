@@ -282,8 +282,6 @@ test("proxy event registration / unregistration", async t => {
   t.end();
 });
 
-// TODO: Uncomment
-/*
 test("same proxy event handler for on and once", async t => {
   // TODO: Implement plan
 
@@ -313,13 +311,20 @@ test("same proxy event handler for on and once", async t => {
 
   t.equals(
     p2.listenerCount(EVT_UPDATED),
+    1,
+    "one remaining EVT_UPDATED listeners after first proxyOff"
+  );
+
+  p1.proxyOff(p2, EVT_UPDATED, _eventHandler);
+
+  t.equals(
+    p2.listenerCount(EVT_UPDATED),
     0,
-    "zero remaining EVT_UPDATED listeners after proxyOff"
+    "one remaining EVT_UPDATED listeners after next proxyOff"
   );
 
   t.end();
 });
-*/
 
 test("proxy unregistration", async t => {
   // TODO: Implement plan
@@ -345,43 +350,19 @@ test("proxy unregistration", async t => {
     p1.proxyOn(p2, EVT_UPDATED, _eventHandlerB);
     p1.proxyOn(p2, "some-test-event", _eventHandlerC);
 
-    t.ok(
-      p1._eventProxyBinds.onListeners.length === 3,
-      "three registered on proxy listeners bound on p1"
+    t.equals(
+      p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
+      3,
+      "three registered on proxy listeners bound on p1, to target p2"
     );
-
-    t.deepEquals(p1._eventProxyBinds.onListeners, [
-      {
-        targetInstance: p2,
-        eventName: "updated",
-        eventHandler: _eventHandlerA,
-      },
-      {
-        targetInstance: p2,
-        eventName: "updated",
-        eventHandler: _eventHandlerB,
-      },
-      {
-        targetInstance: p2,
-        eventName: "some-test-event",
-        eventHandler: _eventHandlerC,
-      },
-    ]);
 
     p1.proxyOff(p2, EVT_UPDATED, _eventHandlerB);
 
-    t.deepEquals(p1._eventProxyBinds.onListeners, [
-      {
-        targetInstance: p2,
-        eventName: "updated",
-        eventHandler: _eventHandlerA,
-      },
-      {
-        targetInstance: p2,
-        eventName: "some-test-event",
-        eventHandler: _eventHandlerC,
-      },
-    ]);
+    t.equals(
+      p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
+      2,
+      "two registered on proxy listeners bound on p1, to target p2"
+    );
   })();
 
   // once / off
@@ -405,38 +386,19 @@ test("proxy unregistration", async t => {
     p1.proxyOnce(p2, EVT_UPDATED, _eventHandlerB);
     p1.proxyOnce(p2, "some-test-event", _eventHandlerC);
 
-    t.deepEquals(p1._eventProxyBinds.onceListeners, [
-      {
-        targetInstance: p2,
-        eventName: "updated",
-        eventHandler: _eventHandlerA,
-      },
-      {
-        targetInstance: p2,
-        eventName: "updated",
-        eventHandler: _eventHandlerB,
-      },
-      {
-        targetInstance: p2,
-        eventName: "some-test-event",
-        eventHandler: _eventHandlerC,
-      },
-    ]);
+    t.equals(
+      p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
+      3,
+      "three registered once proxy listeners bound on p1, to target p2"
+    );
 
     p1.proxyOff(p2, EVT_UPDATED, _eventHandlerB);
 
-    t.deepEquals(p1._eventProxyBinds.onceListeners, [
-      {
-        targetInstance: p2,
-        eventName: "updated",
-        eventHandler: _eventHandlerA,
-      },
-      {
-        targetInstance: p2,
-        eventName: "some-test-event",
-        eventHandler: _eventHandlerC,
-      },
-    ]);
+    t.equals(
+      p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
+      2,
+      "two registered once proxy listeners bound on p1, to target p2"
+    );
   })();
 
   // on / destroy
@@ -460,32 +422,19 @@ test("proxy unregistration", async t => {
     p1.proxyOn(p2, EVT_UPDATED, _eventHandlerB);
     p1.proxyOn(p2, "some-test-event", _eventHandlerC);
 
-    t.ok(
-      p1._eventProxyBinds.onListeners.length === 3,
-      "three registered on proxy listeners bound on p1"
+    t.equals(
+      p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
+      3,
+      "three registered on proxy listeners bound on p1, to target p2"
     );
-
-    t.deepEquals(p1._eventProxyBinds.onListeners, [
-      {
-        targetInstance: p2,
-        eventName: "updated",
-        eventHandler: _eventHandlerA,
-      },
-      {
-        targetInstance: p2,
-        eventName: "updated",
-        eventHandler: _eventHandlerB,
-      },
-      {
-        targetInstance: p2,
-        eventName: "some-test-event",
-        eventHandler: _eventHandlerC,
-      },
-    ]);
 
     await p2.destroy();
 
-    t.deepEquals(p1._eventProxyBinds.onListeners, []);
+    t.equals(
+      p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
+      0,
+      "zero registered on proxy listeners bound on p1, to target p2"
+    );
   })();
 
   // on / once / mix / destroy
@@ -515,45 +464,31 @@ test("proxy unregistration", async t => {
     p1.proxyOn(p2, "some-test-event", _eventHandlerC);
     p1.proxyOnce(p3, EVT_UPDATED, _eventHandlerD);
 
-    t.deepEquals(p1._eventProxyBinds, {
-      onListeners: [
-        {
-          targetInstance: p2,
-          eventName: "updated",
-          eventHandler: _eventHandlerA,
-        },
-        {
-          targetInstance: p2,
-          eventName: "updated",
-          eventHandler: _eventHandlerB,
-        },
-        {
-          targetInstance: p2,
-          eventName: "some-test-event",
-          eventHandler: _eventHandlerC,
-        },
-      ],
-      onceListeners: [
-        {
-          targetInstance: p3,
-          eventName: "updated",
-          eventHandler: _eventHandlerD,
-        },
-      ],
-    });
+    t.equals(
+      p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
+      3,
+      "three registered on proxy listeners bound on p1, to target p2"
+    );
+
+    t.equals(
+      p1._eventProxyStack.getTargetInstanceQueueDepth(p3),
+      1,
+      "one registered on proxy listeners bound on p1, to target p2"
+    );
 
     await p2.destroy();
 
-    t.deepEquals(p1._eventProxyBinds, {
-      onListeners: [],
-      onceListeners: [
-        {
-          targetInstance: p3,
-          eventName: "updated",
-          eventHandler: _eventHandlerD,
-        },
-      ],
-    });
+    t.equals(
+      p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
+      0,
+      "zero registered on proxy listeners bound on p1, to target p2, after p2 destroy"
+    );
+
+    t.equals(
+      p1._eventProxyStack.getTargetInstanceQueueDepth(p3),
+      1,
+      "one registered on proxy listeners bound on p1, to target p3, after p2 destroy"
+    );
   })();
 
   // once / destroy
@@ -567,22 +502,19 @@ test("proxy unregistration", async t => {
 
     p1.proxyOnce(p2, EVT_UPDATED, _eventHandler);
 
-    t.ok(
-      p1._eventProxyBinds.onceListeners.length === 1,
-      "one registered once proxy listener bind on p1"
+    t.equals(
+      p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
+      1,
+      "one registered on proxy listeners bound on p1, to target p2"
     );
-
-    t.deepEquals(p1._eventProxyBinds.onceListeners, [
-      {
-        targetInstance: p2,
-        eventName: "updated",
-        eventHandler: _eventHandler,
-      },
-    ]);
 
     await p2.destroy();
 
-    t.deepEquals(p1._eventProxyBinds.onceListeners, []);
+    t.equals(
+      p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
+      0,
+      "zero registered on proxy listeners bound on p1, to target p2, after p2 destroy"
+    );
   })();
 
   t.end();

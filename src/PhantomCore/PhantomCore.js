@@ -17,6 +17,7 @@ const getClassInstancePropertyNames = require("../utils/class-utils/getClassInst
 const getClassInstanceMethodNames = require("../utils/class-utils/getClassInstanceMethodNames");
 const autoBindClassInstanceMethods = require("../utils/class-utils/autoBindClassInstanceMethods");
 const shallowMerge = require("../utils/shallowMerge");
+const EventProxyStack = require("./EventProxyStack");
 
 // Number of milliseconds to allow async inits to initialize before triggering
 // warning
@@ -309,12 +310,7 @@ class PhantomCore extends DestructibleEventEmitter {
     this._isPostDestroyOpStarted = false;
 
     // Bound remote event handlers
-    this._eventProxyBinds = {
-      onListeners: [],
-      onceListeners: [],
-    };
-    this._eventProxyTargetOnInstances = [];
-    this._eventProxyTargetOnceInstances = [];
+    this._eventProxyStack = new EventProxyStack();
 
     // Force method scope binding to class instance
     if (this._options.hasAutomaticBindings) {
@@ -624,38 +620,12 @@ class PhantomCore extends DestructibleEventEmitter {
       throw new ReferenceError("targetInstance cannot be bound to itself");
     }
 
-    // Bind the event handler directly to the proxy instance
-    targetInstance.on(eventName, eventHandler);
-
-    // Register the bound remote event handler, locally
-    this._eventProxyBinds.onListeners.push({
+    this._eventProxyStack.addProxyHandler(
+      "on",
       targetInstance,
       eventName,
-      eventHandler,
-    });
-
-    // Handle scenario where targetInstance is destructed before local instance
-    //
-    // NOTE: In the opposite scenario, if the local instance is destructed
-    // before the targetInstance, the destroy() method of the local instance
-    // will invoke the needed functionality to remove the proxied events from
-    // the targetInstance
-    if (!this._eventProxyTargetOnInstances.includes(targetInstance)) {
-      this._eventProxyTargetOnInstances.push(targetInstance);
-
-      targetInstance.once(EVT_DESTROYED, () => {
-        // Remove from the _eventProxyTargetOnInstances
-        this._eventProxyTargetOnInstances =
-          this._eventProxyTargetOnInstances.filter(
-            pred => pred !== targetInstance
-          );
-
-        // Invoke proxyOff for bound onListeners
-        this._eventProxyBinds.onListeners.forEach(pred =>
-          this.proxyOff(pred.targetInstance, pred.eventName, pred.eventHandler)
-        );
-      });
-    }
+      eventHandler
+    );
   }
 
   /**
@@ -684,44 +654,12 @@ class PhantomCore extends DestructibleEventEmitter {
       throw new ReferenceError("targetInstance cannot be bound to itself");
     }
 
-    // Bind the event handler directly to the proxy instance
-    targetInstance.once(eventName, eventHandler);
-
-    // Register the bound remote event handler, locally
-    this._eventProxyBinds.onceListeners.push({
+    this._eventProxyStack.addProxyHandler(
+      "once",
       targetInstance,
       eventName,
-      eventHandler,
-    });
-
-    // FIXME: (jh) Try to automatically unbind destroyed handler once proxy
-    // instance emits once event. Wrapping eventHandler will not work as
-    // intended because when trying to externally unbind with proxyOff the
-    // original event handler is lost if calling from unit tests or other
-    // parts of the program.
-
-    // Handle scenario where targetInstance is destructed before local instance
-    //
-    // NOTE: In the opposite scenario, if the local instance is destructed
-    // before the targetInstance, the destroy() method of the local instance
-    // will invoke the needed functionality to remove the proxied events from
-    // the targetInstance
-    if (!this._eventProxyTargetOnceInstances.includes(targetInstance)) {
-      this._eventProxyTargetOnceInstances.push(targetInstance);
-
-      targetInstance.once(EVT_DESTROYED, () => {
-        // Remove from the _eventProxyTargetOnceInstances
-        this._eventProxyTargetOnceInstances =
-          this._eventProxyTargetOnceInstances.filter(
-            pred => pred !== targetInstance
-          );
-
-        // Unregister the bound onceListeners
-        this._eventProxyBinds.onceListeners.forEach(pred =>
-          this.proxyOff(pred.targetInstance, pred.eventName, pred.eventHandler)
-        );
-      });
-    }
+      eventHandler
+    );
   }
 
   /**
@@ -751,25 +689,11 @@ class PhantomCore extends DestructibleEventEmitter {
     }
 
     // Unbind the event handler from the proxy instance
-    targetInstance.off(eventName, eventHandler);
-
-    // Unregister the bound remote event handler from the onListeners /
-    // onceListeners
-    ["onListeners", "onceListeners"].forEach(listenerType => {
-      this._eventProxyBinds[listenerType] = this._eventProxyBinds[
-        listenerType
-      ].filter(pred => {
-        if (pred.targetInstance !== targetInstance) {
-          return true;
-        } else if (pred.eventName !== eventName) {
-          return true;
-        } else if (pred.eventHandler !== eventHandler) {
-          return true;
-        } else {
-          return false;
-        }
-      });
-    });
+    this._eventProxyStack.removeProxyHandler(
+      targetInstance,
+      eventName,
+      eventHandler
+    );
   }
 
   /**
@@ -820,14 +744,8 @@ class PhantomCore extends DestructibleEventEmitter {
       // last minute events can be handled
       await this._shutdownHandlerStack.exec();
 
-      // Unregister the proxied events from the remotes
-      ["onListeners", "onceListeners"].forEach(listenerType => {
-        this._eventProxyBinds[listenerType].forEach(
-          ({ targetInstance, eventName, eventHandler }) => {
-            this.proxyOff(targetInstance, eventName, eventHandler);
-          }
-        );
-      });
+      await this._eventProxyStack.destroy();
+      this._eventProxyStack = null;
     });
 
     // Post-destruct operations
@@ -859,6 +777,7 @@ class PhantomCore extends DestructibleEventEmitter {
 }
 
 module.exports = PhantomCore;
+
 module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;
 module.exports.EVT_READY = EVT_READY;
 module.exports.EVT_UPDATED = EVT_UPDATED;
