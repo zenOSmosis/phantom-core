@@ -317,7 +317,7 @@ test("same proxy event handler for on and once", async t => {
   t.equals(
     p2.listenerCount(EVT_UPDATED),
     0,
-    "one remaining EVT_UPDATED listeners after next proxyOff"
+    "zero remaining EVT_UPDATED listeners after next proxyOff"
   );
 
   t.end();
