@@ -3,20 +3,20 @@
 require("setimmediate");
 
 const EventEmitter = require("events");
-const DestructibleEventEmitter = require("./_DestructibleEventEmitter");
-const Logger = require("./Logger");
+const DestructibleEventEmitter = require("../_DestructibleEventEmitter");
+const Logger = require("../Logger");
 const { LOG_LEVEL_INFO } = Logger;
-const getPackageJSON = require("./utils/getPackageJSON");
-const FunctionStack = require("./FunctionStack");
-const getClassName = require("./utils/class-utils/getClassName");
+const getPackageJSON = require("../utils/getPackageJSON");
+const FunctionStack = require("../FunctionStack");
+const getClassName = require("../utils/class-utils/getClassName");
 const uuidv4 = require("uuid").v4;
 const shortUUID = require("short-uuid");
 const dayjs = require("dayjs");
-const getUnixTime = require("./utils/getUnixTime");
-const getClassInstancePropertyNames = require("./utils/class-utils/getClassInstancePropertyNames");
-const getClassInstanceMethodNames = require("./utils/class-utils/getClassInstanceMethodNames");
-const autoBindClassInstanceMethods = require("./utils/class-utils/autoBindClassInstanceMethods");
-const shallowMerge = require("./utils/shallowMerge");
+const getUnixTime = require("../utils/getUnixTime");
+const getClassInstancePropertyNames = require("../utils/class-utils/getClassInstancePropertyNames");
+const getClassInstanceMethodNames = require("../utils/class-utils/getClassInstanceMethodNames");
+const autoBindClassInstanceMethods = require("../utils/class-utils/autoBindClassInstanceMethods");
+const shallowMerge = require("../utils/shallowMerge");
 
 // Number of milliseconds to allow async inits to initialize before triggering
 // warning
