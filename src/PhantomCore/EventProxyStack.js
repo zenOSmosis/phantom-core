@@ -9,22 +9,32 @@ module.exports = class EventProxyStack extends _DestructibleEventEmitter {
    *
    * Internally it binds the events to the remote target instance(s) and manages
    * their handling.
+   *
+   * NOTE: A single EVT_DESTROYED method is also attached to every target
+   * instance to perform shutdown handling.
    */
   constructor() {
     super();
 
     /**
+     * Associated event proxy handlers attached to target instances.
+     *
      * @type {[targetInstance: PhantomCore, eventName: string, eventHandler: Function]}
      */
     this._eventProxyBinds = [];
 
     /**
+     * Associated EVT_DESTROYED handlers attached to target instances, which
+     * are invoked if the target instance is destructed before the local
+     * instance.
+     *
      * @type {Map<{key: PhantomCore, value: Function}>}
      */
     this._targetDestroyHandlers = new Map();
   }
 
   /**
+   * Adds the given proxy handler to the given target instance.
    *
    * @param {"on" | "once"} onOrOnce
    * @param {PhantomCore} targetInstance
@@ -42,6 +52,9 @@ module.exports = class EventProxyStack extends _DestructibleEventEmitter {
     // Bind the event handler to the target instance
     targetInstance[onOrOnce](eventName, eventHandler);
 
+    // Automatically unregister if the target instance is destructed before
+    // this instance
+    //
     // If there is not a target destroy handler...
     if (!this._targetDestroyHandlers.get(targetInstance)) {
       // ... create one
@@ -65,7 +78,7 @@ module.exports = class EventProxyStack extends _DestructibleEventEmitter {
   }
 
   /**
-   * Removes the given proxy handler
+   * Removes the given proxy handler from the given target instance.
    *
    * @param {PhantomCore} targetInstance
    * @param {string} eventName
