@@ -309,12 +309,12 @@ class PhantomCore extends DestructibleEventEmitter {
     this._isPostDestroyOpStarted = false;
 
     // Bound remote event handlers
-    this._proxyBinds = {
+    this._eventProxyBinds = {
       onListeners: [],
       onceListeners: [],
     };
-    this._targetOnInstances = [];
-    this._targetOnceInstances = [];
+    this._eventProxyTargetOnInstances = [];
+    this._eventProxyTargetOnceInstances = [];
 
     // Force method scope binding to class instance
     if (this._options.hasAutomaticBindings) {
@@ -628,7 +628,7 @@ class PhantomCore extends DestructibleEventEmitter {
     targetInstance.on(eventName, eventHandler);
 
     // Register the bound remote event handler, locally
-    this._proxyBinds.onListeners.push({
+    this._eventProxyBinds.onListeners.push({
       targetInstance,
       eventName,
       eventHandler,
@@ -640,17 +640,18 @@ class PhantomCore extends DestructibleEventEmitter {
     // before the targetInstance, the destroy() method of the local instance
     // will invoke the needed functionality to remove the proxied events from
     // the targetInstance
-    if (!this._targetOnInstances.includes(targetInstance)) {
-      this._targetOnInstances.push(targetInstance);
+    if (!this._eventProxyTargetOnInstances.includes(targetInstance)) {
+      this._eventProxyTargetOnInstances.push(targetInstance);
 
       targetInstance.once(EVT_DESTROYED, () => {
-        // Remove from the _targetOnInstances
-        this._targetOnInstances = this._targetOnInstances.filter(
-          pred => pred !== targetInstance
-        );
+        // Remove from the _eventProxyTargetOnInstances
+        this._eventProxyTargetOnInstances =
+          this._eventProxyTargetOnInstances.filter(
+            pred => pred !== targetInstance
+          );
 
         // Invoke proxyOff for bound onListeners
-        this._proxyBinds.onListeners.forEach(pred =>
+        this._eventProxyBinds.onListeners.forEach(pred =>
           this.proxyOff(pred.targetInstance, pred.eventName, pred.eventHandler)
         );
       });
@@ -687,7 +688,7 @@ class PhantomCore extends DestructibleEventEmitter {
     targetInstance.once(eventName, eventHandler);
 
     // Register the bound remote event handler, locally
-    this._proxyBinds.onceListeners.push({
+    this._eventProxyBinds.onceListeners.push({
       targetInstance,
       eventName,
       eventHandler,
@@ -705,17 +706,18 @@ class PhantomCore extends DestructibleEventEmitter {
     // before the targetInstance, the destroy() method of the local instance
     // will invoke the needed functionality to remove the proxied events from
     // the targetInstance
-    if (!this._targetOnceInstances.includes(targetInstance)) {
-      this._targetOnceInstances.push(targetInstance);
+    if (!this._eventProxyTargetOnceInstances.includes(targetInstance)) {
+      this._eventProxyTargetOnceInstances.push(targetInstance);
 
       targetInstance.once(EVT_DESTROYED, () => {
-        // Remove from the _targetOnceInstances
-        this._targetOnceInstances = this._targetOnceInstances.filter(
-          pred => pred !== targetInstance
-        );
+        // Remove from the _eventProxyTargetOnceInstances
+        this._eventProxyTargetOnceInstances =
+          this._eventProxyTargetOnceInstances.filter(
+            pred => pred !== targetInstance
+          );
 
         // Unregister the bound onceListeners
-        this._proxyBinds.onceListeners.forEach(pred =>
+        this._eventProxyBinds.onceListeners.forEach(pred =>
           this.proxyOff(pred.targetInstance, pred.eventName, pred.eventHandler)
         );
       });
@@ -754,19 +756,19 @@ class PhantomCore extends DestructibleEventEmitter {
     // Unregister the bound remote event handler from the onListeners /
     // onceListeners
     ["onListeners", "onceListeners"].forEach(listenerType => {
-      this._proxyBinds[listenerType] = this._proxyBinds[listenerType].filter(
-        pred => {
-          if (pred.targetInstance !== targetInstance) {
-            return true;
-          } else if (pred.eventName !== eventName) {
-            return true;
-          } else if (pred.eventHandler !== eventHandler) {
-            return true;
-          } else {
-            return false;
-          }
+      this._eventProxyBinds[listenerType] = this._eventProxyBinds[
+        listenerType
+      ].filter(pred => {
+        if (pred.targetInstance !== targetInstance) {
+          return true;
+        } else if (pred.eventName !== eventName) {
+          return true;
+        } else if (pred.eventHandler !== eventHandler) {
+          return true;
+        } else {
+          return false;
         }
-      );
+      });
     });
   }
 
@@ -820,7 +822,7 @@ class PhantomCore extends DestructibleEventEmitter {
 
       // Unregister the proxied events from the remotes
       ["onListeners", "onceListeners"].forEach(listenerType => {
-        this._proxyBinds[listenerType].forEach(
+        this._eventProxyBinds[listenerType].forEach(
           ({ targetInstance, eventName, eventHandler }) => {
             this.proxyOff(targetInstance, eventName, eventHandler);
           }

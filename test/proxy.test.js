@@ -346,11 +346,11 @@ test("proxy unregistration", async t => {
     p1.proxyOn(p2, "some-test-event", _eventHandlerC);
 
     t.ok(
-      p1._proxyBinds.onListeners.length === 3,
+      p1._eventProxyBinds.onListeners.length === 3,
       "three registered on proxy listeners bound on p1"
     );
 
-    t.deepEquals(p1._proxyBinds.onListeners, [
+    t.deepEquals(p1._eventProxyBinds.onListeners, [
       {
         targetInstance: p2,
         eventName: "updated",
@@ -370,7 +370,7 @@ test("proxy unregistration", async t => {
 
     p1.proxyOff(p2, EVT_UPDATED, _eventHandlerB);
 
-    t.deepEquals(p1._proxyBinds.onListeners, [
+    t.deepEquals(p1._eventProxyBinds.onListeners, [
       {
         targetInstance: p2,
         eventName: "updated",
@@ -405,7 +405,7 @@ test("proxy unregistration", async t => {
     p1.proxyOnce(p2, EVT_UPDATED, _eventHandlerB);
     p1.proxyOnce(p2, "some-test-event", _eventHandlerC);
 
-    t.deepEquals(p1._proxyBinds.onceListeners, [
+    t.deepEquals(p1._eventProxyBinds.onceListeners, [
       {
         targetInstance: p2,
         eventName: "updated",
@@ -425,7 +425,7 @@ test("proxy unregistration", async t => {
 
     p1.proxyOff(p2, EVT_UPDATED, _eventHandlerB);
 
-    t.deepEquals(p1._proxyBinds.onceListeners, [
+    t.deepEquals(p1._eventProxyBinds.onceListeners, [
       {
         targetInstance: p2,
         eventName: "updated",
@@ -461,11 +461,11 @@ test("proxy unregistration", async t => {
     p1.proxyOn(p2, "some-test-event", _eventHandlerC);
 
     t.ok(
-      p1._proxyBinds.onListeners.length === 3,
+      p1._eventProxyBinds.onListeners.length === 3,
       "three registered on proxy listeners bound on p1"
     );
 
-    t.deepEquals(p1._proxyBinds.onListeners, [
+    t.deepEquals(p1._eventProxyBinds.onListeners, [
       {
         targetInstance: p2,
         eventName: "updated",
@@ -485,7 +485,7 @@ test("proxy unregistration", async t => {
 
     await p2.destroy();
 
-    t.deepEquals(p1._proxyBinds.onListeners, []);
+    t.deepEquals(p1._eventProxyBinds.onListeners, []);
   })();
 
   // on / once / mix / destroy
@@ -515,7 +515,7 @@ test("proxy unregistration", async t => {
     p1.proxyOn(p2, "some-test-event", _eventHandlerC);
     p1.proxyOnce(p3, EVT_UPDATED, _eventHandlerD);
 
-    t.deepEquals(p1._proxyBinds, {
+    t.deepEquals(p1._eventProxyBinds, {
       onListeners: [
         {
           targetInstance: p2,
@@ -544,7 +544,7 @@ test("proxy unregistration", async t => {
 
     await p2.destroy();
 
-    t.deepEquals(p1._proxyBinds, {
+    t.deepEquals(p1._eventProxyBinds, {
       onListeners: [],
       onceListeners: [
         {
@@ -568,11 +568,11 @@ test("proxy unregistration", async t => {
     p1.proxyOnce(p2, EVT_UPDATED, _eventHandler);
 
     t.ok(
-      p1._proxyBinds.onceListeners.length === 1,
+      p1._eventProxyBinds.onceListeners.length === 1,
       "one registered once proxy listener bind on p1"
     );
 
-    t.deepEquals(p1._proxyBinds.onceListeners, [
+    t.deepEquals(p1._eventProxyBinds.onceListeners, [
       {
         targetInstance: p2,
         eventName: "updated",
@@ -582,7 +582,7 @@ test("proxy unregistration", async t => {
 
     await p2.destroy();
 
-    t.deepEquals(p1._proxyBinds.onceListeners, []);
+    t.deepEquals(p1._eventProxyBinds.onceListeners, []);
   })();
 
   t.end();
