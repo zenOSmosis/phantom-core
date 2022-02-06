@@ -741,33 +741,22 @@ class PhantomCore extends DestructibleEventEmitter {
     // Unbind the event handler from the proxy instance
     proxyInstance.off(eventName, eventHandler);
 
-    // Unregister the bound remote event handler from the onListeners
-    this._proxyBinds.onListeners = this._proxyBinds.onListeners.filter(pred => {
-      if (pred.proxyInstance !== proxyInstance) {
-        return true;
-      } else if (pred.eventName !== eventName) {
-        return true;
-      } else if (pred.eventHandler !== eventHandler) {
-        return true;
-      } else {
-        return false;
-      }
-    });
-
-    // Unregister the bound remote event handler from the onceListeners
-    this._proxyBinds.onceListeners = this._proxyBinds.onceListeners.filter(
-      pred => {
-        if (pred.proxyInstance !== proxyInstance) {
-          return true;
-        } else if (pred.eventName !== eventName) {
-          return true;
-        } else if (pred.eventHandler !== eventHandler) {
-          return true;
-        } else {
-          return false;
+    // Unregister the bound remote event handler from the onListeners / onceListeners
+    ["onListeners", "onceListeners"].forEach(listenerType => {
+      this._proxyBinds[listenerType] = this._proxyBinds[listenerType].filter(
+        pred => {
+          if (pred.proxyInstance !== proxyInstance) {
+            return true;
+          } else if (pred.eventName !== eventName) {
+            return true;
+          } else if (pred.eventHandler !== eventHandler) {
+            return true;
+          } else {
+            return false;
+          }
         }
-      }
-    );
+      );
+    });
   }
 
   /**
@@ -818,19 +807,14 @@ class PhantomCore extends DestructibleEventEmitter {
       // last minute events can be handled
       await this._shutdownHandlerStack.exec();
 
-      // Drain the onListeners
-      this._proxyBinds.onListeners.forEach(
-        ({ proxyInstance, eventName, eventHandler }) => {
-          this.proxyOff(proxyInstance, eventName, eventHandler);
-        }
-      );
-
-      // Drain the onceListeners
-      this._proxyBinds.onceListeners.forEach(
-        ({ proxyInstance, eventName, eventHandler }) => {
-          this.proxyOff(proxyInstance, eventName, eventHandler);
-        }
-      );
+      // Drain the onListeners / onceListeners
+      ["onListeners", "onceListeners"].forEach(listenerType => {
+        this._proxyBinds[listenerType].forEach(
+          ({ proxyInstance, eventName, eventHandler }) => {
+            this.proxyOff(proxyInstance, eventName, eventHandler);
+          }
+        );
+      });
     });
 
     // Post-destruct operations
