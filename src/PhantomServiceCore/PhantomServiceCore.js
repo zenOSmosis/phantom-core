@@ -82,7 +82,7 @@ class PhantomServiceCore extends PhantomState {
   }
 
   /**
-   * This can be extended with any custom async handling.  Custom
+   * This can be extended with any custom async handling. Custom
    * implementations must call super._init().
    *
    * @return {Promise<void>}
@@ -129,7 +129,7 @@ class PhantomServiceCore extends PhantomState {
     // instantiation, if possible
     //
     // IMPORTANT: Loose instance detection is provided here so that collections
-    // may be bound from different PhantomCore versions.  It does not guarantee
+    // may be bound from different PhantomCore versions. It does not guarantee
     // strict version integrity.
     if (!PhantomCollection.getIsLooseInstance(collectionInstance)) {
       throw new TypeError("collectionInstance is not a PhantomCollection");

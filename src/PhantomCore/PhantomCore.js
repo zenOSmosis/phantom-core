@@ -3,20 +3,21 @@
 require("setimmediate");
 
 const EventEmitter = require("events");
-const DestructibleEventEmitter = require("./_DestructibleEventEmitter");
-const Logger = require("./Logger");
+const DestructibleEventEmitter = require("../_DestructibleEventEmitter");
+const Logger = require("../Logger");
 const { LOG_LEVEL_INFO } = Logger;
-const getPackageJSON = require("./utils/getPackageJSON");
-const FunctionStack = require("./FunctionStack");
-const getClassName = require("./utils/class-utils/getClassName");
+const getPackageJSON = require("../utils/getPackageJSON");
+const FunctionStack = require("../FunctionStack");
+const getClassName = require("../utils/class-utils/getClassName");
 const uuidv4 = require("uuid").v4;
 const shortUUID = require("short-uuid");
 const dayjs = require("dayjs");
-const getUnixTime = require("./utils/getUnixTime");
-const getClassInstancePropertyNames = require("./utils/class-utils/getClassInstancePropertyNames");
-const getClassInstanceMethodNames = require("./utils/class-utils/getClassInstanceMethodNames");
-const autoBindClassInstanceMethods = require("./utils/class-utils/autoBindClassInstanceMethods");
-const shallowMerge = require("./utils/shallowMerge");
+const getUnixTime = require("../utils/getUnixTime");
+const getClassInstancePropertyNames = require("../utils/class-utils/getClassInstancePropertyNames");
+const getClassInstanceMethodNames = require("../utils/class-utils/getClassInstanceMethodNames");
+const autoBindClassInstanceMethods = require("../utils/class-utils/autoBindClassInstanceMethods");
+const shallowMerge = require("../utils/shallowMerge");
+const EventProxyStack = require("./EventProxyStack");
 
 // Number of milliseconds to allow async inits to initialize before triggering
 // warning
@@ -94,7 +95,7 @@ class PhantomCore extends DestructibleEventEmitter {
    * matching any version of the PhantomCore library.
    *
    * IMPORTANT: This should only be used in situations where another library
-   * may use a different version of PhantomCore internally.  It does not
+   * may use a different version of PhantomCore internally. It does not
    * guarantee there will not be version conflicts, but may help situations
    * where updating PhantomCore itself requires updating other extension
    * libraries due to minor changes.
@@ -123,7 +124,7 @@ class PhantomCore extends DestructibleEventEmitter {
   /**
    * Symbol is a built-in object whose constructor returns a symbol primitive —
    * also called a Symbol value or just a Symbol — that’s guaranteed to be
-   * unique.  Symbols are often used to add unique property keys to an object
+   * unique. Symbols are often used to add unique property keys to an object
    * that won’t collide with keys any other code might add to the object, and
    * which are hidden from any mechanisms other code will typically use to
    * access the object. That enables a form of weak encapsulation, or a weak
@@ -288,8 +289,8 @@ class PhantomCore extends DestructibleEventEmitter {
      * NOTE: This is called directly in order to not lose the stack trace.
      *
      * @type {Function} Calling this function directly will indirectly call
-     * logger.info(); The logger.trace(), logger.debug(), logger.info(), logger.warn(), and
-     * logger.error() properties can be called directly.
+     * logger.info(); The logger.trace(), logger.debug(), logger.info(),
+     * logger.warn(), and logger.error() properties can be called directly.
      */
     this.log = this.logger.log;
 
@@ -304,7 +305,12 @@ class PhantomCore extends DestructibleEventEmitter {
 
     this._isReady = !this._options.isAsync || false;
 
+    // Flag for additional cleanup handling, internally set to true after super
+    // destruct method has run
     this._isPostDestroyOpStarted = false;
+
+    // Bound remote event handlers
+    this._eventProxyStack = new EventProxyStack();
 
     // Force method scope binding to class instance
     if (this._options.hasAutomaticBindings) {
@@ -323,7 +329,7 @@ class PhantomCore extends DestructibleEventEmitter {
       // Warn if _init() is not invoked in a short time period
       const longRespondInitWarnTimeout = setTimeout(() => {
         this.logger.warn(
-          "PhantomCore superclass _init has not been called in a reasonable amount of time.  All instances which use isAsync option must call _init on the PhantomCore superclass."
+          "PhantomCore superclass _init has not been called in a reasonable amount of time. All instances which use isAsync option must call _init on the PhantomCore superclass."
         );
 
         this.emit(EVT_NO_INIT_WARN);
@@ -397,7 +403,7 @@ class PhantomCore extends DestructibleEventEmitter {
 
   /**
    * Registers a function to the shutdown handler stack, which is executed
-   * AFTER EVT_DESTROYED is emit.
+   * BEFORE EVT_DESTROYED is emit.
    *
    * @param {Function} fn
    * @return {void}
@@ -595,27 +601,30 @@ class PhantomCore extends DestructibleEventEmitter {
    * intended to work the same way.
    *
    * NOTE: Unlike the original event emitter method, this does NOT return a
-   * reference to the underlying class for optional chaining.
+   * reference to the underlying class for optional chaining, and it currently
+   * does NOT support the optional "options" argument.
    *
-   * @param {PhantomCore} proxyInstance
+   * @see {@link https://nodejs.org/api/events.html#eventsonemitter-eventname-options}
+   *
+   * @param {PhantomCore} targetInstance
    * @param {string | symbol} eventName
    * @param {Function} eventHandler
    * @return {void}
    */
-  proxyOn(proxyInstance, eventName, eventHandler) {
-    if (!PhantomCore.getIsLooseInstance(proxyInstance)) {
-      throw new ReferenceError("proxyInstance is not a PhantomCore instance");
+  proxyOn(targetInstance, eventName, eventHandler) {
+    if (!PhantomCore.getIsLooseInstance(targetInstance)) {
+      throw new ReferenceError("targetInstance is not a PhantomCore instance");
     }
 
-    if (this.getIsSameInstance(proxyInstance)) {
-      throw new ReferenceError("proxyInstance cannot be bound to itself");
+    if (this.getIsSameInstance(targetInstance)) {
+      throw new ReferenceError("targetInstance cannot be bound to itself");
     }
 
-    proxyInstance.on(eventName, eventHandler);
-
-    // Unbind from proxy instance once local class is destroyed
-    this.once(EVT_DESTROYED, () =>
-      this.proxyOff(proxyInstance, eventName, eventHandler)
+    this._eventProxyStack.addProxyHandler(
+      "on",
+      targetInstance,
+      eventName,
+      eventHandler
     );
   }
 
@@ -626,33 +635,30 @@ class PhantomCore extends DestructibleEventEmitter {
    * intended to work the same way.
    *
    * NOTE: Unlike the original event emitter method, this does NOT return a
-   * reference to the underlying class for optional chaining.
+   * reference to the underlying class for optional chaining, and it currently
+   * does NOT support the optional "options" argument.
    *
-   * @param {PhantomCore} proxyInstance
+   * @see {@link https://nodejs.org/api/events.html#eventsonceemitter-name-options}
+   *
+   * @param {PhantomCore} targetInstance
    * @param {string | symbol} eventName
    * @param {Function} eventHandler
    * @return {void}
    */
-  proxyOnce(proxyInstance, eventName, eventHandler) {
-    if (!PhantomCore.getIsLooseInstance(proxyInstance)) {
-      throw new ReferenceError("proxyInstance is not a PhantomCore instance");
+  proxyOnce(targetInstance, eventName, eventHandler) {
+    if (!PhantomCore.getIsLooseInstance(targetInstance)) {
+      throw new ReferenceError("targetInstance is not a PhantomCore instance");
     }
 
-    if (this.getIsSameInstance(proxyInstance)) {
-      throw new ReferenceError("proxyInstance cannot be bound to itself");
+    if (this.getIsSameInstance(targetInstance)) {
+      throw new ReferenceError("targetInstance cannot be bound to itself");
     }
 
-    proxyInstance.once(eventName, eventHandler);
-
-    // Unbind from proxy instance once local class is destroyed
-    //
-    // FIXME: Try to automatically unbind destroyed handler once proxy instance
-    // once runs. NOTE: Wrapping eventHandler will not work as intended because
-    // when trying to externally unbind with proxyOff (i.e. via unit tests or
-    // implementation usage [not the following line]) the original event
-    // handler reference is lost.
-    this.once(EVT_DESTROYED, () =>
-      this.proxyOff(proxyInstance, eventName, eventHandler)
+    this._eventProxyStack.addProxyHandler(
+      "once",
+      targetInstance,
+      eventName,
+      eventHandler
     );
   }
 
@@ -666,22 +672,28 @@ class PhantomCore extends DestructibleEventEmitter {
    * NOTE: Unlike the original event emitter method, this does NOT return a
    * reference to the underlying class for optional chaining.
    *
-   * @param {PhantomCore} proxyInstance
+   * @see {@link https://nodejs.org/api/events.html#emitteroffeventname-listener}
+   *
+   * @param {PhantomCore} targetInstance
    * @param {string | symbol} eventName
    * @param {Function} eventHandler
    * @return {void}
    */
-  proxyOff(proxyInstance, eventName, eventHandler) {
-    if (!PhantomCore.getIsLooseInstance(proxyInstance)) {
-      throw new ReferenceError("proxyInstance is not a PhantomCore instance");
+  proxyOff(targetInstance, eventName, eventHandler) {
+    if (!PhantomCore.getIsLooseInstance(targetInstance)) {
+      throw new ReferenceError("targetInstance is not a PhantomCore instance");
     }
 
-    if (this.getIsSameInstance(proxyInstance)) {
-      throw new ReferenceError("proxyInstance cannot be bound to itself");
+    if (this.getIsSameInstance(targetInstance)) {
+      throw new ReferenceError("targetInstance cannot be bound to itself");
     }
 
-    // Unbind from proxy instance
-    proxyInstance.off(eventName, eventHandler);
+    // Unbind the event handler from the proxy instance
+    this._eventProxyStack.removeProxyHandler(
+      targetInstance,
+      eventName,
+      eventHandler
+    );
   }
 
   /**
@@ -731,17 +743,23 @@ class PhantomCore extends DestructibleEventEmitter {
       // Execute the shutdown handler before calling super.destroy, so that any
       // last minute events can be handled
       await this._shutdownHandlerStack.exec();
+
+      await this._eventProxyStack.destroy();
+      this._eventProxyStack = null;
     });
 
     // Post-destruct operations
     if (!this._isPostDestroyOpStarted) {
       this._isPostDestroyOpStarted = true;
 
-      // TODO: Force regular class properties to be null (as of July 30, 2021, not changing due to unforeseen consequences)
+      // TODO: Force regular class properties to be null (as of July 30, 2021,
+      // not changing due to unforeseen consequences):
+      // @see related issue: https://github.com/zenOSmosis/phantom-core/issues/34
+      // @see potentially related issue: https://github.com/zenOSmosis/phantom-core/issues/100
 
       this.getPhantomProperties().forEach(phantomProp => {
         this.log.warn(
-          `Lingering PhantomCore instance on prop name "${phantomProp}".  This could be a memory leak.  Ensure that all PhantomCore instances have been disposed of before class destruct.`
+          `Lingering PhantomCore instance on prop name "${phantomProp}". This could be a memory leak. Ensure that all PhantomCore instances have been disposed of before class destruct.`
         );
       });
 
@@ -762,6 +780,7 @@ class PhantomCore extends DestructibleEventEmitter {
 }
 
 module.exports = PhantomCore;
+
 module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;
 module.exports.EVT_READY = EVT_READY;
 module.exports.EVT_UPDATED = EVT_UPDATED;

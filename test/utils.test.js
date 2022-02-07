@@ -306,11 +306,23 @@ test("sleep", async t => {
 
   const performance = libPerformance || window.performance;
 
+  // NOTE: Intentionally testing w/ 100 ms "grace buffer" to prevent this test
+  // from sometimes erroring out due to time precision differences in
+  // performance.now (used for measuring) and setTimeout (used internally in
+  // sleep).
+  //
+  // The main purpose of this test is not for precision, but to ensure that
+  // the time attribute actually affects sleep time.
+  const graceBuffer = 100;
+
   await (async () => {
     const beforeStart = performance.now();
     await sleep();
     const afterEnd = performance.now();
-    t.ok(afterEnd - beforeStart >= 1000, "sleep() defaults to 1000 ms");
+    t.ok(
+      afterEnd - beforeStart >= 1000 - graceBuffer,
+      "sleep() defaults to 1000 ms"
+    );
   })();
 
   await (async () => {
@@ -318,16 +330,7 @@ test("sleep", async t => {
     await sleep(1500);
     const afterEnd = performance.now();
     t.ok(
-      // NOTE: Intentionally testing w/ 100 ms "grace buffer" (>= 1400 instead
-      // of 1500) in case of potential timing fluctuation in the JS engine
-      // clock (which fixes a bug sometimes exposed by Chrome when running on
-      // SauceLab's virtual machines). This "could be" due to before / after
-      // timestamps being calculated with a high resolution timestamp, while
-      // sleep() is based on setTimeout, which is a lower precision.
-      //
-      // The main purpose of this test is not for precision, but to ensure that
-      // the time attribute actually affects sleep time.
-      afterEnd - beforeStart >= 1400,
+      afterEnd - beforeStart >= 1500 - graceBuffer,
       "sleep() responds to argument for milliseconds"
     );
   })();
