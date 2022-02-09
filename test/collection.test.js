@@ -802,15 +802,12 @@ test("multiple PhantomCollection destruct all children", async t => {
 });
 
 test("PhantomCollection child event proxies during shutdown", async t => {
-  t.plan(2);
+  t.plan(1);
 
   const child1 = new PhantomCore();
   const child2 = new PhantomCore();
 
   const child3 = new PhantomCore();
-  child3.registerShutdownHandler(() =>
-    child3.emit("__TESTING__-shutdown-handler-invoked", "test-data-a")
-  );
   child3.once(EVT_DESTROYED, () => {
     child3.emit("__TESTING__-destruct-event-emitted", "test-data-b");
   });
@@ -819,23 +816,9 @@ test("PhantomCollection child event proxies during shutdown", async t => {
   const child5 = new PhantomCore();
 
   const coll = new PhantomCollection([child1, child2, child3, child4, child5]);
-  coll.bindChildEventName("__TESTING__-shutdown-handler-invoked");
   coll.bindChildEventName("__TESTING__-destruct-event-emitted");
 
   await Promise.all([
-    new Promise(resolve => {
-      coll.once("__TESTING__-shutdown-handler-invoked", data => {
-        if (data === "test-data-a") {
-          t.ok(
-            true,
-            "received expected event data during shutdown handler phase"
-          );
-
-          resolve();
-        }
-      });
-    }),
-
     new Promise(resolve => {
       coll.once("__TESTING__-destruct-event-emitted", data => {
         if (data === "test-data-b") {

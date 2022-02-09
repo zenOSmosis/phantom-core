@@ -305,10 +305,6 @@ class PhantomCore extends DestructibleEventEmitter {
 
     this._isReady = !this._options.isAsync || false;
 
-    // Flag for additional cleanup handling, internally set to true after super
-    // destruct method has run
-    this._isPostDestroyOpStarted = false;
-
     // Bound remote event handlers
     this._eventProxyStack = new EventProxyStack();
 
@@ -402,8 +398,8 @@ class PhantomCore extends DestructibleEventEmitter {
   }
 
   /**
-   * Registers a function to the shutdown handler stack, which is executed
-   * BEFORE EVT_DESTROYED is emit.
+   * Registers a function with the shutdown handler stack, which is executed
+   * after EVT_DESTROYED is emit.
    *
    * @param {Function} fn
    * @return {void}
@@ -733,49 +729,44 @@ class PhantomCore extends DestructibleEventEmitter {
    * @return {Promise<void>}
    */
   async destroy(destroyHandler = () => null) {
-    await super.destroy(async () => {
-      // Intentionally unregister w/ _instances and call super.destroy()
-      // handler first
-      delete _instances[this._uuid];
+    await super.destroy(
+      async () => {
+        // Unregister from _instances
+        delete _instances[this._uuid];
 
-      await destroyHandler();
+        await destroyHandler();
 
-      // Execute the shutdown handler before calling super.destroy, so that any
-      // last minute events can be handled
-      await this._shutdownHandlerStack.exec();
+        await this._eventProxyStack.destroy();
+        this._eventProxyStack = null;
+      },
+      async () => {
+        await this._shutdownHandlerStack.exec();
 
-      await this._eventProxyStack.destroy();
-      this._eventProxyStack = null;
-    });
+        // TODO: Force regular class properties to be null (as of July 30, 2021,
+        // not changing due to unforeseen consequences):
+        // @see related issue: https://github.com/zenOSmosis/phantom-core/issues/34
+        // @see potentially related issue: https://github.com/zenOSmosis/phantom-core/issues/100
 
-    // Post-destruct operations
-    if (!this._isPostDestroyOpStarted) {
-      this._isPostDestroyOpStarted = true;
+        this.getPhantomProperties().forEach(phantomProp => {
+          this.log.warn(
+            `Lingering PhantomCore instance on prop name "${phantomProp}". This could be a memory leak. Ensure that all PhantomCore instances have been disposed of before class destruct.`
+          );
+        });
 
-      // TODO: Force regular class properties to be null (as of July 30, 2021,
-      // not changing due to unforeseen consequences):
-      // @see related issue: https://github.com/zenOSmosis/phantom-core/issues/34
-      // @see potentially related issue: https://github.com/zenOSmosis/phantom-core/issues/100
+        for (const methodName of this.getMethodNames()) {
+          // Force non-keep-alive methods to return undefined
+          if (!KEEP_ALIVE_SHUTDOWN_METHODS.includes(methodName)) {
+            this[methodName] = () => undefined;
+          }
 
-      this.getPhantomProperties().forEach(phantomProp => {
-        this.log.warn(
-          `Lingering PhantomCore instance on prop name "${phantomProp}". This could be a memory leak. Ensure that all PhantomCore instances have been disposed of before class destruct.`
-        );
-      });
-
-      for (const methodName of this.getMethodNames()) {
-        // Force non-keep-alive methods to return undefined
-        if (!KEEP_ALIVE_SHUTDOWN_METHODS.includes(methodName)) {
-          this[methodName] = () => undefined;
+          // TODO: Reimplement and conditionally silence w/ instance options
+          // or env
+          // this.logger.warn(
+          //  `Cannot call this.${method}() after class ${className} is destroyed`
+          // );
         }
-
-        // TODO: Reimplement and conditionally silence w/ instance options
-        // or env
-        // this.logger.warn(
-        //  `Cannot call this.${method}() after class ${className} is destroyed`
-        // );
       }
-    }
+    );
   }
 }
 

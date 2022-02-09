@@ -429,11 +429,8 @@ test("no subsequent usage of destroy() after full destruct", async t => {
 
   await new Promise(resolve => phantom.once(EVT_DESTROYED, resolve));
 
-  try {
-    await phantom.destroy();
-  } catch (err) {
-    t.ok(true, "throws error if calling destroy() after full destruct");
-  }
+  await phantom.destroy();
+  t.ok(true, "subsequent call to destroy is ignored");
 
   t.end();
 });
@@ -654,64 +651,39 @@ test("symbol toString()", t => {
 });
 
 test("shutdown phase event handling", async t => {
-  t.plan(3);
+  t.plan(2);
 
   const phantom = new PhantomCore();
-  phantom.registerShutdownHandler(() =>
-    phantom.emit("__TESTING__-shutdown-handler-invoked", "test-data-a")
-  );
-
-  phantom.once(EVT_DESTROYED, () => {
-    phantom.emit("__TESTING__-destruct-event-emitted", "test-data-b");
-  });
 
   const orderOps = [];
 
-  await Promise.all([
-    new Promise(resolve => {
-      phantom.once("__TESTING__-shutdown-handler-invoked", data => {
-        orderOps.push("__TESTING__-shutdown-handler-invoked");
+  phantom.registerShutdownHandler(() =>
+    orderOps.push("__TESTING__-shutdown-handler-invoked")
+  );
 
-        if (data === "test-data-a") {
-          t.ok(
-            true,
-            "received expected event data during shutdown handler phase"
-          );
+  phantom.once(EVT_DESTROYED, () => {
+    orderOps.push("__TESTING__-destruct-event-emitted");
+  });
 
-          resolve();
-        }
-      });
-    }),
-
-    new Promise(resolve => {
-      phantom.once("__TESTING__-destruct-event-emitted", data => {
-        orderOps.push("__TESTING__-destruct-event-emitted");
-
-        if (data === "test-data-b") {
-          t.ok(
-            true,
-            "received expected event data during destruct event phase"
-          );
-
-          resolve();
-        }
-      });
-    }),
-
-    phantom.destroy(),
-  ]);
+  await phantom.destroy();
 
   t.equals(
     orderOps[0],
+    "__TESTING__-destruct-event-emitted",
+    "EVT_DESTROYED called successfully"
+  );
+
+  t.equals(
+    orderOps[1],
     "__TESTING__-shutdown-handler-invoked",
-    "shutdown handler invoked before EVT_DESTROYED"
+    "shutdown handler invoked after EVT_DESTROYED"
   );
 
   t.end();
 });
 
 test("shutdown handler stack", async t => {
-  t.plan(4);
+  t.plan(3);
 
   const p1 = new PhantomCore();
 
@@ -733,11 +705,6 @@ test("shutdown handler stack", async t => {
     t.ok(
       err.message === "Expected error",
       "errors in shutdown stack are thrown from the PhantomCore instance"
-    );
-
-    t.notOk(
-      p1.getIsDestroyed(),
-      "phantom does not register as destroyed if shutdown stack errors"
     );
   }
 
