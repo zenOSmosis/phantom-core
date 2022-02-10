@@ -3,7 +3,7 @@ const { EventEmitter } = require("events");
 const PhantomCore = require("../src");
 const { EVT_UPDATED } = PhantomCore;
 
-test("proxy error handling", async t => {
+test("event proxy error handling", async t => {
   t.plan(11);
 
   const p1 = new PhantomCore();
@@ -175,7 +175,7 @@ test("proxy error handling", async t => {
   t.end();
 });
 
-test("proxy host destruct handling", async t => {
+test("event proxy host destruct handling", async t => {
   t.plan(10);
 
   const p1 = new PhantomCore();
@@ -280,7 +280,7 @@ test("proxy host destruct handling", async t => {
   t.end();
 });
 
-test("same proxy event handler for on and once", async t => {
+test("same event proxy handler for on and once", async t => {
   t.plan(4);
 
   const p1 = new PhantomCore();
@@ -324,7 +324,7 @@ test("same proxy event handler for on and once", async t => {
   t.end();
 });
 
-test("proxy on / off", t => {
+test("event proxy on / off", t => {
   t.plan(2);
 
   const p1 = new PhantomCore();
@@ -363,7 +363,7 @@ test("proxy on / off", t => {
   t.end();
 });
 
-test("proxy once / off", async t => {
+test("event proxy once / off", async t => {
   t.plan(2);
 
   const p1 = new PhantomCore();
@@ -402,7 +402,7 @@ test("proxy once / off", async t => {
   t.end();
 });
 
-test("proxy on / destroy", async t => {
+test("event proxy on / destroy", async t => {
   t.plan(2);
 
   const p1 = new PhantomCore();
@@ -441,7 +441,7 @@ test("proxy on / destroy", async t => {
   t.end();
 });
 
-test("proxy on / once / mix / destroy", async t => {
+test("event proxy on / once / mix / destroy", async t => {
   t.plan(4);
 
   const p1 = new PhantomCore();
@@ -498,7 +498,7 @@ test("proxy on / once / mix / destroy", async t => {
   t.end();
 });
 
-test("proxy once / destroy", async t => {
+test("event proxy once / destroy", async t => {
   t.plan(2);
 
   const p1 = new PhantomCore();
