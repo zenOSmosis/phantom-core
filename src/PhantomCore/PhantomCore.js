@@ -8,6 +8,7 @@ const Logger = require("../Logger");
 const { LOG_LEVEL_INFO } = Logger;
 const getPackageJSON = require("../utils/getPackageJSON");
 const FunctionStack = require("../FunctionStack");
+const { FUNCTION_STACK_OPS_ORDER_LIFO } = FunctionStack;
 const getClassName = require("../utils/class-utils/getClassName");
 const uuidv4 = require("uuid").v4;
 const shortUUID = require("short-uuid");
@@ -251,7 +252,11 @@ class PhantomCore extends DestructibleEventEmitter {
       PhantomCore.mergeOptions(DEFAULT_OPTIONS, options)
     );
 
-    this._shutdownHandlerStack = new FunctionStack();
+    // Functions added to this stack are invoked in reverse so that the shutdown
+    // handlers can be kept close to where relevant properties are defined
+    this._shutdownHandlerStack = new FunctionStack(
+      FUNCTION_STACK_OPS_ORDER_LIFO
+    );
 
     this._symbol = (() => {
       if (this._options.symbol) {
