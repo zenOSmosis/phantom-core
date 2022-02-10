@@ -730,8 +730,8 @@ test("shutdown handler stack", async t => {
 
   t.deepEquals(
     opsRecords,
-    ["a", "b", "c"],
-    "shutdown functions are executed in order (FIFO) and maintain proper order if promises are used"
+    ["c", "b", "a"],
+    "shutdown functions are executed in reverse-order (LIFO) and maintain proper order if promises are used"
   );
 
   t.end();

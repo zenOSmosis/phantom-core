@@ -1,4 +1,6 @@
+/** @export */
 const FUNCTION_STACK_OPS_ORDER_FIFO = "FIFO";
+/** @export */
 const FUNCTION_STACK_OPS_ORDER_LIFO = "LIFO";
 
 /**
@@ -90,3 +92,6 @@ module.exports = class FunctionStack {
     }
   }
 };
+
+module.exports.FUNCTION_STACK_OPS_ORDER_FIFO = FUNCTION_STACK_OPS_ORDER_FIFO;
+module.exports.FUNCTION_STACK_OPS_ORDER_LIFO = FUNCTION_STACK_OPS_ORDER_LIFO;
