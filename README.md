@@ -50,6 +50,11 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 
 ## Changelog
 
+### Version 2.6.0 (Feb. 10, 2022)
+
+  - Change registerShutdownHandler to LIFO (last in, first out), running the operations in reverse order in which they were defined. This allows cleanup handlers to be specified right after their properties have been defined, and any subsequent properties and their own cleanup handlers which depend on previously defined properties will destruct prior to their dependencies.
+  - Implement reference-counting cleanup of EVT_DESTROYED listeners for event proxy targets. This listener is used to tell the event proxy host to remove its own registrations for events the now destructed target instance is no longer handling.
+
 ### Version 2.5.1 (Feb. 6, 2022)
 
   - PhantomCore proxy event binding fixes:

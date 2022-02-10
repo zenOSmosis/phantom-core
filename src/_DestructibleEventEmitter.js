@@ -66,8 +66,8 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
    * prior to normal destruct operations for this instance.
    * @param {Function} postDestroyHandler? [optional] If defined, will execute
    * after all event listeners have been removed from the instance. This is
-   * reserved for the PhantomCore superclass and is exposed via
-   * registerShutdownHandler.
+   * primarily used for the PhantomCore superclass and exposed via
+   * registerShutdownHandler to inheriting classes of PhantomCore.
    * @return {Promise<void>}
    * @emits EVT_BEFORE_DESTROY Emits a single time, regardless of calls to the
    * destroy() method, before the destroy handler stack is executed.

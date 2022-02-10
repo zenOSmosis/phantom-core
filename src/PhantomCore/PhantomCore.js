@@ -254,7 +254,9 @@ class PhantomCore extends DestructibleEventEmitter {
 
     // Functions added to this stack are invoked in reverse so that the
     // shutdown handlers can be kept close to where relevant properties are
-    // defined
+    // defined. Any subsequent properties and their own cleanup handlers which
+    // depend on previously defined properties will destruct prior to their
+    // dependencies.
     //
     // i.e.
     //
