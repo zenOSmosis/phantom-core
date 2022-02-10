@@ -615,7 +615,7 @@ test("phantom properties", async t => {
   ]);
 
   // Silence memory leak warnings
-  testPhantom.registerShutdownHandler(async () => {
+  testPhantom.registerCleanupHandler(async () => {
     await Promise.all([
       testPhantom._pred2.destroy(),
       testPhantom._pred5.destroy(),
@@ -657,7 +657,7 @@ test("shutdown phase event handling", async t => {
 
   const orderOps = [];
 
-  phantom.registerShutdownHandler(() =>
+  phantom.registerCleanupHandler(() =>
     orderOps.push("__TESTING__-shutdown-handler-invoked")
   );
 
@@ -689,13 +689,13 @@ test("shutdown handler stack", async t => {
 
   t.throws(
     () => {
-      p1.registerShutdownHandler("something");
+      p1.registerCleanupHandler("something");
     },
     TypeError,
     "throws TypeError when trying to register non-function shutdown handler"
   );
 
-  p1.registerShutdownHandler(() => {
+  p1.registerCleanupHandler(() => {
     throw new Error("Expected error");
   });
 
@@ -712,17 +712,17 @@ test("shutdown handler stack", async t => {
 
   let opsRecords = [];
 
-  p2.registerShutdownHandler(() => {
+  p2.registerCleanupHandler(() => {
     opsRecords.push("a");
   });
 
-  p2.registerShutdownHandler(async () => {
+  p2.registerCleanupHandler(async () => {
     await sleep(1000);
 
     opsRecords.push("b");
   });
 
-  p2.registerShutdownHandler(() => {
+  p2.registerCleanupHandler(() => {
     opsRecords.push("c");
   });
 
@@ -744,13 +744,13 @@ test("unregister shutdown handler", async t => {
 
   let wasInvoked = false;
 
-  const shutdownHandler = () => {
+  const cleanupHandler = () => {
     wasInvoked = true;
   };
 
-  phantom.registerShutdownHandler(shutdownHandler);
+  phantom.registerCleanupHandler(cleanupHandler);
 
-  phantom.unregisterShutdownHandler(shutdownHandler);
+  phantom.unregisterCleanupHandler(cleanupHandler);
 
   await phantom.destroy();
 

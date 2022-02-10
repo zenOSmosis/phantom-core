@@ -34,7 +34,7 @@ class PhantomServiceManager extends PhantomCollection {
     // another
     this._pendingServiceClassInstanceSet = new Set();
 
-    this.registerShutdownHandler(() => {
+    this.registerCleanupHandler(() => {
       this._pendingServiceClassInstanceSet.clear();
     });
   }

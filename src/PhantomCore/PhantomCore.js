@@ -261,11 +261,11 @@ class PhantomCore extends DestructibleEventEmitter {
     // i.e.
     //
     //  _propA = new PhantomCore()
-    //  this.registerShutdownHandler(() => _propA.destroy())
+    //  this.registerCleanupHandler(() => _propA.destroy())
     //
     // _propB depends on propA, and we don't want to move the propA shutdown
     // handler beyond this point to keep it closer to where propA was defined
-    this._shutdownHandlerStack = new FunctionStack(
+    this._cleanupHandlerStack = new FunctionStack(
       FUNCTION_STACK_OPS_ORDER_LIFO
     );
 
@@ -420,8 +420,8 @@ class PhantomCore extends DestructibleEventEmitter {
    * @param {Function} fn
    * @return {void}
    */
-  registerShutdownHandler(fn) {
-    return this._shutdownHandlerStack.push(fn);
+  registerCleanupHandler(fn) {
+    return this._cleanupHandlerStack.push(fn);
   }
 
   /**
@@ -430,8 +430,8 @@ class PhantomCore extends DestructibleEventEmitter {
    * @param {Function} fn
    * @returns
    */
-  unregisterShutdownHandler(fn) {
-    return this._shutdownHandlerStack.remove(fn);
+  unregisterCleanupHandler(fn) {
+    return this._cleanupHandlerStack.remove(fn);
   }
 
   /**
@@ -727,7 +727,7 @@ class PhantomCore extends DestructibleEventEmitter {
    *
    *  1. [implementation defined] destroyHandler
    *  2. EVT_DESTROYED triggers
-   *  3. registerShutdownHandler call stack
+   *  3. registerCleanupHandler call stack
    *
    * @param {Function} destroyHandler? [optional] If defined, will execute
    * prior to normal destruct operations for this class.
@@ -745,7 +745,7 @@ class PhantomCore extends DestructibleEventEmitter {
         this._eventProxyStack = null;
       },
       async () => {
-        await this._shutdownHandlerStack.exec();
+        await this._cleanupHandlerStack.exec();
 
         // TODO: Force regular class properties to be null (as of July 30, 2021,
         // not changing due to unforeseen consequences):

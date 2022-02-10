@@ -33,7 +33,7 @@ class PhantomState extends PhantomCore {
     }
 
     // Reset state on destruct
-    this.registerShutdownHandler(() => {
+    this.registerCleanupHandler(() => {
       this._state = null;
     });
   }
