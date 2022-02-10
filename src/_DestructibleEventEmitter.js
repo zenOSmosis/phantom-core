@@ -1,5 +1,6 @@
 const EventEmitter = require("events");
 const getClassName = require("./utils/class-utils/getClassName");
+const logger = require("./globalLogger");
 
 /** @export */
 const EVT_BEFORE_DESTROY = "before-destroy";
@@ -89,7 +90,7 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
    */
   async destroy(destroyHandler = () => null, postDestroyHandler = () => null) {
     if (this._isDestroying) {
-      console.warn(
+      logger.warn(
         `${getClassName(
           this
         )} is already being destroyed. The subsequent call has been ignored. Ensure callers are checking for destroy status before calling destroy().`
