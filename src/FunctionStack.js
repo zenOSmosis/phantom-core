@@ -8,6 +8,10 @@ const FUNCTION_STACK_OPS_ORDER_LIFO = "LIFO";
  * (regardless if they are promises) by using the exec command.
  */
 module.exports = class FunctionStack {
+  /**
+   * @param {FUNCTION_STACK_OPS_ORDER_FIFO | FUNCTION_STACK_OPS_ORDER_LIFO} opsOrder?
+   * [default=FUNCTION_STACK_OPS_ORDER_FIFO]
+   */
   constructor(opsOrder = FUNCTION_STACK_OPS_ORDER_FIFO) {
     if (
       opsOrder !== FUNCTION_STACK_OPS_ORDER_FIFO &&
@@ -19,6 +23,15 @@ module.exports = class FunctionStack {
     this._opsOrder = opsOrder;
 
     this._fns = [];
+  }
+
+  /**
+   * Retrieves the order in which the stack elements will execute.
+   *
+   * @return {FUNCTION_STACK_OPS_ORDER_FIFO | FUNCTION_STACK_OPS_ORDER_LIFO}
+   */
+  getOpsOrder() {
+    return this._opsOrder;
   }
 
   /**
