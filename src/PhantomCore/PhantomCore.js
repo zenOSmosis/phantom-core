@@ -8,6 +8,7 @@ const Logger = require("../Logger");
 const { LOG_LEVEL_INFO } = Logger;
 const getPackageJSON = require("../utils/getPackageJSON");
 const FunctionStack = require("../FunctionStack");
+const { FUNCTION_STACK_OPS_ORDER_LIFO } = FunctionStack;
 const getClassName = require("../utils/class-utils/getClassName");
 const uuidv4 = require("uuid").v4;
 const shortUUID = require("short-uuid");
@@ -251,7 +252,22 @@ class PhantomCore extends DestructibleEventEmitter {
       PhantomCore.mergeOptions(DEFAULT_OPTIONS, options)
     );
 
-    this._shutdownHandlerStack = new FunctionStack();
+    // Functions added to this stack are invoked in reverse so that the
+    // shutdown handlers can be kept close to where relevant properties are
+    // defined. Any subsequent properties and their own cleanup handlers which
+    // depend on previously defined properties will destruct prior to their
+    // dependencies.
+    //
+    // i.e.
+    //
+    //  _propA = new PhantomCore()
+    //  this.registerCleanupHandler(() => _propA.destroy())
+    //
+    // _propB depends on propA, and we don't want to move the propA shutdown
+    // handler beyond this point to keep it closer to where propA was defined
+    this._cleanupHandlerStack = new FunctionStack(
+      FUNCTION_STACK_OPS_ORDER_LIFO
+    );
 
     this._symbol = (() => {
       if (this._options.symbol) {
@@ -304,10 +320,6 @@ class PhantomCore extends DestructibleEventEmitter {
     this._instanceStartTime = getUnixTime();
 
     this._isReady = !this._options.isAsync || false;
-
-    // Flag for additional cleanup handling, internally set to true after super
-    // destruct method has run
-    this._isPostDestroyOpStarted = false;
 
     // Bound remote event handlers
     this._eventProxyStack = new EventProxyStack();
@@ -402,24 +414,24 @@ class PhantomCore extends DestructibleEventEmitter {
   }
 
   /**
-   * Registers a function to the shutdown handler stack, which is executed
-   * BEFORE EVT_DESTROYED is emit.
+   * Registers a function with the cleanup handler stack, which is executed
+   * after EVT_DESTROYED is emit and all event handlers have been removed.
    *
    * @param {Function} fn
    * @return {void}
    */
-  registerShutdownHandler(fn) {
-    return this._shutdownHandlerStack.push(fn);
+  registerCleanupHandler(fn) {
+    return this._cleanupHandlerStack.push(fn);
   }
 
   /**
-   * Unregisters a function from the shutdown handler stack.
+   * Unregisters a function from the cleanup handler stack.
    *
    * @param {Function} fn
    * @returns
    */
-  unregisterShutdownHandler(fn) {
-    return this._shutdownHandlerStack.remove(fn);
+  unregisterCleanupHandler(fn) {
+    return this._cleanupHandlerStack.remove(fn);
   }
 
   /**
@@ -697,17 +709,6 @@ class PhantomCore extends DestructibleEventEmitter {
   }
 
   /**
-   * Retrieves total number of event listeners registered to this instance.
-   *
-   * @return {number}
-   */
-  getTotalListenerCount() {
-    return this.eventNames()
-      .map(eventName => this.listenerCount(eventName))
-      .reduce((a, b) => a + b, 0);
-  }
-
-  /**
    * Retrieves the number of seconds since this class instance was
    * instantiated.
    *
@@ -725,57 +726,52 @@ class PhantomCore extends DestructibleEventEmitter {
    * NOTE: Order of operations for shutdown handling:
    *
    *  1. [implementation defined] destroyHandler
-   *  2. registerShutdownHandler call stack
-   *  3. EVT_DESTROYED triggers
+   *  2. EVT_DESTROYED triggers
+   *  3. registerCleanupHandler call stack
    *
    * @param {Function} destroyHandler? [optional] If defined, will execute
    * prior to normal destruct operations for this class.
    * @return {Promise<void>}
    */
   async destroy(destroyHandler = () => null) {
-    await super.destroy(async () => {
-      // Intentionally unregister w/ _instances and call super.destroy()
-      // handler first
-      delete _instances[this._uuid];
+    return super.destroy(
+      async () => {
+        // Unregister from _instances
+        delete _instances[this._uuid];
 
-      await destroyHandler();
+        await destroyHandler();
 
-      // Execute the shutdown handler before calling super.destroy, so that any
-      // last minute events can be handled
-      await this._shutdownHandlerStack.exec();
+        await this._eventProxyStack.destroy();
+        this._eventProxyStack = null;
+      },
+      async () => {
+        await this._cleanupHandlerStack.exec();
 
-      await this._eventProxyStack.destroy();
-      this._eventProxyStack = null;
-    });
+        // TODO: Force regular class properties to be null (as of July 30, 2021,
+        // not changing due to unforeseen consequences):
+        // @see related issue: https://github.com/zenOSmosis/phantom-core/issues/34
+        // @see potentially related issue: https://github.com/zenOSmosis/phantom-core/issues/100
 
-    // Post-destruct operations
-    if (!this._isPostDestroyOpStarted) {
-      this._isPostDestroyOpStarted = true;
+        this.getPhantomProperties().forEach(phantomProp => {
+          this.log.warn(
+            `Lingering PhantomCore instance on prop name "${phantomProp}". This could be a memory leak. Ensure that all PhantomCore instances have been disposed of before class destruct.`
+          );
+        });
 
-      // TODO: Force regular class properties to be null (as of July 30, 2021,
-      // not changing due to unforeseen consequences):
-      // @see related issue: https://github.com/zenOSmosis/phantom-core/issues/34
-      // @see potentially related issue: https://github.com/zenOSmosis/phantom-core/issues/100
+        for (const methodName of this.getMethodNames()) {
+          // Force non-keep-alive methods to return undefined
+          if (!KEEP_ALIVE_SHUTDOWN_METHODS.includes(methodName)) {
+            this[methodName] = () => undefined;
+          }
 
-      this.getPhantomProperties().forEach(phantomProp => {
-        this.log.warn(
-          `Lingering PhantomCore instance on prop name "${phantomProp}". This could be a memory leak. Ensure that all PhantomCore instances have been disposed of before class destruct.`
-        );
-      });
-
-      for (const methodName of this.getMethodNames()) {
-        // Force non-keep-alive methods to return undefined
-        if (!KEEP_ALIVE_SHUTDOWN_METHODS.includes(methodName)) {
-          this[methodName] = () => undefined;
+          // TODO: Reimplement and conditionally silence w/ instance options
+          // or env
+          // this.logger.warn(
+          //  `Cannot call this.${method}() after class ${className} is destroyed`
+          // );
         }
-
-        // TODO: Reimplement and conditionally silence w/ instance options
-        // or env
-        // this.logger.warn(
-        //  `Cannot call this.${method}() after class ${className} is destroyed`
-        // );
       }
-    }
+    );
   }
 }
 

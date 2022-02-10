@@ -1,5 +1,6 @@
 const EventEmitter = require("events");
 const getClassName = require("./utils/class-utils/getClassName");
+const logger = require("./globalLogger");
 
 /** @export */
 const EVT_BEFORE_DESTROY = "before-destroy";
@@ -44,6 +45,17 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
   }
 
   /**
+   * Retrieves total number of event listeners registered to this instance.
+   *
+   * @return {number}
+   */
+  getTotalListenerCount() {
+    return this.eventNames()
+      .map(eventName => this.listenerCount(eventName))
+      .reduce((a, b) => a + b, 0);
+  }
+
+  /**
    * Retrieves whether or not the class is currently being destroyed.
    *
    * @return {boolean}
@@ -63,7 +75,11 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
 
   /**
    * @param {Function} destroyHandler? [optional] If defined, will execute
-   * prior to normal destruct operations for this class.
+   * prior to normal destruct operations for this instance.
+   * @param {Function} postDestroyHandler? [optional] If defined, will execute
+   * after all event listeners have been removed from the instance. This is
+   * primarily used for the PhantomCore superclass and exposed via
+   * registerCleanupHandler to inheriting classes of PhantomCore.
    * @return {Promise<void>}
    * @emits EVT_BEFORE_DESTROY Emits a single time, regardless of calls to the
    * destroy() method, before the destroy handler stack is executed.
@@ -72,14 +88,17 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
    * @emits EVT_DESTROYED Emits a single time, regardless of calls to the
    * destroy() method, after the destroy handler stack has executed.
    */
-  async destroy(destroyHandler = () => null) {
+  async destroy(destroyHandler = () => null, postDestroyHandler = () => null) {
     if (this._isDestroying) {
-      console.warn(
+      logger.warn(
         `${getClassName(
           this
         )} is already being destroyed. The subsequent call has been ignored. Ensure callers are checking for destroy status before calling destroy().`
       );
     } else if (this._isDestroyed) {
+      // NOTE: When calling from PhantomCore, after full destruct, this may not
+      // get executed, as PhantomCore itself will reroute the subsequent call to
+      // a null handler
       throw new Error(`"${getClassName(this)}" has already been destroyed.`);
     } else {
       this._isDestroying = true;
@@ -97,7 +116,12 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
       clearTimeout(longRespondDestroyHandlerTimeout);
 
       // Set the state before the event is emit so that any listeners will know
-      // the correct state
+      // the correct state.
+      //
+      // IMPORTANT: It is by design _isDestroyed is set to true before
+      // _isDestroying is set to false. The reasoning is that we want to relay
+      // the "destroyed" state to any subsequent event handlers, while not
+      // actually being completely done with our cleanup work at this point.
       this._isDestroyed = true;
 
       // IMPORTANT: This must come before removal of all listeners
@@ -106,7 +130,17 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
       // Remove all event listeners; we're stopped
       this.removeAllListeners();
 
-      // No longer in "destroying" phase, and destroyed at this point
+      // IMPORTANT: This is intended to come after removeAllListeners has been
+      // invoked
+      await postDestroyHandler();
+
+      if (this.getTotalListenerCount()) {
+        throw new Error(
+          "An event handler has been registered in a post destruct callback which could cause a potential memory leak."
+        );
+      }
+
+      // Completely out of "destroying" phase (truly destroyed at this point)
       this._isDestroying = false;
     }
   }

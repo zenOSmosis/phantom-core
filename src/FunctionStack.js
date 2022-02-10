@@ -1,10 +1,37 @@
+/** @export */
+const FUNCTION_STACK_OPS_ORDER_FIFO = "FIFO";
+/** @export */
+const FUNCTION_STACK_OPS_ORDER_LIFO = "LIFO";
+
 /**
  * Registers an array of functions, which will run one after the other
  * (regardless if they are promises) by using the exec command.
  */
 module.exports = class FunctionStack {
-  constructor() {
+  /**
+   * @param {FUNCTION_STACK_OPS_ORDER_FIFO | FUNCTION_STACK_OPS_ORDER_LIFO} opsOrder?
+   * [default=FUNCTION_STACK_OPS_ORDER_FIFO]
+   */
+  constructor(opsOrder = FUNCTION_STACK_OPS_ORDER_FIFO) {
+    if (
+      opsOrder !== FUNCTION_STACK_OPS_ORDER_FIFO &&
+      opsOrder !== FUNCTION_STACK_OPS_ORDER_LIFO
+    ) {
+      throw new ReferenceError('opsOrder must either be "FIFO" or "LIFO"');
+    }
+
+    this._opsOrder = opsOrder;
+
     this._fns = [];
+  }
+
+  /**
+   * Retrieves the order in which the stack elements will execute.
+   *
+   * @return {FUNCTION_STACK_OPS_ORDER_FIFO | FUNCTION_STACK_OPS_ORDER_LIFO}
+   */
+  getOpsOrder() {
+    return this._opsOrder;
   }
 
   /**
@@ -55,8 +82,8 @@ module.exports = class FunctionStack {
 
   /**
    * Execute all of the functions pushed to the stack until, one at a time,
-   * FIFO (first in, first out), until there are no remaining functions to
-   * execute.
+   * using either FIFO or LIFO strategy, until there are no remaining functions
+   * to execute.
    *
    * IMPORTANT: This method recursively calls itself until there are not more
    * items in the stack.
@@ -66,7 +93,10 @@ module.exports = class FunctionStack {
   async exec() {
     if (this._fns.length) {
       // Obtain the first function of the array, and resize the array
-      const fn = this._fns.shift();
+      const fn =
+        this._opsOrder === FUNCTION_STACK_OPS_ORDER_FIFO
+          ? this._fns.shift()
+          : this._fns.pop();
 
       await fn();
 
@@ -75,3 +105,6 @@ module.exports = class FunctionStack {
     }
   }
 };
+
+module.exports.FUNCTION_STACK_OPS_ORDER_FIFO = FUNCTION_STACK_OPS_ORDER_FIFO;
+module.exports.FUNCTION_STACK_OPS_ORDER_LIFO = FUNCTION_STACK_OPS_ORDER_LIFO;

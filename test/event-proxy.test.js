@@ -1,9 +1,9 @@
 const test = require("tape");
 const { EventEmitter } = require("events");
 const PhantomCore = require("../src");
-const { EVT_UPDATED } = PhantomCore;
+const { EVT_DESTROYED } = PhantomCore;
 
-test("proxy error handling", async t => {
+test("event proxy error handling", async t => {
   t.plan(11);
 
   const p1 = new PhantomCore();
@@ -11,7 +11,7 @@ test("proxy error handling", async t => {
 
   t.throws(
     () => {
-      p1.proxyOn(new EventEmitter(), EVT_UPDATED, () =>
+      p1.proxyOn(new EventEmitter(), "mock-event", () =>
         // NOTE: Not throwing here because we want to make sure the error is
         // thrown from the instance
         console.log("Should not get here")
@@ -23,7 +23,7 @@ test("proxy error handling", async t => {
 
   t.throws(
     () => {
-      p1.proxyOn(p1, EVT_UPDATED, () =>
+      p1.proxyOn(p1, "mock-event", () =>
         // NOTE: Not throwing here because we want to make sure the error is
         // thrown from the instance
         console.log("Should not get here")
@@ -35,7 +35,7 @@ test("proxy error handling", async t => {
 
   t.throws(
     () => {
-      p1.proxyOnce(new EventEmitter(), EVT_UPDATED, () =>
+      p1.proxyOnce(new EventEmitter(), "mock-event", () =>
         // NOTE: Not throwing here because we want to make sure the error is
         // thrown from the instance
         console.log("Should not get here")
@@ -47,7 +47,7 @@ test("proxy error handling", async t => {
 
   t.throws(
     () => {
-      p1.proxyOnce(p1, EVT_UPDATED, () =>
+      p1.proxyOnce(p1, "mock-event", () =>
         // NOTE: Not throwing here because we want to make sure the error is
         // thrown from the instance
         console.log("Should not get here")
@@ -59,7 +59,7 @@ test("proxy error handling", async t => {
 
   t.throws(
     () => {
-      p1.proxyOff(new EventEmitter(), EVT_UPDATED, () =>
+      p1.proxyOff(new EventEmitter(), "mock-event", () =>
         // NOTE: Not throwing here because we want to make sure the error is
         // thrown from the instance
         console.log("Should not get here")
@@ -71,7 +71,7 @@ test("proxy error handling", async t => {
 
   t.throws(
     () => {
-      p1.proxyOff(p1, EVT_UPDATED, () =>
+      p1.proxyOff(p1, "mock-event", () =>
         // NOTE: Not throwing here because we want to make sure the error is
         // thrown from the instance
         console.log("Should not get here")
@@ -88,7 +88,7 @@ test("proxy error handling", async t => {
 
       await Promise.all([
         new Promise(resolve =>
-          p2.proxyOn(p1, EVT_UPDATED, () => {
+          p2.proxyOn(p1, "mock-event", () => {
             ++iterations;
 
             if (iterations === 2) {
@@ -109,7 +109,7 @@ test("proxy error handling", async t => {
 
       await Promise.all([
         new Promise((resolve, reject) =>
-          p2.proxyOnce(p1, EVT_UPDATED, () => {
+          p2.proxyOnce(p1, "mock-event", () => {
             if (hasEmit) {
               throw new Error("proxyOnce cannot emit more than once");
             }
@@ -127,7 +127,7 @@ test("proxy error handling", async t => {
 
         new Promise(resolve => {
           for (let i = 0; i < 2; i++) {
-            p1.emit(EVT_UPDATED);
+            p1.emit("mock-event");
           }
 
           resolve();
@@ -144,10 +144,10 @@ test("proxy error handling", async t => {
         throw new Error("proxyOff is not working as expected");
       };
 
-      p2.proxyOn(p1, EVT_UPDATED, _eventHandler);
-      p2.proxyOff(p1, EVT_UPDATED, _eventHandler);
+      p2.proxyOn(p1, "mock-event", _eventHandler);
+      p2.proxyOff(p1, "mock-event", _eventHandler);
 
-      p1.emit(EVT_UPDATED);
+      p1.emit("mock-event");
     },
     Error,
     "proxyOff unbinds event listener when bound w/ proxyOn"
@@ -159,10 +159,10 @@ test("proxy error handling", async t => {
         throw new Error("proxyOff is not working as expected");
       };
 
-      p2.proxyOnce(p1, EVT_UPDATED, _eventHandler);
-      p2.proxyOff(p1, EVT_UPDATED, _eventHandler);
+      p2.proxyOnce(p1, "mock-event", _eventHandler);
+      p2.proxyOff(p1, "mock-event", _eventHandler);
 
-      p1.emit(EVT_UPDATED);
+      p1.emit("mock-event");
     },
     Error,
     "proxyOff unbinds event listener when bound w/ proxyOnce"
@@ -175,14 +175,14 @@ test("proxy error handling", async t => {
   t.end();
 });
 
-test("proxy host destruct handling", async t => {
+test("event proxy host destruct handling", async t => {
   t.plan(10);
 
   const p1 = new PhantomCore();
   const p2 = new PhantomCore();
   const p3 = new PhantomCore();
 
-  const lenUpdateEventListenerCount = p1.listenerCount(EVT_UPDATED);
+  const lenUpdateEventListenerCount = p1.listenerCount("mock-event");
 
   t.equals(
     lenUpdateEventListenerCount,
@@ -206,81 +206,81 @@ test("proxy host destruct handling", async t => {
     throw new Error("Should not get here");
   };
 
-  p1.proxyOn(p2, EVT_UPDATED, _eventHandlerA);
-  p1.proxyOnce(p2, EVT_UPDATED, _eventHandlerB);
-  p1.proxyOn(p2, "some-test-event", _eventHandlerC);
-  p1.proxyOnce(p2, "some-test-event", _eventHandlerD);
+  p1.proxyOn(p2, "mock-event", _eventHandlerA);
+  p1.proxyOnce(p2, "mock-event", _eventHandlerB);
+  p1.proxyOn(p2, "mock-event-b", _eventHandlerC);
+  p1.proxyOnce(p2, "mock-event-b", _eventHandlerD);
 
   t.equals(
-    p3.listenerCount(EVT_UPDATED),
+    p3.listenerCount("mock-event"),
     0,
-    "p3 contains zero EVT_UPDATED listeners before adding proxy events"
+    "p3 contains zero mock-event listeners before adding proxy events"
   );
 
-  p1.proxyOn(p3, EVT_UPDATED, _eventHandlerA);
-  p1.proxyOnce(p3, EVT_UPDATED, _eventHandlerB);
-  p1.proxyOn(p3, "some-test-event", _eventHandlerC);
-  p1.proxyOnce(p3, "some-test-event", _eventHandlerD);
+  p1.proxyOn(p3, "mock-event", _eventHandlerA);
+  p1.proxyOnce(p3, "mock-event", _eventHandlerB);
+  p1.proxyOn(p3, "mock-event-b", _eventHandlerC);
+  p1.proxyOnce(p3, "mock-event-b", _eventHandlerD);
 
   t.equals(
-    p1.listenerCount(EVT_UPDATED),
+    p1.listenerCount("mock-event"),
     lenUpdateEventListenerCount,
-    "p1 EVT_UPDATED listener count does not increase when proxying events to p2 and p3"
+    "p1 mock-event listener count does not increase when proxying events to p2 and p3"
   );
 
   t.equals(
-    p2.listenerCount(EVT_UPDATED),
+    p2.listenerCount("mock-event"),
     lenUpdateEventListenerCount + 2,
-    "p2 EVT_UPDATED listener increments by two when issued proxied events from p1"
+    "p2 mock-event listener increments by two when issued proxied events from p1"
   );
 
   t.equals(
-    p3.listenerCount(EVT_UPDATED),
+    p3.listenerCount("mock-event"),
     lenUpdateEventListenerCount + 2,
-    "p3 EVT_UPDATED listener increments by two when issued proxied events from p1"
+    "p3 mock-event listener increments by two when issued proxied events from p1"
   );
 
   t.equals(
-    p3.listenerCount("some-test-event"),
+    p3.listenerCount("mock-event-b"),
     2,
-    'p3 contains two "some-test-event" listeners'
+    'p3 contains two "mock-event-b" listeners'
   );
 
-  p1.proxyOff(p3, "some-test-event", _eventHandlerD);
+  p1.proxyOff(p3, "mock-event-b", _eventHandlerD);
 
   t.equals(
-    p3.listenerCount("some-test-event"),
+    p3.listenerCount("mock-event-b"),
     1,
-    'p3 contains one "some-test-event" listener after removing one once listener'
+    'p3 contains one "mock-event-b" listener after removing one once listener'
   );
 
-  p1.proxyOff(p3, EVT_UPDATED, _eventHandlerB);
+  p1.proxyOff(p3, "mock-event", _eventHandlerB);
 
   t.equals(
-    p3.listenerCount(EVT_UPDATED),
+    p3.listenerCount("mock-event"),
     1,
-    "p3 contains one EVT_UPDATED listener after remove one on listener"
+    "p3 contains one mock-event listener after remove one on listener"
   );
 
   // Destruct the proxy host
   await p1.destroy();
 
   t.equals(
-    p3.listenerCount("some-test-event"),
+    p3.listenerCount("mock-event-b"),
     0,
-    'p3 contains zero "some-test-event" listeners after destructing p1'
+    'p3 contains zero "mock-event-b" listeners after destructing p1'
   );
 
   t.equals(
-    p3.listenerCount(EVT_UPDATED),
+    p3.listenerCount("mock-event"),
     0,
-    "p3 contains zero EVT_UPDATED listeners after destructing p1"
+    "p3 contains zero mock-event listeners after destructing p1"
   );
 
   t.end();
 });
 
-test("same proxy event handler for on and once", async t => {
+test("same event proxy handler for on and once", async t => {
   t.plan(4);
 
   const p1 = new PhantomCore();
@@ -291,40 +291,40 @@ test("same proxy event handler for on and once", async t => {
   };
 
   t.equals(
-    p2.listenerCount(EVT_UPDATED),
+    p2.listenerCount("mock-event"),
     0,
-    "zero initial EVT_UPDATED listeners"
+    "zero initial mock-event listeners"
   );
 
-  p1.proxyOn(p2, EVT_UPDATED, _eventHandler);
-  p1.proxyOnce(p2, EVT_UPDATED, _eventHandler);
+  p1.proxyOn(p2, "mock-event", _eventHandler);
+  p1.proxyOnce(p2, "mock-event", _eventHandler);
 
   t.equals(
-    p2.listenerCount(EVT_UPDATED),
+    p2.listenerCount("mock-event"),
     2,
-    "two EVT_UPDATED listeners after on / once proxies"
+    "two mock-event listeners after on / once proxies"
   );
 
-  p1.proxyOff(p2, EVT_UPDATED, _eventHandler);
+  p1.proxyOff(p2, "mock-event", _eventHandler);
 
   t.equals(
-    p2.listenerCount(EVT_UPDATED),
+    p2.listenerCount("mock-event"),
     1,
-    "one remaining EVT_UPDATED listeners after first proxyOff"
+    "one remaining mock-event listeners after first proxyOff"
   );
 
-  p1.proxyOff(p2, EVT_UPDATED, _eventHandler);
+  p1.proxyOff(p2, "mock-event", _eventHandler);
 
   t.equals(
-    p2.listenerCount(EVT_UPDATED),
+    p2.listenerCount("mock-event"),
     0,
-    "zero remaining EVT_UPDATED listeners after next proxyOff"
+    "zero remaining mock-event listeners after next proxyOff"
   );
 
   t.end();
 });
 
-test("proxy on / off", t => {
+test("event proxy on / off", t => {
   t.plan(2);
 
   const p1 = new PhantomCore();
@@ -342,9 +342,9 @@ test("proxy on / off", t => {
     throw new Error("Should not get here");
   };
 
-  p1.proxyOn(p2, EVT_UPDATED, _eventHandlerA);
-  p1.proxyOn(p2, EVT_UPDATED, _eventHandlerB);
-  p1.proxyOn(p2, "some-test-event", _eventHandlerC);
+  p1.proxyOn(p2, "mock-event", _eventHandlerA);
+  p1.proxyOn(p2, "mock-event", _eventHandlerB);
+  p1.proxyOn(p2, "mock-event-b", _eventHandlerC);
 
   t.equals(
     p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
@@ -352,7 +352,7 @@ test("proxy on / off", t => {
     "three registered on proxy listeners bound on p1, to target p2"
   );
 
-  p1.proxyOff(p2, EVT_UPDATED, _eventHandlerB);
+  p1.proxyOff(p2, "mock-event", _eventHandlerB);
 
   t.equals(
     p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
@@ -363,7 +363,7 @@ test("proxy on / off", t => {
   t.end();
 });
 
-test("proxy once / off", async t => {
+test("event proxy once / off", async t => {
   t.plan(2);
 
   const p1 = new PhantomCore();
@@ -381,9 +381,9 @@ test("proxy once / off", async t => {
     throw new Error("Should not get here");
   };
 
-  p1.proxyOnce(p2, EVT_UPDATED, _eventHandlerA);
-  p1.proxyOnce(p2, EVT_UPDATED, _eventHandlerB);
-  p1.proxyOnce(p2, "some-test-event", _eventHandlerC);
+  p1.proxyOnce(p2, "mock-event", _eventHandlerA);
+  p1.proxyOnce(p2, "mock-event", _eventHandlerB);
+  p1.proxyOnce(p2, "mock-event-b", _eventHandlerC);
 
   t.equals(
     p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
@@ -391,7 +391,7 @@ test("proxy once / off", async t => {
     "three registered once proxy listeners bound on p1, to target p2"
   );
 
-  p1.proxyOff(p2, EVT_UPDATED, _eventHandlerB);
+  p1.proxyOff(p2, "mock-event", _eventHandlerB);
 
   t.equals(
     p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
@@ -402,7 +402,7 @@ test("proxy once / off", async t => {
   t.end();
 });
 
-test("proxy on / destroy", async t => {
+test("event proxy on / destroy", async t => {
   t.plan(2);
 
   const p1 = new PhantomCore();
@@ -420,9 +420,9 @@ test("proxy on / destroy", async t => {
     throw new Error("Should not get here");
   };
 
-  p1.proxyOn(p2, EVT_UPDATED, _eventHandlerA);
-  p1.proxyOn(p2, EVT_UPDATED, _eventHandlerB);
-  p1.proxyOn(p2, "some-test-event", _eventHandlerC);
+  p1.proxyOn(p2, "mock-event", _eventHandlerA);
+  p1.proxyOn(p2, "mock-event", _eventHandlerB);
+  p1.proxyOn(p2, "mock-event-b", _eventHandlerC);
 
   t.equals(
     p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
@@ -441,7 +441,7 @@ test("proxy on / destroy", async t => {
   t.end();
 });
 
-test("proxy on / once / mix / destroy", async t => {
+test("event proxy on / once / mix / destroy", async t => {
   t.plan(4);
 
   const p1 = new PhantomCore();
@@ -464,10 +464,10 @@ test("proxy on / once / mix / destroy", async t => {
     throw new Error("Should not get here");
   };
 
-  p1.proxyOn(p2, EVT_UPDATED, _eventHandlerA);
-  p1.proxyOn(p2, EVT_UPDATED, _eventHandlerB);
-  p1.proxyOn(p2, "some-test-event", _eventHandlerC);
-  p1.proxyOnce(p3, EVT_UPDATED, _eventHandlerD);
+  p1.proxyOn(p2, "mock-event", _eventHandlerA);
+  p1.proxyOn(p2, "mock-event", _eventHandlerB);
+  p1.proxyOn(p2, "mock-event-b", _eventHandlerC);
+  p1.proxyOnce(p3, "mock-event", _eventHandlerD);
 
   t.equals(
     p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
@@ -498,7 +498,7 @@ test("proxy on / once / mix / destroy", async t => {
   t.end();
 });
 
-test("proxy once / destroy", async t => {
+test("event proxy once / destroy", async t => {
   t.plan(2);
 
   const p1 = new PhantomCore();
@@ -508,7 +508,7 @@ test("proxy once / destroy", async t => {
     throw new Error("Should not get here");
   };
 
-  p1.proxyOnce(p2, EVT_UPDATED, _eventHandler);
+  p1.proxyOnce(p2, "mock-event", _eventHandler);
 
   t.equals(
     p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
@@ -523,4 +523,83 @@ test("proxy once / destroy", async t => {
     0,
     "zero registered on proxy listeners bound on p1, to target p2, after p2 destroy"
   );
+});
+
+test("event proxy destruct handling management", async t => {
+  t.plan(8);
+
+  const p1 = new PhantomCore();
+  const p2 = new PhantomCore();
+
+  const origPerInstanceDestroyedListenerCount = p1.listenerCount(EVT_DESTROYED);
+
+  const _eventHandlerA = () => {
+    throw new Error("Should not get here");
+  };
+
+  const _eventHandlerB = () => {
+    throw new Error("Should not get here");
+  };
+
+  p1.proxyOn(p2, "mock-event", _eventHandlerA);
+
+  t.equals(
+    p1.listenerCount(EVT_DESTROYED),
+    origPerInstanceDestroyedListenerCount,
+    "p1 EVT_DESTROYED listener count is unaffected by adding new proxy target instance using proxyOn"
+  );
+
+  t.equals(
+    p2.listenerCount(EVT_DESTROYED),
+    origPerInstanceDestroyedListenerCount + 1,
+    "p2 EVT_DESTROYED listener count is incremented by one, being a target instance for a proxy"
+  );
+
+  p1.proxyOnce(p2, "mock-event", _eventHandlerB);
+
+  t.equals(
+    p1.listenerCount(EVT_DESTROYED),
+    origPerInstanceDestroyedListenerCount,
+    "p1 EVT_DESTROYED listener count is unaffected by adding new proxy target instance using proxyOnce"
+  );
+
+  t.equals(
+    p2.listenerCount(EVT_DESTROYED),
+    origPerInstanceDestroyedListenerCount + 1,
+    "p2 EVT_DESTROYED listener count remains incremented by one, despite having subsequent proxy event assigned to it"
+  );
+
+  p1.proxyOff(p2, "mock-event", _eventHandlerB);
+
+  t.equals(
+    p2.listenerCount(EVT_DESTROYED),
+    origPerInstanceDestroyedListenerCount + 1,
+    "p2 EVT_DESTROYED listener count remains incremented by one, after removing an event proxy from it"
+  );
+
+  p1.proxyOff(p2, "mock-event", _eventHandlerA);
+
+  t.equals(
+    p2.listenerCount(EVT_DESTROYED),
+    origPerInstanceDestroyedListenerCount,
+    "p2 EVT_DESTROYED listener count goes back to original value after removing all event proxies from it"
+  );
+
+  p1.proxyOn(p2, "mock-event", _eventHandlerA);
+
+  t.equals(
+    p2.listenerCount(EVT_DESTROYED),
+    origPerInstanceDestroyedListenerCount + 1,
+    "p2 EVT_DESTROYED listener count is incremented by one after re-assigning an event proxy to it"
+  );
+
+  p1.proxyOff(p2, "mock-event", _eventHandlerA);
+
+  t.equals(
+    p2.listenerCount(EVT_DESTROYED),
+    origPerInstanceDestroyedListenerCount,
+    "p2 EVT_DESTROYED listener count goes back to original value again after removing all event proxies from it"
+  );
+
+  t.end();
 });

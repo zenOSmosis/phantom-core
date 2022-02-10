@@ -429,11 +429,8 @@ test("no subsequent usage of destroy() after full destruct", async t => {
 
   await new Promise(resolve => phantom.once(EVT_DESTROYED, resolve));
 
-  try {
-    await phantom.destroy();
-  } catch (err) {
-    t.ok(true, "throws error if calling destroy() after full destruct");
-  }
+  await phantom.destroy();
+  t.ok(true, "subsequent call to destroy is ignored");
 
   t.end();
 });
@@ -618,7 +615,7 @@ test("phantom properties", async t => {
   ]);
 
   // Silence memory leak warnings
-  testPhantom.registerShutdownHandler(async () => {
+  testPhantom.registerCleanupHandler(async () => {
     await Promise.all([
       testPhantom._pred2.destroy(),
       testPhantom._pred5.destroy(),
@@ -654,76 +651,51 @@ test("symbol toString()", t => {
 });
 
 test("shutdown phase event handling", async t => {
-  t.plan(3);
+  t.plan(2);
 
   const phantom = new PhantomCore();
-  phantom.registerShutdownHandler(() =>
-    phantom.emit("__TESTING__-shutdown-handler-invoked", "test-data-a")
-  );
-
-  phantom.once(EVT_DESTROYED, () => {
-    phantom.emit("__TESTING__-destruct-event-emitted", "test-data-b");
-  });
 
   const orderOps = [];
 
-  await Promise.all([
-    new Promise(resolve => {
-      phantom.once("__TESTING__-shutdown-handler-invoked", data => {
-        orderOps.push("__TESTING__-shutdown-handler-invoked");
+  phantom.registerCleanupHandler(() =>
+    orderOps.push("__TESTING__-shutdown-handler-invoked")
+  );
 
-        if (data === "test-data-a") {
-          t.ok(
-            true,
-            "received expected event data during shutdown handler phase"
-          );
+  phantom.once(EVT_DESTROYED, () => {
+    orderOps.push("__TESTING__-destruct-event-emitted");
+  });
 
-          resolve();
-        }
-      });
-    }),
-
-    new Promise(resolve => {
-      phantom.once("__TESTING__-destruct-event-emitted", data => {
-        orderOps.push("__TESTING__-destruct-event-emitted");
-
-        if (data === "test-data-b") {
-          t.ok(
-            true,
-            "received expected event data during destruct event phase"
-          );
-
-          resolve();
-        }
-      });
-    }),
-
-    phantom.destroy(),
-  ]);
+  await phantom.destroy();
 
   t.equals(
     orderOps[0],
+    "__TESTING__-destruct-event-emitted",
+    "EVT_DESTROYED called successfully"
+  );
+
+  t.equals(
+    orderOps[1],
     "__TESTING__-shutdown-handler-invoked",
-    "shutdown handler invoked before EVT_DESTROYED"
+    "shutdown handler invoked after EVT_DESTROYED"
   );
 
   t.end();
 });
 
 test("shutdown handler stack", async t => {
-  t.plan(4);
+  t.plan(3);
 
   const p1 = new PhantomCore();
 
   t.throws(
     () => {
-      p1.registerShutdownHandler("something");
+      p1.registerCleanupHandler("something");
     },
     TypeError,
     "throws TypeError when trying to register non-function shutdown handler"
   );
 
-  p1.registerShutdownHandler(() => {
+  p1.registerCleanupHandler(() => {
     throw new Error("Expected error");
   });
 
@@ -734,28 +706,23 @@ test("shutdown handler stack", async t => {
       err.message === "Expected error",
       "errors in shutdown stack are thrown from the PhantomCore instance"
     );
-
-    t.notOk(
-      p1.getIsDestroyed(),
-      "phantom does not register as destroyed if shutdown stack errors"
-    );
   }
 
   const p2 = new PhantomCore();
 
   let opsRecords = [];
 
-  p2.registerShutdownHandler(() => {
+  p2.registerCleanupHandler(() => {
     opsRecords.push("a");
   });
 
-  p2.registerShutdownHandler(async () => {
+  p2.registerCleanupHandler(async () => {
     await sleep(1000);
 
     opsRecords.push("b");
   });
 
-  p2.registerShutdownHandler(() => {
+  p2.registerCleanupHandler(() => {
     opsRecords.push("c");
   });
 
@@ -763,8 +730,8 @@ test("shutdown handler stack", async t => {
 
   t.deepEquals(
     opsRecords,
-    ["a", "b", "c"],
-    "shutdown functions are executed in order (FIFO) and maintain proper order if promises are used"
+    ["c", "b", "a"],
+    "shutdown functions are executed in reverse-order (LIFO) and maintain proper order if promises are used"
   );
 
   t.end();
@@ -777,13 +744,13 @@ test("unregister shutdown handler", async t => {
 
   let wasInvoked = false;
 
-  const shutdownHandler = () => {
+  const cleanupHandler = () => {
     wasInvoked = true;
   };
 
-  phantom.registerShutdownHandler(shutdownHandler);
+  phantom.registerCleanupHandler(cleanupHandler);
 
-  phantom.unregisterShutdownHandler(shutdownHandler);
+  phantom.unregisterCleanupHandler(cleanupHandler);
 
   await phantom.destroy();
 

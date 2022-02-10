@@ -19,9 +19,13 @@
 
 <img src="phantom.svg" alt="Phantom" width="200"/>
 
-Common base package utilized in [Speaker App](https://speaker.app) / [ReShell](https://reshell.org) which most other classes derive from.
+**This is a work in progress, subject to many API updates and feature regressions in a short amount of time, as it is used for development and prototyping of several applications at once.**
 
-PhantomCore provides a common architecture between browsers and Node.js and does not expose any DOM-related functionality directly.
+PhantomCore is an EventEmitter-based, object-oriented application architecture for browsers and Node.js, featuring lifecycle management, exported common event constants, and some basic utilities which build on top of these principles which form some basic building blocks.
+
+Within the context of another application, it can be integrated as lightly as only having a single class using PhantomCore, or the entire application being built on top of PhantomCore.
+
+It is the common base package utilized in [Speaker App](https://speaker.app) / [ReShell](https://reshell.org) which most other classes derive from, independent of their React view layers.
 
 ## Characteristics
 
@@ -48,7 +52,22 @@ PhantomCore provides a common architecture between browsers and Node.js and does
     - PhantomServiceCore instances act as singletons within a PhantomServiceManager context, instead of a global context
     - Currently being prototyped for usage with [ReShell](https://reshell.org) desktop prototype
 
+## Additional Information
+
+Any reasonable attempt to try to explain this thing will surely develop over time, and such conclusions theoretically will eventually work their way back into the README.
+
+Example API usage and other documentation will follow.
+ 
+TODO: Include sections for testing [SauceLabs / airtap], development, etc.)
+
 ## Changelog
+
+### Version 2.6.0 (Feb. 10, 2022)
+
+  - Remove registerShutdownHandler and replace with registerCleanupHandler. Specifically, registerCleanupHandler has these characteristics:
+    - LIFO (last in, first out) ordering, running the operations in reverse order in which they were defined. This allows cleanup handlers to be specified right after their properties have been defined, and any subsequent properties and their own cleanup handlers which depend on previously defined properties will destruct prior to their dependencies.
+    - The stack is invoked after EVT_DESTROYED is emit and after all event listeners have been removed
+  - Implement reference-counting cleanup of EVT_DESTROYED listeners for event proxy targets. This listener is used to tell the event proxy host to remove its own registrations for events the now destructed target instance is no longer handling.
 
 ### Version 2.5.1 (Feb. 6, 2022)
 
@@ -67,9 +86,9 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 ### Version 2.4.0 (Feb. 3, 2022)
 
   - Improve PhantomCore instance (and extension) shutdown phase coordination:
-    - Add EVT_BEFORE_DESTROY event and PhantomCore#getIsDestroying() lifecycle method
-    - Add destroyHandler argument to PhantomCore#destroy() (and extension) classes
-  - PhantomCore#registerShutdownHandler callback methods no longer will ignore exceptions. If an exception is thrown, the underlying instance will not be treated as fully discarded (this may change in the future).
+    - Add EVT_BEFORE_DESTROY event and PhantomCore.getIsDestroying() lifecycle method
+    - Add destroyHandler argument to PhantomCore.destroy() (and extension) classes
+  - PhantomCore.registerShutdownHandler callback methods no longer will ignore exceptions. If an exception is thrown, the underlying instance will not be treated as fully discarded (this may change in the future).
   - Add optional isMerge argument to PhantomState#setState() and PhantomSerializableState#setState(), which defaults to true. If setting to false, the new state completely overrides the previous state.
 
 ### Version 2.3.3 (Jan. 23, 2022)
@@ -78,7 +97,7 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 
 ### Version 2.3.2 (Jan. 28, 2022)
 
-  - Fix issue where events emit from PhantomCore#registerShutdownHandler would not emit through PhantomCore
+  - Fix issue where events emit from PhantomCore.registerShutdownHandler would not emit through PhantomCore
 
 ### Version 2.3.1 (Jan. 19, 2022)
 
@@ -94,7 +113,7 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 
 ### Version 2.2.1 (Dec. 16, 2021)
 
-  - Relax same PhantomCore version requirements for PhantomCore#proxyOnce and PhantomCore#proxyOff methods. These should have been included in v2.1.3.
+  - Relax same PhantomCore version requirements for PhantomCore.proxyOnce and PhantomCore.proxyOff methods. These should have been included in v2.1.3.
 
 ### Version 2.2.0 (Dec. 16, 2021)
 
@@ -137,4 +156,4 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 ### Version 1.0.0 (Sept. 10, 2021)
   - Base PhantomCore, PhantomCollection and Logger support
 
-TODO: Build out this documentation (include sections for testing [SauceLabs / airtap], development, etc.)
+

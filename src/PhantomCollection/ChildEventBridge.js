@@ -40,7 +40,7 @@ class ChildEventBridge extends PhantomCore {
      */
     this._phantomCollection = phantomCollection;
 
-    this.registerShutdownHandler(() => delete this._phantomCollection);
+    this.registerCleanupHandler(() => delete this._phantomCollection);
 
     /**
      * @type {string[]} The event names this bridge currently (i.e. at any given
