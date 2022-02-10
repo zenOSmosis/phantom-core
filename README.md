@@ -19,9 +19,21 @@
 
 <img src="phantom.svg" alt="Phantom" width="200"/>
 
-Common base package utilized in [Speaker App](https://speaker.app) / [ReShell](https://reshell.org) which most other classes derive from.
+**This is a work in progress, subject to many API updates and feature regressions in a short amount of time, as it is used for development and prototyping of several applications at once.**
 
-PhantomCore provides a common architecture between browsers and Node.js and does not expose any DOM-related functionality directly.
+PhantomCore is an EventEmitter-based, object-oriented application architecture for browsers and Node.js, featuring lifecycle management, exported common event constants, and some basic utilities which build on top of these principles which form some basic building blocks.
+
+Within the context of another application, it can be integrated as lightly as only having a single class using PhantomCore, or the entire application being built on top of PhantomCore.
+
+It is the common base package utilized in [Speaker App](https://speaker.app) / [ReShell](https://reshell.org) which most other classes derive from, independent of their React view layers.
+
+## Disclaimer
+
+Any reasonable attempt to try to explain this thing will surely develop over time, and such conclusions theoretically will eventually work their way back into the documentation.
+
+## TODO
+ 
+Build out this documentation (include sections for testing [SauceLabs / airtap], development, etc.)
 
 ## Characteristics
 
@@ -144,4 +156,4 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 ### Version 1.0.0 (Sept. 10, 2021)
   - Base PhantomCore, PhantomCollection and Logger support
 
-TODO: Build out this documentation (include sections for testing [SauceLabs / airtap], development, etc.)
+
