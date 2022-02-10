@@ -252,8 +252,17 @@ class PhantomCore extends DestructibleEventEmitter {
       PhantomCore.mergeOptions(DEFAULT_OPTIONS, options)
     );
 
-    // Functions added to this stack are invoked in reverse so that the shutdown
-    // handlers can be kept close to where relevant properties are defined
+    // Functions added to this stack are invoked in reverse so that the
+    // shutdown handlers can be kept close to where relevant properties are
+    // defined
+    //
+    // i.e.
+    //
+    //  _propA = new PhantomCore()
+    //  this.registerShutdownHandler(() => _propA.destroy())
+    //
+    // _propB depends on propA, and we don't want to move the propA shutdown
+    // handler beyond this point to keep it closer to where propA was defined
     this._shutdownHandlerStack = new FunctionStack(
       FUNCTION_STACK_OPS_ORDER_LIFO
     );
