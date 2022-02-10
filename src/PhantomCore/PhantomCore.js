@@ -737,8 +737,8 @@ class PhantomCore extends DestructibleEventEmitter {
    * NOTE: Order of operations for shutdown handling:
    *
    *  1. [implementation defined] destroyHandler
-   *  2. registerShutdownHandler call stack
-   *  3. EVT_DESTROYED triggers
+   *  2. EVT_DESTROYED triggers
+   *  3. registerShutdownHandler call stack
    *
    * @param {Function} destroyHandler? [optional] If defined, will execute
    * prior to normal destruct operations for this class.
