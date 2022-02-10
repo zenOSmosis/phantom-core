@@ -67,9 +67,9 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 ### Version 2.4.0 (Feb. 3, 2022)
 
   - Improve PhantomCore instance (and extension) shutdown phase coordination:
-    - Add EVT_BEFORE_DESTROY event and PhantomCore#getIsDestroying() lifecycle method
-    - Add destroyHandler argument to PhantomCore#destroy() (and extension) classes
-  - PhantomCore#registerShutdownHandler callback methods no longer will ignore exceptions. If an exception is thrown, the underlying instance will not be treated as fully discarded (this may change in the future).
+    - Add EVT_BEFORE_DESTROY event and PhantomCore.getIsDestroying() lifecycle method
+    - Add destroyHandler argument to PhantomCore.destroy() (and extension) classes
+  - PhantomCore.registerShutdownHandler callback methods no longer will ignore exceptions. If an exception is thrown, the underlying instance will not be treated as fully discarded (this may change in the future).
   - Add optional isMerge argument to PhantomState#setState() and PhantomSerializableState#setState(), which defaults to true. If setting to false, the new state completely overrides the previous state.
 
 ### Version 2.3.3 (Jan. 23, 2022)
@@ -78,7 +78,7 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 
 ### Version 2.3.2 (Jan. 28, 2022)
 
-  - Fix issue where events emit from PhantomCore#registerShutdownHandler would not emit through PhantomCore
+  - Fix issue where events emit from PhantomCore.registerShutdownHandler would not emit through PhantomCore
 
 ### Version 2.3.1 (Jan. 19, 2022)
 
@@ -94,7 +94,7 @@ PhantomCore provides a common architecture between browsers and Node.js and does
 
 ### Version 2.2.1 (Dec. 16, 2021)
 
-  - Relax same PhantomCore version requirements for PhantomCore#proxyOnce and PhantomCore#proxyOff methods. These should have been included in v2.1.3.
+  - Relax same PhantomCore version requirements for PhantomCore.proxyOnce and PhantomCore.proxyOff methods. These should have been included in v2.1.3.
 
 ### Version 2.2.0 (Dec. 16, 2021)
 
