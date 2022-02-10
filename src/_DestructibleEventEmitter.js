@@ -44,6 +44,17 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
   }
 
   /**
+   * Retrieves total number of event listeners registered to this instance.
+   *
+   * @return {number}
+   */
+  getTotalListenerCount() {
+    return this.eventNames()
+      .map(eventName => this.listenerCount(eventName))
+      .reduce((a, b) => a + b, 0);
+  }
+
+  /**
    * Retrieves whether or not the class is currently being destroyed.
    *
    * @return {boolean}
@@ -104,7 +115,12 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
       clearTimeout(longRespondDestroyHandlerTimeout);
 
       // Set the state before the event is emit so that any listeners will know
-      // the correct state
+      // the correct state.
+      //
+      // IMPORTANT: It is by design _isDestroyed is set to true before
+      // _isDestroying is set to false. The reasoning is that we want to relay
+      // the "destroyed" state to any subsequent event handlers, while not
+      // actually being completely done with our cleanup work at this point.
       this._isDestroyed = true;
 
       // IMPORTANT: This must come before removal of all listeners
@@ -117,7 +133,13 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
       // invoked
       await postDestroyHandler();
 
-      // No longer in "destroying" phase, and destroyed at this point
+      if (this.getTotalListenerCount()) {
+        throw new Error(
+          "An event handler has been registered in a post destruct callback which could cause a potential memory leak."
+        );
+      }
+
+      // Completely out of "destroying" phase (truly destroyed at this point)
       this._isDestroying = false;
     }
   }

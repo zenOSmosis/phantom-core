@@ -709,17 +709,6 @@ class PhantomCore extends DestructibleEventEmitter {
   }
 
   /**
-   * Retrieves total number of event listeners registered to this instance.
-   *
-   * @return {number}
-   */
-  getTotalListenerCount() {
-    return this.eventNames()
-      .map(eventName => this.listenerCount(eventName))
-      .reduce((a, b) => a + b, 0);
-  }
-
-  /**
    * Retrieves the number of seconds since this class instance was
    * instantiated.
    *
