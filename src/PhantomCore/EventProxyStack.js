@@ -123,6 +123,12 @@ module.exports = class EventProxyStack extends _DestructibleEventEmitter {
 
     // Unbind the event handler from the target instance
     targetInstance.off(eventName, eventHandler);
+
+    // If there are no more proxy events for the target instance, remove its
+    // auto destroy handler
+    if (!this.getTargetInstanceQueueDepth(targetInstance)) {
+      this._removeTargetInstanceDestroyHandler(targetInstance);
+    }
   }
 
   /**
@@ -137,16 +143,28 @@ module.exports = class EventProxyStack extends _DestructibleEventEmitter {
   }
 
   /**
-   * Unregisters all remote destroy handlers for the target instances.
+   * Unregisters a the remote destroy handler from a single target instance.
    *
-   * @return {void}
+   * @param {PhantomCore} targetInstance
    */
-  _removeAllTargetDestroyHandlers() {
-    for (const [targetInstance, destroyHandler] of this
-      ._targetDestroyHandlers) {
+  _removeTargetInstanceDestroyHandler(targetInstance) {
+    const destroyHandler = this._targetDestroyHandlers.get(targetInstance);
+
+    if (destroyHandler) {
       targetInstance.off(EVT_DESTROYED, destroyHandler);
 
       this._targetDestroyHandlers.delete(targetInstance);
+    }
+  }
+
+  /**
+   * Unregisters the remote destroy handlers from all of the target instances.
+   *
+   * @return {void}
+   */
+  _removeAllTargetInstanceDestroyHandlers() {
+    for (const [targetInstance] of this._targetDestroyHandlers.entries()) {
+      this._removeTargetInstanceDestroyHandler(targetInstance);
     }
   }
 
@@ -179,7 +197,7 @@ module.exports = class EventProxyStack extends _DestructibleEventEmitter {
         throw new Error("Did not successfully unregister event proxy binds");
       }
 
-      this._removeAllTargetDestroyHandlers();
+      this._removeAllTargetInstanceDestroyHandlers();
 
       // Shutdown checking
       if ([...this._targetDestroyHandlers].length > 0) {
