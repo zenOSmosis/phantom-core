@@ -27,14 +27,6 @@ Within the context of another application, it can be integrated as lightly as on
 
 It is the common base package utilized in [Speaker App](https://speaker.app) / [ReShell](https://reshell.org) which most other classes derive from, independent of their React view layers.
 
-## Disclaimer
-
-Any reasonable attempt to try to explain this thing will surely develop over time, and such conclusions theoretically will eventually work their way back into the documentation.
-
-## TODO
- 
-Build out this documentation (include sections for testing [SauceLabs / airtap], development, etc.)
-
 ## Characteristics
 
   - Can be run in Node.js and in browser (as a base for extension classes to build upon).
@@ -59,6 +51,14 @@ Build out this documentation (include sections for testing [SauceLabs / airtap],
     - Wraps PhantomState and PhantomCollection with the ability to instantiate and manage services
     - PhantomServiceCore instances act as singletons within a PhantomServiceManager context, instead of a global context
     - Currently being prototyped for usage with [ReShell](https://reshell.org) desktop prototype
+
+## Additional Information
+
+Any reasonable attempt to try to explain this thing will surely develop over time, and such conclusions theoretically will eventually work their way back into the README.
+
+Example API usage and other documentation will follow.
+ 
+TODO: Include sections for testing [SauceLabs / airtap], development, etc.)
 
 ## Changelog
 
