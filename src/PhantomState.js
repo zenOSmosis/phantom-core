@@ -58,8 +58,8 @@ class PhantomState extends PhantomCore {
    * @return {void}
    */
   setState(partialNextState, isMerge = true) {
-    if (typeof nextState !== "object") {
-      throw new TypeError("nextState must be an object");
+    if (typeof partialNextState !== "object") {
+      throw new TypeError("partialNextState must be an object");
     }
 
     if (isMerge) {
