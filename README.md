@@ -62,6 +62,10 @@ TODO: Include sections for testing [SauceLabs / airtap], development, etc.)
 
 ## Changelog
 
+### Version 2.6.1 (Feb. 20, 2022)
+
+  - Rename PhantomState / PhantomSerializableState setState partialNextState argument to match JSDoc (no public API change)
+
 ### Version 2.6.0 (Feb. 10, 2022)
 
   - Remove registerShutdownHandler and replace with registerCleanupHandler. Specifically, registerCleanupHandler has these characteristics:

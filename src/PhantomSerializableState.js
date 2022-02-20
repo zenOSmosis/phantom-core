@@ -70,15 +70,15 @@ class PhantomSerializableState extends PhantomState {
    * @emits EVT_UPDATED With partialNextState
    * @return {void}
    */
-  setState(nextState, isMerge = true) {
+  setState(partialNextState, isMerge = true) {
     // Run through obj->serial->obj conversion to ensure partial next state can
     // be serialized, while storing it in memory as an object, to enable
     // subsequent partial updates
-    nextState = PhantomSerializableState.unserialize(
-      PhantomSerializableState.serialize(nextState)
+    partialNextState = PhantomSerializableState.unserialize(
+      PhantomSerializableState.serialize(partialNextState)
     );
 
-    return super.setState(nextState, isMerge);
+    return super.setState(partialNextState, isMerge);
   }
 
   /**
