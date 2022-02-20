@@ -57,18 +57,18 @@ class PhantomState extends PhantomCore {
    * @emits EVT_UPDATED With partialNextState
    * @return {void}
    */
-  setState(nextState, isMerge = true) {
-    if (typeof nextState !== "object") {
-      throw new TypeError("nextState must be an object");
+  setState(partialNextState, isMerge = true) {
+    if (typeof partialNextState !== "object") {
+      throw new TypeError("partialNextState must be an object");
     }
 
     if (isMerge) {
-      this._state = { ...this._state, ...nextState };
+      this._state = { ...this._state, ...partialNextState };
     } else {
-      this._state = nextState;
+      this._state = partialNextState;
     }
 
-    this.emit(EVT_UPDATED, nextState);
+    this.emit(EVT_UPDATED, partialNextState);
   }
 }
 
