@@ -3,13 +3,8 @@ const PhantomCore = require("../src");
 const { EVT_UPDATED, EVT_BEFORE_DESTROY, EVT_DESTROYED } = PhantomCore;
 const EventEmitter = require("events");
 const PhantomCollection = require("../src/PhantomCollection");
-const {
-  EVT_CHILD_INSTANCE_ADDED,
-  EVT_CHILD_INSTANCE_REMOVED,
-  KEY_META_CHILD_DESC_INSTANCE,
-  KEY_META_DESC_CHILD_KEY,
-  KEY_META_CHILD_DESTROY_LISTENER,
-} = PhantomCollection;
+const { EVT_CHILD_INSTANCE_ADDED, EVT_CHILD_INSTANCE_REMOVED } =
+  PhantomCollection;
 
 const _ChildEventBridge = require("../src/PhantomCollection/ChildEventBridge");
 
@@ -33,7 +28,7 @@ test("PhantomCollection loose instance detection", t => {
 });
 
 test("PhantomCollection add multiple children without keys", async t => {
-  t.plan(1);
+  t.plan(2);
 
   const collection = new PhantomCollection();
 
@@ -48,11 +43,13 @@ test("PhantomCollection add multiple children without keys", async t => {
     "Multiple children can be added without keys"
   );
 
+  t.deepEquals(collection.getKeys(), [], "getKeys() returns an empty array");
+
   t.end();
 });
 
 test("PhantomCollection add / remove child; get children", async t => {
-  t.plan(34);
+  t.plan(33);
 
   t.throws(
     () => {
@@ -90,6 +87,12 @@ test("PhantomCollection add / remove child; get children", async t => {
     collection.addChild(new PhantomCore(), "temp-child");
   }, 'collection adds new child with "test-remove" key');
 
+  t.deepEquals(
+    collection.getKeys(),
+    ["temp-child"],
+    "getKeys() responds with added child key"
+  );
+
   t.equals(
     collection._lenChildren,
     2,
@@ -99,6 +102,8 @@ test("PhantomCollection add / remove child; get children", async t => {
   t.doesNotThrow(() => {
     collection.removeChild(collection.getChildWithKey("temp-child"));
   }, 'collection removes child with "temp-child" key');
+
+  t.deepEquals(collection.getKeys(), [], "getKeys() responds with no keys");
 
   t.equals(
     collection._lenChildren,
@@ -186,30 +191,6 @@ test("PhantomCollection add / remove child; get children", async t => {
         t.ok(
           collection.getChildren().includes(ec2),
           "getChildren() includes added child instance"
-        );
-
-        const ec2MetaDescription = collection.getChildMetaDescription(ec2);
-
-        t.equals(
-          typeof ec2MetaDescription,
-          "object",
-          "child meta description is an object"
-        );
-
-        t.ok(
-          Object.keys(ec2MetaDescription).includes(
-            KEY_META_CHILD_DESC_INSTANCE
-          ) &&
-            Object.keys(ec2MetaDescription).includes(KEY_META_DESC_CHILD_KEY) &&
-            Object.keys(ec2MetaDescription).includes(
-              KEY_META_CHILD_DESTROY_LISTENER
-            ),
-          "all expected meta child keys are present"
-        );
-
-        t.ok(
-          Object.is(ec2MetaDescription[KEY_META_CHILD_DESC_INSTANCE], ec2),
-          "child meta description phantom core instance matches child instance"
         );
 
         resolve();
@@ -598,7 +579,7 @@ test("PhantomCollection ChildEventBridge", async t => {
 });
 
 test("PhantomCollection key support", async t => {
-  t.plan(8);
+  t.plan(11);
 
   const coll = new PhantomCollection();
 
@@ -609,11 +590,40 @@ test("PhantomCollection key support", async t => {
     "obtains child1 with associated key"
   );
 
+  t.equals(
+    coll.getChildWithKey(),
+    undefined,
+    "getChildWithKey() with no arguments returns undefined"
+  );
+
   t.ok(coll.getChildren().length, 1, "detects one child after first child add");
 
-  t.doesNotThrow(() => {
-    coll.addChild(new PhantomCore(), "tPhantom1-test-key");
-  }, "does not throw when trying to add another child with same test key");
+  (() => {
+    t.throws(
+      () => {
+        coll.addChild(new PhantomCore(), "tPhantom1-test-key");
+      },
+      ReferenceError,
+      "throws when trying to add another child with same test key"
+    );
+
+    const prevLength = coll.getChildren().length;
+
+    t.doesNotThrow(() => {
+      coll.addChild(
+        coll.getChildWithKey("tPhantom1-test-key"),
+        "tPhantom1-test-key"
+      );
+    }, "does not throw when trying to re-add a child with the same test key");
+
+    const postLength = coll.getChildren().length;
+
+    t.equals(
+      prevLength,
+      postLength,
+      "silently ignores duplicate child with same key add attempt"
+    );
+  })();
 
   t.ok(
     coll.getChildren().length,
@@ -938,7 +948,7 @@ test("PhantomCollection iterator", async t => {
   t.end();
 });
 
-test("collection children ignored destructing / destructed children", async t => {
+test("PhantomCollection children ignored destructing / destructed children", async t => {
   t.plan(6);
 
   const child = new PhantomCore();
@@ -994,7 +1004,7 @@ test("collection children ignored destructing / destructed children", async t =>
   t.end();
 });
 
-test("collection emits EVT_UPDATED on child destruct", async t => {
+test("PhantomCollection emits EVT_UPDATED on child destruct", async t => {
   t.plan(3);
 
   const child = new PhantomCore();
@@ -1117,6 +1127,25 @@ test("collection does not contain destructed children", async t => {
   new TestCollection([child]);
 
   await child.destroy();
+
+  t.end();
+});
+
+test("PhantomCollection children maintain stable reference integrity between calls", t => {
+  t.plan(2);
+
+  const collection = new PhantomCollection([
+    new PhantomCore(),
+    new PhantomCore(),
+    new PhantomCore(),
+  ]);
+
+  t.equals(collection.getChildren().length, 3);
+
+  t.ok(
+    collection.getChildren() === collection.getChildren(),
+    "two calls to collection.getChildren() return the same stable reference"
+  );
 
   t.end();
 });

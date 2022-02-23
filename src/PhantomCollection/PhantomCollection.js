@@ -1,3 +1,4 @@
+const assert = require("assert");
 const PhantomCore = require("../PhantomCore");
 const {
   /** @export */
@@ -28,12 +29,8 @@ const EVT_CHILD_INSTANCE_ADDED = "child-instance-added";
  **/
 const EVT_CHILD_INSTANCE_REMOVED = "child-instance-removed";
 
-/** @export */
-const KEY_META_CHILD_DESC_INSTANCE = "phantomCoreInstance";
-/** @export */
 const KEY_META_DESC_CHILD_KEY = "childKey";
-/** @export */
-const KEY_META_CHILD_DESTROY_LISTENER = "destroyListener";
+const KEY_META_CHILD_DESTROY_HANDLER = "destroyHandler";
 
 /**
  * A PhantomCollection contains an array of unique PhantomCore instances
@@ -70,7 +67,6 @@ class PhantomCollection extends PhantomCore {
       typeof instance.removeChild === "function" &&
       typeof instance.getChildren === "function" &&
       typeof instance.getKeys === "function" &&
-      typeof instance.getChildMetaDescription === "function" &&
       typeof instance.broadcast === "function" &&
       typeof instance.removeAllChildren === "function" &&
       typeof instance.destroyAllChildren === "function"
@@ -121,16 +117,11 @@ class PhantomCollection extends PhantomCore {
 
     super(options);
 
-    /**
-     * An array of objects with PhantomCore instances as well as destroy
-     * listener for each.
-     *
-     * IMPORTANT: Use this.getChildren() instead of iterating on this variable
-     * directly.
-     *
-     * @type {Object{phantomCoreInstance: PhantomCore, destroyListener: function}[]}
-     */
-    this._childMetaDescriptions = [];
+    /** @type {PhantomCore[]} */
+    this._children = [];
+
+    /** @type {Map<{KEY_META_DESC_CHILD_KEY: any, KEY_META_CHILD_DESTROY_HANDLER: Function}>} */
+    this._childrenMetaData = new Map();
 
     // IMPORTANT: ChildEventBridge has to be lazy-loaded due to the fact that it
     // needs to be able to read the exports from this file, including the
@@ -259,16 +250,19 @@ class PhantomCollection extends PhantomCore {
     }
 
     // Called when the collection instance is destroyed before the collection
-    const destroyListener = () => this.removeChild(phantomCoreInstance);
+    const destroyHandler = () => this.removeChild(phantomCoreInstance);
 
     // Register w/ _childMetaDescriptions property
-    this._childMetaDescriptions.push({
-      [KEY_META_CHILD_DESC_INSTANCE]: phantomCoreInstance,
+    this._childrenMetaData.set(phantomCoreInstance, {
       [KEY_META_DESC_CHILD_KEY]: key,
-      [KEY_META_CHILD_DESTROY_LISTENER]: destroyListener,
+      // IMPORTANT: The destroyHandler is bound to the meta data so we can
+      // arbitrarily remove it when removing the child from the collection
+      [KEY_META_CHILD_DESTROY_HANDLER]: destroyHandler,
     });
 
-    phantomCoreInstance.once(EVT_DESTROYED, destroyListener);
+    phantomCoreInstance.once(EVT_DESTROYED, destroyHandler);
+
+    this._children.push(phantomCoreInstance);
 
     this.emit(EVT_CHILD_INSTANCE_ADDED, phantomCoreInstance);
     this.emit(EVT_UPDATED);
@@ -283,30 +277,21 @@ class PhantomCollection extends PhantomCore {
    * @return {void}
    */
   removeChild(phantomCoreInstance) {
-    const prevLength = this._childMetaDescriptions.length;
+    // Remove the destroyListener from the child
+    const destroyListener =
+      this._childrenMetaData.get(phantomCoreInstance)[
+        KEY_META_CHILD_DESTROY_HANDLER
+      ];
+    this.proxyOff(phantomCoreInstance, EVT_DESTROYED, destroyListener);
 
-    // Unregister from _childMetaDescriptions property
-    this._childMetaDescriptions = this._childMetaDescriptions.filter(
-      metaDescription => {
-        const instance = metaDescription[KEY_META_CHILD_DESC_INSTANCE];
+    const prevLength = this._children.length;
 
-        if (!phantomCoreInstance.getIsSameInstance(instance)) {
-          // Retain in returned instances
-          return true;
-        } else {
-          // Remove destroy handler from instance
-          phantomCoreInstance.off(
-            EVT_DESTROYED,
-            metaDescription[KEY_META_CHILD_DESTROY_LISTENER]
-          );
-
-          // Remove from returned instances
-          return false;
-        }
-      }
+    this._children = this._children.filter(
+      pred => pred !== phantomCoreInstance
     );
+    this._childrenMetaData.delete(phantomCoreInstance);
 
-    const nextLength = this._childMetaDescriptions.length;
+    const nextLength = this._children.length;
 
     if (nextLength < prevLength) {
       this.emit(EVT_CHILD_INSTANCE_REMOVED, phantomCoreInstance);
@@ -330,12 +315,27 @@ class PhantomCollection extends PhantomCore {
    *
    * Destructed children will not appear in this list.
    *
+   * Subsequent calls to getChildren() should maintain a stable referential
+   * integrity unless one or more of the children wind up in a destructing
+   * phase before the next attempt.
+   *
    * @return {PhantomCore[]}
    */
   getChildren() {
-    return this._childMetaDescriptions
-      .map(({ [KEY_META_CHILD_DESC_INSTANCE]: childInstance }) => childInstance)
-      .filter(child => !child.getIsDestroying() && !child.getIsDestroyed());
+    // NOTE: The filtered children are not returned directly as the referential
+    // integrity will be lost, resulting in performance impacts when used in
+    // React or any other view libraries which may re-render excessively if the
+    // reference has changed.
+
+    const filteredChildren = this._children.filter(
+      pred => !pred.getIsDestroying() && !pred.getIsDestroyed()
+    );
+
+    if (filteredChildren.length !== this._children.length) {
+      this._children = filteredChildren;
+    }
+
+    return this._children;
   }
 
   /**
@@ -347,14 +347,13 @@ class PhantomCollection extends PhantomCore {
       return;
     }
 
-    const childMetaDescriptions = this._childMetaDescriptions;
-
-    const matchedMetaDescription = childMetaDescriptions.find(
-      ({ [KEY_META_DESC_CHILD_KEY]: testKey }) => testKey === key
-    );
-
-    if (matchedMetaDescription) {
-      return matchedMetaDescription[KEY_META_CHILD_DESC_INSTANCE];
+    for (const [
+      phantomCoreInstance,
+      metaData,
+    ] of this._childrenMetaData.entries()) {
+      if (metaData[KEY_META_DESC_CHILD_KEY] === key) {
+        return phantomCoreInstance;
+      }
     }
   }
 
@@ -364,22 +363,9 @@ class PhantomCollection extends PhantomCore {
    * @return {any[]}
    */
   getKeys() {
-    return this._childMetaDescriptions.map(
-      ({ [KEY_META_DESC_CHILD_KEY]: key }) => key
-    );
-  }
-
-  /**
-   * Retrieves collection-based metadata regarding the given child instance.
-   *
-   * @param {PhantomCore} childInstance
-   * @return {Object}
-   */
-  getChildMetaDescription(childInstance) {
-    return this._childMetaDescriptions.find(
-      ({ [KEY_META_CHILD_DESC_INSTANCE]: phantomCoreInstance }) =>
-        Object.is(phantomCoreInstance, childInstance)
-    );
+    return [...this._childrenMetaData.entries()]
+      .map(([, { [KEY_META_DESC_CHILD_KEY]: key }]) => key)
+      .filter(key => key);
   }
 
   /**
@@ -449,6 +435,10 @@ class PhantomCollection extends PhantomCore {
       // Empty out the collection
       this.removeAllChildren();
 
+      // Ensure no dangling references
+      assert.strictEqual(this._children.length, 0);
+      assert.strictEqual([...this._childrenMetaData.entries()].length, 0);
+
       await this._childEventBridge.destroy();
     });
   }
@@ -465,10 +455,3 @@ module.exports.EVT_DESTROYED = EVT_DESTROYED;
 
 module.exports.EVT_CHILD_INSTANCE_ADDED = EVT_CHILD_INSTANCE_ADDED;
 module.exports.EVT_CHILD_INSTANCE_REMOVED = EVT_CHILD_INSTANCE_REMOVED;
-
-// FIXME: (jh) Other than for testing, I'm not sure if these keys should be
-// exported. May need to consider refactoring.
-module.exports.KEY_META_CHILD_DESC_INSTANCE = KEY_META_CHILD_DESC_INSTANCE;
-module.exports.KEY_META_DESC_CHILD_KEY = KEY_META_DESC_CHILD_KEY;
-module.exports.KEY_META_CHILD_DESTROY_LISTENER =
-  KEY_META_CHILD_DESTROY_LISTENER;
