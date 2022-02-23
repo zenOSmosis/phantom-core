@@ -343,6 +343,11 @@ class PhantomCollection extends PhantomCore {
    * @return {PhantomCore | void}
    */
   getChildWithKey(key = null) {
+    // FIXME: (jh) Having the optional null key is here for backward
+    // compatibility with other PhantomCore-based packages.  It should probably
+    // be removed in a future version.
+    // Related issue: https://github.com/zenOSmosis/phantom-core/issues/144
+
     if (!key) {
       return;
     }
