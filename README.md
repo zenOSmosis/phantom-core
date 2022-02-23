@@ -3,6 +3,7 @@
 [![CodeQL][codeql-image]][codeql-url]
 [![Known Vulnerabilities][snyk-image]][snyk-url]
 [![CodeFactor][codefactor-image]][codefactor-url]
+[![Style Status][style-image]][style-url]
 
 [license-image]: https://img.shields.io/github/license/zenosmosis/phantom-core
 [license-url]: https://raw.githubusercontent.com/zenOSmosis/phantom-core/main/LICENSE
@@ -14,6 +15,8 @@
 [snyk-url]: https://snyk.io/test/github/zenosmosis/phantom-core
 [codefactor-image]: https://www.codefactor.io/repository/github/zenOSmosis/phantom-core/badge
 [codefactor-url]: https://www.codefactor.io/repository/github/zenOSmosis/phantom-core
+[style-image]: https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square
+[style-url]: https://prettier.io/
 
 # PhantomCore
 
