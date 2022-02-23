@@ -262,6 +262,8 @@ class PhantomCollection extends PhantomCore {
 
     this.proxyOnce(phantomCoreInstance, EVT_DESTROYED, destroyHandler);
 
+    // TODO: Rephrase comment
+    //
     // IMPORTANT: Adding / removing children need to have new arrays defined
     // (vs. push / splice) in order to fix an issue with React-hooks usage on
     // the frontend without having to run force-update handlers for EVT_UPDATED
