@@ -280,25 +280,26 @@ class PhantomCollection extends PhantomCore {
    * @return {void}
    */
   removeChild(phantomCoreInstance) {
-    // Remove the destroyListener from the child
-    const destroyListener =
-      this._childrenMetaData.get(phantomCoreInstance)[
-        KEY_META_CHILD_DESTROY_HANDLER
-      ];
-    this.proxyOff(phantomCoreInstance, EVT_DESTROYED, destroyListener);
+    const childMetaData = this._childrenMetaData.get(phantomCoreInstance);
 
-    const prevLength = this._children.length;
+    if (childMetaData) {
+      // Remove the destroyListener from the child
+      const destroyListener = childMetaData[KEY_META_CHILD_DESTROY_HANDLER];
+      this.proxyOff(phantomCoreInstance, EVT_DESTROYED, destroyListener);
 
-    this._children = this._children.filter(
-      pred => pred !== phantomCoreInstance
-    );
-    this._childrenMetaData.delete(phantomCoreInstance);
+      const prevLength = this._children.length;
 
-    const nextLength = this._children.length;
+      this._children = this._children.filter(
+        pred => pred !== phantomCoreInstance
+      );
+      this._childrenMetaData.delete(phantomCoreInstance);
 
-    if (nextLength < prevLength) {
-      this.emit(EVT_CHILD_INSTANCE_REMOVED, phantomCoreInstance);
-      this.emit(EVT_UPDATED);
+      const nextLength = this._children.length;
+
+      if (nextLength < prevLength) {
+        this.emit(EVT_CHILD_INSTANCE_REMOVED, phantomCoreInstance);
+        this.emit(EVT_UPDATED);
+      }
     }
   }
 
@@ -325,17 +326,11 @@ class PhantomCollection extends PhantomCore {
    * @return {PhantomCore[]}
    */
   getChildren() {
-    // NOTE: The filtered children are not returned directly as the referential
-    // integrity will be lost, resulting in performance impacts when used in
-    // React or any other view libraries which may re-render excessively if the
-    // reference has changed.
-
-    const filteredChildren = this._children.filter(
-      pred => !pred.getIsDestroying() && !pred.getIsDestroyed()
-    );
-
-    if (filteredChildren.length !== this._children.length) {
-      this._children = filteredChildren;
+    // Remove destroying or destroyed children
+    for (const child of this._children) {
+      if (child.getIsDestroying() || child.getIsDestroyed()) {
+        this.removeChild(child);
+      }
     }
 
     return this._children;
