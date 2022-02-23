@@ -48,6 +48,34 @@ test("PhantomCollection add multiple children without keys", async t => {
   t.end();
 });
 
+test("PhantomCollection children event handler cleanup", async t => {
+  t.plan(2);
+
+  const phantom = new PhantomCore();
+
+  const collection = new PhantomCollection();
+
+  const initialListenerCount = phantom.getTotalListenerCount();
+
+  collection.addChild(phantom);
+
+  t.equals(
+    phantom.getTotalListenerCount(),
+    initialListenerCount + 2,
+    "adding child to collection increments child event emitters by two (one for proxyOn binding, another for collection event destroyed)"
+  );
+
+  collection.removeChild(phantom);
+
+  t.equals(
+    phantom.getTotalListenerCount(),
+    initialListenerCount,
+    "removing child from collection resets child event emitters to original value"
+  );
+
+  t.end();
+});
+
 test("PhantomCollection add / remove child; get children", async t => {
   t.plan(33);
 
