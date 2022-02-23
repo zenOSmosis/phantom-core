@@ -192,8 +192,9 @@ test("PhantomCollection add / remove child; get children", async t => {
     "throws when trying to add a destructed instance"
   );
 
-  const ec2 = new PhantomCoreTestClass();
-  const lenEC2InitialDestroyedEvents = ec2.listenerCount(EVT_DESTROYED);
+  const extendedCore2 = new PhantomCoreTestClass();
+  const lenEC2InitialDestroyedEvents =
+    extendedCore2.listenerCount(EVT_DESTROYED);
 
   await Promise.all([
     new Promise(resolve => {
@@ -201,7 +202,7 @@ test("PhantomCollection add / remove child; get children", async t => {
         t.ok(true, "emits EVT_UPDATED when instance is added to collection");
 
         t.ok(
-          collection.getChildren().includes(ec2),
+          collection.getChildren().includes(extendedCore2),
           "getChildren() includes added child instance"
         );
 
@@ -212,12 +213,12 @@ test("PhantomCollection add / remove child; get children", async t => {
     new Promise(resolve => {
       collection.once(EVT_CHILD_INSTANCE_ADDED, childInstance => {
         t.ok(
-          Object.is(childInstance, ec2),
+          Object.is(childInstance, extendedCore2),
           "emits EVT_CHILD_INSTANCE_ADDED when instance is added to collection"
         );
 
         t.ok(
-          collection.getChildren().includes(ec2),
+          collection.getChildren().includes(extendedCore2),
           "getChildren() includes added child instance"
         );
 
@@ -225,7 +226,7 @@ test("PhantomCollection add / remove child; get children", async t => {
       });
     }),
 
-    collection.addChild(ec2),
+    collection.addChild(extendedCore2),
   ]);
 
   await Promise.all([
@@ -237,7 +238,7 @@ test("PhantomCollection add / remove child; get children", async t => {
         );
 
         t.ok(
-          !collection.getChildren().includes(ec2),
+          !collection.getChildren().includes(extendedCore2),
           "getChildren() does not include removed child instance"
         );
 
@@ -248,12 +249,12 @@ test("PhantomCollection add / remove child; get children", async t => {
     new Promise(resolve => {
       collection.once(EVT_CHILD_INSTANCE_REMOVED, childInstance => {
         t.ok(
-          Object.is(childInstance, ec2),
+          Object.is(childInstance, extendedCore2),
           "emits EVT_CHILD_INSTANCE_REMOVED when instance is removed from collection"
         );
 
         t.ok(
-          !collection.getChildren().includes(ec2),
+          !collection.getChildren().includes(extendedCore2),
           "getChildren() does not include removed child instance"
         );
 
@@ -261,7 +262,7 @@ test("PhantomCollection add / remove child; get children", async t => {
       });
     }),
 
-    collection.removeChild(ec2),
+    collection.removeChild(extendedCore2),
   ]);
 
   await (async () => {
@@ -292,11 +293,11 @@ test("PhantomCollection add / remove child; get children", async t => {
   })();
 
   t.doesNotThrow(() => {
-    collection.addChild(ec2);
+    collection.addChild(extendedCore2);
   }, "child can be re-added to collection");
 
   t.equals(
-    ec2.listenerCount(EVT_DESTROYED),
+    extendedCore2.listenerCount(EVT_DESTROYED),
     lenEC2InitialDestroyedEvents + 1,
     "adds EVT_DESTROYED handler to instance when added to collection"
   );
@@ -313,7 +314,7 @@ test("PhantomCollection add / remove child; get children", async t => {
       });
     }),
 
-    collection.removeChild(ec2),
+    collection.removeChild(extendedCore2),
   ]);
 
   (() => {
@@ -337,7 +338,7 @@ test("PhantomCollection add / remove child; get children", async t => {
   })();
 
   t.equals(
-    ec2.listenerCount(EVT_DESTROYED),
+    extendedCore2.listenerCount(EVT_DESTROYED),
     lenEC2InitialDestroyedEvents,
     "removes EVT_DESTROYED handler from instance when removed from collection"
   );
