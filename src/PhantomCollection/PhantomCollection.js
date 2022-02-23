@@ -14,9 +14,18 @@ const {
   EVT_DESTROYED,
 } = PhantomCore;
 
-/** @export */
+/**
+ * @export
+ * @event EVT_CHILD_INSTANCE_ADDED Emits with the PhantomCore instance which
+ * was added.
+ **/
 const EVT_CHILD_INSTANCE_ADDED = "child-instance-added";
-/** @export */
+
+/**
+ * @export
+ * @event EVT_CHILD_INSTANCE_REMOVED Emits with the PhantomCore instance which
+ * was removed.
+ **/
 const EVT_CHILD_INSTANCE_REMOVED = "child-instance-removed";
 
 /** @export */
@@ -83,7 +92,7 @@ class PhantomCollection extends PhantomCore {
    *
    * @param {any[]} prevChildren All of the previous children.
    * @param {any[]} currChildren All of the current children.
-   * @return {Object<added: any[], removed: any[]>} Contains children added and
+   * @return {{added: any[], removed: any[]}} Contains children added and
    * removed.
    */
   static getChildrenDiff(prevChildren, currChildren) {
