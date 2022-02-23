@@ -210,9 +210,16 @@ class PhantomCollection extends PhantomCore {
    * @return {void}
    */
   addChild(phantomCoreInstance, key = null) {
-    if (this.getChildWithKey(key)) {
-      // Silently ignore trying to add child with same key
-      return;
+    const prevInstanceWithKey = this.getChildWithKey(key);
+    if (prevInstanceWithKey) {
+      if (prevInstanceWithKey !== phantomCoreInstance) {
+        throw new ReferenceError(
+          `A duplicate key is trying to be added with a different PhantomCore instance than what is already registered with the key: "${key}"`
+        );
+      } else {
+        // Silently ignore trying to add child with same key
+        return;
+      }
     }
 
     if (!PhantomCore.getIsLooseInstance(phantomCoreInstance)) {
