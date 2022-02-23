@@ -260,7 +260,7 @@ class PhantomCollection extends PhantomCore {
       [KEY_META_CHILD_DESTROY_HANDLER]: destroyHandler,
     });
 
-    phantomCoreInstance.once(EVT_DESTROYED, destroyHandler);
+    this.proxyOnce(phantomCoreInstance, EVT_DESTROYED, destroyHandler);
 
     // IMPORTANT: Adding / removing children need to have new arrays defined
     // (vs. push / splice) in order to fix an issue with React-hooks usage on
