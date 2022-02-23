@@ -65,6 +65,8 @@ TODO: Include sections for testing [SauceLabs / airtap], development, etc.)
 
 ## Changelog
 
+### Version 2.7.0 (TBD) - TODO: Incorporate these details
+
 ### Version 2.6.1 (Feb. 20, 2022)
 
   - Rename PhantomState / PhantomSerializableState setState partialNextState argument to match JSDoc (no public API change)
