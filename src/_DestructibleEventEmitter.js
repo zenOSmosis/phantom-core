@@ -111,9 +111,16 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
         this.emit(EVT_DESTROY_STACK_TIMED_OUT);
       }, SHUT_DOWN_GRACE_PERIOD);
 
+      // TODO: Fix issue where destroyHandler could error and still emit
+      // EVT_DESTROY_STACK_TIMED_OUT
+      //
+      // try {
       await destroyHandler();
-
+      // } catch (err) {
+      //  throw err;
+      // } finally {
       clearTimeout(longRespondDestroyHandlerTimeout);
+      // }
 
       // Set the state before the event is emit so that any listeners will know
       // the correct state.
