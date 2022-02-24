@@ -48,11 +48,13 @@ Object.assign(module.exports, {
   FunctionStack: require("./FunctionStack"),
 
   // Base utilities
+  consume: require("./utils/consume"),
   deepMerge: require("./utils/deepMerge"),
   getIsNodeJS: require("./utils/getIsNodeJS"),
   getPackageJSON: require("./utils/getPackageJSON"),
   getUnixTime: require("./utils/getUnixTime"),
   getUptime: require("./utils/getUptime"),
+  performance: require("./utils/performance"),
   shallowMerge: require("./utils/shallowMerge"),
   sleep: require("./utils/sleep"),
 

@@ -1,3 +1,4 @@
+const assert = require("assert");
 const PhantomCore = require(".");
 const _DestructibleEventEmitter = require("../_DestructibleEventEmitter");
 const { EVT_DESTROYED } = _DestructibleEventEmitter;
@@ -190,21 +191,13 @@ module.exports = class EventProxyStack extends _DestructibleEventEmitter {
    */
   async destroy() {
     return super.destroy(() => {
+      // Perform cleanup
       this._removeAllProxyHandlers();
-
-      // Shutdown checking
-      if (this._eventProxyBinds.length > 0) {
-        throw new Error("Did not successfully unregister event proxy binds");
-      }
-
       this._removeAllTargetInstanceDestroyHandlers();
 
-      // Shutdown checking
-      if ([...this._targetDestroyHandlers].length > 0) {
-        throw new Error(
-          "Did not successfully unregister target destroy handlers"
-        );
-      }
+      // Ensure no dangling references
+      assert.strictEqual(this._eventProxyBinds.length, 0);
+      assert.strictEqual([...this._targetDestroyHandlers].length, 0);
     });
   }
 };

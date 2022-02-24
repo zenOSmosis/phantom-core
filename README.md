@@ -3,6 +3,7 @@
 [![CodeQL][codeql-image]][codeql-url]
 [![Known Vulnerabilities][snyk-image]][snyk-url]
 [![CodeFactor][codefactor-image]][codefactor-url]
+[![Style Status][style-image]][style-url]
 
 [license-image]: https://img.shields.io/github/license/zenosmosis/phantom-core
 [license-url]: https://raw.githubusercontent.com/zenOSmosis/phantom-core/main/LICENSE
@@ -14,6 +15,8 @@
 [snyk-url]: https://snyk.io/test/github/zenosmosis/phantom-core
 [codefactor-image]: https://www.codefactor.io/repository/github/zenOSmosis/phantom-core/badge
 [codefactor-url]: https://www.codefactor.io/repository/github/zenOSmosis/phantom-core
+[style-image]: https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square
+[style-url]: https://prettier.io/
 
 # PhantomCore
 
@@ -61,6 +64,14 @@ Example API usage and other documentation will follow.
 TODO: Include sections for testing [SauceLabs / airtap], development, etc.)
 
 ## Changelog
+
+### Version 2.7.0 (Feb. 24, 2022)
+  - Implement stable references for subsequent calls to PhantomCollection getChildren(), provided that the number of children are not changed between calls. This fixes an issue when using the children result set in React components causing hooks to re-run if the children were used as a dependency.
+  - PhantomCollection getChildMetaDescription() method removed (breaking change, version 2.7 of PhantomCore PhantomCollection cannot be used in conjunction with previous versions of PhantomCore due to "loose instance" checks failing as previous versions will look for this method)
+  - Remove PhantomCollection _lenChildren protected property (no longer necessary)
+  - PhantomCollection changed to still be iterable after destruct (shouldn't contain any children; getChildren() added as PhantomCore keep-alive method)
+  - Improve CPU efficiency of getUnixTime() utility by capturing initial UTC time, and using a performance.now() offset for subsequent time capturing
+  - Add consume() utility function to consume JavaScript variables so they don't get flagged for not being utilized (special-case scenarios)
 
 ### Version 2.6.1 (Feb. 20, 2022)
 

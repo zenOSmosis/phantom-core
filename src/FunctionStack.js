@@ -80,6 +80,7 @@ module.exports = class FunctionStack {
     return this._fns.length;
   }
 
+  // FIXME: (jh) Rename (or alias) to flush
   /**
    * Execute all of the functions pushed to the stack until, one at a time,
    * using either FIFO or LIFO strategy, until there are no remaining functions
