@@ -1,3 +1,5 @@
+const consume = require("./consume");
+
 /**
  * A common performance object for Node.js and browsers.
  *
@@ -11,6 +13,9 @@ module.exports = (() => {
   try {
     const { performance } = require("perf_hooks");
     libPerformance = performance;
+  } catch (err) {
+    // Don't do anything with the error, just consume it
+    consume(err);
   } finally {
     // Do nothing (CodeFactor will flag an error if returning here)
   }
