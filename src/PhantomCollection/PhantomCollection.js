@@ -251,7 +251,7 @@ class PhantomCollection extends PhantomCore {
     }
 
     // Called when the collection instance is destroyed before the collection
-    const beforeDestroyHandler = () => {
+    const handleBeforeDestroy = () => {
       // Pre-filter the children which will be returned in getChildren() calls
       this._children = this._children.filter(
         child => child !== phantomCoreInstance
@@ -267,9 +267,9 @@ class PhantomCollection extends PhantomCore {
     // Register w/ _childMetaDescriptions property
     this._childrenMetadata.set(phantomCoreInstance, {
       [KEY_META_DESC_CHILD_KEY]: key,
-      // IMPORTANT: The beforeDestroyHandler is bound to the meta data so we can
+      // IMPORTANT: The handleBeforeDestroy is bound to the meta data so we can
       // arbitrarily remove it when removing the child from the collection
-      [KEY_META_CHILD_BEFORE_DESTROY_HANDLER]: beforeDestroyHandler,
+      [KEY_META_CHILD_BEFORE_DESTROY_HANDLER]: handleBeforeDestroy,
     });
 
     // NOTE: Not using proxyOnce here for two reasons:
@@ -278,7 +278,7 @@ class PhantomCollection extends PhantomCore {
     //  2. proxyOn/ce adds an additional EVT_BEFORE_DESTROY handler on its own and
     // if a child is wrapped in multiple collections it could result in
     // potentially excessive event emitters
-    phantomCoreInstance.once(EVT_BEFORE_DESTROY, beforeDestroyHandler);
+    phantomCoreInstance.once(EVT_BEFORE_DESTROY, handleBeforeDestroy);
 
     // TODO: Rephrase comment
     //
