@@ -134,6 +134,7 @@ class PhantomCollection extends PhantomCore {
     // Add all initial instances
     initialPhantomInstances.forEach(instance => this.addChild(instance));
 
+    // TODO: Remove; this is not needed any longer
     /**
      * The number of children this instance has at any particular time.
      *
