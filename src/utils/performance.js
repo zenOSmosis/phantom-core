@@ -12,6 +12,8 @@ module.exports = (() => {
     const { performance } = require("perf_hooks");
     libPerformance = performance;
   } finally {
-    return libPerformance || window.performance;
+    const performance = libPerformance || window.performance;
+
+    return performance;
   }
 })();
