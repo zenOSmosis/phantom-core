@@ -329,7 +329,7 @@ class PhantomCollection extends PhantomCore {
    * @return {PhantomCore[]}
    */
   getChildren() {
-    // Remove destroying or destroyed children
+    // TODO: Remove this from here, it causes React to freak-out sometimes
     for (const child of this._children) {
       if (child.getIsDestroying() || child.getIsDestroyed()) {
         this.removeChild(child);
