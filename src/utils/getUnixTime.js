@@ -5,8 +5,10 @@
  **/
 const performance = (() => {
   // Fix cross-platform issue between Node.js and browsers
+  let libPerformance;
   try {
-    const { performance: libPerformance } = require("perf_hooks");
+    const { performance } = require("perf_hooks");
+    libPerformance = performance;
   } finally {
     return libPerformance || window.performance;
   }
