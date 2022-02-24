@@ -284,6 +284,9 @@ class PhantomCollection extends PhantomCore {
         childMetadata[KEY_META_CHILD_BEFORE_DESTROY_HANDLER];
       phantomCoreInstance.off(EVT_BEFORE_DESTROY, destroyListener);
 
+      // NOTE: These may have already been filtered out if removeChild is
+      // utilized during the destruct phase, however, this additional
+      // filtering is needed for arbitrary calls to removeChild
       this._children = this._children.filter(
         pred => pred !== phantomCoreInstance
       );
