@@ -2,7 +2,10 @@ const EventEmitter = require("events");
 const getClassName = require("./utils/class-utils/getClassName");
 const logger = require("./globalLogger");
 
-/** @export */
+/**
+ * @export
+ * @event EVT_BEFORE_DESTROY Emits directly before any destructor handling.
+ */
 const EVT_BEFORE_DESTROY = "before-destroy";
 
 /** @export */

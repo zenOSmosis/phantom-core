@@ -30,7 +30,7 @@ const EVT_CHILD_INSTANCE_ADDED = "child-instance-added";
 const EVT_CHILD_INSTANCE_REMOVED = "child-instance-removed";
 
 const KEY_META_DESC_CHILD_KEY = "childKey";
-const KEY_META_CHILD_DESTROY_HANDLER = "destroyHandler";
+const KEY_META_CHILD_BEFORE_DESTROY_HANDLER = "beforeDestroyHandler";
 
 /**
  * A PhantomCollection contains an array of unique PhantomCore instances
@@ -120,8 +120,8 @@ class PhantomCollection extends PhantomCore {
     /** @type {PhantomCore[]} */
     this._children = [];
 
-    /** @type {Map<{KEY_META_DESC_CHILD_KEY: any, KEY_META_CHILD_DESTROY_HANDLER: Function}>} */
-    this._childrenMetaData = new Map();
+    /** @type {Map<{KEY_META_DESC_CHILD_KEY: any, KEY_META_CHILD_BEFORE_DESTROY_HANDLER: Function}>} */
+    this._childrenMetadata = new Map();
 
     // IMPORTANT: ChildEventBridge has to be lazy-loaded due to the fact that it
     // needs to be able to read the exports from this file, including the
@@ -251,23 +251,34 @@ class PhantomCollection extends PhantomCore {
     }
 
     // Called when the collection instance is destroyed before the collection
-    const destroyHandler = () => this.removeChild(phantomCoreInstance);
+    const beforeDestroyHandler = () => {
+      // Pre-filter the children which will be returned in getChildren() calls
+      this._children = this._children.filter(
+        child => child !== phantomCoreInstance
+      );
+
+      phantomCoreInstance.once(EVT_DESTROYED, () =>
+        // Execute final event emissions from child and remove the associated
+        // metadata
+        this.removeChild(phantomCoreInstance)
+      );
+    };
 
     // Register w/ _childMetaDescriptions property
-    this._childrenMetaData.set(phantomCoreInstance, {
+    this._childrenMetadata.set(phantomCoreInstance, {
       [KEY_META_DESC_CHILD_KEY]: key,
-      // IMPORTANT: The destroyHandler is bound to the meta data so we can
+      // IMPORTANT: The beforeDestroyHandler is bound to the meta data so we can
       // arbitrarily remove it when removing the child from the collection
-      [KEY_META_CHILD_DESTROY_HANDLER]: destroyHandler,
+      [KEY_META_CHILD_BEFORE_DESTROY_HANDLER]: beforeDestroyHandler,
     });
 
     // NOTE: Not using proxyOnce here for two reasons:
-    //  1. The EVT_DESTROYED added event should be automatically removed once
+    //  1. The EVT_BEFORE_DESTROY added event should be automatically removed once
     // the child is removed
-    //  2. proxyOn/ce adds an additional EVT_DESTROYED handler on its own and
+    //  2. proxyOn/ce adds an additional EVT_BEFORE_DESTROY handler on its own and
     // if a child is wrapped in multiple collections it could result in
     // potentially excessive event emitters
-    phantomCoreInstance.once(EVT_DESTROYED, destroyHandler);
+    phantomCoreInstance.once(EVT_BEFORE_DESTROY, beforeDestroyHandler);
 
     // TODO: Rephrase comment
     //
@@ -289,26 +300,23 @@ class PhantomCollection extends PhantomCore {
    * @return {void}
    */
   removeChild(phantomCoreInstance) {
-    const childMetaData = this._childrenMetaData.get(phantomCoreInstance);
+    const childMetadata = this._childrenMetadata.get(phantomCoreInstance);
 
-    if (childMetaData) {
+    if (childMetadata) {
       // Remove the destroyListener from the child
-      const destroyListener = childMetaData[KEY_META_CHILD_DESTROY_HANDLER];
-      phantomCoreInstance.off(EVT_DESTROYED, destroyListener);
-
-      const prevLength = this._children.length;
+      const destroyListener =
+        childMetadata[KEY_META_CHILD_BEFORE_DESTROY_HANDLER];
+      phantomCoreInstance.off(EVT_BEFORE_DESTROY, destroyListener);
 
       this._children = this._children.filter(
         pred => pred !== phantomCoreInstance
       );
-      this._childrenMetaData.delete(phantomCoreInstance);
 
-      const nextLength = this._children.length;
+      // Remove the associated metadata
+      this._childrenMetadata.delete(phantomCoreInstance);
 
-      if (nextLength < prevLength) {
-        this.emit(EVT_CHILD_INSTANCE_REMOVED, phantomCoreInstance);
-        this.emit(EVT_UPDATED);
-      }
+      this.emit(EVT_CHILD_INSTANCE_REMOVED, phantomCoreInstance);
+      this.emit(EVT_UPDATED);
     }
   }
 
@@ -335,13 +343,6 @@ class PhantomCollection extends PhantomCore {
    * @return {PhantomCore[]}
    */
   getChildren() {
-    // TODO: Remove this from here, it causes React to freak-out sometimes
-    for (const child of this._children) {
-      if (child.getIsDestroying() || child.getIsDestroyed()) {
-        this.removeChild(child);
-      }
-    }
-
     return this._children;
   }
 
@@ -361,9 +362,9 @@ class PhantomCollection extends PhantomCore {
 
     for (const [
       phantomCoreInstance,
-      metaData,
-    ] of this._childrenMetaData.entries()) {
-      if (metaData[KEY_META_DESC_CHILD_KEY] === key) {
+      metadata,
+    ] of this._childrenMetadata.entries()) {
+      if (metadata[KEY_META_DESC_CHILD_KEY] === key) {
         return phantomCoreInstance;
       }
     }
@@ -375,7 +376,7 @@ class PhantomCollection extends PhantomCore {
    * @return {any[]}
    */
   getKeys() {
-    return [...this._childrenMetaData.entries()]
+    return [...this._childrenMetadata.entries()]
       .map(([, { [KEY_META_DESC_CHILD_KEY]: key }]) => key)
       .filter(key => key);
   }
@@ -436,20 +437,20 @@ class PhantomCollection extends PhantomCore {
   }
 
   /**
-   * @param {Function} destroyHandler? [optional] If defined, will execute
+   * @param {Function} beforeDestroyHandler? [optional] If defined, will execute
    * prior to normal destruct operations for this class.
    * @return {Promise<void>}
    */
-  async destroy(destroyHandler = () => null) {
+  async destroy(beforeDestroyHandler = () => null) {
     return super.destroy(async () => {
-      await destroyHandler();
+      await beforeDestroyHandler();
 
       // Empty out the collection
       this.removeAllChildren();
 
       // Ensure no dangling references
       assert.strictEqual(this._children.length, 0);
-      assert.strictEqual([...this._childrenMetaData.entries()].length, 0);
+      assert.strictEqual([...this._childrenMetadata.entries()].length, 0);
 
       await this._childEventBridge.destroy();
     });

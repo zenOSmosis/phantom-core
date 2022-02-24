@@ -194,8 +194,8 @@ test("PhantomCollection add / remove child; get children", async t => {
   );
 
   const extendedCore2 = new PhantomCoreTestClass();
-  const lenEC2InitialDestroyedEvents =
-    extendedCore2.listenerCount(EVT_DESTROYED);
+  const lenExtendedCore2InitialBeforeDestroyEvents =
+    extendedCore2.listenerCount(EVT_BEFORE_DESTROY);
 
   await Promise.all([
     new Promise(resolve => {
@@ -298,9 +298,9 @@ test("PhantomCollection add / remove child; get children", async t => {
   }, "child can be re-added to collection");
 
   t.equals(
-    extendedCore2.listenerCount(EVT_DESTROYED),
-    lenEC2InitialDestroyedEvents + 1,
-    "adds EVT_DESTROYED handler to instance when added to collection"
+    extendedCore2.listenerCount(EVT_BEFORE_DESTROY),
+    lenExtendedCore2InitialBeforeDestroyEvents + 1,
+    "adds EVT_BEFORE_DESTROY handler to instance when added to collection"
   );
 
   await Promise.all([
@@ -339,9 +339,9 @@ test("PhantomCollection add / remove child; get children", async t => {
   })();
 
   t.equals(
-    extendedCore2.listenerCount(EVT_DESTROYED),
-    lenEC2InitialDestroyedEvents,
-    "removes EVT_DESTROYED handler from instance when removed from collection"
+    extendedCore2.listenerCount(EVT_BEFORE_DESTROY),
+    lenExtendedCore2InitialBeforeDestroyEvents,
+    "removes EVT_BEFORE_DESTROY handler from instance when removed from collection"
   );
 
   t.end();
