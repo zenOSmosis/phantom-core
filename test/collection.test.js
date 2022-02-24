@@ -110,7 +110,7 @@ test("PhantomCollection add / remove child; get children", async t => {
 
   const collection = new PhantomCollection([extendedCore]);
 
-  t.equals(collection._lenChildren, 1, "protected _lenChildren equals 1");
+  t.equals(collection.getChildren().length, 1, "one initial child");
 
   t.doesNotThrow(() => {
     collection.addChild(new PhantomCore(), "temp-child");
@@ -123,9 +123,9 @@ test("PhantomCollection add / remove child; get children", async t => {
   );
 
   t.equals(
-    collection._lenChildren,
+    collection.getChildren().length,
     2,
-    "protected _lenChildren equals 2 after temp child added"
+    "two children after temp child added"
   );
 
   t.doesNotThrow(() => {
@@ -135,9 +135,9 @@ test("PhantomCollection add / remove child; get children", async t => {
   t.deepEquals(collection.getKeys(), [], "getKeys() responds with no keys");
 
   t.equals(
-    collection._lenChildren,
+    collection.getChildren().length,
     1,
-    "protected _lenChildren equals 1 after temp child removed"
+    "one remaining child after temp child removed"
   );
 
   t.doesNotThrow(() => {
@@ -793,17 +793,17 @@ test("multiple PhantomCollection destruct all children", async t => {
   t.equals(coll2.getChildren().length, 5, "coll2 has 5 initial children");
 
   t.equals(
-    coll1._lenChildren,
+    coll1.getChildren().length,
     5,
-    "_lenChildren is 5 before first collection is destroyed"
+    "five children before first collection is destroyed"
   );
 
   await coll1.destroy();
 
   t.equals(
-    coll1._lenChildren,
+    coll1.getChildren().length,
     0,
-    "_lenChildren is 0 after first collection is destroyed"
+    "zero children after first collection is destroyed"
   );
 
   t.ok(coll1.getIsDestroyed(), "coll1 is in destructed state");
@@ -945,7 +945,7 @@ test("PhantomCollection empty destroyAllChildren() call", async t => {
 });
 
 test("PhantomCollection iterator", async t => {
-  t.plan(4);
+  t.plan(3);
 
   const p1 = new PhantomCore();
   const p2 = new PhantomCore();
@@ -966,14 +966,6 @@ test("PhantomCollection iterator", async t => {
   t.equals([...collection].length, 3);
 
   await collection.destroy();
-
-  t.throws(
-    () => {
-      [...collection];
-    },
-    TypeError,
-    "collection is no longer iterable after destruct"
-  );
 
   t.end();
 });

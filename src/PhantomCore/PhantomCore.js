@@ -45,7 +45,13 @@ const KEEP_ALIVE_SHUTDOWN_METHODS = [
   "getIsDestroyed",
   "getInstanceUptime",
   "getTotalListenerCount",
+  //
+  // PhantomCollection method names
+  //
+  "getChildren",
+  //
   // super method names
+  //
   "off",
   "removeListener",
   "eventNames",

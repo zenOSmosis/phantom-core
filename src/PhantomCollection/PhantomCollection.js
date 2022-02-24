@@ -133,30 +133,6 @@ class PhantomCollection extends PhantomCore {
 
     // Add all initial instances
     initialPhantomInstances.forEach(instance => this.addChild(instance));
-
-    // TODO: Remove; this is not needed any longer
-    /**
-     * The number of children this instance has at any particular time.
-     *
-     * This is automatically maintained and can be useful for extension classes
-     * which need to know this variable to not need to run a
-     * getChildren().length on fast iteration cycles.
-     *
-     * NOTE: A conventional getter was not utilized for this because it needs
-     * to be memoized, and not calculated for every call.
-     *
-     * @type {number}
-     */
-    this._lenChildren = this.getChildren().length;
-
-    // Handle keeping this._lenChildren accurate
-    (() => {
-      const _handleChildrenUpdate = () =>
-        (this._lenChildren = this.getChildren().length);
-
-      this.on(EVT_CHILD_INSTANCE_ADDED, _handleChildrenUpdate);
-      this.on(EVT_CHILD_INSTANCE_REMOVED, _handleChildrenUpdate);
-    })();
   }
 
   /**
