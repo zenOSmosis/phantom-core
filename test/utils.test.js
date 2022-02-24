@@ -16,8 +16,8 @@ const {
   performance,
 } = PhantomCore;
 
-test("time", async t => {
-  t.plan(7);
+test("unix time", async t => {
+  t.plan(9);
 
   const timeStart = getUnixTime();
 
@@ -26,6 +26,17 @@ test("time", async t => {
     parseInt(timeStart, 10),
     timeStart,
     "getUnixTime() returns a number"
+  );
+
+  t.equals(
+    timeStart.toString().length,
+    `1645556315`.length,
+    "getUnixTime() retrieves a number in acceptable time range"
+  );
+
+  t.ok(
+    timeStart > 1645556315,
+    'getUnixTime() equates to a value more recent than "Tue Feb 22 2022 12:58:35 GMT-0600 (Central Standard Time)"'
   );
 
   const uptimeStart = getUptime();
