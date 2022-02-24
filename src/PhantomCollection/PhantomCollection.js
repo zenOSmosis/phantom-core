@@ -256,11 +256,11 @@ class PhantomCollection extends PhantomCore {
     // potentially excessive event emitters
     phantomCoreInstance.once(EVT_BEFORE_DESTROY, handleBeforeDestroy);
 
-    // TODO: Rephrase comment
-    //
     // IMPORTANT: Adding / removing children need to have new arrays defined
-    // (vs. push / splice) in order to fix an issue with React-hooks usage on
-    // the frontend without having to run force-update handlers for EVT_UPDATED
+    // (vs. push / splice) in order to work as designed when using the children
+    // array as dependencies of React hooks (i.e. in ReShell). Using the push
+    // array method here will not update the hook dependencies as necessary
+    // resulting in potentially stale state when used with React.
     this._children = [...this._children, phantomCoreInstance];
 
     this.emit(EVT_CHILD_INSTANCE_ADDED, phantomCoreInstance);
