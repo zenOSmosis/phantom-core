@@ -1,14 +1,14 @@
-/**
- * Retrieves seconds since midnight January 1, 1970, in UTC time.
- *
- * @return {number}
- */
-function getUnixTime() {
-  // FIXME: (jh) Would this benefit to take the current unix time at the
-  // beginning of the module include and calculate the high resolution time
-  // offset following that?
-  // Related issue: https://github.com/zenOSmosis/phantom-core/issues/127
+const { performance: libPerformance } = require("perf_hooks");
 
+/**
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Performance}
+ *
+ * @type {Performance}
+ **/
+const performance = libPerformance || window.performance;
+
+// Initialize load time with milliseconds since Jan. 1, 1970 (UTC)
+const LOAD_TIME = (() => {
   const date = new Date();
 
   const utc = Date.UTC(
@@ -20,9 +20,16 @@ function getUnixTime() {
     date.getUTCSeconds()
   );
 
-  const unixTime = Math.round(utc / 1000);
+  return utc;
+})();
+
+/**
+ * Retrieves seconds since midnight January 1, 1970 (UTC).
+ *
+ * @return {number}
+ */
+module.exports = function getUnixTime() {
+  const unixTime = Math.round((LOAD_TIME + performance.now()) / 1000);
 
   return unixTime;
-}
-
-module.exports = getUnixTime;
+};
