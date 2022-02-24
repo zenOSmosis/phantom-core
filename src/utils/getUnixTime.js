@@ -1,11 +1,16 @@
-const { performance: libPerformance } = require("perf_hooks");
-
 /**
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Performance}
  *
  * @type {Performance}
  **/
-const performance = libPerformance || window.performance;
+const performance = (() => {
+  // Fix cross-platform issue between Node.js and browsers
+  try {
+    const { performance: libPerformance } = require("perf_hooks");
+  } finally {
+    return libPerformance || window.performance;
+  }
+})();
 
 // Initialize load time with milliseconds since Jan. 1, 1970 (UTC)
 const LOAD_TIME = (() => {
@@ -29,7 +34,5 @@ const LOAD_TIME = (() => {
  * @return {number}
  */
 module.exports = function getUnixTime() {
-  const unixTime = Math.round((LOAD_TIME + performance.now()) / 1000);
-
-  return unixTime;
+  return Math.round((LOAD_TIME + performance.now()) / 1000);
 };
