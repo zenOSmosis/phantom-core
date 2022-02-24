@@ -261,7 +261,13 @@ class PhantomCollection extends PhantomCore {
       [KEY_META_CHILD_DESTROY_HANDLER]: destroyHandler,
     });
 
-    this.proxyOnce(phantomCoreInstance, EVT_DESTROYED, destroyHandler);
+    // NOTE: Not using proxyOnce here for two reasons:
+    //  1. The EVT_DESTROYED added event should be automatically removed once
+    // the child is removed
+    //  2. proxyOn/ce adds an additional EVT_DESTROYED handler on its own and
+    // if a child is wrapped in multiple collections it could result in
+    // potentially excessive event emitters
+    phantomCoreInstance.once(EVT_DESTROYED, destroyHandler);
 
     // TODO: Rephrase comment
     //
@@ -288,7 +294,7 @@ class PhantomCollection extends PhantomCore {
     if (childMetaData) {
       // Remove the destroyListener from the child
       const destroyListener = childMetaData[KEY_META_CHILD_DESTROY_HANDLER];
-      this.proxyOff(phantomCoreInstance, EVT_DESTROYED, destroyListener);
+      phantomCoreInstance.off(EVT_DESTROYED, destroyListener);
 
       const prevLength = this._children.length;
 
