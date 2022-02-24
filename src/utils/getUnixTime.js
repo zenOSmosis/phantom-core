@@ -1,6 +1,6 @@
 const performance = require("./performance");
 
-// Initialize load time with milliseconds since Jan. 1, 1970 (UTC)
+// Initialize load time with milliseconds since midnight Jan. 1, 1970 (UTC)
 const LOAD_TIME = (() => {
   const date = new Date();
 
@@ -17,7 +17,7 @@ const LOAD_TIME = (() => {
 })();
 
 /**
- * Retrieves seconds since midnight January 1, 1970 (UTC).
+ * Retrieves seconds since midnight Jan. 1, 1970 (UTC).
  *
  * @return {number}
  */
