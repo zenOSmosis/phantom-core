@@ -62,7 +62,8 @@ test("PhantomCollection children event handler cleanup", async t => {
   t.equals(
     phantom.getTotalListenerCount(),
     initialListenerCount + 2,
-    "adding child to collection increments child event emitters by two (one for proxyOn binding, another for collection event destroyed)"
+    // One is added for EVT_DESTROYED, the other for EVT_UPDATED
+    "adding child to collection increments child event emitters by two"
   );
 
   collection.removeChild(phantom);
