@@ -12,8 +12,8 @@ module.exports = (() => {
     const { performance } = require("perf_hooks");
     libPerformance = performance;
   } finally {
-    const performance = libPerformance || window.performance;
-
-    return performance;
+    // Do nothing (CodeFactor will flag an error if returning here)
   }
+
+  return libPerformance || window.performance;
 })();
