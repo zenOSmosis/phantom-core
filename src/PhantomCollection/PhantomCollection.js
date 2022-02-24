@@ -249,11 +249,11 @@ class PhantomCollection extends PhantomCore {
     });
 
     // NOTE: Not using proxyOnce here for two reasons:
-    //  1. The EVT_BEFORE_DESTROY added event should be automatically removed once
-    // the child is removed
-    //  2. proxyOn/ce adds an additional EVT_BEFORE_DESTROY handler on its own and
-    // if a child is wrapped in multiple collections it could result in
-    // potentially excessive event emitters
+    //  1. The EVT_BEFORE_DESTROY added event should be automatically removed
+    //     once the child is removed
+    //  2. proxyOn/ce adds an additional EVT_BEFORE_DESTROY handler on its own
+    //     and if a child is wrapped in multiple collections it could result in
+    //     potentially excessive event emitters
     phantomCoreInstance.once(EVT_BEFORE_DESTROY, handleBeforeDestroy);
 
     // IMPORTANT: Adding / removing children need to have new arrays defined
