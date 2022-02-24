@@ -1,18 +1,4 @@
-/**
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Performance}
- *
- * @type {Performance}
- **/
-const performance = (() => {
-  // Fix cross-platform issue between Node.js and browsers
-  let libPerformance;
-  try {
-    const { performance } = require("perf_hooks");
-    libPerformance = performance;
-  } finally {
-    return libPerformance || window.performance;
-  }
-})();
+const performance = require("./performance");
 
 // Initialize load time with milliseconds since Jan. 1, 1970 (UTC)
 const LOAD_TIME = (() => {

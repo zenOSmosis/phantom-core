@@ -53,6 +53,7 @@ Object.assign(module.exports, {
   getPackageJSON: require("./utils/getPackageJSON"),
   getUnixTime: require("./utils/getUnixTime"),
   getUptime: require("./utils/getUptime"),
+  performance: require("./utils/performance"),
   shallowMerge: require("./utils/shallowMerge"),
   sleep: require("./utils/sleep"),
 

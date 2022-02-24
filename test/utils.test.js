@@ -13,8 +13,8 @@ const {
   getClassInheritance,
   getClassInstancePropertyNames,
   sleep,
+  performance,
 } = PhantomCore;
-const { performance: libPerformance } = require("perf_hooks");
 
 test("time", async t => {
   t.plan(7);
@@ -303,8 +303,6 @@ test("symbol to UUID", t => {
 
 test("sleep", async t => {
   t.plan(2);
-
-  const performance = libPerformance || window.performance;
 
   // NOTE: Intentionally testing w/ 100 ms "grace buffer" to prevent this test
   // from sometimes erroring out due to time precision differences in
