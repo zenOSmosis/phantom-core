@@ -65,7 +65,12 @@ TODO: Include sections for testing [SauceLabs / airtap], development, etc.)
 
 ## Changelog
 
-### Version 2.7.0 (TBD) - TODO: Incorporate these details
+### Version 2.7.0 (Feb. 24, 2022)
+  - Implement stable references for subsequent calls to PhantomCollection getChildren(), provided that the number of children are not changed between calls. This fixes an issue when using the children result set in React components causing hooks to re-run if the children were used as a dependency.
+  - Improve CPU efficiency of getUnixTime() utility by capturing initial UTC time, and using a performance.now() offset for subsequent time capturing
+  - PhantomCollection changed to still be iterable after destruct (shouldn't contain any children; getChildren() added as PhantomCore keep-alive method)
+  - Remove PhantomCollection _lenChildren protected property
+  - Add consume() utility function to consume JavaScript variables so they don't get flagged for not being utilized (special-case scenarios)
 
 ### Version 2.6.1 (Feb. 20, 2022)
 
