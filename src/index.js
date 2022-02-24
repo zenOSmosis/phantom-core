@@ -48,6 +48,7 @@ Object.assign(module.exports, {
   FunctionStack: require("./FunctionStack"),
 
   // Base utilities
+  consume: require("./utils/consume"),
   deepMerge: require("./utils/deepMerge"),
   getIsNodeJS: require("./utils/getIsNodeJS"),
   getPackageJSON: require("./utils/getPackageJSON"),

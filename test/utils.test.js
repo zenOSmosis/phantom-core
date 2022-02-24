@@ -5,6 +5,7 @@ const {
   PhantomCollection,
   PhantomServiceCore,
   PhantomServiceManager,
+  consume,
   getUnixTime,
   getUptime,
   getClassName,
@@ -15,6 +16,20 @@ const {
   sleep,
   performance,
 } = PhantomCore;
+
+test("consume", t => {
+  t.plan(7);
+
+  t.equals(consume(), undefined);
+  t.equals(consume({ foo: 123 }), undefined);
+  t.equals(consume(1), undefined);
+  t.equals(consume(0), undefined);
+  t.equals(consume(new Promise(resolve => resolve())), undefined);
+  t.equals(consume(true), undefined);
+  t.equals(consume(false), undefined);
+
+  t.end();
+});
 
 test("unix time", async t => {
   t.plan(9);
