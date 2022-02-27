@@ -2,19 +2,12 @@
 // @see https://github.com/microsoft/OCR-Form-Tools/blob/master/src/common/hostProcess.ts
 
 /**
- * Determines if process is running in Node.js or not.
+ * Determines if the JavaScript runtime is Node.js based or not.
  *
- * Borrowed from: https://github.com/iliakan/detect-node
- *
- * FIXME: (jh) This should be checked using a combination of compiled FE / BE
- * environments, in service workers, web workers, etc.
+ * @see {@link https://stackoverflow.com/a/35813135}
  *
  * @return {Boolean}
  */
 module.exports = function getIsNodeJS() {
-  return (
-    Object.prototype.toString.call(
-      typeof process !== "undefined" ? process : 0
-    ) === "[object process]"
-  );
+  return typeof process.versions.node !== "undefined";
 };
