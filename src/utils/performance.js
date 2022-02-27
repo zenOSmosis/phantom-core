@@ -1,4 +1,4 @@
-const consume = require("./consume");
+const getIsNodeJS = require("./getIsNodeJS");
 
 /**
  * A common performance object for Node.js and browsers.
@@ -8,17 +8,18 @@ const consume = require("./consume");
  * @type {Performance}
  **/
 module.exports = (() => {
-  // Fix cross-platform issue between Node.js and browsers
-  let libPerformance;
+  let nodeJSPerformance;
+
   try {
-    const { performance } = require("perf_hooks");
-    libPerformance = performance;
+    if (getIsNodeJS()) {
+      // IMPORTANT: The usage of eval here fixes "Module not found: Can't
+      // resolve 'perf_hooks'" error caused by Webpack from trying to
+      // import this, regardless of the conditional value
+      nodeJSPerformance = eval('require("perf_hooks").performance');
+    }
   } catch (err) {
-    // Don't do anything with the error, just consume it
-    consume(err);
-  } finally {
-    // Do nothing (CodeFactor will flag an error if returning here)
+    console.error(err);
   }
 
-  return libPerformance || window.performance;
+  return nodeJSPerformance || performance;
 })();
