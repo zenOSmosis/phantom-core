@@ -65,6 +65,10 @@ TODO: Include sections for testing [SauceLabs / airtap], development, etc.)
 
 ## Changelog
 
+### Version 2.7.1 (Feb. 27, 2022)
+  - Fix issue where getIsNodeJS would return true with create-react-app
+  - Fix issue where Webpack would always throw "Module not found: Can't resolve 'perf_hooks'" when evaluating the performance module
+
 ### Version 2.7.0 (Feb. 24, 2022)
   - Implement stable references for subsequent calls to PhantomCollection getChildren(), provided that the number of children are not changed between calls. This fixes an issue when using the children result set in React components causing hooks to re-run if the children were used as a dependency.
   - PhantomCollection getChildMetaDescription() method removed (breaking change, version 2.7 of PhantomCore PhantomCollection cannot be used in conjunction with previous versions of PhantomCore due to "loose instance" checks failing as previous versions will look for this method)
