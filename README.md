@@ -32,7 +32,7 @@ It is the common base package utilized in [Speaker App](https://speaker.app) / [
 
 ## Characteristics
 
-  - Can be run in Node.js and in browser (as a base for extension classes to build upon).
+  - Can be run in Node.js and in browser (as a base for extension classes to build upon)
   - EventEmitter based core with exported event constants (i.e. EVT_UPDATED, EVT_DESTROYED)
   - Logger, inspired by [loglevel](https://www.npmjs.com/package/loglevel), with log level support, and exposes original stack trace to console (node and browser)
   - Not a singleton on its own (can be extended w/ singleton support)
