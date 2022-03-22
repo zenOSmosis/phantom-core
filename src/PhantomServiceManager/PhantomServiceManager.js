@@ -45,7 +45,7 @@ class PhantomServiceManager extends PhantomCollection {
      * if a particular message has previously been logged, in order to not log
      * it again.
      *
-     * @type {string}
+     * @type {string[]}
      **/
     this._circularWarningMessages = [];
   }
