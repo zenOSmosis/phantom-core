@@ -22,13 +22,18 @@ test("circular service constructors", async t => {
 
   const serviceManager = new PhantomServiceManager();
 
-  t.throws(
-    () => {
-      serviceManager.startServiceClass(TestServiceA);
-    },
-    RangeError,
-    "cannot initialize services with circular dependencies in their constructors"
-  );
+  try {
+    serviceManager.startServiceClass(TestServiceA);
+  } catch (err) {
+    if (
+      err instanceof RangeError ||
+      /** Firefox */ err instanceof InternalError
+    ) {
+      t.ok(
+        "cannot initialize services with circular dependencies in their constructors"
+      );
+    }
+  }
 
   await serviceManager.destroy();
 
