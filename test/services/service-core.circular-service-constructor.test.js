@@ -26,7 +26,7 @@ test("circular service constructors", async t => {
     () => {
       serviceManager.startServiceClass(TestServiceA);
     },
-    ReferenceError,
+    RangeError,
     "cannot initialize services with circular dependencies in their constructors"
   );
 

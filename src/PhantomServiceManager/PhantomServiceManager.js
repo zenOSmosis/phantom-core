@@ -37,6 +37,17 @@ class PhantomServiceManager extends PhantomCollection {
     this.registerCleanupHandler(() => {
       this._pendingServiceClassInstanceSet.clear();
     });
+
+    /**
+     * In the event that a two or more services are circular dependencies of
+     * each other, duplicate error messages could be logged until a potential
+     * maximum call stack error occurs. This variable is utilized to determine
+     * if a particular message has previously been logged, in order to not log
+     * it again.
+     *
+     * @type {string}
+     **/
+    this._circularWarningMessages = [];
   }
 
   /**
@@ -93,13 +104,19 @@ class PhantomServiceManager extends PhantomCollection {
           }
 
           if (this._pendingServiceClassInstanceSet.has(ChildServiceClass)) {
-            throw new ReferenceError(
-              `ChildServiceClass "${getClassName(
-                ChildServiceClass
-              )}" is trying to be initialized before ServiceClass "${getClassName(
-                ServiceClass
-              )}" has had a chance to fully initialize. Are there circular dependencies in the constructors?`
-            );
+            const circularWarningMessage = `ChildServiceClass "${getClassName(
+              ChildServiceClass
+            )}" is trying to be initialized before ServiceClass "${getClassName(
+              ServiceClass
+            )}" has had a chance to fully initialize. Are there circular dependencies in the constructors?`;
+
+            if (
+              !this._circularWarningMessages.includes(circularWarningMessage)
+            ) {
+              this._circularWarningMessages.push(circularWarningMessage);
+
+              this.log.warn(circularWarningMessage);
+            }
           }
 
           return this.startServiceClass(ChildServiceClass);
@@ -107,11 +124,15 @@ class PhantomServiceManager extends PhantomCollection {
       });
     } catch (err) {
       if (err instanceof TypeError) {
-        this.log.error(
-          `Could not instantiate service class "${getClassName(
-            ServiceClass
-          )}". Ensure that {...args} are passed through the constructor to the super instance.`
-        );
+        const circularWarningMessage = `Could not instantiate service class "${getClassName(
+          ServiceClass
+        )}". Ensure that (...args) are passed through the constructor to the super instance.`;
+
+        if (!this._circularWarningMessages.includes(circularWarningMessage)) {
+          this._circularWarningMessages.push(circularWarningMessage);
+
+          this.log.warn(circularWarningMessage);
+        }
       }
 
       throw err;
