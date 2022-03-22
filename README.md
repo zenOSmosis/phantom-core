@@ -71,6 +71,10 @@ TODO: Include sections for testing [SauceLabs / airtap], development, etc.)
 
 ## Changelog
 
+### Version 2.7.2 (Mar. 21, 2022)
+
+- Fix issues where errors were nearly impossible to debug when services did not pass expected arguments to their super's constructor
+
 ### Version 2.7.1 (Feb. 27, 2022)
 
 - Fix issue where getIsNodeJS would return true with create-react-app
