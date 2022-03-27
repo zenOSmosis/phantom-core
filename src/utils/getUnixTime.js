@@ -1,7 +1,9 @@
-const performance = require("./performance");
-
-// Initialize load time with milliseconds since midnight Jan. 1, 1970 (UTC)
-const LOAD_TIME = (() => {
+/**
+ * Retrieves seconds since midnight Jan. 1, 1970 (UTC).
+ *
+ * @return {number}
+ */
+module.exports = function getUnixTime() {
   const date = new Date();
 
   const utc = Date.UTC(
@@ -13,14 +15,5 @@ const LOAD_TIME = (() => {
     date.getUTCSeconds()
   );
 
-  return utc;
-})();
-
-/**
- * Retrieves seconds since midnight Jan. 1, 1970 (UTC).
- *
- * @return {number}
- */
-module.exports = function getUnixTime() {
-  return Math.round((LOAD_TIME + performance.now()) / 1000);
+  return Math.round(utc / 1000);
 };
