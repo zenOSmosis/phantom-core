@@ -71,6 +71,10 @@ TODO: Include sections for testing [SauceLabs / airtap], development, etc.)
 
 ## Changelog
 
+### Version 2.7.3 (Mar. 27, 2022)
+
+- Revert getUnixTime to not rely on performance.now for time tracking as it was not accurate after the host system was suspended
+
 ### Version 2.7.2 (Mar. 21, 2022)
 
 - Fix issues where errors were nearly impossible to debug when services did not pass expected arguments to their super's constructor
