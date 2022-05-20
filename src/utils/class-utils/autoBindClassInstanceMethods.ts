@@ -1,5 +1,6 @@
 import getClassInstanceMethodNames from "./getClassInstanceMethodNames";
 import getIsClassInstance from "./getIsClassInstance";
+import { ClassInstance } from "./types";
 
 /**
  * Force scope binding of JavaScript class methods to the class itself,
@@ -11,7 +12,7 @@ import getIsClassInstance from "./getIsClassInstance";
  * Additional reading: https://gist.github.com/dfoverdx/2582340cab70cff83634c8d56b4417cd
  */
 export default function autoBindClassInstanceMethods(
-  classInstance: Function,
+  classInstance: ClassInstance,
   ignoreMethods?: Function[]
 ) {
   if (!getIsClassInstance(classInstance)) {

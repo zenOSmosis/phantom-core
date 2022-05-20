@@ -1,4 +1,5 @@
 import getClassInstancePropertyNames from "./getClassInstancePropertyNames";
+import { ClassInstance } from "./types";
 
 /**
  * Retrieves an array of class method names for the given JavaScript class.
@@ -6,11 +7,13 @@ import getClassInstancePropertyNames from "./getClassInstancePropertyNames";
  * IMPORTANT: This retrieves an array of strings, and not pointers to the
  * methods themselves.
  */
-// TODO: [3.0.0] Fix any type
-export default function getClassInstanceMethodNames(classInstance: any) {
+export default function getClassInstanceMethodNames(
+  classInstance: ClassInstance
+) {
   const propertyNames = getClassInstancePropertyNames(classInstance);
 
   return propertyNames.filter(
-    item => typeof classInstance[item] === "function"
+    item =>
+      typeof (classInstance as { [key: string]: any })[item] === "function"
   );
 }

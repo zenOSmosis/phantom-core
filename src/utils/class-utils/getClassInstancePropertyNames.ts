@@ -1,4 +1,5 @@
 import getIsClassInstance from "./getIsClassInstance";
+import { ClassInstance } from "./types";
 
 /**
  * Retrieves an array of the given class property names.
@@ -6,8 +7,9 @@ import getIsClassInstance from "./getIsClassInstance";
  * IMPORTANT: This retrieves an array of strings, and not pointers to the
  * properties themselves.
  */
-// TODO: [3.0.0] Fix any type
-export default function getClassInstancePropertyNames(classInstance: any) {
+export default function getClassInstancePropertyNames(
+  classInstance: ClassInstance
+): string[] {
   if (!getIsClassInstance(classInstance)) {
     throw new TypeError("classInstance must be an instance of a class");
   }
@@ -19,5 +21,5 @@ export default function getClassInstancePropertyNames(classInstance: any) {
     Object.getOwnPropertyNames(currentObj).map(item => properties.add(item));
   } while ((currentObj = Object.getPrototypeOf(currentObj)));
 
-  return [...properties.keys()];
+  return [...properties.keys()] as string[];
 }
