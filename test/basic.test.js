@@ -1,7 +1,12 @@
 const test = require("tape");
-const PhantomCore = require("../dist");
-const { EVT_READY, EVT_UPDATED, EVT_BEFORE_DESTROY, EVT_DESTROYED, sleep } =
-  PhantomCore;
+const {
+  PhantomCore,
+  EVT_READY,
+  EVT_UPDATED,
+  EVT_BEFORE_DESTROY,
+  EVT_DESTROYED,
+  sleep,
+} = require("../dist");
 
 /**
  * Tests instantiation and destroying of PhantomCore with the default options
