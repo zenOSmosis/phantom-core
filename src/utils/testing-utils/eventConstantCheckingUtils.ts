@@ -6,11 +6,9 @@ const eventPrefix = "EVT_";
  *
  * If not valid, an error is raised, otherwise the return is void.
  *
- * @param {Object} events
  * @throws {ReferenceError | TypeError}
- * @return {void}
  */
-function checkEvents(events) {
+export function checkEvents(events: { [key: string]: unknown }) {
   const keys = Object.keys(events);
   const values = Object.values(events);
 
@@ -45,11 +43,8 @@ function checkEvents(events) {
 /**
  * Retrieves a filtered object, based on the the given require object (i.e. via
  * require('phantom-core')) which contains events, and nothing else.
- *
- * @param {Object} es5Import
- * @return {Object}
  */
-function extractEvents(es5Import) {
+export function extractEvents(es5Import: { [key: string]: unknown }) {
   const keys = Object.keys(es5Import).filter(predicate =>
     predicate.startsWith(eventPrefix)
   );
@@ -66,15 +61,11 @@ function extractEvents(es5Import) {
  * Compares the given extension import against the base import in order to see
  * if the same events have been exported, with the exception of the exclusion
  * list.
- *
- * @param {Object} baseES5Import
- * @param {Object} extensionES5Import
- * @param {Object} baseES5ImportExclusions? [default = {}]
  */
-function compareExportedEvents(
-  baseES5Import,
-  extensionES5Import,
-  baseES5ImportExclusions = {}
+export function compareExportedEvents(
+  baseES5Import: { [key: string]: unknown },
+  extensionES5Import: { [key: string]: unknown },
+  baseES5ImportExclusions: { [key: string]: unknown } = {}
 ) {
   const exportsA = extractEvents(baseES5Import);
   const exportsB = extractEvents(extensionES5Import);
@@ -96,9 +87,3 @@ function compareExportedEvents(
     }
   }
 }
-
-module.exports = {
-  checkEvents,
-  extractEvents,
-  compareExportedEvents,
-};
