@@ -25,9 +25,13 @@ test("circular service constructors", async t => {
   try {
     serviceManager.startServiceClass(TestServiceA);
   } catch (err) {
+    // TODO: Remove
+    console.error(err);
+
     if (
       err instanceof RangeError ||
-      /** Firefox */ err instanceof InternalError
+      /** Firefox */ (typeof InternalError !== "undefined" &&
+        err instanceof InternalError)
     ) {
       t.ok(
         "cannot initialize services with circular dependencies in their constructors"
