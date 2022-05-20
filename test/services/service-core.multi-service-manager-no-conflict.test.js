@@ -1,5 +1,5 @@
 const test = require("tape");
-const { PhantomServiceCore, PhantomServiceManager } = require("../../src");
+const { PhantomServiceCore, PhantomServiceManager } = require("../../dist");
 
 class TestServiceA extends PhantomServiceCore {}
 class TestServiceB extends PhantomServiceCore {}

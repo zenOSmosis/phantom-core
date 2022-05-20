@@ -4,7 +4,7 @@ const {
   PhantomServiceCore,
   PhantomServiceManager,
   EVT_UPDATED,
-} = require("../../src");
+} = require("../../dist");
 
 test("service collections", async t => {
   t.plan(19);

@@ -1,5 +1,5 @@
 const test = require("tape");
-const { PhantomSerializableState } = require("../src");
+const { PhantomSerializableState } = require("../dist");
 
 test("phantom serialized state", async t => {
   t.plan(23);

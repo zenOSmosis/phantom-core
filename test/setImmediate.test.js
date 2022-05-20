@@ -1,5 +1,5 @@
 const test = require("tape");
-require("../src");
+require("../dist");
 
 test("setImmediate", async t => {
   t.plan(6);

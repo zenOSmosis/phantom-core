@@ -1,5 +1,5 @@
 const test = require("tape");
-const PhantomCore = require("../src");
+const PhantomCore = require("../dist");
 const { EVT_DESTROY_STACK_TIMED_OUT } = PhantomCore;
 
 test("gridlock / awaiting circular destructs do not interfere with shutdown process", async t => {

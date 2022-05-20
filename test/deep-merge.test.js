@@ -1,5 +1,5 @@
 const test = require("tape");
-const { deepMerge } = require("../src");
+const { deepMerge } = require("../dist");
 
 test("handles null options", t => {
   t.plan(2);

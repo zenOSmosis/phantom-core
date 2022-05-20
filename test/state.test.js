@@ -1,5 +1,5 @@
 const test = require("tape");
-const { PhantomState } = require("../src");
+const { PhantomState } = require("../dist");
 const { EVT_UPDATED } = PhantomState;
 
 test("phantom state", async t => {

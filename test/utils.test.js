@@ -1,6 +1,6 @@
 const test = require("tape");
 const EventEmitter = require("events");
-const PhantomCore = require("../src");
+const PhantomCore = require("../dist");
 const {
   PhantomCollection,
   PhantomServiceCore,

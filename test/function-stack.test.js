@@ -1,5 +1,5 @@
 const test = require("tape");
-const { FunctionStack, sleep } = require("../src");
+const { FunctionStack, sleep } = require("../dist");
 const { FUNCTION_STACK_OPS_ORDER_FIFO, FUNCTION_STACK_OPS_ORDER_LIFO } =
   FunctionStack;
 

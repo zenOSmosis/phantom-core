@@ -1,5 +1,5 @@
 const test = require("tape");
-const { PhantomServiceCore, PhantomServiceManager } = require("../../src");
+const { PhantomServiceCore, PhantomServiceManager } = require("../../dist");
 
 test("circular service constructors", async t => {
   t.plan(2);

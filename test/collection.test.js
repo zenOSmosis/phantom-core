@@ -1,5 +1,5 @@
 const test = require("tape");
-const PhantomCore = require("../src");
+const PhantomCore = require("../dist");
 const { EVT_UPDATED, EVT_BEFORE_DESTROY, EVT_DESTROYED } = PhantomCore;
 const EventEmitter = require("events");
 const PhantomCollection = require("../src/PhantomCollection");

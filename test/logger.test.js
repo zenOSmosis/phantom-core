@@ -1,5 +1,5 @@
 const test = require("tape");
-const PhantomCore = require("../src");
+const PhantomCore = require("../dist");
 const {
   LOG_LEVEL_TRACE,
   LOG_LEVEL_DEBUG,

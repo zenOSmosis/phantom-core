@@ -1,5 +1,5 @@
 const test = require("tape");
-const PhantomCore = require("../src");
+const PhantomCore = require("../dist");
 const { ArbitraryPhantomWrapper } = PhantomCore;
 
 test("ArbitraryPhantomWrapper handling", async t => {
