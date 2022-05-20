@@ -1,13 +1,10 @@
-const getSuperClass = require("./getSuperClass");
+import getSuperClass from "./getSuperClass";
 
 /**
  * Retrieves an array of JavaScript classes which form the inheritance of the
  * given instanceOrClass.
- *
- * @param {function | Object} instanceOrClass
- * @return {function[]}
  */
-module.exports = function getClassInheritance(instanceOrClass) {
+export default function getClassInheritance(instanceOrClass: Function) {
   const parents = [];
 
   let predicate = instanceOrClass;
@@ -20,4 +17,4 @@ module.exports = function getClassInheritance(instanceOrClass) {
   } while (predicate);
 
   return parents;
-};
+}

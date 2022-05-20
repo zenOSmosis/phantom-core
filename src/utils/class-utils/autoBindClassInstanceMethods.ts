@@ -1,5 +1,5 @@
-const getClassInstanceMethodNames = require("./getClassInstanceMethodNames");
-const getIsClassInstance = require("./getIsClassInstance");
+import getClassInstanceMethodNames from "./getClassInstanceMethodNames";
+import getIsClassInstance from "./getIsClassInstance";
 
 /**
  * Force scope binding of JavaScript class methods to the class itself,
@@ -9,16 +9,10 @@ const getIsClassInstance = require("./getIsClassInstance");
  * @see https://stackoverflow.com/a/20925268
  *
  * Additional reading: https://gist.github.com/dfoverdx/2582340cab70cff83634c8d56b4417cd
- *
- * @param {Function} classInstance JavaScript class
- * @param {function[]} ignoreMethods? An array of class methods to ignore.
- * These must be references to the actual method and not the method names
- * themselves.
- * @return {void}
  */
-module.exports = function autoBindClassInstanceMethods(
-  classInstance,
-  ignoreMethods = []
+export default function autoBindClassInstanceMethods(
+  classInstance: Function,
+  ignoreMethods?: Function[]
 ) {
   if (!getIsClassInstance(classInstance)) {
     throw new TypeError("classInstance must be an instance of a class");
@@ -34,4 +28,4 @@ module.exports = function autoBindClassInstanceMethods(
       classInstance[methodName] = classInstance[methodName].bind(classInstance);
     }
   });
-};
+}

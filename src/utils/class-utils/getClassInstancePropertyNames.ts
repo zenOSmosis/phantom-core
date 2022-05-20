@@ -1,15 +1,13 @@
-const getIsClassInstance = require("./getIsClassInstance");
+import getIsClassInstance from "./getIsClassInstance";
 
 /**
  * Retrieves an array of the given class property names.
  *
  * IMPORTANT: This retrieves an array of strings, and not pointers to the
  * properties themselves.
- *
- * @param {Function} classInstance JavaScript class instance
- * @return {string[]} An array of property names
  */
-module.exports = function getClassInstancePropertyNames(classInstance) {
+// TODO: [3.0.0] Fix any type
+export default function getClassInstancePropertyNames(classInstance: any) {
   if (!getIsClassInstance(classInstance)) {
     throw new TypeError("classInstance must be an instance of a class");
   }
@@ -22,4 +20,4 @@ module.exports = function getClassInstancePropertyNames(classInstance) {
   } while ((currentObj = Object.getPrototypeOf(currentObj)));
 
   return [...properties.keys()];
-};
+}
