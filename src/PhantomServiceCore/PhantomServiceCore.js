@@ -1,19 +1,21 @@
-const PhantomState = require("../PhantomState");
-const PhantomCollection = require("../PhantomCollection");
-const {
-  /** @export */
+import PhantomState, {
   EVT_NO_INIT_WARN,
-  /** @export */
   EVT_READY,
-  /** @export */
   EVT_UPDATED,
-  /** @export */
   EVT_BEFORE_DESTROY,
-  /** @export */
   EVT_DESTROY_STACK_TIMED_OUT,
-  /** @export */
   EVT_DESTROYED,
-} = PhantomState;
+} from "../PhantomState";
+import PhantomCollection from "../PhantomCollection";
+
+export {
+  EVT_NO_INIT_WARN,
+  EVT_READY,
+  EVT_UPDATED,
+  EVT_BEFORE_DESTROY,
+  EVT_DESTROY_STACK_TIMED_OUT,
+  EVT_DESTROYED,
+};
 
 // TODO: Configure reporter channel (base class PhantomState, SyncObject or
 // equivalent (not sure if SyncObject would be useful here, but could enable
@@ -27,7 +29,7 @@ const {
 // collections as well), but want to keep it open to the possibility of
 // managing other types of collection-type data without the possibility of a
 // conflict (i.e. collections based on role, etc.)
-class PhantomServiceCore extends PhantomState {
+export default class PhantomServiceCore extends PhantomState {
   constructor({ manager, useServiceClassHandler }) {
     super(null, {
       // Services register immediately in their managers, but are not ready to
@@ -201,11 +203,3 @@ class PhantomServiceCore extends PhantomState {
     });
   }
 }
-
-module.exports = PhantomServiceCore;
-module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;
-module.exports.EVT_READY = EVT_READY;
-module.exports.EVT_UPDATED = EVT_UPDATED;
-module.exports.EVT_BEFORE_DESTROY = EVT_BEFORE_DESTROY;
-module.exports.EVT_DESTROY_STACK_TIMED_OUT = EVT_DESTROY_STACK_TIMED_OUT;
-module.exports.EVT_DESTROYED = EVT_DESTROYED;

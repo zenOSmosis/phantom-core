@@ -1,26 +1,21 @@
-const PhantomState = require("./PhantomState");
-const { isPlainObject } = require("is-plain-object");
-const {
-  /** @export */
+import PhantomState from "./PhantomState";
+import { isPlainObject } from "is-plain-object";
+
+export {
   EVT_NO_INIT_WARN,
-  /** @export */
   EVT_READY,
-  /** @export */
   EVT_UPDATED,
-  /** @export */
   EVT_BEFORE_DESTROY,
-  /** @export */
   EVT_DESTROY_STACK_TIMED_OUT,
-  /** @export */
   EVT_DESTROYED,
-} = PhantomState;
+};
 
 /**
  * A simple, object-based state management utility, which piggy-backs off of
  * PhantomState and enforces serializable state so that the state can be
  * transmitted over network, etc.
  */
-class PhantomSerializableState extends PhantomState {
+export default class PhantomSerializableState extends PhantomState {
   /**
    * Serializes the given object into a string.
    *
@@ -90,11 +85,3 @@ class PhantomSerializableState extends PhantomState {
     return PhantomSerializableState.serialize(this.getState());
   }
 }
-
-module.exports = PhantomSerializableState;
-module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;
-module.exports.EVT_READY = EVT_READY;
-module.exports.EVT_UPDATED = EVT_UPDATED;
-module.exports.EVT_BEFORE_DESTROY = EVT_BEFORE_DESTROY;
-module.exports.EVT_DESTROY_STACK_TIMED_OUT = EVT_DESTROY_STACK_TIMED_OUT;
-module.exports.EVT_DESTROYED = EVT_DESTROYED;

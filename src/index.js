@@ -1,74 +1,128 @@
-const PhantomCore = require("./PhantomCore");
-const {
+import PhantomCore, {
   EVT_READY,
   EVT_UPDATED,
   EVT_BEFORE_DESTROY,
   EVT_DESTROY_STACK_TIMED_OUT,
   EVT_DESTROYED,
   EVT_NO_INIT_WARN,
-} = PhantomCore;
-const Logger = require("./Logger");
-const {
+} from "./PhantomCore";
+
+export default PhantomCore;
+
+export {
+  PhantomCore,
+  EVT_READY,
+  EVT_UPDATED,
+  EVT_BEFORE_DESTROY,
+  EVT_DESTROY_STACK_TIMED_OUT,
+  EVT_DESTROYED,
+  EVT_NO_INIT_WARN,
+};
+
+import Logger, {
   LOG_LEVEL_TRACE,
   LOG_LEVEL_DEBUG,
   LOG_LEVEL_INFO,
   LOG_LEVEL_WARN,
   LOG_LEVEL_ERROR,
   LOG_LEVEL_SILENT,
-} = Logger;
+} from "./Logger";
 
-module.exports = PhantomCore;
-
-Object.assign(module.exports, {
-  EVT_READY,
-  EVT_UPDATED,
-  EVT_BEFORE_DESTROY,
-  EVT_DESTROY_STACK_TIMED_OUT,
-  EVT_DESTROYED,
-  EVT_NO_INIT_WARN,
+export {
   Logger,
-
-  // Global logger instance
-  logger: require("./globalLogger"),
-
   LOG_LEVEL_TRACE,
   LOG_LEVEL_DEBUG,
   LOG_LEVEL_INFO,
   LOG_LEVEL_WARN,
   LOG_LEVEL_ERROR,
   LOG_LEVEL_SILENT,
+};
 
-  ArbitraryPhantomWrapper: require("./ArbitraryPhantomWrapper"),
-  PhantomCollection: require("./PhantomCollection"),
-  PhantomServiceCore: require("./PhantomServiceCore"),
-  PhantomServiceManager: require("./PhantomServiceManager"),
-  PhantomSerializableState: require("./PhantomSerializableState"),
-  PhantomState: require("./PhantomState"),
+import logger from "./globalLogger";
+export { logger };
 
-  FunctionStack: require("./FunctionStack"),
+// Extensions
 
-  // Base utilities
-  consume: require("./utils/consume"),
-  deepMerge: require("./utils/deepMerge"),
-  getIsNodeJS: require("./utils/getIsNodeJS"),
-  getPackageJSON: require("./utils/getPackageJSON"),
-  getUnixTime: require("./utils/getUnixTime"),
-  getUptime: require("./utils/getUptime"),
-  performance: require("./utils/performance"),
-  shallowMerge: require("./utils/shallowMerge"),
-  sleep: require("./utils/sleep"),
+import ArbitraryPhantomWrapper from "./ArbitraryPhantomWrapper";
+export { ArbitraryPhantomWrapper };
 
-  // Utilities for working with JavaScript classes
-  autoBindClassInstanceMethods: require("./utils/class-utils/autoBindClassInstanceMethods"),
-  getClass: require("./utils/class-utils/getClass"),
-  getClassInheritance: require("./utils/class-utils/getClassInheritance"),
-  getClassInstanceMethodNames: require("./utils/class-utils/getClassInstanceMethodNames"),
-  getClassInstancePropertyNames: require("./utils/class-utils/getClassInstancePropertyNames"),
-  getClassName: require("./utils/class-utils/getClassName"),
-  getIsClass: require("./utils/class-utils/getIsClass"),
-  getIsClassInstance: require("./utils/class-utils/getIsClassInstance"),
-  getSuperClass: require("./utils/class-utils/getSuperClass"),
+import PhantomCollection from "./PhantomCollection";
+export { PhantomCollection };
 
-  // Utility for checking PhantomCore (and extension) event exports
-  eventConstantCheckingUtils: require("./utils/testing-utils/eventConstantCheckingUtils"),
-});
+import PhantomServiceCore from "./PhantomServiceCore";
+export { PhantomServiceCore };
+
+import PhantomServiceManager from "./PhantomServiceManager";
+export { PhantomServiceManager };
+
+import PhantomSerializableState from "./PhantomSerializableState";
+export { PhantomSerializableState };
+
+import PhantomState from "./PhantomState";
+export { PhantomState };
+
+import FunctionStack from "./FunctionStack";
+export { FunctionStack };
+
+// Base utilities
+
+import consume from "./utils/consume";
+export { consume };
+
+// import deepMerge from "./utils/deepMerge";
+// export { deepMerge };
+
+import getIsNodeJS from "./utils/getIsNodeJS";
+export { getIsNodeJS };
+
+import getPackageJSON from "./utils/getPackageJSON";
+export { getPackageJSON };
+
+import getUnixTime from "./utils/getUnixTime";
+export { getUnixTime };
+
+import getUptime from "./utils/getUptime";
+export { getUptime };
+
+import performance from "./utils/performance";
+export { performance };
+
+// import shallowMerge from "./utils/shallowMerge";
+// export { shallowMerge };
+
+import sleep from "./utils/sleep";
+export { sleep };
+
+// Utilities for working with JavaScript classes
+
+import autoBindClassInstanceMethods from "./utils/class-utils/autoBindClassInstanceMethods";
+export { autoBindClassInstanceMethods };
+
+import getClass from "./utils/class-utils/getClass";
+export { getClass };
+
+import getClassInheritance from "./utils/class-utils/getClassInheritance";
+export { getClassInheritance };
+
+import getClassInstanceMethodNames from "./utils/class-utils/getClassInstanceMethodNames";
+export { getClassInstanceMethodNames };
+
+import getClassInstancePropertyNames from "./utils/class-utils/getClassInstancePropertyNames";
+export { getClassInstancePropertyNames };
+
+import getClassName from "./utils/class-utils/getClassName";
+export { getClassName };
+
+import getIsClass from "./utils/class-utils/getIsClass";
+export { getIsClass };
+
+import getIsClassInstance from "./utils/class-utils/getIsClassInstance";
+export { getIsClassInstance };
+
+import getSuperClass from "./utils/class-utils/getSuperClass";
+export { getSuperClass };
+
+// Utility for checking PhantomCore (and extension) event exports
+
+import eventConstantCheckingUtils from "./utils/testing-utils/eventConstantCheckingUtils";
+export { eventConstantCheckingUtils };

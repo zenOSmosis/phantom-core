@@ -1,23 +1,25 @@
-const PhantomCore = require("./PhantomCore");
-const {
-  /** @export */
+import PhantomCore, {
   EVT_NO_INIT_WARN,
-  /** @export */
   EVT_READY,
-  /** @export */
   EVT_UPDATED,
-  /** @export */
   EVT_BEFORE_DESTROY,
-  /** @export */
   EVT_DESTROY_STACK_TIMED_OUT,
-  /** @export */
   EVT_DESTROYED,
-} = PhantomCore;
+} from "./PhantomCore";
+
+export {
+  EVT_NO_INIT_WARN,
+  EVT_READY,
+  EVT_UPDATED,
+  EVT_BEFORE_DESTROY,
+  EVT_DESTROY_STACK_TIMED_OUT,
+  EVT_DESTROYED,
+};
 
 /**
  * A simple, object-based state management utility.
  */
-class PhantomState extends PhantomCore {
+export default class PhantomState extends PhantomCore {
   /**
    * @param {Object} initialState? [default = {}]
    * @param {Object} superOptions? [default = {}] If set, these options are
@@ -71,11 +73,3 @@ class PhantomState extends PhantomCore {
     this.emit(EVT_UPDATED, partialNextState);
   }
 }
-
-module.exports = PhantomState;
-module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;
-module.exports.EVT_READY = EVT_READY;
-module.exports.EVT_UPDATED = EVT_UPDATED;
-module.exports.EVT_BEFORE_DESTROY = EVT_BEFORE_DESTROY;
-module.exports.EVT_DESTROY_STACK_TIMED_OUT = EVT_DESTROY_STACK_TIMED_OUT;
-module.exports.EVT_DESTROYED = EVT_DESTROYED;

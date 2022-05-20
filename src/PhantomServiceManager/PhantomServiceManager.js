@@ -1,31 +1,33 @@
-const PhantomCollection = require("../PhantomCollection");
-const PhantomServiceCore = require("../PhantomServiceCore");
-const getClassName = require("../utils/class-utils/getClassName");
-const {
-  /** @export */
+import PhantomCollection, {
   EVT_NO_INIT_WARN,
-  /** @export */
   EVT_READY,
-  /** @export */
   // EVT_CHILD_INSTANCE_ADDED,
-  /** @export */
   // EVT_CHILD_INSTANCE_REMOVED,
-  /** @export */
   EVT_UPDATED,
-  /** @export */
   EVT_BEFORE_DESTROY,
-  /** @export */
   EVT_DESTROY_STACK_TIMED_OUT,
-  /** @export */
   EVT_DESTROYED,
-} = PhantomCollection;
+} from "../PhantomCollection";
+import PhantomServiceCore from "../PhantomServiceCore";
+import getClassName from "../utils/class-utils/getClassName";
+
+export {
+  EVT_NO_INIT_WARN,
+  EVT_READY,
+  // EVT_CHILD_INSTANCE_ADDED,
+  // EVT_CHILD_INSTANCE_REMOVED,
+  EVT_UPDATED,
+  EVT_BEFORE_DESTROY,
+  EVT_DESTROY_STACK_TIMED_OUT,
+  EVT_DESTROYED,
+};
 
 /**
  * Manages a collection of PhantomServiceCore classes, treating each
  * PhantomServiceCore instance as a singleton in respect to an instance of the
  * current PhantomServiceManager instance.
  */
-class PhantomServiceManager extends PhantomCollection {
+export default class PhantomServiceManager extends PhantomCollection {
   constructor() {
     super();
 
@@ -209,13 +211,3 @@ class PhantomServiceManager extends PhantomCollection {
     });
   }
 }
-
-module.exports = PhantomServiceManager;
-module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;
-module.exports.EVT_READY = EVT_READY;
-// module.exports.EVT_CHILD_INSTANCE_ADDED = EVT_CHILD_INSTANCE_ADDED;
-// module.exports.EVT_CHILD_INSTANCE_REMOVED = EVT_CHILD_INSTANCE_REMOVED;
-module.exports.EVT_UPDATED = EVT_UPDATED;
-module.exports.EVT_BEFORE_DESTROY = EVT_BEFORE_DESTROY;
-module.exports.EVT_DESTROY_STACK_TIMED_OUT = EVT_DESTROY_STACK_TIMED_OUT;
-module.exports.EVT_DESTROYED = EVT_DESTROYED;

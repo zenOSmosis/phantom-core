@@ -1,33 +1,33 @@
-const assert = require("assert");
-const PhantomCore = require("../PhantomCore");
-const {
-  /** @export */
+import assert from "assert";
+import PhantomCore, {
   EVT_NO_INIT_WARN,
-  /** @export */
   EVT_READY,
-  /** @export */
   EVT_UPDATED,
-  /** @export */
   EVT_BEFORE_DESTROY,
-  /** @export */
   EVT_DESTROY_STACK_TIMED_OUT,
-  /** @export */
   EVT_DESTROYED,
-} = PhantomCore;
+} from "../PhantomCore";
+
+export {
+  EVT_NO_INIT_WARN,
+  EVT_READY,
+  EVT_UPDATED,
+  EVT_BEFORE_DESTROY,
+  EVT_DESTROY_STACK_TIMED_OUT,
+  EVT_DESTROYED,
+};
 
 /**
- * @export
  * @event EVT_CHILD_INSTANCE_ADDED Emits with the PhantomCore instance which
  * was added.
  **/
-const EVT_CHILD_INSTANCE_ADDED = "child-instance-added";
+export const EVT_CHILD_INSTANCE_ADDED = "child-instance-added";
 
 /**
- * @export
  * @event EVT_CHILD_INSTANCE_REMOVED Emits with the PhantomCore instance which
  * was removed.
  **/
-const EVT_CHILD_INSTANCE_REMOVED = "child-instance-removed";
+export const EVT_CHILD_INSTANCE_REMOVED = "child-instance-removed";
 
 const KEY_META_DESC_CHILD_KEY = "childKey";
 const KEY_META_CHILD_BEFORE_DESTROY_HANDLER = "beforeDestroyHandler";
@@ -49,7 +49,7 @@ const KEY_META_CHILD_BEFORE_DESTROY_HANDLER = "beforeDestroyHandler";
  *    based on a specific key
  *  - There must be a sort or iteration through the group elements
  */
-class PhantomCollection extends PhantomCore {
+export default class PhantomCollection extends PhantomCore {
   /**
    * Loosely determines whether or not the given instance is a
    * PhantomCollection instance.
@@ -435,15 +435,3 @@ class PhantomCollection extends PhantomCore {
     });
   }
 }
-
-module.exports = PhantomCollection;
-
-module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;
-module.exports.EVT_READY = EVT_READY;
-module.exports.EVT_UPDATED = EVT_UPDATED;
-module.exports.EVT_BEFORE_DESTROY = EVT_BEFORE_DESTROY;
-module.exports.EVT_DESTROY_STACK_TIMED_OUT = EVT_DESTROY_STACK_TIMED_OUT;
-module.exports.EVT_DESTROYED = EVT_DESTROYED;
-
-module.exports.EVT_CHILD_INSTANCE_ADDED = EVT_CHILD_INSTANCE_ADDED;
-module.exports.EVT_CHILD_INSTANCE_REMOVED = EVT_CHILD_INSTANCE_REMOVED;
