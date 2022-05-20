@@ -5,12 +5,17 @@ const {
   EVT_UPDATED,
   EVT_BEFORE_DESTROY,
   EVT_DESTROYED,
+} = require("../dist");
+
+const {
   EVT_CHILD_INSTANCE_ADDED,
   EVT_CHILD_INSTANCE_REMOVED,
-} = require("../dist");
+} = require("../dist/PhantomCollection");
+
 const EventEmitter = require("events");
 
-const _ChildEventBridge = require("../dist/PhantomCollection/ChildEventBridge");
+const _ChildEventBridge =
+  require("../dist/PhantomCollection/ChildEventBridge").default;
 
 test("PhantomCollection loose instance detection", t => {
   t.plan(2);
