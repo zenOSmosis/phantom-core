@@ -5,9 +5,7 @@
  * Determines if the JavaScript runtime is Node.js based or not.
  *
  * @see {@link https://stackoverflow.com/a/35813135}
- *
- * @return {Boolean}
  */
-module.exports = function getIsNodeJS() {
+export default function getIsNodeJS() {
   return typeof process.versions.node !== "undefined";
-};
+}

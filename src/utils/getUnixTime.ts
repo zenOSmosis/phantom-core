@@ -1,9 +1,7 @@
 /**
  * Retrieves seconds since midnight Jan. 1, 1970 (UTC).
- *
- * @return {number}
  */
-module.exports = function getUnixTime() {
+export default function getUnixTime() {
   const date = new Date();
 
   const utc = Date.UTC(
@@ -16,4 +14,4 @@ module.exports = function getUnixTime() {
   );
 
   return Math.round(utc / 1000);
-};
+}

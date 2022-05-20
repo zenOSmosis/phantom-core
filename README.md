@@ -71,6 +71,8 @@ TODO: Include sections for testing [SauceLabs / airtap], development, etc.)
 
 ## Changelog
 
+### Version 3.0.0 -- TODO
+
 ### Version 2.7.3 (Mar. 27, 2022)
 
 - Revert getUnixTime to not rely on performance.now for time tracking as it was not accurate after the host system was suspended

@@ -1,16 +1,12 @@
-const getUnixTime = require("./getUnixTime");
+import getUnixTime from "./getUnixTime";
 
 const startTime = getUnixTime();
 
 /**
  * Returns the number of seconds since this module was loaded.
- *
- * @return {number}
  */
-function getUptime() {
+export default function getUptime() {
   const now = getUnixTime();
 
   return now - startTime;
 }
-
-module.exports = getUptime;

@@ -1,9 +1,9 @@
-const LOG_LEVEL_TRACE = 0;
-const LOG_LEVEL_DEBUG = 1;
-const LOG_LEVEL_INFO = 2;
-const LOG_LEVEL_WARN = 3;
-const LOG_LEVEL_ERROR = 4;
-const LOG_LEVEL_SILENT = 5;
+export const LOG_LEVEL_TRACE = 0;
+export const LOG_LEVEL_DEBUG = 1;
+export const LOG_LEVEL_INFO = 2;
+export const LOG_LEVEL_WARN = 3;
+export const LOG_LEVEL_ERROR = 4;
+export const LOG_LEVEL_SILENT = 5;
 
 const LOG_LEVEL_STRING_MAP = {
   trace: LOG_LEVEL_TRACE,
@@ -23,11 +23,19 @@ const LOG_LEVEL_STRING_MAP = {
  * the browser's default console.debug mechanism and setting up namespaced
  * loggers wasn't very straightforward.
  */
-class Logger {
+export default class Logger {
+  public log: () => null | { [key: string]: () => null };
+
+  // TODO: [3.0.0] Fix any type
+  protected _options: any;
+
+  protected _logLevel: number;
+
   constructor(options = {}) {
     const DEFAULT_OPTIONS = {
       logLevel: LOG_LEVEL_INFO,
-      prefix: logLevel => `[${logLevel}]`,
+      // TODO: [3.0.0] Fix any type
+      prefix: (logLevel: any) => `[${logLevel}]`,
     };
 
     this._options = { ...DEFAULT_OPTIONS, ...options };
@@ -42,11 +50,8 @@ class Logger {
   /**
    * Sets minimum log level to send to actual logger function where subsequent
    * log levels are ignored.
-   *
-   * @param {string || number} logLevel
-   * @return {void}
    */
-  setLogLevel(logLevel) {
+  setLogLevel(logLevel: number) {
     if (typeof logLevel === "string") {
       logLevel = LOG_LEVEL_STRING_MAP[logLevel];
     }
@@ -68,7 +73,7 @@ class Logger {
        * @see https://stackoverflow.com/questions/9559725/extending-console-log-without-affecting-log-line
        */
 
-      const loggerMethods = {};
+      const loggerMethods: { [key: string]: () => null } = {};
 
       if (logLevel <= LOG_LEVEL_TRACE) {
         loggerMethods.trace = Function.prototype.bind.call(
@@ -121,16 +126,20 @@ class Logger {
       }
 
       // Calling this.log() directly will log as info (log info alias)
-      const log = loggerMethods.info;
+      const log: () => null | { [key: string]: () => null } =
+        loggerMethods.info;
 
+      // Dynamically assign log methods to log
       Object.keys(loggerMethods).forEach(method => {
         // IMPORTANT: Both of these are used intentionally
 
         // Extend off of log method (i.e. PhantomCore's this.log.debug)
-        log[method] = loggerMethods[method];
+        // TODO: [3.0.0] Fix any type
+        (log as any)[method] = loggerMethods[method];
 
         // Extend class with logger methods
-        this[method] = loggerMethods[method];
+        // TODO: [3.0.0] Fix any type
+        (this as any)[method] = loggerMethods[method];
       });
 
       return log;
@@ -144,11 +153,3 @@ class Logger {
     return this._logLevel;
   }
 }
-
-module.exports = Logger;
-module.exports.LOG_LEVEL_TRACE = LOG_LEVEL_TRACE;
-module.exports.LOG_LEVEL_DEBUG = LOG_LEVEL_DEBUG;
-module.exports.LOG_LEVEL_INFO = LOG_LEVEL_INFO;
-module.exports.LOG_LEVEL_WARN = LOG_LEVEL_WARN;
-module.exports.LOG_LEVEL_ERROR = LOG_LEVEL_ERROR;
-module.exports.LOG_LEVEL_SILENT = LOG_LEVEL_SILENT;

@@ -1,9 +1,6 @@
 /**
  * Consumes a variable without using it.
- *
- * @param {any} obj
- * @return {void}
  */
-module.exports = function consume(obj) {
+export default function consume(obj: unknown): void {
   return obj ? undefined : undefined;
-};
+}

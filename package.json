@@ -10,6 +10,7 @@
   "license": "MIT",
   "main": "src/index.js",
   "scripts": {
+    "build": "tsc",
     "test": "npm run test-node && npm run test-browser",
     "test-node": "tape 'test/{,/**/}*.test.js'",
     "test-browser": "dotenv airtap --coverage --concurrency 1 -- 'test/{,/**/}*.test.js'",
@@ -20,15 +21,14 @@
   "devDependencies": {
     "airtap": "^4.0.4",
     "airtap-sauce": "^1.1.2",
-    "dotenv-cli": "^4.0.0",
-    "nyc": "^15.1.0",
-    "prettier": "^2.4.1",
-    "tape": "^5.3.1"
-  },
-  "dependencies": {
     "dayjs": "^1.10.7",
     "deepmerge": "^4.2.2",
+    "dotenv-cli": "^4.0.0",
     "is-plain-object": "^5.0.0",
+    "nyc": "^15.1.0",
+    "prettier": "^2.4.1",
+    "tape": "^5.3.1",
+    "typescript": "^4.6.4",
     "setimmediate": "^1.0.5",
     "short-uuid": "^4.2.0",
     "uuid": "^8.3.2"

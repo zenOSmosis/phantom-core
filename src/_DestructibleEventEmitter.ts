@@ -1,22 +1,19 @@
-const EventEmitter = require("events");
-const getClassName = require("./utils/class-utils/getClassName");
-const logger = require("./globalLogger");
+import EventEmitter from "events";
+import getClassName from "./utils/class-utils/getClassName";
+import logger from "./globalLogger";
 
 /**
- * @export
  * @event EVT_BEFORE_DESTROY Emits directly before any destructor handling.
  */
-const EVT_BEFORE_DESTROY = "before-destroy";
+export const EVT_BEFORE_DESTROY = "before-destroy";
 
-/** @export */
-const EVT_DESTROY_STACK_TIMED_OUT = "destroy-stack-timed-out";
+export const EVT_DESTROY_STACK_TIMED_OUT = "destroy-stack-timed-out";
 
-/** @export */
-const EVT_DESTROYED = "destroyed";
+export const EVT_DESTROYED = "destroyed";
 
 // Number of milliseconds before the instance will warn about potential
 // destruct problems
-const SHUT_DOWN_GRACE_PERIOD = 5000;
+export const SHUT_DOWN_GRACE_PERIOD = 5000;
 
 /**
  * Common base class for PhantomCore and any utilities which PhantomCore may
@@ -24,7 +21,10 @@ const SHUT_DOWN_GRACE_PERIOD = 5000;
  *
  * For most purposes, PhantomCore should be utilized instead of this.
  */
-module.exports = class DestructibleEventEmitter extends EventEmitter {
+export default class DestructibleEventEmitter extends EventEmitter {
+  protected _isDestroying: boolean;
+  protected _isDestroyed: boolean;
+
   constructor() {
     super();
 
@@ -49,8 +49,6 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
 
   /**
    * Retrieves total number of event listeners registered to this instance.
-   *
-   * @return {number}
    */
   getTotalListenerCount() {
     return this.eventNames()
@@ -60,17 +58,13 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
 
   /**
    * Retrieves whether or not the class is currently being destroyed.
-   *
-   * @return {boolean}
    */
   getIsDestroying() {
     return this._isDestroying;
   }
 
   /**
-   * Retrieves whether or not the instance is currently destroyed.
-   *
-   * @return {boolean}
+   * Retrieves whether or not the instance is currently destroyed.s
    */
   getIsDestroyed() {
     return this._isDestroyed;
@@ -91,9 +85,10 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
    * @emits EVT_DESTROYED Emits a single time, regardless of calls to the
    * destroy() method, after the destroy handler stack has executed.
    */
-  async destroy(destroyHandler = () => null, postDestroyHandler = () => null) {
+  async destroy(destroyHandler?: () => void, postDestroyHandler?: () => void) {
     if (this._isDestroying) {
-      logger.warn(
+      // TODO: [3.0.0] Fix any type
+      (logger as any).warn(
         `${getClassName(
           this
         )} is already being destroyed. The subsequent call has been ignored. Ensure callers are checking for destroy status before calling destroy().`
@@ -117,12 +112,14 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
       // This try / await fixes issue where this instance would emit
       // EVT_DESTROY_STACK_TIMED_OUT after a period of time if the
       // destroyHandler callback errored
-      try {
-        await destroyHandler();
-      } catch (err) {
-        throw err;
-      } finally {
-        clearTimeout(longRespondDestroyHandlerTimeout);
+      if (typeof destroyHandler === "function") {
+        try {
+          await destroyHandler();
+        } catch (err) {
+          throw err;
+        } finally {
+          clearTimeout(longRespondDestroyHandlerTimeout);
+        }
       }
 
       // Set the state before the event is emit so that any listeners will know
@@ -142,7 +139,9 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
 
       // IMPORTANT: This is intended to come after removeAllListeners has been
       // invoked
-      await postDestroyHandler();
+      if (typeof postDestroyHandler === "function") {
+        await postDestroyHandler();
+      }
 
       if (this.getTotalListenerCount()) {
         throw new Error(
@@ -154,8 +153,4 @@ module.exports = class DestructibleEventEmitter extends EventEmitter {
       this._isDestroying = false;
     }
   }
-};
-
-module.exports.EVT_BEFORE_DESTROY = EVT_BEFORE_DESTROY;
-module.exports.EVT_DESTROY_STACK_TIMED_OUT = EVT_DESTROY_STACK_TIMED_OUT;
-module.exports.EVT_DESTROYED = EVT_DESTROYED;
+}

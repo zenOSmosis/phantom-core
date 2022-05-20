@@ -1,13 +1,11 @@
-const getIsNodeJS = require("./getIsNodeJS");
+import getIsNodeJS from "./getIsNodeJS";
 
 /**
  * A common performance object for Node.js and browsers.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Performance}
- *
- * @type {Performance}
  **/
-module.exports = (() => {
+const nativePerformance: Performance = (() => {
   let nodeJSPerformance;
 
   try {
@@ -23,3 +21,5 @@ module.exports = (() => {
 
   return nodeJSPerformance || performance;
 })();
+
+export default nativePerformance;

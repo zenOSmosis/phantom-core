@@ -1,13 +1,14 @@
-/** @export */
-const FUNCTION_STACK_OPS_ORDER_FIFO = "FIFO";
-/** @export */
-const FUNCTION_STACK_OPS_ORDER_LIFO = "LIFO";
+export const FUNCTION_STACK_OPS_ORDER_FIFO = "FIFO";
+export const FUNCTION_STACK_OPS_ORDER_LIFO = "LIFO";
 
 /**
  * Registers an array of functions, which will run one after the other
  * (regardless if they are promises) by using the exec command.
  */
-module.exports = class FunctionStack {
+export default class FunctionStack {
+  protected _opsOrder: string;
+  protected _fns: Function[];
+
   /**
    * @param {FUNCTION_STACK_OPS_ORDER_FIFO | FUNCTION_STACK_OPS_ORDER_LIFO} opsOrder?
    * [default=FUNCTION_STACK_OPS_ORDER_FIFO]
@@ -36,11 +37,8 @@ module.exports = class FunctionStack {
 
   /**
    * Adds a new function to the stack.
-   *
-   * @param {Function} fn
-   * @return {void}
    */
-  push(fn) {
+  push(fn: Function) {
     if (typeof fn !== "function") {
       throw new TypeError("fn must be a function");
     }
@@ -51,10 +49,8 @@ module.exports = class FunctionStack {
 
   /**
    * Removes the given function from the stack.
-   *
-   * @param {Function} fn
    */
-  remove(fn) {
+  remove(fn: Function) {
     this._fns = this._fns.filter(pred => pred !== fn);
   }
 
@@ -88,10 +84,8 @@ module.exports = class FunctionStack {
    *
    * IMPORTANT: This method recursively calls itself until there are not more
    * items in the stack.
-   *
-   * @return {Promise<void>}
    */
-  async exec() {
+  async exec(): Promise<void> {
     if (this._fns.length) {
       // Obtain the first function of the array, and resize the array
       const fn =
@@ -105,7 +99,4 @@ module.exports = class FunctionStack {
       return this.exec();
     }
   }
-};
-
-module.exports.FUNCTION_STACK_OPS_ORDER_FIFO = FUNCTION_STACK_OPS_ORDER_FIFO;
-module.exports.FUNCTION_STACK_OPS_ORDER_LIFO = FUNCTION_STACK_OPS_ORDER_LIFO;
+}
