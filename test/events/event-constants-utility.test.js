@@ -1,8 +1,9 @@
 const test = require("tape");
-const PhantomCore = require("../../dist");
-const { eventConstantCheckingUtils } = PhantomCore;
-const { checkEvents, extractEvents, compareExportedEvents } =
-  eventConstantCheckingUtils;
+const {
+  checkEvents,
+  extractEvents,
+  compareExportedEvents,
+} = require("../../dist/utils/testing-utils/eventConstantCheckingUtils");
 
 // Validate event testing utility works as expected
 test("test utility checker", t => {

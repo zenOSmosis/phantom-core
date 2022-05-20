@@ -7,6 +7,7 @@ import PhantomCore, {
   EVT_DESTROY_STACK_TIMED_OUT,
   EVT_DESTROYED,
 } from "../PhantomCore";
+import ChildEventBridge from "./ChildEventBridge";
 
 export {
   EVT_NO_INIT_WARN,
@@ -122,11 +123,6 @@ export default class PhantomCollection extends PhantomCore {
 
     /** @type {Map<{KEY_META_DESC_CHILD_KEY: any, KEY_META_CHILD_BEFORE_DESTROY_HANDLER: Function}>} */
     this._childrenMetadata = new Map();
-
-    // IMPORTANT: ChildEventBridge has to be lazy-loaded due to the fact that it
-    // needs to be able to read the exports from this file, including the
-    // PhantomCollection class itself
-    const ChildEventBridge = require("./ChildEventBridge");
 
     // Controls proxying of events emit from children out the collection itself
     this._childEventBridge = new ChildEventBridge(this);

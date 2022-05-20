@@ -1,13 +1,15 @@
-const PhantomCore = require("../PhantomCore");
-const { EVT_UPDATED } = PhantomCore;
-const PhantomCollection = require("./PhantomCollection");
-const { EVT_CHILD_INSTANCE_ADDED, EVT_CHILD_INSTANCE_REMOVED } =
-  PhantomCollection;
+import PhantomCore, { EVT_UPDATED } from "../PhantomCore";
+import PhantomCollection, {
+  EVT_CHILD_INSTANCE_ADDED,
+  EVT_CHILD_INSTANCE_REMOVED,
+} from "./PhantomCollection";
 
 const DEFAULT_BRIDGE_EVENT_NAMES = [EVT_UPDATED];
 
 const EVT_BRIDGE_EVENT_NAME_ADDED = "bridge-event-name-added";
 const EVT_BRIDGE_EVENT_NAME_REMOVED = "bridge-event-name-removed";
+
+export { EVT_UPDATED };
 
 /**
  * Handles many-to-one proxying of specified events of PhantomCollection
@@ -18,7 +20,7 @@ const EVT_BRIDGE_EVENT_NAME_REMOVED = "bridge-event-name-removed";
  * [for every mapped event] when childA emits EVT_UPDATED, collection emits
  * EVT_UPDATED as well).
  */
-class ChildEventBridge extends PhantomCore {
+export default class ChildEventBridge extends PhantomCore {
   /**
    * IMPORTANT: This bridge is destructed by the collection itself and does not
    * need to listen for EVT_DESTROYED from PhantomCollection.
@@ -251,6 +253,3 @@ class ChildEventBridge extends PhantomCore {
     });
   }
 }
-
-module.exports = ChildEventBridge;
-module.exports.EVT_UPDATED = EVT_UPDATED;
