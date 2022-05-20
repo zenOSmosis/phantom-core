@@ -1,17 +1,25 @@
-const PhantomCore = require("./PhantomCore");
-const {
+import PhantomCore, {
   EVT_NO_INIT_WARN,
   EVT_READY,
   EVT_UPDATED,
   EVT_BEFORE_DESTROY,
   EVT_DESTROY_STACK_TIMED_OUT,
   EVT_DESTROYED,
-} = PhantomCore;
+} from "./PhantomCore";
+
+export {
+  EVT_NO_INIT_WARN,
+  EVT_READY,
+  EVT_UPDATED,
+  EVT_BEFORE_DESTROY,
+  EVT_DESTROY_STACK_TIMED_OUT,
+  EVT_DESTROYED,
+};
 
 /**
  * Wraps an arbitrary object with a PhantomCore instance.
  */
-class ArbitraryPhantomWrapper extends PhantomCore {
+export default class ArbitraryPhantomWrapper extends PhantomCore {
   /**
    * @param {any} wrappedValue
    * @param {Object} options? [default = {}]
@@ -66,11 +74,3 @@ class ArbitraryPhantomWrapper extends PhantomCore {
     });
   }
 }
-
-module.exports = ArbitraryPhantomWrapper;
-module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;
-module.exports.EVT_READY = EVT_READY;
-module.exports.EVT_UPDATED = EVT_UPDATED;
-module.exports.EVT_BEFORE_DESTROY = EVT_BEFORE_DESTROY;
-module.exports.EVT_DESTROY_STACK_TIMED_OUT = EVT_DESTROY_STACK_TIMED_OUT;
-module.exports.EVT_DESTROYED = EVT_DESTROYED;

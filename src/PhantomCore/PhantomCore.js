@@ -2,37 +2,34 @@
 // Exposes setImmediate as a global, regardless of context
 require("setimmediate");
 
-const EventEmitter = require("events");
-const DestructibleEventEmitter = require("../_DestructibleEventEmitter");
-const Logger = require("../Logger");
-const { LOG_LEVEL_INFO } = Logger;
-const getPackageJSON = require("../utils/getPackageJSON");
-const FunctionStack = require("../FunctionStack");
-const { FUNCTION_STACK_OPS_ORDER_LIFO } = FunctionStack;
-const getClassName = require("../utils/class-utils/getClassName");
-const uuidv4 = require("uuid").v4;
-const shortUUID = require("short-uuid");
-const dayjs = require("dayjs");
-const getUnixTime = require("../utils/getUnixTime");
-const getClassInstancePropertyNames = require("../utils/class-utils/getClassInstancePropertyNames");
-const getClassInstanceMethodNames = require("../utils/class-utils/getClassInstanceMethodNames");
-const autoBindClassInstanceMethods = require("../utils/class-utils/autoBindClassInstanceMethods");
-const shallowMerge = require("../utils/shallowMerge");
-const EventProxyStack = require("./EventProxyStack");
+import EventEmitter from "events";
+import DestructibleEventEmitter, {
+  EVT_BEFORE_DESTROY,
+  EVT_DESTROY_STACK_TIMED_OUT,
+  EVT_DESTROYED,
+} from "../_DestructibleEventEmitter";
+import Logger, { LOG_LEVEL_INFO } from "../Logger";
+import getPackageJSON from "../utils/getPackageJSON";
+import FunctionStack, { FUNCTION_STACK_OPS_ORDER_LIFO } from "../FunctionStack";
+import getClassName from "../utils/class-utils/getClassName";
+import { v4 as uuidv4 } from "uuid";
+import shortUUID from "short-uuid";
+import dayjs from "dayjs";
+import getUnixTime from "../utils/getUnixTime";
+import getClassInstancePropertyNames from "../utils/class-utils/getClassInstancePropertyNames";
+import getClassInstanceMethodNames from "../utils/class-utils/getClassInstanceMethodNames";
+import autoBindClassInstanceMethods from "../utils/class-utils/autoBindClassInstanceMethods";
+import shallowMerge from "../utils/shallowMerge";
+import EventProxyStack from "./EventProxyStack";
 
 // Number of milliseconds to allow async inits to initialize before triggering
 // warning
 const ASYNC_INIT_GRACE_TIME = 5000;
 
-/** @export */
-const EVT_NO_INIT_WARN = "no-init-warn";
-/** @export */
-const EVT_READY = "ready";
-/** @export */
-const EVT_UPDATED = "updated";
-/** @export */
-const { EVT_BEFORE_DESTROY, EVT_DESTROY_STACK_TIMED_OUT, EVT_DESTROYED } =
-  DestructibleEventEmitter;
+export const EVT_NO_INIT_WARN = "no-init-warn";
+export const EVT_READY = "ready";
+export const EVT_UPDATED = "updated";
+export { EVT_BEFORE_DESTROY, EVT_DESTROY_STACK_TIMED_OUT, EVT_DESTROYED };
 
 // Instances for this particular thread
 const _instances = {};
@@ -70,7 +67,7 @@ const KEEP_ALIVE_SHUTDOWN_METHODS = [
  * Base class for zenOSmosis Phantom architecture, from which Speaker.app and
  * ReShell classes derive.
  */
-class PhantomCore extends DestructibleEventEmitter {
+export default class PhantomCore extends DestructibleEventEmitter {
   /**
    * Retrieves the version as defined in package.json.
    *
@@ -780,12 +777,3 @@ class PhantomCore extends DestructibleEventEmitter {
     );
   }
 }
-
-module.exports = PhantomCore;
-
-module.exports.EVT_NO_INIT_WARN = EVT_NO_INIT_WARN;
-module.exports.EVT_READY = EVT_READY;
-module.exports.EVT_UPDATED = EVT_UPDATED;
-module.exports.EVT_BEFORE_DESTROY = EVT_BEFORE_DESTROY;
-module.exports.EVT_DESTROY_STACK_TIMED_OUT = EVT_DESTROY_STACK_TIMED_OUT;
-module.exports.EVT_DESTROYED = EVT_DESTROYED;

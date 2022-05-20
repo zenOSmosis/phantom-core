@@ -1,9 +1,10 @@
-const assert = require("assert");
-const PhantomCore = require(".");
-const _DestructibleEventEmitter = require("../_DestructibleEventEmitter");
-const { EVT_DESTROYED } = _DestructibleEventEmitter;
+import assert from "assert";
+import PhantomCore from ".";
+import _DestructibleEventEmitter, {
+  EVT_DESTROYED,
+} from "../_DestructibleEventEmitter";
 
-module.exports = class EventProxyStack extends _DestructibleEventEmitter {
+export default class EventProxyStack extends _DestructibleEventEmitter {
   /**
    * Provides event proxy management for PhantomCore's, proxyOn, proxyOnce, and
    * proxyOff methods.
@@ -200,4 +201,4 @@ module.exports = class EventProxyStack extends _DestructibleEventEmitter {
       assert.strictEqual([...this._targetDestroyHandlers].length, 0);
     });
   }
-};
+}
