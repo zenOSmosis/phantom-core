@@ -1,5 +1,5 @@
 const test = require("tape");
-const PhantomCore = require("../dist");
+const { PhantomCore } = require("../dist");
 
 test("version test", t => {
   t.plan(1);

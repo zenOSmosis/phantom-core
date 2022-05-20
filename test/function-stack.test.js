@@ -1,7 +1,11 @@
 const test = require("tape");
-const { FunctionStack, sleep } = require("../dist");
-const { FUNCTION_STACK_OPS_ORDER_FIFO, FUNCTION_STACK_OPS_ORDER_LIFO } =
-  FunctionStack;
+const { sleep } = require("../dist");
+
+const {
+  default: FunctionStack,
+  FUNCTION_STACK_OPS_ORDER_FIFO,
+  FUNCTION_STACK_OPS_ORDER_LIFO,
+} = require("../dist/FunctionStack");
 
 test("uses default FIFO ops order", t => {
   t.plan(1);

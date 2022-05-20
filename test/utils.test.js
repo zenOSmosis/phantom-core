@@ -1,7 +1,7 @@
 const test = require("tape");
 const EventEmitter = require("events");
-const PhantomCore = require("../dist");
 const {
+  PhantomCore,
   PhantomCollection,
   PhantomServiceCore,
   PhantomServiceManager,
@@ -15,7 +15,7 @@ const {
   getClassInstancePropertyNames,
   sleep,
   performance,
-} = PhantomCore;
+} = require("../dist");
 
 test("consume", t => {
   t.plan(7);

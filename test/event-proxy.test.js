@@ -1,7 +1,6 @@
 const test = require("tape");
-const { EventEmitter } = require("events");
-const PhantomCore = require("../dist");
-const { EVT_DESTROYED } = PhantomCore;
+const EventEmitter = require("events");
+const { PhantomCore, EVT_DESTROYED } = require("../dist");
 
 test("event proxy error handling", async t => {
   t.plan(11);
