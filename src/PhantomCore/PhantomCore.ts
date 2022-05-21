@@ -33,6 +33,8 @@ export const EVT_UPDATED = "updated";
 export { EVT_BEFORE_DESTROY, EVT_DESTROY_STACK_TIMED_OUT, EVT_DESTROYED };
 
 // Instances for this particular thread
+//
+// TODO: [3.0.0] Convert to map
 const _instances: { [key: string]: PhantomCore } = {};
 
 // Methods which should continue working after class destruct

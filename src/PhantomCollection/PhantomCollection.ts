@@ -31,6 +31,7 @@ export const EVT_CHILD_INSTANCE_ADDED = "child-instance-added";
  **/
 export const EVT_CHILD_INSTANCE_REMOVED = "child-instance-removed";
 
+// TODO: [3.0.0] Redeclare via type
 const KEY_META_DESC_CHILD_KEY = "childKey";
 const KEY_META_CHILD_BEFORE_DESTROY_HANDLER = "beforeDestroyHandler";
 
