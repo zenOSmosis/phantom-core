@@ -7,5 +7,5 @@
  * @see {@link https://stackoverflow.com/a/35813135}
  */
 export default function getIsNodeJS() {
-  return typeof process.versions.node !== "undefined";
+  return typeof process?.versions?.node !== "undefined";
 }
