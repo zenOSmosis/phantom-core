@@ -19,7 +19,7 @@ const nativePerformance: Performance = (() => {
     console.error(err);
   }
 
-  return nodeJSPerformance || performance;
+  return nodeJSPerformance || window.performance;
 })();
 
 export default nativePerformance;
