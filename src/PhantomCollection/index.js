@@ -1,19 +1,18 @@
-const PhantomCollection = require("./PhantomCollection");
-const {
+import PhantomCollection, {
   EVT_UPDATED,
   EVT_BEFORE_DESTROY,
   EVT_DESTROY_STACK_TIMED_OUT,
   EVT_DESTROYED,
   EVT_CHILD_INSTANCE_ADDED,
   EVT_CHILD_INSTANCE_REMOVED,
-} = PhantomCollection;
+} from "./PhantomCollection";
 
-module.exports = PhantomCollection;
-
-module.exports.EVT_CHILD_INSTANCE_ADDED = EVT_CHILD_INSTANCE_ADDED;
-module.exports.EVT_CHILD_INSTANCE_REMOVED = EVT_CHILD_INSTANCE_REMOVED;
-
-module.exports.EVT_UPDATED = EVT_UPDATED;
-module.exports.EVT_BEFORE_DESTROY = EVT_BEFORE_DESTROY;
-module.exports.EVT_DESTROY_STACK_TIMED_OUT = EVT_DESTROY_STACK_TIMED_OUT;
-module.exports.EVT_DESTROYED = EVT_DESTROYED;
+export default PhantomCollection;
+export {
+  EVT_UPDATED,
+  EVT_BEFORE_DESTROY,
+  EVT_DESTROY_STACK_TIMED_OUT,
+  EVT_DESTROYED,
+  EVT_CHILD_INSTANCE_ADDED,
+  EVT_CHILD_INSTANCE_REMOVED,
+};

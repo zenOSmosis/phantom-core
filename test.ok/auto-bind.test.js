@@ -1,5 +1,5 @@
-const test = require("tape");
-const { PhantomCore } = require("../dist");
+import test from "tape";
+import PhantomCore from "../src";
 
 // Note: Test case built from usage example, though this library is not
 // included in the project: https://github.com/sindresorhus/auto-bind

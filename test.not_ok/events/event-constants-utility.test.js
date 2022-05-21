@@ -1,9 +1,9 @@
-const test = require("tape");
-const {
+import test from "tape";
+import {
   checkEvents,
   extractEvents,
   compareExportedEvents,
-} = require("../../dist/utils/testing-utils/eventConstantCheckingUtils");
+} from "../../src/utils/testing-utils/eventConstantCheckingUtils";
 
 // Validate event testing utility works as expected
 test("test utility checker", t => {

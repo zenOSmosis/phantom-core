@@ -1,5 +1,5 @@
-const test = require("tape");
-const { PhantomCore, EVT_READY, EVT_NO_INIT_WARN } = require("../dist");
+import test from "tape";
+import PhantomCore, { EVT_READY, EVT_NO_INIT_WARN } from "../src";
 
 /**
  * Tests instantiation and destroying of PhantomCore with the default options

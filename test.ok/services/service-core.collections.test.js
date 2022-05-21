@@ -1,10 +1,10 @@
-const test = require("tape");
-const {
+import test from "tape";
+import {
   PhantomCollection,
   PhantomServiceCore,
   PhantomServiceManager,
   EVT_UPDATED,
-} = require("../../dist");
+} from "../../src";
 
 test("service collections", async t => {
   t.plan(19);

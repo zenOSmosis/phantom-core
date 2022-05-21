@@ -1,9 +1,11 @@
-sauce_connect: true
+# TODO: Re-enable
+# sauce_connect: true
 browsers:
   - name: firefox
     version: latest
   - name: chrome
     version: latest
+  # TODO: Re-enable
   # - name: safari
   #  version: latest
   - name: edge
@@ -12,10 +14,13 @@ browsers:
     version: latest
   - name: ios_saf
     version: latest
-providers:
-  - airtap-sauce
+# TODO: Re-enable
+# providers:
+#  - airtap-sauce
 presets:
   local:
     providers: airtap-manual
     browsers:
       - name: manual
+browserify:
+  - plugin: tsify

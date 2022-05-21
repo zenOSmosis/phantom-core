@@ -1,5 +1,5 @@
-const test = require("tape");
-const { PhantomState, EVT_UPDATED } = require("../dist");
+import test from "tape";
+import { PhantomState, EVT_UPDATED } from "../src";
 
 test("phantom state", async t => {
   t.plan(10);

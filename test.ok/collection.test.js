@@ -1,21 +1,19 @@
-const test = require("tape");
-const {
-  PhantomCore,
+import test from "tape";
+import PhantomCore, {
   PhantomCollection,
   EVT_UPDATED,
   EVT_BEFORE_DESTROY,
   EVT_DESTROYED,
-} = require("../dist");
+} from "../src";
 
-const {
+import {
   EVT_CHILD_INSTANCE_ADDED,
   EVT_CHILD_INSTANCE_REMOVED,
-} = require("../dist/PhantomCollection");
+} from "../src/PhantomCollection";
+
+import _ChildEventBridge from "../src/PhantomCollection/ChildEventBridge";
 
 const EventEmitter = require("events");
-
-const _ChildEventBridge =
-  require("../dist/PhantomCollection/ChildEventBridge").default;
 
 test("PhantomCollection loose instance detection", t => {
   t.plan(2);
