@@ -1,4 +1,11 @@
-import PhantomState from "./PhantomState";
+import PhantomState, {
+  EVT_NO_INIT_WARN,
+  EVT_READY,
+  EVT_UPDATED,
+  EVT_BEFORE_DESTROY,
+  EVT_DESTROY_STACK_TIMED_OUT,
+  EVT_DESTROYED,
+} from "./PhantomState";
 import { isPlainObject } from "is-plain-object";
 
 export {
@@ -18,11 +25,8 @@ export {
 export default class PhantomSerializableState extends PhantomState {
   /**
    * Serializes the given object into a string.
-   *
-   * @param {Object} obj
-   * @return {string}
    */
-  static serialize(obj) {
+  static serialize(obj: unknown) {
     if (typeof obj !== "object") {
       throw new TypeError("Expected object type");
     }
@@ -46,12 +50,9 @@ export default class PhantomSerializableState extends PhantomState {
   }
 
   /**
-   * Converts the given string into an Object.
-   *
-   * @param {string} str
-   * @return {Object}
+   * Converts the given string into an object.
    */
-  static unserialize(str) {
+  static unserialize(str: string) {
     return JSON.parse(str);
   }
 
@@ -60,12 +61,9 @@ export default class PhantomSerializableState extends PhantomState {
    *
    * NOTE: The previous state object will be re-referenced.
    *
-   * @param {Object} partialNextState
-   * @param {boolean} isMerge? [default = true]
    * @emits EVT_UPDATED With partialNextState
-   * @return {void}
    */
-  setState(partialNextState, isMerge = true) {
+  setState(partialNextState: { [key: string]: unknown }, isMerge = true) {
     // Run through obj->serial->obj conversion to ensure partial next state can
     // be serialized, while storing it in memory as an object, to enable
     // subsequent partial updates
@@ -78,8 +76,6 @@ export default class PhantomSerializableState extends PhantomState {
 
   /**
    * Retrieves the current state, as a serialized string.
-   *
-   * @return {string}
    */
   getSerializedState() {
     return PhantomSerializableState.serialize(this.getState());

@@ -20,15 +20,10 @@ export {
  * A simple, object-based state management utility.
  */
 export default class PhantomState extends PhantomCore {
-  /**
-   * @param {Object} initialState? [default = {}]
-   * @param {Object} superOptions? [default = {}] If set, these options are
-   * passed to the super instance.
-   */
+  protected _state: { [key: string]: unknown } = {};
+
   constructor(initialState = {}, superOptions = {}) {
     super(superOptions);
-
-    this._state = {};
 
     if (initialState) {
       this.setState(initialState);
@@ -53,13 +48,8 @@ export default class PhantomState extends PhantomCore {
    * Sets the next state, using shallow-merge strategy.
    *
    * NOTE: The previous state object will be re-referenced.
-   *
-   * @param {Object} partialNextState
-   * @param {boolean} isMerge? [default = true]
-   * @emits EVT_UPDATED With partialNextState
-   * @return {void}
    */
-  setState(partialNextState, isMerge = true) {
+  setState(partialNextState: { [key: string]: unknown }, isMerge = true) {
     if (typeof partialNextState !== "object") {
       throw new TypeError("partialNextState must be an object");
     }
