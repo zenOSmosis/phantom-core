@@ -8,8 +8,9 @@
     "url": "https://zenosmosis.com"
   },
   "license": "MIT",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "scripts": {
+    "prepare": "npm run build",
     "build": "tsc",
     "test": "npm run test-node && npm run test-browser",
     "test-node": "npm run build && tape 'test/{,/**/}*.test.js'",
