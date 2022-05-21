@@ -4,7 +4,7 @@
     "module": "commonjs",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "esModuleInterop": true,
+    "esModuleInterop": false,
     "target": "es2021",
     "noImplicitAny": true,
     "moduleResolution": "node",
