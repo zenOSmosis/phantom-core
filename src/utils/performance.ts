@@ -7,6 +7,8 @@ import getIsNodeJS from "./getIsNodeJS";
  **/
 const nativePerformance: Performance = (() => {
   let nodeJSPerformance;
+  let windowPerformance;
+  let globalPerformance;
 
   try {
     if (getIsNodeJS()) {
@@ -17,9 +19,15 @@ const nativePerformance: Performance = (() => {
     }
   } catch (err) {
     console.error(err);
+  } finally {
+    if (typeof window !== "undefined") {
+      windowPerformance = window.performance;
+    } else if (typeof global !== "undefined") {
+      globalPerformance = globalPerformance;
+    }
   }
 
-  return nodeJSPerformance || window.performance;
+  return nodeJSPerformance || windowPerformance || globalPerformance;
 })();
 
 export default nativePerformance;
