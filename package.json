@@ -23,6 +23,7 @@
     "dayjs": "^1.10.7",
     "deepmerge": "^4.2.2",
     "is-plain-object": "^5.0.0",
+    "setimmediate": "^1.0.5",
     "short-uuid": "^4.2.0",
     "uuid": "^8.3.2"
   },
@@ -34,7 +35,6 @@
     "dotenv-cli": "^4.0.0",
     "nyc": "^15.1.0",
     "prettier": "^2.4.1",
-    "setimmediate": "^1.0.5",
     "tape": "^5.3.1",
     "typescript": "^4.6.4"
   }
