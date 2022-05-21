@@ -1,6 +1,6 @@
 const test = require("tape");
-const PhantomCore = require("../../dist");
 const {
+  PhantomCore,
   ArbitraryPhantomWrapper,
   PhantomCollection,
   PhantomState,
@@ -13,9 +13,11 @@ const {
   EVT_DESTROY_STACK_TIMED_OUT,
   EVT_DESTROYED,
   EVT_NO_INIT_WARN,
-  eventConstantCheckingUtils,
-} = PhantomCore;
-const { compareExportedEvents } = eventConstantCheckingUtils;
+} = require("../../dist");
+
+const {
+  compareExportedEvents,
+} = require("../../dist/utils/testing-utils/eventConstantCheckingUtils");
 
 test("PhantomCore events", t => {
   t.plan(1);

@@ -1,6 +1,6 @@
 // @see https://github.com/YuzuJS/setImmediate
 // Exposes setImmediate as a global, regardless of context
-require("setimmediate");
+import "setimmediate";
 
 import EventEmitter from "events";
 import DestructibleEventEmitter, {

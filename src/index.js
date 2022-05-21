@@ -69,8 +69,8 @@ export { FunctionStack };
 import consume from "./utils/consume";
 export { consume };
 
-// import deepMerge from "./utils/deepMerge";
-// export { deepMerge };
+import deepMerge from "./utils/deepMerge";
+export { deepMerge };
 
 import getIsNodeJS from "./utils/getIsNodeJS";
 export { getIsNodeJS };
@@ -87,8 +87,8 @@ export { getUptime };
 import performance from "./utils/performance";
 export { performance };
 
-// import shallowMerge from "./utils/shallowMerge";
-// export { shallowMerge };
+import shallowMerge from "./utils/shallowMerge";
+export { shallowMerge };
 
 import sleep from "./utils/sleep";
 export { sleep };

@@ -7,6 +7,7 @@ import PhantomState, {
   EVT_DESTROYED,
 } from "../PhantomState";
 import PhantomCollection from "../PhantomCollection";
+import PhantomServiceManager from "../PhantomServiceManager";
 
 export {
   EVT_NO_INIT_WARN,
@@ -44,7 +45,6 @@ export default class PhantomServiceCore extends PhantomState {
 
     // Ensure we're properly bound to a service manager
     try {
-      const PhantomServiceManager = require("../PhantomServiceManager");
       if (!(manager instanceof PhantomServiceManager)) {
         throw new ReferenceError(
           "PhantomServiceCore must be started by a PhantomServiceManager"

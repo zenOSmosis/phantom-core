@@ -1,6 +1,6 @@
 const test = require("tape");
-const PhantomCore = require("../dist");
 const {
+  PhantomCore,
   LOG_LEVEL_TRACE,
   LOG_LEVEL_DEBUG,
   LOG_LEVEL_INFO,
@@ -8,7 +8,7 @@ const {
   LOG_LEVEL_ERROR,
   LOG_LEVEL_SILENT,
   logger,
-} = PhantomCore;
+} = require("../dist");
 
 test("phantom-core uses logger.info when calling calling phantom.log() directly", t => {
   t.plan(1);
