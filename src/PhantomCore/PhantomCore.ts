@@ -8,7 +8,7 @@ import DestructibleEventEmitter, {
   EVT_DESTROY_STACK_TIMED_OUT,
   EVT_DESTROYED,
 } from "../_DestructibleEventEmitter";
-import Logger, { LOG_LEVEL_INFO } from "../Logger";
+import Logger, { LogIntersection, LOG_LEVEL_INFO } from "../Logger";
 import getPackageJSON from "../utils/getPackageJSON";
 import FunctionStack, { FUNCTION_STACK_OPS_ORDER_LIFO } from "../FunctionStack";
 import getClassName from "../utils/class-utils/getClassName";
@@ -21,6 +21,7 @@ import getClassInstanceMethodNames from "../utils/class-utils/getClassInstanceMe
 import autoBindClassInstanceMethods from "../utils/class-utils/autoBindClassInstanceMethods";
 import shallowMerge from "../utils/shallowMerge";
 import EventProxyStack from "./EventProxyStack";
+import { Class } from "../utils/class-utils/types";
 
 // Number of milliseconds to allow async inits to initialize before triggering
 // warning
@@ -32,7 +33,7 @@ export const EVT_UPDATED = "updated";
 export { EVT_BEFORE_DESTROY, EVT_DESTROY_STACK_TIMED_OUT, EVT_DESTROYED };
 
 // Instances for this particular thread
-const _instances = {};
+const _instances: { [key: string]: PhantomCore } = {};
 
 // Methods which should continue working after class destruct
 const KEEP_ALIVE_SHUTDOWN_METHODS = [
@@ -86,11 +87,8 @@ export default class PhantomCore extends DestructibleEventEmitter {
   /**
    * Determines whether or not the given instance is a PhantomCore instance,
    * matching the exact version of this PhantomCore class.
-   *
-   * @param {Object} instance
-   * @return {boolean}
    */
-  static getIsInstance(instance) {
+  static getIsInstance(instance: PhantomCore | Class) {
     return instance instanceof PhantomCore;
   }
 
@@ -103,11 +101,8 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * guarantee there will not be version conflicts, but may help situations
    * where updating PhantomCore itself requires updating other extension
    * libraries due to minor changes.
-   *
-   * @param {Object} instance
-   * @return {boolean}
    */
-  static getIsLooseInstance(instance) {
+  static getIsLooseInstance(instance: PhantomCore | Class) {
     return Boolean(
       instance instanceof EventEmitter &&
         typeof instance.getIsDestroyed === "function" &&
@@ -121,7 +116,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * @param {string} uuid
    * @return {PhantomCore}
    */
-  static getInstanceWithUUID(uuid) {
+  static getInstanceWithUUID(uuid: string) {
     return _instances[uuid];
   }
 
@@ -134,11 +129,8 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * access the object. That enables a form of weak encapsulation, or a weak
    * form of information hiding.
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol
-   *
-   * @param {Symbol} symbol
-   * @return {PhantomCore}
    */
-  static getInstanceWithSymbol(symbol) {
+  static getInstanceWithSymbol(symbol: Symbol) {
     return Object.values(_instances).find(
       instance => instance.getSymbol() === symbol
     );
@@ -149,8 +141,6 @@ export default class PhantomCore extends DestructibleEventEmitter {
    *
    * When an instance is created / destroyed, the number is increased / reduced
    * by one.
-   *
-   * @return {number}
    */
   static getInstanceCount() {
     return Object.keys(_instances).length;
@@ -160,22 +150,31 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * Shallow-merges two objects together.
    *
    * IMPORTANT: The return is a COPY of the merged; no re-assignment takes place.
-   *
-   * @param {Object} objA? [optional; default = {}]
-   * @param {Object} objB? [optional; default = {}]
-   * @return {Object} Returns a shallow-merged clone of objects, where
-   * objB overrides objA.
    */
-  static mergeOptions(objA, objB) {
+  static mergeOptions(
+    objA: { [key: string]: unknown },
+    objB: { [key: string]: unknown }
+  ) {
     return shallowMerge(objA, objB);
   }
 
-  /**
-   * TODO: Provide optional singleton support
-   *
-   * @param {Object} options? [default={}]
-   */
-  constructor(options = {}) {
+  // TODO: [3.0.0] Fix any type
+  protected _options: { [key: string]: any };
+
+  protected _instanceStartTime: number;
+  protected _isReady: boolean;
+  protected _title: string | void;
+  protected _eventProxyStack: EventProxyStack;
+  protected _uuid: string;
+  protected _shortUUID: string;
+  protected _cleanupHandlerStack: FunctionStack;
+  protected _symbol: Symbol | void;
+
+  public log: LogIntersection;
+  public logger: Logger;
+
+  // TODO: [3.0.0] Fix any type
+  constructor(options: { [key: string]: any } = {}) {
     super();
 
     const deprecationNotices = [];
@@ -209,7 +208,8 @@ export default class PhantomCore extends DestructibleEventEmitter {
 
     _instances[this._uuid] = this;
 
-    const DEFAULT_OPTIONS = {
+    // TODO: [3.0.0] Fix any type
+    const DEFAULT_OPTIONS: any = {
       /**
        * If set to true, this._init() MUST be called during the instance
        * construction, or shortly thereafter (otherwise a warning will be
@@ -277,6 +277,8 @@ export default class PhantomCore extends DestructibleEventEmitter {
         if (PhantomCore.getInstanceWithSymbol(this._options.symbol)) {
           throw new Error(
             "Existing instance with symbol",
+            // TODO: [3.0.0] Remove ts-ignore
+            // @ts-ignore
             this._options.symbol
           );
         }
@@ -287,7 +289,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
       }
 
       return this._options.symbol;
-    })();
+    })() as symbol | void;
 
     this._title = this._options.title;
 
@@ -298,8 +300,8 @@ export default class PhantomCore extends DestructibleEventEmitter {
        * Currently using ISO8601 formatted date; for date rendering options:
        * @see https://day.js.org/docs/en/display/format
        */
-      prefix: logLevel =>
-        `[${dayjs().format()} ${logLevel} ${this.getClassName()} ${
+      prefix: (strLogLevel: string) =>
+        `[${dayjs().format()} ${strLogLevel} ${this.getClassName()} ${
           this._uuid
         }]`,
     });
@@ -374,7 +376,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
 
     // Await promise so that EVT_READY listeners can be invoked on next event
     // loop cycle
-    await new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       if (!this.getIsDestroyed()) {
         this._isReady = true;
         this.emit(EVT_READY);
@@ -419,21 +421,15 @@ export default class PhantomCore extends DestructibleEventEmitter {
   /**
    * Registers a function with the cleanup handler stack, which is executed
    * after EVT_DESTROYED is emit and all event handlers have been removed.
-   *
-   * @param {Function} fn
-   * @return {void}
    */
-  registerCleanupHandler(fn) {
+  registerCleanupHandler(fn: Function) {
     return this._cleanupHandlerStack.push(fn);
   }
 
   /**
    * Unregisters a function from the cleanup handler stack.
-   *
-   * @param {Function} fn
-   * @returns
    */
-  unregisterCleanupHandler(fn) {
+  unregisterCleanupHandler(fn: Function) {
     return this._cleanupHandlerStack.remove(fn);
   }
 
@@ -447,32 +443,35 @@ export default class PhantomCore extends DestructibleEventEmitter {
     return this.getPropertyNames().filter(
       propName =>
         propName !== "__proto__" &&
-        PhantomCore.getIsInstance(this[propName]) &&
-        !this[propName].getIsDestroyed()
+        // TODO: [3.0.0] Fix any type
+        PhantomCore.getIsInstance((this as { [key: string]: any })[propName]) &&
+        // TODO: [3.0.0] Fix any type
+        !(this as { [key: string]: any })[propName].getIsDestroyed()
     );
   }
 
   /**
-   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol
+   * Retrieves the associated symbol to this PhantomCore instance.
    *
-   * @return {Symbol | null}
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol
    */
   getSymbol() {
     return this._symbol;
   }
 
   /**
-   * @return {string | null}
+   * Retrieves the PhantomCore instance title.
    */
   getTitle() {
     return this._title;
   }
 
   /**
-   * @param {string} title
-   * @return {void}
+   * Sets the PhantomCore instance title.
+   *
+   * @emits EVT_UPDATED
    */
-  setTitle(title) {
+  setTitle(title: string) {
     this._title = title;
 
     this.emit(EVT_UPDATED);
@@ -488,12 +487,9 @@ export default class PhantomCore extends DestructibleEventEmitter {
   }
 
   /**
-   * Retrieve the option with the given name.
-   *
-   * @param {string} optionName
-   * @return {any}
+   * Retrieve the option with the given name, if exists.
    */
-  getOption(optionName) {
+  getOption(optionName: string) {
     return this._options[optionName];
   }
 
@@ -502,17 +498,11 @@ export default class PhantomCore extends DestructibleEventEmitter {
    *
    * Accepts either numeric (i.e. LOG_LEVEL_TRACE constant) or string (i.e.
    * "trace") values.
-   *
-   * @param {number | number} level
-   * @return {void}
    */
-  setLogLevel(level) {
+  setLogLevel(level: number | string) {
     this.logger.setLogLevel(level);
   }
 
-  /**
-   * @return {number}
-   */
   getLogLevel() {
     return this.logger.getLogLevel();
   }
@@ -586,7 +576,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * @param {PhantomCore} instance
    * @return {boolean}
    */
-  getIsSameInstance(instance) {
+  getIsSameInstance(instance: PhantomCore | Class) {
     return Object.is(this, instance);
   }
 
@@ -620,13 +610,12 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * does NOT support the optional "options" argument.
    *
    * @see {@link https://nodejs.org/api/events.html#eventsonemitter-eventname-options}
-   *
-   * @param {PhantomCore} targetInstance
-   * @param {string | symbol} eventName
-   * @param {Function} eventHandler
-   * @return {void}
    */
-  proxyOn(targetInstance, eventName, eventHandler) {
+  proxyOn(
+    targetInstance: PhantomCore,
+    eventName: string | symbol,
+    eventHandler: (...args: any[]) => void
+  ) {
     if (!PhantomCore.getIsLooseInstance(targetInstance)) {
       throw new ReferenceError("targetInstance is not a PhantomCore instance");
     }
@@ -654,13 +643,12 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * does NOT support the optional "options" argument.
    *
    * @see {@link https://nodejs.org/api/events.html#eventsonceemitter-name-options}
-   *
-   * @param {PhantomCore} targetInstance
-   * @param {string | symbol} eventName
-   * @param {Function} eventHandler
-   * @return {void}
    */
-  proxyOnce(targetInstance, eventName, eventHandler) {
+  proxyOnce(
+    targetInstance: PhantomCore,
+    eventName: string | symbol,
+    eventHandler: (...args: any[]) => void
+  ) {
     if (!PhantomCore.getIsLooseInstance(targetInstance)) {
       throw new ReferenceError("targetInstance is not a PhantomCore instance");
     }
@@ -688,13 +676,12 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * reference to the underlying class for optional chaining.
    *
    * @see {@link https://nodejs.org/api/events.html#emitteroffeventname-listener}
-   *
-   * @param {PhantomCore} targetInstance
-   * @param {string | symbol} eventName
-   * @param {Function} eventHandler
-   * @return {void}
    */
-  proxyOff(targetInstance, eventName, eventHandler) {
+  proxyOff(
+    targetInstance: PhantomCore,
+    eventName: string | symbol,
+    eventHandler: (...args: any[]) => void
+  ) {
     if (!PhantomCore.getIsLooseInstance(targetInstance)) {
       throw new ReferenceError("targetInstance is not a PhantomCore instance");
     }
@@ -731,18 +718,16 @@ export default class PhantomCore extends DestructibleEventEmitter {
    *  1. [implementation defined] destroyHandler
    *  2. EVT_DESTROYED triggers
    *  3. registerCleanupHandler call stack
-   *
-   * @param {Function} destroyHandler? [optional] If defined, will execute
-   * prior to normal destruct operations for this class.
-   * @return {Promise<void>}
    */
-  async destroy(destroyHandler = () => null) {
+  async destroy(destroyHandler?: () => void) {
     return super.destroy(
       async () => {
         // Unregister from _instances
         delete _instances[this._uuid];
 
-        await destroyHandler();
+        if (typeof destroyHandler === "function") {
+          await destroyHandler();
+        }
 
         await this._eventProxyStack.destroy();
         this._eventProxyStack = null;
@@ -764,7 +749,8 @@ export default class PhantomCore extends DestructibleEventEmitter {
         for (const methodName of this.getMethodNames()) {
           // Force non-keep-alive methods to return undefined
           if (!KEEP_ALIVE_SHUTDOWN_METHODS.includes(methodName)) {
-            this[methodName] = () => undefined;
+            // TODO: [3.0.0] Fix any type
+            (this as any)[methodName] = (): void => undefined;
           }
 
           // TODO: Reimplement and conditionally silence w/ instance options

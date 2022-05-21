@@ -7,6 +7,7 @@ export const FUNCTION_STACK_OPS_ORDER_LIFO = "LIFO";
  */
 export default class FunctionStack {
   protected _opsOrder: string;
+  // TODO: [3.0.0] This may need to be redefined
   protected _fns: Function[];
 
   /**

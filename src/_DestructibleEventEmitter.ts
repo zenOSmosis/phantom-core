@@ -70,6 +70,7 @@ export default class DestructibleEventEmitter extends EventEmitter {
     return this._isDestroyed;
   }
 
+  // TODO: [3.0.0] Clean up comments
   /**
    * @param {Function} destroyHandler? [optional] If defined, will execute
    * prior to normal destruct operations for this instance.
