@@ -124,5 +124,5 @@ export { getSuperClass };
 
 // Utility for checking PhantomCore (and extension) event exports
 
-import eventConstantCheckingUtils from "./utils/testing-utils/eventConstantCheckingUtils";
+import * as eventConstantCheckingUtils from "./utils/testing-utils/eventConstantCheckingUtils";
 export { eventConstantCheckingUtils };
