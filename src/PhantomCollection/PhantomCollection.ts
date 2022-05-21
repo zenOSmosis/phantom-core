@@ -409,7 +409,7 @@ export default class PhantomCollection extends PhantomCore {
 
       // Ensure no dangling references
       assert.strictEqual(this._children.length, 0);
-      assert.strictEqual([...this._childrenMetadata.entries()].length, 0);
+      assert.strictEqual([...this._childrenMetadata.values()].length, 0);
 
       await this._childEventBridge.destroy();
     });

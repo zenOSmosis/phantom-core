@@ -501,12 +501,14 @@ test("PhantomCollection ChildEventBridge", async t => {
   // Test that removing child event names no longer routes the event through
   // the collection
   await (async () => {
+    // First unbind the EVT_UPDATED
     collection.unbindChildEventName(EVT_UPDATED);
 
     await Promise.all([
+      // Listen for updates on EVT_UPDATED
       new Promise(resolve => {
         const eventRejectHandler = message => {
-          throw new Error("Should not get here");
+          throw new Error("This handler should not have been called");
         };
 
         collection.once(EVT_UPDATED, eventRejectHandler);
@@ -519,6 +521,7 @@ test("PhantomCollection ChildEventBridge", async t => {
         }, 500);
       }),
 
+      // Emit out the child
       new Promise(resolve => {
         child1.emit(EVT_UPDATED, "some-additional-test-data");
 
