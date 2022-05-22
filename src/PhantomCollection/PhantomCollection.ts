@@ -8,6 +8,7 @@ import PhantomCore, {
   EVT_DESTROYED,
 } from "../PhantomCore";
 import ChildEventBridge from "./ChildEventBridge";
+import { Class } from "../utils/class-utils/types";
 
 export {
   EVT_NO_INIT_WARN,
@@ -30,6 +31,7 @@ export const EVT_CHILD_INSTANCE_ADDED = "child-instance-added";
  **/
 export const EVT_CHILD_INSTANCE_REMOVED = "child-instance-removed";
 
+// TODO: [3.0.0] Redeclare via type
 const KEY_META_DESC_CHILD_KEY = "childKey";
 const KEY_META_CHILD_BEFORE_DESTROY_HANDLER = "beforeDestroyHandler";
 
@@ -58,24 +60,18 @@ export default class PhantomCollection extends PhantomCore {
    * IMPORTANT: This does not guarantee strict version integrity and bugs may
    * be present by using this across incompatible versions.
    *
-   * @param {Object} instance
-   * @return {boolean}
    */
-  static getIsLooseInstance(instance) {
-    if (
+  static override getIsLooseInstance(instance: PhantomCollection & Class) {
+    return Boolean(
       PhantomCore.getIsLooseInstance(instance) &&
-      typeof instance.addChild === "function" &&
-      typeof instance.removeChild === "function" &&
-      typeof instance.getChildren === "function" &&
-      typeof instance.getKeys === "function" &&
-      typeof instance.broadcast === "function" &&
-      typeof instance.removeAllChildren === "function" &&
-      typeof instance.destroyAllChildren === "function"
-    ) {
-      return true;
-    } else {
-      return false;
-    }
+        typeof instance.addChild === "function" &&
+        typeof instance.removeChild === "function" &&
+        typeof instance.getChildren === "function" &&
+        typeof instance.getKeys === "function" &&
+        typeof instance.broadcast === "function" &&
+        typeof instance.removeAllChildren === "function" &&
+        typeof instance.destroyAllChildren === "function"
+    );
   }
 
   /**
@@ -86,13 +82,11 @@ export default class PhantomCollection extends PhantomCore {
    * extension classes may use expose different child types to their own
    * implementors (i.e. media-stream-track-controller uses MediaStreamTrack
    * instances as exposed children in one of its classes).
-   *
-   * @param {any[]} prevChildren All of the previous children.
-   * @param {any[]} currChildren All of the current children.
-   * @return {{added: any[], removed: any[]}} Contains children added and
-   * removed.
    */
-  static getChildrenDiff(prevChildren, currChildren) {
+  static getChildrenDiff(
+    prevChildren: PhantomCore[],
+    currChildren: PhantomCore[]
+  ) {
     const added = currChildren.filter(
       predicate => !prevChildren.includes(predicate)
     );
@@ -107,11 +101,17 @@ export default class PhantomCollection extends PhantomCore {
     };
   }
 
-  /**
-   * @param {PhantomCore[]} initialPhantomInstances
-   * @param {Object} options? [default = {}]
-   */
-  constructor(initialPhantomInstances = [], options = {}) {
+  protected _children: PhantomCore[];
+  protected _childrenMetadata: Map<
+    PhantomCore,
+    {
+      childKey?: unknown;
+      beforeDestroyHandler: (...args: any[]) => void;
+    }
+  >;
+  protected _childEventBridge: ChildEventBridge;
+
+  constructor(initialPhantomInstances: PhantomCore[] = [], options = {}) {
     if (!Array.isArray(initialPhantomInstances)) {
       throw new TypeError("initialPhantomInstances must be an array");
     }
@@ -121,7 +121,6 @@ export default class PhantomCollection extends PhantomCore {
     /** @type {PhantomCore[]} */
     this._children = [];
 
-    /** @type {Map<{KEY_META_DESC_CHILD_KEY: any, KEY_META_CHILD_BEFORE_DESTROY_HANDLER: Function}>} */
     this._childrenMetadata = new Map();
 
     // Controls proxying of events emit from children out the collection itself
@@ -171,18 +170,17 @@ export default class PhantomCollection extends PhantomCore {
   /**
    * Adds a PhantomCore instance to the collection.
    *
-   * @param {PhantomCore} phantomCoreInstance
-   * @param {any} key? [default = null] If set, this value is utilized to
-   * determine same instance lookup. It can be useful when extending this
-   * method functionality where the passed in type is altered and it would be
-   * otherwise difficult to track that altered type.
+   * Note: The optional key value is utilized to determine same instance
+   * lookup. It can be useful when extending addChild functionality where the
+   * passed in type is altered and it would be otherwise difficult to track
+   * that altered type.
+   *
    * @throws {TypeError}
    * @throws {ReferenceError}
    * @emits EVT_CHILD_INSTANCE_ADDED
    * @emits EVT_UPDATED
-   * @return {void}
    */
-  addChild(phantomCoreInstance, key = null) {
+  addChild(phantomCoreInstance: PhantomCore, key: unknown = null) {
     const prevInstanceWithKey = this.getChildWithKey(key);
     if (prevInstanceWithKey) {
       if (prevInstanceWithKey !== phantomCoreInstance) {
@@ -271,7 +269,7 @@ export default class PhantomCollection extends PhantomCore {
    * @emits EVT_UPDATED
    * @return {void}
    */
-  removeChild(phantomCoreInstance) {
+  removeChild(phantomCoreInstance: PhantomCore) {
     const childMetadata = this._childrenMetadata.get(phantomCoreInstance);
 
     if (childMetadata) {
@@ -321,11 +319,7 @@ export default class PhantomCollection extends PhantomCore {
     return this._children;
   }
 
-  /**
-   * @param {any} key? [default = null]
-   * @return {PhantomCore | void}
-   */
-  getChildWithKey(key = null) {
+  getChildWithKey(key: unknown = null) {
     // FIXME: (jh) Having the optional null key is here for backward
     // compatibility with other PhantomCore-based packages.  It should probably
     // be removed in a future version.
@@ -347,8 +341,6 @@ export default class PhantomCollection extends PhantomCore {
 
   /**
    * Retrieves the associative keys used with added children.
-   *
-   * @return {any[]}
    */
   getKeys() {
     return [...this._childrenMetadata.entries()]
@@ -359,13 +351,9 @@ export default class PhantomCollection extends PhantomCore {
   /**
    * Emits an event to all child instances.
    *
-   * one-to-many relationship
-   *
-   * @param {string | symbol} eventName
-   * @param {any} eventData
-   * @return {void}
+   * [one-to-many relationship]
    */
-  broadcast(eventName, eventData) {
+  broadcast(eventName: string, eventData: unknown) {
     for (const instance of this.getChildren()) {
       instance.emit(eventName, eventData);
     }
@@ -375,16 +363,13 @@ export default class PhantomCollection extends PhantomCore {
    * Adds an event name which will bind to each child and emit out the
    * PhantomCollection when triggered.
    *
-   * many-to-one relationship
+   * [many-to-one relationship]
    *
    * Any event added name here, when emit by any child, can be listened to by
    * attaching a listener to this class for the same event name, acting as if
    * the collection instance emit the event directly.
-   *
-   * @param {string | symbol} childEventName
-   * @return {void}
    */
-  bindChildEventName(childEventName) {
+  bindChildEventName(childEventName: string) {
     this._childEventBridge.addBridgeEventName(childEventName);
   }
 
@@ -392,12 +377,9 @@ export default class PhantomCollection extends PhantomCore {
    * Removes an event name from each child which previously would emit out the
    * PhantomCollection when triggered.
    *
-   * many-to-one relationship
-   *
-   * @param {string | symbol} childEventName
-   * @return {void}
+   * [many-to-one relationship]
    */
-  unbindChildEventName(childEventName) {
+  unbindChildEventName(childEventName: string) {
     this._childEventBridge.removeBridgeEventName(childEventName);
   }
 
@@ -416,16 +398,18 @@ export default class PhantomCollection extends PhantomCore {
    * prior to normal destruct operations for this class.
    * @return {Promise<void>}
    */
-  async destroy(destroyHandler = () => null) {
+  override async destroy(destroyHandler?: (...args: any[]) => void) {
     return super.destroy(async () => {
-      await destroyHandler();
+      if (typeof destroyHandler === "function") {
+        await destroyHandler();
+      }
 
       // Empty out the collection
       this.removeAllChildren();
 
       // Ensure no dangling references
       assert.strictEqual(this._children.length, 0);
-      assert.strictEqual([...this._childrenMetadata.entries()].length, 0);
+      assert.strictEqual([...this._childrenMetadata.values()].length, 0);
 
       await this._childEventBridge.destroy();
     });

@@ -1,6 +1,6 @@
 {
   "name": "phantom-core",
-  "version": "2.7.3",
+  "version": "3.0.0-alpha",
   "description": "Node.js and browser compatible, base JavaScript EventEmitter-based class with base utility methods, logging, event proxies, collections, and destroy handling",
   "author": {
     "name": "zenOSmosis",
@@ -8,32 +8,39 @@
     "url": "https://zenosmosis.com"
   },
   "license": "MIT",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "scripts": {
+    "prepare": "npm run build",
+    "document": "typedoc src/index.ts",
     "build": "tsc",
     "test": "npm run test-node && npm run test-browser",
     "test-node": "tape -r ts-node/register/transpile-only 'test/{,/**/}*.test.js'",
-    "test-browser": "dotenv airtap --coverage --concurrency 1 -- 'test/{,/**/}*.test.js'",
-    "coverage": "nyc tape -r ts-node/register/transpile-only test-node",
+    "test-browser": "npm run build && dotenv airtap --coverage --concurrency 1 -- 'test/{,/**/}*.test.js'",
+    "coverage": "nyc tape -r ts-node/register/transpile-only 'test/{,/**/}*.test.js'",
     "lint": "prettier --write '(**/)*.js'",
     "check-dep-updates": "npx npm-check-updates"
   },
-  "sourceType": "module",
-  "devDependencies": {
-    "airtap": "^4.0.4",
-    "airtap-sauce": "^1.1.2",
+  "dependencies": {
     "dayjs": "^1.10.7",
     "deepmerge": "^4.2.2",
-    "dotenv-cli": "^4.0.0",
     "is-plain-object": "^5.0.0",
-    "nyc": "^15.1.0",
-    "prettier": "^2.4.1",
     "setimmediate": "^1.0.5",
     "short-uuid": "^4.2.0",
-    "tape": "^5.3.1",
-    "ts-node": "^10.7.0",
-    "tsify": "^5.0.4",
-    "typescript": "^4.6.4",
     "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.35",
+    "@types/setimmediate": "^1.0.2",
+    "@types/uuid": "^8.3.4",
+    "airtap": "^4.0.4",
+    "airtap-sauce": "^1.1.2",
+    "dotenv-cli": "^4.0.0",
+    "nyc": "^15.1.0",
+    "prettier": "^2.4.1",
+    "tape": "^5.3.1",
+    "ts-node": "^10.8.0",
+    "tsify": "^5.0.4",
+    "typedoc": "^0.22.15",
+    "typescript": "^4.6.4"
   }
 }

@@ -13,8 +13,14 @@ import libDeepMerge from "deepmerge";
  * IMPORTANT: The return is a COPY of the merged; no re-assignment takes place.
  *
  * Returns a deep-merged clone of objects, where objB overrides objA.
+ *
+ * If a null value is utilized for either objA or objB, it will be replaced
+ * with an empty object.
  */
-export default function deepMerge(objA = {}, objB = {}) {
+export default function deepMerge(
+  objA: { [key: string]: unknown } | null = {},
+  objB: { [key: string]: unknown } | null = {}
+) {
   // Typecast null options to Object for robustness of implementors (i.e.
   // media-stream-track-controller may pass null when merging optional
   // MediaStreamTrack constraints)

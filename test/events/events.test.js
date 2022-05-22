@@ -14,9 +14,7 @@ import PhantomCore, {
   EVT_NO_INIT_WARN,
 } from "../../src";
 
-import {
-  compareExportedEvents,
-} from("../../src/utils/testing-utils/eventConstantCheckingUtils");
+import { compareExportedEvents } from "../../src/utils/testing-utils/eventConstantCheckingUtils";
 
 test("PhantomCore events", t => {
   t.plan(1);
@@ -35,7 +33,7 @@ test("PhantomCore events", t => {
   t.end();
 });
 
-test("ArbitraryPhantomWrapperr events", t => {
+test("ArbitraryPhantomWrapper events", t => {
   t.plan(1);
 
   t.doesNotThrow(() => {

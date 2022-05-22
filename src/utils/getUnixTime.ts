@@ -1,5 +1,8 @@
 /**
  * Retrieves seconds since midnight Jan. 1, 1970 (UTC).
+ *
+ * Related [potential] performance issue:
+ * @see https://github.com/zenOSmosis/phantom-core/issues/127
  */
 export default function getUnixTime() {
   const date = new Date();

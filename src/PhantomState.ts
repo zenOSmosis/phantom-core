@@ -20,15 +20,15 @@ export {
  * A simple, object-based state management utility.
  */
 export default class PhantomState extends PhantomCore {
-  /**
-   * @param {Object} initialState? [default = {}]
-   * @param {Object} superOptions? [default = {}] If set, these options are
-   * passed to the super instance.
-   */
-  constructor(initialState = {}, superOptions = {}) {
-    super(superOptions);
+  // FIXME: [3.0.0]? This may be more performant as a Map:
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map#objects_vs._maps
+  protected _state: { [key: string]: unknown } = {};
 
-    this._state = {};
+  constructor(
+    initialState: { [key: string]: unknown } | null = {},
+    superOptions: { [key: string]: unknown } | null = {}
+  ) {
+    super(superOptions);
 
     if (initialState) {
       this.setState(initialState);
@@ -36,6 +36,9 @@ export default class PhantomState extends PhantomCore {
 
     // Reset state on destruct
     this.registerCleanupHandler(() => {
+      // Ignoring because we don't want this to be an optional property during
+      // runtime
+      // @ts-ignore
       this._state = null;
     });
   }
@@ -53,13 +56,8 @@ export default class PhantomState extends PhantomCore {
    * Sets the next state, using shallow-merge strategy.
    *
    * NOTE: The previous state object will be re-referenced.
-   *
-   * @param {Object} partialNextState
-   * @param {boolean} isMerge? [default = true]
-   * @emits EVT_UPDATED With partialNextState
-   * @return {void}
    */
-  setState(partialNextState, isMerge = true) {
+  setState(partialNextState: { [key: string]: unknown }, isMerge = true) {
     if (typeof partialNextState !== "object") {
       throw new TypeError("partialNextState must be an object");
     }

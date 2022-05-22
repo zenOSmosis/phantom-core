@@ -14,6 +14,8 @@ const LOG_LEVEL_STRING_MAP = {
   silent: LOG_LEVEL_SILENT,
 };
 
+export type LogIntersection = Logger & ((...args: any[]) => void);
+
 /**
  * A very simple JavaScript logger, which wraps console.log/debug, etc. calls
  * while retaining the original stack traces.
@@ -24,7 +26,7 @@ const LOG_LEVEL_STRING_MAP = {
  * loggers wasn't very straightforward.
  */
 export default class Logger {
-  public log: () => null | { [key: string]: () => null };
+  public log: LogIntersection;
 
   // TODO: [3.0.0] Fix any type
   protected _options: any;
@@ -34,13 +36,12 @@ export default class Logger {
   constructor(options = {}) {
     const DEFAULT_OPTIONS = {
       logLevel: LOG_LEVEL_INFO,
-      // TODO: [3.0.0] Fix any type
-      prefix: (logLevel: any) => `[${logLevel}]`,
+      prefix: (strLogLevel: string) => `[${strLogLevel}]`,
     };
 
     this._options = { ...DEFAULT_OPTIONS, ...options };
+    this.log = null as unknown as LogIntersection;
 
-    this.log = null;
     this._logLevel = this._options.logLevel;
 
     // Set up log level, extending this class functionality with log levels
@@ -51,16 +52,20 @@ export default class Logger {
    * Sets minimum log level to send to actual logger function where subsequent
    * log levels are ignored.
    */
-  setLogLevel(logLevel: number) {
-    if (typeof logLevel === "string") {
-      logLevel = LOG_LEVEL_STRING_MAP[logLevel];
+  setLogLevel(userLogLevel: number | string) {
+    if (typeof userLogLevel === "string") {
+      // Ignore the next line because we don't yet know if logLevel is incorrect
+      // @ts-ignore
+      userLogLevel = LOG_LEVEL_STRING_MAP[userLogLevel];
     }
 
-    if (!Object.values(LOG_LEVEL_STRING_MAP).includes(logLevel)) {
-      throw new Error(`Unknown log level: ${logLevel}`);
+    // Ignore the next line because we don't yet know if logLevel is incorrect
+    // @ts-ignore
+    if (!Object.values(LOG_LEVEL_STRING_MAP).includes(userLogLevel)) {
+      throw new Error(`Unknown log level: ${userLogLevel}`);
     }
 
-    this._logLevel = logLevel;
+    this._logLevel = userLogLevel as number;
 
     // Dynamically create log function, filtering out methods which are outside
     // of logLevel scope
@@ -75,7 +80,7 @@ export default class Logger {
 
       const loggerMethods: { [key: string]: () => null } = {};
 
-      if (logLevel <= LOG_LEVEL_TRACE) {
+      if (this._logLevel <= LOG_LEVEL_TRACE) {
         loggerMethods.trace = Function.prototype.bind.call(
           console.trace,
           console,
@@ -85,7 +90,7 @@ export default class Logger {
         loggerMethods.trace = () => null;
       }
 
-      if (logLevel <= LOG_LEVEL_DEBUG) {
+      if (this._logLevel <= LOG_LEVEL_DEBUG) {
         loggerMethods.debug = Function.prototype.bind.call(
           console.debug,
           console,
@@ -95,7 +100,7 @@ export default class Logger {
         loggerMethods.debug = () => null;
       }
 
-      if (logLevel <= LOG_LEVEL_INFO) {
+      if (this._logLevel <= LOG_LEVEL_INFO) {
         loggerMethods.info = Function.prototype.bind.call(
           console.info,
           console,
@@ -105,7 +110,7 @@ export default class Logger {
         loggerMethods.info = () => null;
       }
 
-      if (logLevel <= LOG_LEVEL_WARN) {
+      if (this._logLevel <= LOG_LEVEL_WARN) {
         loggerMethods.warn = Function.prototype.bind.call(
           console.warn,
           console,
@@ -115,7 +120,7 @@ export default class Logger {
         loggerMethods.warn = () => null;
       }
 
-      if (logLevel <= LOG_LEVEL_ERROR) {
+      if (this._logLevel <= LOG_LEVEL_ERROR) {
         loggerMethods.error = Function.prototype.bind.call(
           console.error,
           console,
@@ -126,10 +131,10 @@ export default class Logger {
       }
 
       // Calling this.log() directly will log as info (log info alias)
-      const log: () => null | { [key: string]: () => null } =
-        loggerMethods.info;
+      const log = loggerMethods.info;
 
       // Dynamically assign log methods to log
+      // TODO: [3.0.0] Rewrite to handlers which are exposed via class methods
       Object.keys(loggerMethods).forEach(method => {
         // IMPORTANT: Both of these are used intentionally
 
@@ -143,13 +148,30 @@ export default class Logger {
       });
 
       return log;
-    })();
+    })() as unknown as LogIntersection;
   }
 
-  /**
-   * @return {LOG_LEVEL_TRACE | LOG_LEVEL_DEBUG | LOG_LEVEL_INFO | LOG_LEVEL_WARN | LOG_LEVEL_ERROR | LOG_LEVEL_SILENT}
-   */
   getLogLevel() {
     return this._logLevel;
+  }
+
+  trace(...args: any[]): void {
+    throw new Error("This should be overridden");
+  }
+
+  debug(...args: any[]): void {
+    throw new Error("This should be overridden");
+  }
+
+  info(...args: any[]): void {
+    throw new Error("This should be overridden");
+  }
+
+  warn(...args: any[]): void {
+    throw new Error("This should be overridden");
+  }
+
+  error(...args: any[]): void {
+    throw new Error("This should be overridden");
   }
 }

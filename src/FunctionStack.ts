@@ -7,6 +7,7 @@ export const FUNCTION_STACK_OPS_ORDER_LIFO = "LIFO";
  */
 export default class FunctionStack {
   protected _opsOrder: string;
+  // TODO: [3.0.0] This may need to be redefined
   protected _fns: Function[];
 
   /**
@@ -93,7 +94,9 @@ export default class FunctionStack {
           ? this._fns.shift()
           : this._fns.pop();
 
-      await fn();
+      if (typeof fn === "function") {
+        await fn();
+      }
 
       // Recursively call itself, executing the next stack index, if exists
       return this.exec();

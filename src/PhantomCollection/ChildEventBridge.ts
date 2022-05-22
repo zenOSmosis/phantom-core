@@ -1,16 +1,22 @@
+import assert from "assert";
 import PhantomCore, { EVT_UPDATED } from "../PhantomCore";
 import PhantomCollection, {
   EVT_CHILD_INSTANCE_ADDED,
   EVT_CHILD_INSTANCE_REMOVED,
 } from "./PhantomCollection";
 
-const DEFAULT_BRIDGE_EVENT_NAMES = [EVT_UPDATED];
+const DEFAULT_BRIDGE_EVENT_NAMES = [EVT_UPDATED] as string[] & symbol[];
 
 const EVT_BRIDGE_EVENT_NAME_ADDED = "bridge-event-name-added";
 const EVT_BRIDGE_EVENT_NAME_REMOVED = "bridge-event-name-removed";
 
+type EventName = string | symbol;
+type EventHandler = (...args: any[]) => void;
+type EventMap = Map<EventName, EventHandler>;
+
 export { EVT_UPDATED };
 
+// TODO: [3.0.0] Rename to PhantomCollectionChildEventBridge?
 /**
  * Handles many-to-one proxying of specified events of PhantomCollection
  * children out of the PhantomCollection itself.
@@ -21,14 +27,25 @@ export { EVT_UPDATED };
  * EVT_UPDATED as well).
  */
 export default class ChildEventBridge extends PhantomCore {
+  protected _phantomCollection?: PhantomCollection;
+
+  /**
+   * The event names this bridge currently (i.e. at any given
+   * time) maintains mappings for events which can emit from child instances
+   * and relay out the parent collection.
+   */
+  protected _bridgeEventNames: string[] & symbol[] = [
+    ...DEFAULT_BRIDGE_EVENT_NAMES,
+  ];
+
+  protected _linkedChildEventHandlers: Map<PhantomCore, EventMap> = new Map();
+
   /**
    * IMPORTANT: This bridge is destructed by the collection itself and does not
    * need to listen for EVT_DESTROYED from PhantomCollection.
-   *
-   * @param {PhantomCollection} phantomCollection The collection this bridge
-   * should be bound to.
    */
-  constructor(phantomCollection) {
+  constructor(phantomCollection: PhantomCollection) {
+    // TODO: [3.0.0] Remove this check
     if (!(phantomCollection instanceof PhantomCollection)) {
       throw new TypeError(
         "phantomCollection is not a PhantomCollection instance"
@@ -37,22 +54,8 @@ export default class ChildEventBridge extends PhantomCore {
 
     super();
 
-    /**
-     * @type {PhantomCollection} The parent PhantomCollection.
-     */
     this._phantomCollection = phantomCollection;
-
     this.registerCleanupHandler(() => delete this._phantomCollection);
-
-    /**
-     * @type {string[]} The event names this bridge currently (i.e. at any given
-     * time) maintains mappings for events which can emit from child instances
-     * and relay out the parent collection.
-     */
-    this._bridgeEventNames = [...DEFAULT_BRIDGE_EVENT_NAMES];
-
-    /** @type {{key: uuid, value: {key: eventName, value: eventHandler}}} */
-    this._linkedChildEventHandlers = {};
 
     this._handleChildInstanceAdded = this._handleChildInstanceAdded.bind(this);
     this._handleChildInstanceRemoved =
@@ -110,11 +113,7 @@ export default class ChildEventBridge extends PhantomCore {
    * @param {PhantomCore} childInstance
    * @return {void}
    */
-  _handleChildInstanceAdded(childInstance) {
-    const childUUID = childInstance.getUUID();
-
-    this._linkedChildEventHandlers[childUUID] = {};
-
+  _handleChildInstanceAdded(childInstance: PhantomCore) {
     // Add linked child event handlers
     this._bridgeEventNames.forEach(eventName =>
       this._mapChildEvent(childInstance, eventName)
@@ -123,19 +122,40 @@ export default class ChildEventBridge extends PhantomCore {
 
   /**
    * Internally invoked when the collection removes a child.
-   *
-   * @param {PhantomCore} childInstance
-   * @return {void}
    */
-  _handleChildInstanceRemoved(childInstance) {
-    const childUUID = childInstance.getUUID();
-
+  _handleChildInstanceRemoved(childInstance: PhantomCore) {
     // Clear out linked child event handlers
     this._bridgeEventNames.forEach(eventName =>
       this._unmapChildEvent(childInstance, eventName)
     );
+  }
 
-    delete this._linkedChildEventHandlers[childUUID];
+  /**
+   * Retrieves, or creates, the event map which is associated to the given
+   * child instance.
+   *
+   * This map contains the proxies events which are emit out the collection,
+   * once the child emits the event.
+   */
+  _getChildEventMap(childInstance: PhantomCore) {
+    const prev = this._linkedChildEventHandlers.get(childInstance);
+
+    if (prev) {
+      return prev;
+    }
+
+    const next = new Map() as EventMap;
+    this._linkedChildEventHandlers.set(childInstance, next);
+    return next;
+  }
+
+  /**
+   * Unbinds, then removes the child event map for the given child.
+   */
+  _deleteChildEventMap(childInstance: PhantomCore) {
+    for (const eventName of this._bridgeEventNames) {
+      this._unmapChildEvent(childInstance, eventName);
+    }
   }
 
   /**
@@ -143,62 +163,60 @@ export default class ChildEventBridge extends PhantomCore {
    * handler which will proxy out the PhantomCollection when triggered.
    *
    * Subsequent attempts to add the same event will be silently ignored.
-   *
-   * @param {PhantomCore} childInstance
-   * @param {string | symbol} eventName
-   * @return {void}
    */
-  _mapChildEvent(childInstance, eventName) {
-    const childUUID = childInstance.getUUID();
+  _mapChildEvent(childInstance: PhantomCore, eventName: string | symbol) {
+    const childEventMap = this._getChildEventMap(childInstance);
 
     // Silently ignore previously linked events with same name
-    if (!this._linkedChildEventHandlers[childUUID][eventName]) {
+    if (!childEventMap.has(eventName)) {
       // Re-emits the mapped child event data out the parent collection
-      const _handleChildEvent = eventData => {
-        this._phantomCollection.emit(eventName, eventData);
-      };
+      // TODO: [3.0.0] Fix type
+      // @ts-ignore
+      const _handleChildEvent = eventData =>
+        this._phantomCollection?.emit(eventName, eventData);
 
+      // Bind to the child instance
       childInstance.on(eventName, _handleChildEvent);
 
-      // Keep track of the event handler so it can be removed (via
-      // this._unmapChildEvent)
-      this._linkedChildEventHandlers[childUUID][eventName] = _handleChildEvent;
+      // Add to map recollection
+      childEventMap.set(eventName, _handleChildEvent);
     }
   }
 
   /**
    * Removes the wrapping event handler with the given even name from the
    * relevant child instance.
-   *
-   * @param {PhantomCore} childInstance
-   * @param {string | symbol} eventName
-   * @return {void}
    */
-  _unmapChildEvent(childInstance, eventName) {
-    const childUUID = childInstance.getUUID();
-    const eventHandler = this._linkedChildEventHandlers[childUUID][eventName];
+  _unmapChildEvent(childInstance: PhantomCore, eventName: string | symbol) {
+    const childEventMap = this._getChildEventMap(childInstance);
+
+    const eventHandler = childEventMap.get(eventName);
 
     if (eventHandler) {
+      // Unbind from the child instance
       childInstance.off(eventName, eventHandler);
 
-      delete this._linkedChildEventHandlers[childUUID][eventName];
+      // Remove from map recollection
+      childEventMap.delete(eventName);
+    }
+
+    // Remove container map if no more children
+    if (![...childEventMap.values()].length) {
+      this._linkedChildEventHandlers.delete(childInstance);
     }
   }
 
   /**
    * Adds an event name which will bind to each child and emit out the
    * PhantomCollection when triggered.
-   *
-   * @param {string | symbol} eventName
-   * @return {void}
    */
-  addBridgeEventName(eventName) {
+  addBridgeEventName(eventName: string | symbol) {
     const prevLength = this._bridgeEventNames.length;
 
     // Add only unique values
     this._bridgeEventNames = [
       ...new Set([...this._bridgeEventNames, eventName]),
-    ];
+    ] as string[] & symbol[];
 
     const nextLength = this._bridgeEventNames.length;
 
@@ -210,16 +228,13 @@ export default class ChildEventBridge extends PhantomCore {
   /**
    * Removes an event name from each child which previously would emit out the
    * PhantomCollection when triggered.
-   *
-   * @param {string | symbol} eventName
-   * @return {void}
    */
-  removeBridgeEventName(eventName) {
+  removeBridgeEventName(eventName: string | symbol) {
     const prevLength = this._bridgeEventNames.length;
 
     this._bridgeEventNames = this._bridgeEventNames.filter(
-      predicate => predicate !== eventName
-    );
+      (predicate: string | symbol) => predicate !== eventName
+    ) as string[] & symbol[];
 
     const nextLength = this._bridgeEventNames.length;
 
@@ -231,25 +246,24 @@ export default class ChildEventBridge extends PhantomCore {
   /**
    * Returns the mapped child event names which this class will proxy out the
    * collection.
-   *
-   * @return {string[] | symbol[]} Can be a mix of strings and symbols.
    */
   getBridgeEventNames() {
     return this._bridgeEventNames;
   }
 
-  /**
-   * @return {Promise<void>}
-   */
-  async destroy() {
+  override async destroy() {
     return super.destroy(async () => {
       // Unmap all associated bridge event handlers from the children
       const children = this.getChildren();
       for (const child of children) {
-        for (const eventName of this._bridgeEventNames) {
-          this._unmapChildEvent(child, eventName);
-        }
+        this._deleteChildEventMap(child);
       }
+
+      // Ensure we have destructed our event maps
+      assert.strictEqual(
+        [...this._linkedChildEventHandlers.values()].length,
+        0
+      );
     });
   }
 }
