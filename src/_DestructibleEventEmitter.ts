@@ -76,7 +76,7 @@ export default class DestructibleEventEmitter extends EventEmitter {
   }
 
   /**
-   * Retrieves whether or not the instance is currently destroyed.s
+   * Retrieves whether or not the instance is currently destroyed.
    */
   getIsDestroyed() {
     return this._isDestroyed;
