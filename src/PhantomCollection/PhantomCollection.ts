@@ -21,13 +21,13 @@ export {
 
 /**
  * @event EVT_CHILD_INSTANCE_ADDED Emits with the PhantomCore instance which
- * was added.
+ * was added to the collection.
  **/
 export const EVT_CHILD_INSTANCE_ADDED = "child-instance-added";
 
 /**
  * @event EVT_CHILD_INSTANCE_REMOVED Emits with the PhantomCore instance which
- * was removed.
+ * was removed from the collection.
  **/
 export const EVT_CHILD_INSTANCE_REMOVED = "child-instance-removed";
 
