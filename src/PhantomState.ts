@@ -31,6 +31,9 @@ export default class PhantomState extends PhantomCore {
 
     // Reset state on destruct
     this.registerCleanupHandler(() => {
+      // Ignoring because we don't want this to be an optional property during
+      // runtime
+      // @ts-ignore
       this._state = null;
     });
   }

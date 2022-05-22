@@ -8,7 +8,7 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strict": false,
+    "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noEmitOnError": true,
     "noFallthroughCasesInSwitch": true,
@@ -19,6 +19,7 @@
     "jsx": "react",
     "baseUrl": ".",
     "downlevelIteration": true,
+    "noImplicitOverride": true,
     "paths": {
       "*": ["node_modules/*"]
     }

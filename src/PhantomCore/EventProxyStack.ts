@@ -61,8 +61,7 @@ export default class EventProxyStack extends _DestructibleEventEmitter {
     //
     // If there is not a target destroy handler...
     if (!this._targetDestroyHandlers.get(targetInstance)) {
-      // ... create one
-      this._targetDestroyHandlers.set(targetInstance, () => {
+      const instanceDestroyHandler = () => {
         this._eventProxyBinds
           // IMPORTANT: Only invoke proxyOff for bound eventHandlers for the
           // correct target instance
@@ -73,14 +72,14 @@ export default class EventProxyStack extends _DestructibleEventEmitter {
           .forEach(({ targetInstance, eventName, eventHandler }) =>
             this.removeProxyHandler(targetInstance, eventName, eventHandler)
           );
-      });
+      };
+
+      // ... create one
+      this._targetDestroyHandlers.set(targetInstance, instanceDestroyHandler);
 
       // ... then register the target destroy handler to run once the target
       // emits EVT_DESTROYED
-      targetInstance.once(
-        EVT_DESTROYED,
-        this._targetDestroyHandlers.get(targetInstance)
-      );
+      targetInstance.once(EVT_DESTROYED, instanceDestroyHandler);
     }
   }
 
@@ -191,10 +190,7 @@ export default class EventProxyStack extends _DestructibleEventEmitter {
     }, 0);
   }
 
-  /**
-   * @return {Promise<void>}
-   */
-  async destroy() {
+  override async destroy() {
     return super.destroy(() => {
       // Perform cleanup
       this._removeAllProxyHandlers();

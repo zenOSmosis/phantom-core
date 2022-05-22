@@ -184,8 +184,8 @@ test("phantom state async init", t => {
     () => {
       new SyncPhantomState();
     },
-    TypeError,
-    "_init cannot be called with SyncPhantomState"
+    Error,
+    "_init cannot be called in non-async mode"
   );
 
   t.end();

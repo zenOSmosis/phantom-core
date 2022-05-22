@@ -26,7 +26,7 @@ export default class PhantomSerializableState extends PhantomState {
   /**
    * Serializes the given object into a string.
    */
-  static serialize(obj: unknown) {
+  static serialize(obj: { [key: string]: unknown }) {
     if (typeof obj !== "object") {
       throw new TypeError("Expected object type");
     }
@@ -63,7 +63,10 @@ export default class PhantomSerializableState extends PhantomState {
    *
    * @emits EVT_UPDATED With partialNextState
    */
-  setState(partialNextState: { [key: string]: unknown }, isMerge = true) {
+  override setState(
+    partialNextState: { [key: string]: unknown },
+    isMerge = true
+  ) {
     // Run through obj->serial->obj conversion to ensure partial next state can
     // be serialized, while storing it in memory as an object, to enable
     // subsequent partial updates

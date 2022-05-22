@@ -53,7 +53,7 @@ export default class ArbitraryPhantomWrapper extends PhantomCore {
     return this._wrappedValue;
   }
 
-  async destroy(destroyHandler?: () => void) {
+  override async destroy(destroyHandler?: () => void) {
     return super.destroy(async () => {
       if (typeof destroyHandler === "function") {
         await destroyHandler();

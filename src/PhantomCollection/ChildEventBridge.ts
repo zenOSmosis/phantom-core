@@ -27,7 +27,7 @@ export { EVT_UPDATED };
  * EVT_UPDATED as well).
  */
 export default class ChildEventBridge extends PhantomCore {
-  protected _phantomCollection: PhantomCollection;
+  protected _phantomCollection?: PhantomCollection;
 
   /**
    * The event names this bridge currently (i.e. at any given
@@ -54,9 +54,6 @@ export default class ChildEventBridge extends PhantomCore {
 
     super();
 
-    /**
-     * @type {PhantomCollection} The parent PhantomCollection.
-     */
     this._phantomCollection = phantomCollection;
     this.registerCleanupHandler(() => delete this._phantomCollection);
 
@@ -176,7 +173,7 @@ export default class ChildEventBridge extends PhantomCore {
       // TODO: [3.0.0] Fix type
       // @ts-ignore
       const _handleChildEvent = eventData =>
-        this._phantomCollection.emit(eventName, eventData);
+        this._phantomCollection?.emit(eventName, eventData);
 
       // Bind to the child instance
       childInstance.on(eventName, _handleChildEvent);
@@ -249,17 +246,12 @@ export default class ChildEventBridge extends PhantomCore {
   /**
    * Returns the mapped child event names which this class will proxy out the
    * collection.
-   *
-   * @return {string[] | symbol[]} Can be a mix of strings and symbols.
    */
   getBridgeEventNames() {
     return this._bridgeEventNames;
   }
 
-  /**
-   * @return {Promise<void>}
-   */
-  async destroy() {
+  override async destroy() {
     return super.destroy(async () => {
       // Unmap all associated bridge event handlers from the children
       const children = this.getChildren();

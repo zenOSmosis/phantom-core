@@ -338,8 +338,13 @@ export default class PhantomCore extends DestructibleEventEmitter {
 
     if (this._isReady) {
       // This shouldn't be called if running isAsync
-      this._init = undefined;
+      //
+      // Override init function
+      this._init = () => {
+        throw new Error("_init cannot be called in non-async mode");
+      };
 
+      // Allow synchronous queue to drain before emitting EVT_READY
       setImmediate(() => this.emit(EVT_READY));
     } else {
       // IMPORTANT: Implementations which set isAsync to true must call
@@ -721,7 +726,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
    *  2. EVT_DESTROYED triggers
    *  3. registerCleanupHandler call stack
    */
-  async destroy(destroyHandler?: () => void) {
+  override async destroy(destroyHandler?: () => void) {
     return super.destroy(
       async () => {
         // Unregister from _instances
@@ -732,6 +737,10 @@ export default class PhantomCore extends DestructibleEventEmitter {
         }
 
         await this._eventProxyStack.destroy();
+
+        // Ignoring because we don't want this to be an optional property
+        // during runtime
+        // @ts-ignore
         this._eventProxyStack = null;
       },
       async () => {

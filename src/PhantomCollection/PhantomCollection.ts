@@ -61,7 +61,7 @@ export default class PhantomCollection extends PhantomCore {
    * be present by using this across incompatible versions.
    *
    */
-  static getIsLooseInstance(instance: PhantomCollection & Class) {
+  static override getIsLooseInstance(instance: PhantomCollection & Class) {
     return Boolean(
       PhantomCore.getIsLooseInstance(instance) &&
         typeof instance.addChild === "function" &&
@@ -398,7 +398,7 @@ export default class PhantomCollection extends PhantomCore {
    * prior to normal destruct operations for this class.
    * @return {Promise<void>}
    */
-  async destroy(destroyHandler?: (...args: any[]) => void) {
+  override async destroy(destroyHandler?: (...args: any[]) => void) {
     return super.destroy(async () => {
       if (typeof destroyHandler === "function") {
         await destroyHandler();
