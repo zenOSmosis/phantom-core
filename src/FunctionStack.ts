@@ -94,7 +94,9 @@ export default class FunctionStack {
           ? this._fns.shift()
           : this._fns.pop();
 
-      await fn();
+      if (typeof fn === "function") {
+        await fn();
+      }
 
       // Recursively call itself, executing the next stack index, if exists
       return this.exec();

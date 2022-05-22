@@ -40,8 +40,8 @@ export default class Logger {
     };
 
     this._options = { ...DEFAULT_OPTIONS, ...options };
+    this.log = null as unknown as LogIntersection;
 
-    this.log = null;
     this._logLevel = this._options.logLevel;
 
     // Set up log level, extending this class functionality with log levels
@@ -131,8 +131,7 @@ export default class Logger {
       }
 
       // Calling this.log() directly will log as info (log info alias)
-      const log: (...args: any[]) => void | { [key: string]: () => null } =
-        loggerMethods.info;
+      const log = loggerMethods.info;
 
       // Dynamically assign log methods to log
       // TODO: [3.0.0] Rewrite to handlers which are exposed via class methods
