@@ -1,5 +1,5 @@
-const test = require("tape");
-const { PhantomCore } = require("../dist");
+import test from "tape";
+import PhantomCore from "../src";
 
 test("version test", t => {
   t.plan(1);

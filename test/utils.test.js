@@ -1,7 +1,6 @@
-const test = require("tape");
-const EventEmitter = require("events");
-const {
-  PhantomCore,
+import test from "tape";
+import EventEmitter from "events";
+import PhantomCore, {
   PhantomCollection,
   PhantomServiceCore,
   PhantomServiceManager,
@@ -15,7 +14,7 @@ const {
   getClassInstancePropertyNames,
   sleep,
   performance,
-} = require("../dist");
+} from "../src";
 
 test("consume", t => {
   t.plan(7);

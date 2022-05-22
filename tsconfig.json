@@ -20,9 +20,11 @@
     "baseUrl": ".",
     "downlevelIteration": true,
     "noImplicitOverride": true,
+    "inlineSourceMap": true,
     "paths": {
       "*": ["node_modules/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["dist"]
 }

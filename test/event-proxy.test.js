@@ -1,6 +1,6 @@
-const test = require("tape");
-const EventEmitter = require("events");
-const { PhantomCore, EVT_DESTROYED } = require("../dist");
+import test from "tape";
+import EventEmitter from "events";
+import PhantomCore, { EVT_DESTROYED } from "../src";
 
 test("event proxy error handling", async t => {
   t.plan(11);

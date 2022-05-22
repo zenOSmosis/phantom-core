@@ -1,5 +1,5 @@
-const test = require("tape");
-const { ArbitraryPhantomWrapper } = require("../dist");
+import test from "tape";
+import { ArbitraryPhantomWrapper } from "../src";
 
 test("ArbitraryPhantomWrapper handling", async t => {
   t.plan(5);

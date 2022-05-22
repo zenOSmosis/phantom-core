@@ -1,13 +1,13 @@
-const test = require("tape");
-const {
+import test from "tape";
+import {
   checkEvents,
   extractEvents,
   compareExportedEvents,
-} = require("../../dist/utils/testing-utils/eventConstantCheckingUtils");
+} from "../../src/utils/testing-utils/eventConstantCheckingUtils";
 
 // Validate event testing utility works as expected
 test("test utility checker", t => {
-  t.plan(13);
+  t.plan(15);
 
   t.throws(() => {
     checkEvents({
@@ -15,12 +15,23 @@ test("test utility checker", t => {
     });
   }, "throws when no upper-case event is given");
 
-  t.throws(() => {
+  t.doesNotThrow(() => {
     checkEvents({
-      // FIXME: (jh) Add symbol support
       EVT_A: Symbol("TEST"),
     });
-  }, "throws when non-string event is passed");
+  }, "does not throw if symbol event is passed");
+
+  t.throws(() => {
+    checkEvents({
+      EVT_A: null,
+    });
+  }, "if null event is passed");
+
+  t.throws(() => {
+    checkEvents({
+      EVT_A: undefined,
+    });
+  }, "if undefined event is passed");
 
   t.doesNotThrow(() => {
     checkEvents({

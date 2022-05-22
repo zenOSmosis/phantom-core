@@ -1,6 +1,5 @@
-const test = require("tape");
-const {
-  PhantomCore,
+import test from "tape";
+import PhantomCore, {
   ArbitraryPhantomWrapper,
   PhantomCollection,
   PhantomState,
@@ -13,11 +12,9 @@ const {
   EVT_DESTROY_STACK_TIMED_OUT,
   EVT_DESTROYED,
   EVT_NO_INIT_WARN,
-} = require("../../dist");
+} from "../../src";
 
-const {
-  compareExportedEvents,
-} = require("../../dist/utils/testing-utils/eventConstantCheckingUtils");
+import { compareExportedEvents } from "../../src/utils/testing-utils/eventConstantCheckingUtils";
 
 test("PhantomCore events", t => {
   t.plan(1);
@@ -36,7 +33,7 @@ test("PhantomCore events", t => {
   t.end();
 });
 
-test("ArbitraryPhantomWrapperr events", t => {
+test("ArbitraryPhantomWrapper events", t => {
   t.plan(1);
 
   t.doesNotThrow(() => {

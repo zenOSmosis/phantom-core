@@ -14,9 +14,9 @@
     "document": "typedoc src/index.ts",
     "build": "tsc",
     "test": "npm run test-node && npm run test-browser",
-    "test-node": "npm run build && tape 'test/{,/**/}*.test.js'",
+    "test-node": "tape -r ts-node/register/transpile-only 'test/{,/**/}*.test.js'",
     "test-browser": "npm run build && dotenv airtap --coverage --concurrency 1 -- 'test/{,/**/}*.test.js'",
-    "coverage": "nyc npm run test-node",
+    "coverage": "nyc tape -r ts-node/register/transpile-only 'test/{,/**/}*.test.js'",
     "lint": "prettier --write '(**/)*.js'",
     "check-dep-updates": "npx npm-check-updates"
   },
@@ -38,6 +38,8 @@
     "nyc": "^15.1.0",
     "prettier": "^2.4.1",
     "tape": "^5.3.1",
+    "ts-node": "^10.8.0",
+    "tsify": "^5.0.4",
     "typedoc": "^0.22.15",
     "typescript": "^4.6.4"
   }
