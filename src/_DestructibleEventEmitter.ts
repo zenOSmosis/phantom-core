@@ -7,8 +7,16 @@ import logger from "./globalLogger";
  */
 export const EVT_BEFORE_DESTROY = "before-destroy";
 
+/**
+ * @event EVT_DESTROY_STACK_TIMED_OUT Emits when destroy stack has timed out.
+ * This should lead to an error.
+ */
 export const EVT_DESTROY_STACK_TIMED_OUT = "destroy-stack-timed-out";
 
+/**
+ * @export EVT_DESTROYED Emits just before event handlers have been removed and
+ * any post-destruct operations are invoked.
+ */
 export const EVT_DESTROYED = "destroyed";
 
 // Number of milliseconds before the instance will warn about potential
@@ -56,8 +64,12 @@ export default class DestructibleEventEmitter extends EventEmitter {
       .reduce((a, b) => a + b, 0);
   }
 
+  // TODO: [3.0.0] Rename
   /**
    * Retrieves whether or not the class is currently being destroyed.
+   *
+   * Note that this will still return true after EVT_DESTROYED is emit and will
+   * be false after post-cleanup operations have run.
    */
   getIsDestroying() {
     return this._isDestroying;
@@ -150,6 +162,7 @@ export default class DestructibleEventEmitter extends EventEmitter {
         );
       }
 
+      // TODO: [3.0.0] Rename
       // Completely out of "destroying" phase (truly destroyed at this point)
       this._isDestroying = false;
     }

@@ -27,9 +27,24 @@ import { Class } from "../utils/class-utils/types";
 // warning
 const ASYNC_INIT_GRACE_TIME = 5000;
 
+/**
+ * @event EVT_NO_EMIT_WARN Emits when async mode is turned on and super _init
+ * method is not called in a reasonable amount of time.
+ */
 export const EVT_NO_INIT_WARN = "no-init-warn";
+
+/**
+ * @event EVT_READY Emits when ready for consumption. This is generalized and
+ * may have some exceptions in extension classes.
+ */
 export const EVT_READY = "ready";
+
+/**
+ * @event EVT_UPDATED Emits when something of common significance has updated
+ * which any attached views should be aware of.
+ */
 export const EVT_UPDATED = "updated";
+
 export { EVT_BEFORE_DESTROY, EVT_DESTROY_STACK_TIMED_OUT, EVT_DESTROYED };
 
 // Instances for this particular thread
