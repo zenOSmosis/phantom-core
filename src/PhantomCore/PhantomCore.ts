@@ -169,8 +169,8 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * IMPORTANT: The return is a COPY of the merged; no re-assignment takes place.
    */
   static mergeOptions(
-    objA: { [key: string]: unknown },
-    objB: { [key: string]: unknown }
+    objA: { [key: string]: unknown } | null,
+    objB: { [key: string]: unknown } | null
   ) {
     return shallowMerge(objA, objB);
   }
@@ -191,7 +191,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
   public logger: Logger;
 
   // TODO: [3.0.0] Fix any type
-  constructor(options: { [key: string]: any } = {}) {
+  constructor(options: { [key: string]: any } | null = {}) {
     super();
 
     const deprecationNotices = [];

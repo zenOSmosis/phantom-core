@@ -20,9 +20,14 @@ export {
  * A simple, object-based state management utility.
  */
 export default class PhantomState extends PhantomCore {
+  // FIXME: [3.0.0]? This may be more performant as a Map:
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map#objects_vs._maps
   protected _state: { [key: string]: unknown } = {};
 
-  constructor(initialState = {}, superOptions = {}) {
+  constructor(
+    initialState: { [key: string]: unknown } | null = {},
+    superOptions: { [key: string]: unknown } | null = {}
+  ) {
     super(superOptions);
 
     if (initialState) {
