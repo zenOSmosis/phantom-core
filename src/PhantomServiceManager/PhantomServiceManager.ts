@@ -67,7 +67,9 @@ export default class PhantomServiceManager extends PhantomCollection {
    * @emits EVT_CHILD_INSTANCE_ADDED
    * @emits EVT_UPDATED
    */
-  addChildClass(ServiceClass: Class<PhantomServiceCore>) {
+  // TODO: [3.0.0] Fix this
+  // @ts-ignore
+  override addClass(ServiceClass: Class<PhantomServiceCore>) {
     // TODO: [3.0.0] Fix this ts-ignore
     // @ts-ignore
     if (ServiceClass === PhantomServiceCore) {
@@ -168,7 +170,7 @@ export default class PhantomServiceManager extends PhantomCollection {
    * @see this.addChild
    */
   startServiceClass(ServiceClass: Class<PhantomServiceCore>) {
-    return this.addChildClass(ServiceClass);
+    return this.addClass(ServiceClass);
   }
 
   /**
