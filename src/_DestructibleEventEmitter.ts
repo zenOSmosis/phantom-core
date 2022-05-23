@@ -101,69 +101,99 @@ export default class DestructibleEventEmitter extends EventEmitter {
    * destroy() method, after the destroy handler stack has executed.
    */
   async destroy(destroyHandler?: () => void, cleanupHandler?: () => void) {
+    // Note: This method acts as a "firewall" to the actual destroy sequence handler
+
+    // Determine if already in destructing phase
     if (this.UNSAFE_isDestroying) {
       logger.warn(
         `${getClassName(
           this
         )} is already being destroyed. The subsequent call has been ignored. Ensure callers are checking for destroy status before calling destroy().`
       );
-    } else if (this.UNSAFE_isDestroyed) {
+
+      return;
+    }
+
+    // Determine if already destructed
+    if (this.UNSAFE_isDestroyed) {
       // Note: When calling from PhantomCore, after full destruct, this may not
       // get executed, as PhantomCore itself will reroute the subsequent call to
       // a void handler
       throw new Error(`"${getClassName(this)}" has already been destroyed.`);
-    } else {
-      this.UNSAFE_isDestroying = true;
-
-      this.emit(EVT_BEFORE_DESTROY);
-
-      if (typeof destroyHandler === "function") {
-        // FIXME: There might can be better way of doing this rather than a
-        // setTimeout (i.e. use a map of destroying instances)
-        //
-        // Determine if entering into a circular awaiting "gridlock" situation,
-        // where two or more instances await on one another to shutdown
-        const longRespondDestroyHandlerTimeout = setTimeout(() => {
-          this.emit(EVT_DESTROY_STACK_TIMED_OUT);
-        }, SHUT_DOWN_GRACE_PERIOD);
-
-        try {
-          await destroyHandler();
-        } finally {
-          clearTimeout(longRespondDestroyHandlerTimeout);
-        }
-      }
-
-      // Set the state before the event is emit so that any listeners will know
-      // the correct state.
-      //
-      // IMPORTANT: It is by design UNSAFE_isDestroyed is set to true before
-      // UNSAFE_isDestroying is set to false. The reasoning is that we want to relay
-      // the "destroyed" state to any subsequent event handlers, while not
-      // actually being completely done with our cleanup work at this point.
-      this.UNSAFE_isDestroyed = true;
-
-      // IMPORTANT: This must come before removal of all listeners
-      this.emit(EVT_DESTROYED);
-
-      // Remove all event listeners; we're stopped
-      this.removeAllListeners();
-
-      // IMPORTANT: This is intended to come after removeAllListeners has been
-      // invoked
-      if (typeof cleanupHandler === "function") {
-        await cleanupHandler();
-      }
-
-      if (this.getTotalListenerCount()) {
-        throw new Error(
-          "An event handler has been registered in a post destruct callback which could cause a potential memory leak."
-        );
-      }
-
-      // TODO: [3.0.0] Rename
-      // Completely out of "destroying" phase (truly destroyed at this point)
-      this.UNSAFE_isDestroying = false;
     }
+
+    // Proceed to destroy sequence
+    return this.__initDestructSequence(destroyHandler, cleanupHandler);
+  }
+
+  /**
+   * Handles the shutdown process for this class instance.
+   *
+   * Note: This is intended to be called by the destroy method after checks
+   * have been made for current phase of destroy sequence.
+   */
+  private async __initDestructSequence(
+    destroyHandler?: () => void,
+    cleanupHandler?: () => void
+  ) {
+    if (this.UNSAFE_isDestroying || this.UNSAFE_isDestroyed) {
+      throw new Error(
+        "Calling __initDestructSequence arbitrarily is not intended. You should call destroy() instead."
+      );
+    }
+
+    // Start destroying phase
+
+    this.UNSAFE_isDestroying = true;
+
+    this.emit(EVT_BEFORE_DESTROY);
+
+    if (typeof destroyHandler === "function") {
+      // FIXME: There might can be better way of doing this rather than a
+      // setTimeout (i.e. use a map of destroying instances)
+      //
+      // Determine if entering into a circular awaiting "gridlock" situation,
+      // where two or more instances await on one another to shutdown
+      const longRespondDestroyHandlerTimeout = setTimeout(() => {
+        this.emit(EVT_DESTROY_STACK_TIMED_OUT);
+      }, SHUT_DOWN_GRACE_PERIOD);
+
+      try {
+        await destroyHandler();
+      } finally {
+        clearTimeout(longRespondDestroyHandlerTimeout);
+      }
+    }
+
+    // Set the state before the event is emit so that any listeners will know
+    // the correct state.
+    //
+    // IMPORTANT: It is by design UNSAFE_isDestroyed is set to true before
+    // UNSAFE_isDestroying is set to false. The reasoning is that we want to relay
+    // the "destroyed" state to any subsequent event handlers, while not
+    // actually being completely done with our cleanup work at this point.
+    this.UNSAFE_isDestroyed = true;
+
+    // IMPORTANT: This must come before removal of all listeners
+    this.emit(EVT_DESTROYED);
+
+    // Remove all event listeners; we're stopped
+    this.removeAllListeners();
+
+    // IMPORTANT: This is intended to come after removeAllListeners has been
+    // invoked
+    if (typeof cleanupHandler === "function") {
+      await cleanupHandler();
+    }
+
+    if (this.getTotalListenerCount()) {
+      throw new Error(
+        "An event handler has been registered in a post destruct callback which could cause a potential memory leak."
+      );
+    }
+
+    // TODO: [3.0.0] Rename
+    // Completely out of "destroying" phase (truly destroyed at this point)
+    this.UNSAFE_isDestroying = false;
   }
 }
