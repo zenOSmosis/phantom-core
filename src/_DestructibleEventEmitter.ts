@@ -115,20 +115,18 @@ export default class DestructibleEventEmitter extends EventEmitter {
 
       this.emit(EVT_BEFORE_DESTROY);
 
-      // Help ensure where to wind up in a circular awaiting "gridlock"
-      // situation, where two or more instances await on one another to shutdown
-      let longRespondDestroyHandlerTimeout = setTimeout(() => {
-        this.emit(EVT_DESTROY_STACK_TIMED_OUT);
-      }, SHUT_DOWN_GRACE_PERIOD);
-
-      // This try / await fixes issue where this instance would emit
-      // EVT_DESTROY_STACK_TIMED_OUT after a period of time if the
-      // destroyHandler callback errored
       if (typeof destroyHandler === "function") {
+        // FIXME: There should be a better way of doing this rather than a
+        // setTimeout
+        //
+        // Determine if entering into a circular awaiting "gridlock" situation,
+        // where two or more instances await on one another to shutdown
+        const longRespondDestroyHandlerTimeout = setTimeout(() => {
+          this.emit(EVT_DESTROY_STACK_TIMED_OUT);
+        }, SHUT_DOWN_GRACE_PERIOD);
+
         try {
           await destroyHandler();
-        } catch (err) {
-          throw err;
         } finally {
           clearTimeout(longRespondDestroyHandlerTimeout);
         }
