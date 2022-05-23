@@ -1,7 +1,6 @@
 import EventEmitter from "events";
 import getClassName from "./utils/class-utils/getClassName";
 import logger from "./globalLogger";
-import Logger from "./Logger";
 
 /**
  * @event EVT_BEFORE_DESTROY Emits directly before any destructor handling.
