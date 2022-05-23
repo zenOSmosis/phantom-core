@@ -9,6 +9,7 @@ import DestructibleEventEmitter, {
   EVT_DESTROY,
 } from "../_DestructibleEventEmitter";
 import Logger, { LogIntersection, LOG_LEVEL_INFO } from "../Logger";
+import logger from "../globalLogger";
 import getPackageJSON from "../utils/getPackageJSON";
 import FunctionStack, { FUNCTION_STACK_OPS_ORDER_LIFO } from "../FunctionStack";
 import getClassName from "../utils/class-utils/getClassName";
@@ -724,10 +725,15 @@ export default class PhantomCore extends DestructibleEventEmitter {
           );
         });
 
+        const className = this.getClassName();
+
         for (const methodName of this.getMethodNames()) {
           // Force non-keep-alive methods to return undefined
           if (!KEEP_ALIVE_SHUTDOWN_METHODS.includes(methodName)) {
-            (this as ClassInstance)[methodName] = (): void => undefined;
+            (this as ClassInstance)[methodName] = (): void =>
+              logger.warn(
+                `${className}:${methodName} cannot be invoked on after instance has been destructed`
+              );
           }
 
           // TODO: Reimplement and conditionally silence w/ instance options
