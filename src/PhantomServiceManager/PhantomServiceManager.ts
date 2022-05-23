@@ -10,6 +10,7 @@ import PhantomCollection, {
 } from "../PhantomCollection";
 import PhantomServiceCore from "../PhantomServiceCore";
 import getClassName from "../utils/class-utils/getClassName";
+import { Class } from "../utils/class-utils/types";
 
 export {
   EVT_NO_INIT_WARN,
@@ -28,6 +29,9 @@ export {
  * current PhantomServiceManager instance.
  */
 export default class PhantomServiceManager extends PhantomCollection {
+  protected _pendingServiceClassInstanceSet: Set<Class<PhantomServiceCore>>;
+  protected _circularWarningMessages: string[];
+
   constructor() {
     super();
 
@@ -46,8 +50,6 @@ export default class PhantomServiceManager extends PhantomCollection {
      * maximum call stack error occurs. This variable is utilized to determine
      * if a particular message has previously been logged, in order to not log
      * it again.
-     *
-     * @type {string[]}
      **/
     this._circularWarningMessages = [];
   }
@@ -60,14 +62,14 @@ export default class PhantomServiceManager extends PhantomCollection {
    * singleton, while new instances of the class can be bound to other manager
    * instances.
    *
-   * @param {PhantomServiceCore} ServiceClass
    * @throws {TypeError}
    * @throws {ReferenceError}
    * @emits EVT_CHILD_INSTANCE_ADDED
    * @emits EVT_UPDATED
-   * @return {PhantomServiceCore} Returns the instance of the added service class
    */
-  addChild(ServiceClass) {
+  addChildClass(ServiceClass: Class<PhantomServiceCore>) {
+    // TODO: [3.0.0] Fix this ts-ignore
+    // @ts-ignore
     if (ServiceClass === PhantomServiceCore) {
       throw new TypeError(
         "ServiceClass must derive from PhantomServiceCore but cannot be PhantomServiceCore itself"
@@ -82,7 +84,7 @@ export default class PhantomServiceManager extends PhantomCollection {
 
     this._pendingServiceClassInstanceSet.add(ServiceClass);
 
-    let service;
+    let service: PhantomServiceCore;
 
     // IMPORTANT: This try / catch block is solely for checking instantiation
     // of SOMETHING, and additional error handling should be outside of this
@@ -90,6 +92,8 @@ export default class PhantomServiceManager extends PhantomCollection {
     // passed to super. Any other error checking in this try / catch can make
     // things trickier to manage.
     try {
+      // TODO: [3.0.0] Remove
+      // @ts-ignore
       service = new ServiceClass({
         // While not EXPLICITLY required to make the functionality work, the
         // internal check inside of PhantomServiceCore for this property helps to
@@ -98,7 +102,9 @@ export default class PhantomServiceManager extends PhantomCollection {
 
         // Bind functionality to the service to be able to use other services,
         // using this service collection as the backend
-        useServiceClassHandler: ChildServiceClass => {
+        useServiceClassHandler: (
+          ChildServiceClass: Class<PhantomServiceCore>
+        ) => {
           if (ChildServiceClass === ServiceClass) {
             throw new TypeError(
               "Service cannot start a new instance of itself"
@@ -154,12 +160,15 @@ export default class PhantomServiceManager extends PhantomCollection {
   }
 
   /**
-   * Alias for this.addChild
+   * Starts associated class instance.
+   *
+   * If the class is already instantiated in this manager's session, this call
+   * will be ignored.
    *
    * @see this.addChild
    */
-  startServiceClass(ServiceClass) {
-    return this.addChild(ServiceClass);
+  startServiceClass(ServiceClass: Class<PhantomServiceCore>) {
+    return this.addChildClass(ServiceClass);
   }
 
   /**
@@ -168,7 +177,7 @@ export default class PhantomServiceManager extends PhantomCollection {
    * @param {PhantomServiceCore} ServiceClass
    * @return {Promise<void>}
    */
-  async stopServiceClass(ServiceClass) {
+  async stopServiceClass(ServiceClass: Class<PhantomServiceCore>) {
     const cachedService = this.getServiceInstance(ServiceClass);
 
     if (cachedService) {
@@ -178,11 +187,8 @@ export default class PhantomServiceManager extends PhantomCollection {
 
   /**
    * Retrieves associated class instance of the given ServiceClass.
-   *
-   * @param {PhantomServiceCore} ServiceClass Non-instantiated service class.
-   * @return {PhantomServiceCore} Instance of the service class.
    */
-  getServiceInstance(ServiceClass) {
+  getServiceInstance(ServiceClass: Class<PhantomServiceCore>) {
     const cachedService = this.getChildWithKey(ServiceClass);
 
     return cachedService;
@@ -197,14 +203,11 @@ export default class PhantomServiceManager extends PhantomCollection {
     return this.getKeys();
   }
 
-  /**
-   * @param {Function} destroyHandler? [optional] If defined, will execute
-   * prior to normal destruct operations for this class.
-   * @return {Promise<void>}
-   */
-  async destroy(destroyHandler = () => null) {
+  override async destroy(destroyHandler?: (...args: any[]) => void) {
     return super.destroy(async () => {
-      await destroyHandler();
+      if (typeof destroyHandler === "function") {
+        await destroyHandler();
+      }
 
       // Destruct all services on collection destruct
       await this.destroyAllChildren();
