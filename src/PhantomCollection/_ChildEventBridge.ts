@@ -45,7 +45,7 @@ export default class ChildEventBridge extends PhantomCore {
    * need to listen for EVT_DESTROYED from PhantomCollection.
    */
   constructor(phantomCollection: PhantomCollection) {
-    // TODO: [3.0.0] Remove this check
+    // TODO: [3.0.0] Remove this check?
     if (!(phantomCollection instanceof PhantomCollection)) {
       throw new TypeError(
         "phantomCollection is not a PhantomCollection instance"
@@ -170,9 +170,7 @@ export default class ChildEventBridge extends PhantomCore {
     // Silently ignore previously linked events with same name
     if (!childEventMap.has(eventName)) {
       // Re-emits the mapped child event data out the parent collection
-      // TODO: [3.0.0] Fix type
-      // @ts-ignore
-      const _handleChildEvent = eventData =>
+      const _handleChildEvent = (eventData: unknown) =>
         this._phantomCollection?.emit(eventName, eventData);
 
       // Bind to the child instance
