@@ -1,7 +1,7 @@
 import assert from "assert";
 import PhantomCore from ".";
 import _DestructibleEventEmitter, {
-  EVT_DESTROYED,
+  EVT_DESTROY,
 } from "../_DestructibleEventEmitter";
 
 /**
@@ -11,7 +11,7 @@ import _DestructibleEventEmitter, {
  * Internally it binds the events to the remote target instance(s) and manages
  * their handling.
  *
- * NOTE: A single EVT_DESTROYED method is also attached to every target
+ * NOTE: A single EVT_DESTROY method is also attached to every target
  * instance to perform shutdown handling.
  */
 export default class EventProxyStack extends _DestructibleEventEmitter {
@@ -31,7 +31,7 @@ export default class EventProxyStack extends _DestructibleEventEmitter {
     this._eventProxyBinds = [];
 
     /**
-     * Associated EVT_DESTROYED handlers attached to target instances, which
+     * Associated EVT_DESTROY handlers attached to target instances, which
      * are invoked if the target instance is destructed before the local
      * instance.
      */
@@ -78,8 +78,8 @@ export default class EventProxyStack extends _DestructibleEventEmitter {
       this._targetDestroyHandlers.set(targetInstance, instanceDestroyHandler);
 
       // ... then register the target destroy handler to run once the target
-      // emits EVT_DESTROYED
-      targetInstance.once(EVT_DESTROYED, instanceDestroyHandler);
+      // emits EVT_DESTROY
+      targetInstance.once(EVT_DESTROY, instanceDestroyHandler);
     }
   }
 
@@ -159,7 +159,7 @@ export default class EventProxyStack extends _DestructibleEventEmitter {
     const destroyHandler = this._targetDestroyHandlers.get(targetInstance);
 
     if (destroyHandler) {
-      targetInstance.off(EVT_DESTROYED, destroyHandler);
+      targetInstance.off(EVT_DESTROY, destroyHandler);
 
       this._targetDestroyHandlers.delete(targetInstance);
     }

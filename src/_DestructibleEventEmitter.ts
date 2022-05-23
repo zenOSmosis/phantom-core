@@ -8,16 +8,16 @@ import logger from "./globalLogger";
 export const EVT_BEFORE_DESTROY = "before-destroy";
 
 /**
- * @event EVT_DESTROY_STACK_TIMED_OUT Emits when destroy stack has timed out.
+ * @event EVT_DESTROY_STACK_TIME_OUT Emits when destroy stack has timed out.
  * This should lead to an error.
  */
-export const EVT_DESTROY_STACK_TIMED_OUT = "destroy-stack-timed-out";
+export const EVT_DESTROY_STACK_TIME_OUT = "destroy-stack-time-out";
 
 /**
- * @export EVT_DESTROYED Emits just before event handlers have been removed and
+ * @export EVT_DESTROY Emits just before event handlers have been removed and
  * any post-destruct operations are invoked.
  */
-export const EVT_DESTROYED = "destroyed";
+export const EVT_DESTROY = "destroy";
 
 // Number of milliseconds before the instance will warn about potential
 // destruct problems
@@ -39,9 +39,9 @@ export default class DestructibleEventEmitter extends EventEmitter {
     this.UNSAFE_isDestroying = false;
     this.UNSAFE_isDestroyed = false;
 
-    // Prevent incorrect usage of EVT_DESTROYED; EVT_DESTROYED should only be
+    // Prevent incorrect usage of EVT_DESTROY; EVT_DESTROY should only be
     // emit internally during the shutdown phase
-    this.on(EVT_DESTROYED, () => {
+    this.on(EVT_DESTROY, () => {
       if (!this.UNSAFE_isDestroyed) {
         // IMPORTANT: Don't await here; we want to throw the error and destruct
         // the instance at the same time due to it being in a potentially invalid
@@ -49,7 +49,7 @@ export default class DestructibleEventEmitter extends EventEmitter {
         this.destroy();
 
         throw new Error(
-          "EVT_DESTROYED was incorrectly emit without initially being in a destroyed state. Destructing instance due to potential state invalidation."
+          "EVT_DESTROY was incorrectly emit without initially being in a destroyed state. Destructing instance due to potential state invalidation."
         );
       }
     });
@@ -68,7 +68,7 @@ export default class DestructibleEventEmitter extends EventEmitter {
   /**
    * Retrieves whether or not the class is currently being destroyed.
    *
-   * Note that this will still return true after EVT_DESTROYED is emit and will
+   * Note that this will still return true after EVT_DESTROY is emit and will
    * be false after post-cleanup operations have run.
    */
   UNSAFE_getIsDestroying() {
@@ -94,9 +94,9 @@ export default class DestructibleEventEmitter extends EventEmitter {
    * @return {Promise<void>}
    * @emits EVT_BEFORE_DESTROY Emits a single time, regardless of calls to the
    * destroy() method, before the destroy handler stack is executed.
-   * @emits EVT_DESTROY_STACK_TIMED_OUT Emits if the destroy handler stack
+   * @emits EVT_DESTROY_STACK_TIME_OUT Emits if the destroy handler stack
    * takes longer than expected to execute.
-   * @emits EVT_DESTROYED Emits a single time, regardless of calls to the
+   * @emits EVT_DESTROY Emits a single time, regardless of calls to the
    * destroy() method, after the destroy handler stack has executed.
    */
   async destroy(destroyHandler?: () => void, cleanupHandler?: () => void) {
@@ -154,7 +154,7 @@ export default class DestructibleEventEmitter extends EventEmitter {
       // Determine if entering into a circular awaiting "gridlock" situation,
       // where two or more instances await on one another to shutdown
       const longRespondDestroyHandlerTimeout = setTimeout(() => {
-        this.emit(EVT_DESTROY_STACK_TIMED_OUT);
+        this.emit(EVT_DESTROY_STACK_TIME_OUT);
       }, SHUT_DOWN_GRACE_PERIOD);
 
       try {
@@ -174,7 +174,7 @@ export default class DestructibleEventEmitter extends EventEmitter {
     this.UNSAFE_isDestroyed = true;
 
     // IMPORTANT: This must come before removal of all listeners
-    this.emit(EVT_DESTROYED);
+    this.emit(EVT_DESTROY);
 
     // Remove all event listeners; we're stopped
     this.removeAllListeners();

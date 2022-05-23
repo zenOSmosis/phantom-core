@@ -5,8 +5,8 @@ import "setimmediate";
 import EventEmitter from "events";
 import DestructibleEventEmitter, {
   EVT_BEFORE_DESTROY,
-  EVT_DESTROY_STACK_TIMED_OUT,
-  EVT_DESTROYED,
+  EVT_DESTROY_STACK_TIME_OUT,
+  EVT_DESTROY,
 } from "../_DestructibleEventEmitter";
 import Logger, { LogIntersection, LOG_LEVEL_INFO } from "../Logger";
 import getPackageJSON from "../utils/getPackageJSON";
@@ -41,12 +41,12 @@ export const EVT_NO_INIT_WARN = "no-init-warn";
 export const EVT_READY = "ready";
 
 /**
- * @event EVT_UPDATED Emits when something of common significance has updated
+ * @event EVT_UPDATE Emits when something of common significance has updated
  * which any attached views should be aware of.
  */
-export const EVT_UPDATED = "updated";
+export const EVT_UPDATE = "updated";
 
-export { EVT_BEFORE_DESTROY, EVT_DESTROY_STACK_TIMED_OUT, EVT_DESTROYED };
+export { EVT_BEFORE_DESTROY, EVT_DESTROY_STACK_TIME_OUT, EVT_DESTROY };
 
 // Instances for this particular thread
 //
@@ -305,7 +305,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
      */
     this.log = this.logger.log;
 
-    this.once(EVT_DESTROY_STACK_TIMED_OUT, () => {
+    this.once(EVT_DESTROY_STACK_TIME_OUT, () => {
       this.log.error(
         "The destruct callstack is taking longer to execute than expected. Ensure a potential gridlock situation is not happening, where two or more PhantomCore instances are awaiting one another to shut down."
       );
@@ -348,7 +348,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
       }, ASYNC_INIT_GRACE_TIME);
 
       this.once(EVT_READY, () => clearTimeout(longRespondInitWarnTimeout));
-      this.once(EVT_DESTROYED, () => clearTimeout(longRespondInitWarnTimeout));
+      this.once(EVT_DESTROY, () => clearTimeout(longRespondInitWarnTimeout));
     }
   }
 
@@ -411,7 +411,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
 
   /**
    * Registers a function with the cleanup handler stack, which is executed
-   * after EVT_DESTROYED is emit and all event handlers have been removed.
+   * after EVT_DESTROY is emit and all event handlers have been removed.
    */
   registerCleanupHandler(fn: Function) {
     return this._cleanupHandlerStack.push(fn);
@@ -458,12 +458,12 @@ export default class PhantomCore extends DestructibleEventEmitter {
   /**
    * Sets the PhantomCore instance title.
    *
-   * @emits EVT_UPDATED
+   * @emits EVT_UPDATE
    */
   setTitle(title: string) {
     this._title = title;
 
-    this.emit(EVT_UPDATED);
+    this.emit(EVT_UPDATE);
   }
 
   /**
@@ -690,7 +690,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * NOTE: Order of operations for shutdown handling:
    *
    *  1. [implementation defined] destroyHandler
-   *  2. EVT_DESTROYED triggers
+   *  2. EVT_DESTROY triggers
    *  3. registerCleanupHandler call stack
    */
   override async destroy(destroyHandler?: () => void) {

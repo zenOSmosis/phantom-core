@@ -1,11 +1,11 @@
 import assert from "assert";
-import PhantomCore, { EVT_UPDATED } from "../PhantomCore";
+import PhantomCore, { EVT_UPDATE } from "../PhantomCore";
 import PhantomCollection, {
-  EVT_CHILD_INSTANCE_ADDED,
-  EVT_CHILD_INSTANCE_REMOVED,
+  EVT_CHILD_INSTANCE_ADD,
+  EVT_CHILD_INSTANCE_REMOVE,
 } from "./PhantomCollection";
 
-const DEFAULT_BRIDGE_EVENT_NAMES = [EVT_UPDATED] as string[] & symbol[];
+const DEFAULT_BRIDGE_EVENT_NAMES = [EVT_UPDATE] as string[] & symbol[];
 
 const EVT_BRIDGE_EVENT_NAME_ADDED = "bridge-event-name-added";
 const EVT_BRIDGE_EVENT_NAME_REMOVED = "bridge-event-name-removed";
@@ -14,7 +14,7 @@ type EventName = string | symbol;
 type EventHandler = (...args: any[]) => void;
 type EventMap = Map<EventName, EventHandler>;
 
-export { EVT_UPDATED };
+export { EVT_UPDATE };
 
 /**
  * Handles many-to-one proxying of specified events of PhantomCollection
@@ -22,8 +22,8 @@ export { EVT_UPDATED };
  *
  * For each relevant event, when emit, the PhantomCollection emits the same
  * event and the same event data as the original child emitter emitted (i.e.
- * [for every mapped event] when childA emits EVT_UPDATED, collection emits
- * EVT_UPDATED as well).
+ * [for every mapped event] when childA emits EVT_UPDATE, collection emits
+ * EVT_UPDATE as well).
  */
 export default class PhantomCollectionChildEventBridge extends PhantomCore {
   protected _phantomCollection?: PhantomCollection;
@@ -41,7 +41,7 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
 
   /**
    * IMPORTANT: This bridge is destructed by the collection itself and does not
-   * need to listen for EVT_DESTROYED from PhantomCollection.
+   * need to listen for EVT_DESTROY from PhantomCollection.
    */
   constructor(phantomCollection: PhantomCollection) {
     // TODO: [3.0.0] Remove this check?
@@ -64,13 +64,13 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
     (() => {
       this.proxyOn(
         this._phantomCollection,
-        EVT_CHILD_INSTANCE_ADDED,
+        EVT_CHILD_INSTANCE_ADD,
         this._handleChildInstanceAdded
       );
 
       this.proxyOn(
         this._phantomCollection,
-        EVT_CHILD_INSTANCE_REMOVED,
+        EVT_CHILD_INSTANCE_REMOVE,
         this._handleChildInstanceRemoved
       );
     })();

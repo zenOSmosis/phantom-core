@@ -2,10 +2,10 @@ import assert from "assert";
 import PhantomCore, {
   EVT_NO_INIT_WARN,
   EVT_READY,
-  EVT_UPDATED,
+  EVT_UPDATE,
   EVT_BEFORE_DESTROY,
-  EVT_DESTROY_STACK_TIMED_OUT,
-  EVT_DESTROYED,
+  EVT_DESTROY_STACK_TIME_OUT,
+  EVT_DESTROY,
 } from "../PhantomCore";
 import ChildEventBridge from "./PhantomCollection.ChildEventBridge";
 import { Class } from "../utils/class-utils/types";
@@ -13,23 +13,23 @@ import { Class } from "../utils/class-utils/types";
 export {
   EVT_NO_INIT_WARN,
   EVT_READY,
-  EVT_UPDATED,
+  EVT_UPDATE,
   EVT_BEFORE_DESTROY,
-  EVT_DESTROY_STACK_TIMED_OUT,
-  EVT_DESTROYED,
+  EVT_DESTROY_STACK_TIME_OUT,
+  EVT_DESTROY,
 };
 
 /**
- * @event EVT_CHILD_INSTANCE_ADDED Emits with the PhantomCore instance which
+ * @event EVT_CHILD_INSTANCE_ADD Emits with the PhantomCore instance which
  * was added to the collection.
  **/
-export const EVT_CHILD_INSTANCE_ADDED = "child-instance-added";
+export const EVT_CHILD_INSTANCE_ADD = "child-instance-add";
 
 /**
- * @event EVT_CHILD_INSTANCE_REMOVED Emits with the PhantomCore instance which
+ * @event EVT_CHILD_INSTANCE_REMOVE Emits with the PhantomCore instance which
  * was removed from the collection.
  **/
-export const EVT_CHILD_INSTANCE_REMOVED = "child-instance-removed";
+export const EVT_CHILD_INSTANCE_REMOVE = "child-instance-remove";
 
 // TODO: [3.0.0] Redeclare via type
 const KEY_META_DESC_CHILD_KEY = "childKey";
@@ -177,8 +177,8 @@ export default class PhantomCollection extends PhantomCore {
    *
    * @throws {TypeError}
    * @throws {ReferenceError}
-   * @emits EVT_CHILD_INSTANCE_ADDED
-   * @emits EVT_UPDATED
+   * @emits EVT_CHILD_INSTANCE_ADD
+   * @emits EVT_UPDATE
    */
   addChild(phantomCoreInstance: PhantomCore, key: unknown = null) {
     const prevInstanceWithKey = this.getChildWithKey(key);
@@ -227,7 +227,7 @@ export default class PhantomCollection extends PhantomCore {
         child => child !== phantomCoreInstance
       );
 
-      phantomCoreInstance.once(EVT_DESTROYED, () =>
+      phantomCoreInstance.once(EVT_DESTROY, () =>
         // Execute final event emissions from child and remove the associated
         // metadata
         this.removeChild(phantomCoreInstance)
@@ -257,16 +257,16 @@ export default class PhantomCollection extends PhantomCore {
     // resulting in potentially stale state when used with React.
     this._children = [...this._children, phantomCoreInstance];
 
-    this.emit(EVT_CHILD_INSTANCE_ADDED, phantomCoreInstance);
-    this.emit(EVT_UPDATED);
+    this.emit(EVT_CHILD_INSTANCE_ADD, phantomCoreInstance);
+    this.emit(EVT_UPDATE);
   }
 
   /**
    * Removes a PhantomCore instance from the collection.
    *
    * @param {PhantomCore} phantomCoreInstance
-   * @emits EVT_CHILD_INSTANCE_REMOVED
-   * @emits EVT_UPDATED
+   * @emits EVT_CHILD_INSTANCE_REMOVE
+   * @emits EVT_UPDATE
    * @return {void}
    */
   removeChild(phantomCoreInstance: PhantomCore) {
@@ -288,8 +288,8 @@ export default class PhantomCollection extends PhantomCore {
       // Remove the associated metadata
       this._childrenMetadata.delete(phantomCoreInstance);
 
-      this.emit(EVT_CHILD_INSTANCE_REMOVED, phantomCoreInstance);
-      this.emit(EVT_UPDATED);
+      this.emit(EVT_CHILD_INSTANCE_REMOVE, phantomCoreInstance);
+      this.emit(EVT_UPDATE);
     }
   }
 
