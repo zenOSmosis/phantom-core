@@ -54,6 +54,12 @@ export default class PhantomServiceManager extends PhantomCollection {
     this._circularWarningMessages = [];
   }
 
+  override addChild() {
+    throw new Error(
+      "addChild cannot be called directly on PhantomServiceManager"
+    );
+  }
+
   /**
    * Starts a new ServiceCoreClass instance or retrieves an existing one, if
    * the same class is managed by this manager.
@@ -67,9 +73,7 @@ export default class PhantomServiceManager extends PhantomCollection {
    * @emits EVT_CHILD_INSTANCE_ADDED
    * @emits EVT_UPDATED
    */
-  // TODO: [3.0.0] Fix this
-  // @ts-ignore
-  override addClass(ServiceClass: Class<PhantomServiceCore>) {
+  addClass(ServiceClass: Class<PhantomServiceCore>) {
     // TODO: [3.0.0] Fix this ts-ignore
     // @ts-ignore
     if (ServiceClass === PhantomServiceCore) {
