@@ -1,5 +1,5 @@
 // @see https://github.com/YuzuJS/setImmediate
-// Exposes setImmediate as a global, regardless of context
+// Exposes setImmediate as a global, if not already defined as a global
 import "setimmediate";
 
 import EventEmitter from "events";
