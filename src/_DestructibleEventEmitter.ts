@@ -1,6 +1,7 @@
 import EventEmitter from "events";
 import getClassName from "./utils/class-utils/getClassName";
 import logger from "./globalLogger";
+import Logger from "./Logger";
 
 /**
  * @event EVT_BEFORE_DESTROY Emits directly before any destructor handling.
@@ -116,8 +117,8 @@ export default class DestructibleEventEmitter extends EventEmitter {
       this.emit(EVT_BEFORE_DESTROY);
 
       if (typeof destroyHandler === "function") {
-        // FIXME: There should be a better way of doing this rather than a
-        // setTimeout
+        // FIXME: There might can be better way of doing this rather than a
+        // setTimeout (i.e. use a map of destroying instances)
         //
         // Determine if entering into a circular awaiting "gridlock" situation,
         // where two or more instances await on one another to shutdown
