@@ -20,6 +20,16 @@
     "lint": "prettier --write '(**/)*.js'",
     "check-dep-updates": "npx npm-check-updates"
   },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./phantom-collection": {
+      "types": "./dist/PhantomCollection/index.d.ts",
+      "default": "./dist/PhantomCollection/index.js"
+    }
+  },
   "dependencies": {
     "dayjs": "^1.10.7",
     "deepmerge": "^4.2.2",
