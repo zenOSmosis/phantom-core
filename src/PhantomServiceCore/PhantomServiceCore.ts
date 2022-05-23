@@ -8,6 +8,7 @@ import PhantomState, {
 } from "../PhantomState";
 import PhantomCollection from "../PhantomCollection";
 import PhantomServiceManager from "../PhantomServiceManager";
+import { Class, ClassInstance } from "../utils/class-utils/types";
 
 export {
   EVT_NO_INIT_WARN,
@@ -30,8 +31,24 @@ export {
 // collections as well), but want to keep it open to the possibility of
 // managing other types of collection-type data without the possibility of a
 // conflict (i.e. collections based on role, etc.)
+//
+// IMPORTANT: It is OKAY to use this as an async!
 export default class PhantomServiceCore extends PhantomState {
-  constructor({ manager, useServiceClassHandler }) {
+  // TODO: [3.0.0] Use generic for value i.e. PhantomInstance<PhantomCollection>
+  protected _collectionMap: Map<Class<PhantomCollection>, PhantomCollection>;
+
+  // TODO: [3.0.0] Rename?
+  protected __MANAGED__useServiceClassHandler: (
+    arg: Class<PhantomServiceCore>
+  ) => ClassInstance;
+
+  constructor({
+    manager,
+    useServiceClassHandler,
+  }: {
+    manager: PhantomServiceManager;
+    useServiceClassHandler: () => Class<PhantomServiceCore>;
+  }) {
     super(null, {
       // Services register immediately in their managers, but are not ready to
       // go until the _init method has run
@@ -84,26 +101,13 @@ export default class PhantomServiceCore extends PhantomState {
   }
 
   /**
-   * This can be extended with any custom async handling. Custom
-   * implementations must call super._init().
-   *
-   * @return {Promise<void>}
-   */
-  async _init() {
-    return super._init();
-  }
-
-  /**
    * Starts a new service class instance, or retrieves an existing one which
    * matches the given class, unique to the associated PhantomServiceManager.
    *
    * This service class is treated as a singleton, relative to the associated
    * PhantomServiceManager instead of the global scope.
-   *
-   * @param {PhantomServiceCore} ServiceClass
-   * @return {PhantomServiceCore} Service class instance.
    */
-  useServiceClass(ServiceClass) {
+  useServiceClass(ServiceClass: Class<PhantomServiceCore>) {
     return this.__MANAGED__useServiceClassHandler(ServiceClass);
   }
 
@@ -114,17 +118,16 @@ export default class PhantomServiceCore extends PhantomState {
    *
    * IMPORTANT: Bound collection classes shared with multiple services using
    * bindCollectionClass will use separate instances of the collection.
-   *
-   * @param {PhantomCollection} CollectionClass
-   * @return {PhantomCollection} Instance of CollectionClass.
    */
-  bindCollectionClass(CollectionClass) {
+  bindCollectionClass(CollectionClass: Class<PhantomCollection>) {
     const prevCollectionInstance = this._collectionMap.get(CollectionClass);
 
     if (prevCollectionInstance) {
       return prevCollectionInstance;
     }
 
+    // TODO: [3.0.0] Fix this type
+    // @ts-ignore
     const collectionInstance = new CollectionClass();
 
     // FIXME: (jh) A better check would be to determine this before
@@ -155,11 +158,8 @@ export default class PhantomServiceCore extends PhantomState {
   /**
    * Unbinds the given CollectionClass from this service and destructs the
    * instance.
-   *
-   * @param {CollectionClass} CollectionClass
-   * @return {Promise<void>}
    */
-  async unbindCollectionClass(CollectionClass) {
+  async unbindCollectionClass(CollectionClass: Class<PhantomCollection>) {
     const collectionInstance = this.getCollectionInstance(CollectionClass);
 
     if (collectionInstance) {
@@ -168,16 +168,15 @@ export default class PhantomServiceCore extends PhantomState {
   }
 
   /**
-   * @param {PhantomCollection} CollectionClass
-   * @return {PhantomCollection} instance
+   * Retrieves the PhantomCollection with the given class.
    */
-  getCollectionInstance(CollectionClass) {
+  getCollectionInstance(CollectionClass: Class<PhantomCollection>) {
     return this._collectionMap.get(CollectionClass);
   }
 
   /**
-   * @return {PhantomCollection[]} An array of PhantomCollection classes (not
-   * instances) which are bound to the service.
+   * Retrieves an array of PhantomCollection classes (not instances) which are
+   * bound to the service.
    */
   getCollectionClasses() {
     // Coerce to array since map.keys() is not an array (it's an Iterator object)
@@ -185,14 +184,11 @@ export default class PhantomServiceCore extends PhantomState {
     return [...this._collectionMap.keys()];
   }
 
-  /**
-   * @param {Function} destroyHandler? [optional] If defined, will execute
-   * prior to normal destruct operations for this class.
-   * @return {Promise<void>}
-   */
-  async destroy(destroyHandler = () => null) {
+  override async destroy(destroyHandler?: (...args: any[]) => void) {
     return super.destroy(async () => {
-      await destroyHandler();
+      if (typeof destroyHandler === "function") {
+        await destroyHandler();
+      }
 
       // Destruct all attached collections
       await Promise.all(
