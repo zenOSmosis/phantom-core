@@ -184,7 +184,7 @@ export default class PhantomServiceCore extends PhantomState {
     return [...this._collectionMap.keys()];
   }
 
-  override async destroy(destroyHandler?: (...args: any[]) => void) {
+  override async destroy(destroyHandler?: () => void) {
     return super.destroy(async () => {
       if (typeof destroyHandler === "function") {
         await destroyHandler();

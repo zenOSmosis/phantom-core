@@ -210,7 +210,7 @@ export default class PhantomServiceManager extends PhantomCollection {
     return this.getKeys();
   }
 
-  override async destroy(destroyHandler?: (...args: any[]) => void) {
+  override async destroy(destroyHandler?: () => void) {
     return super.destroy(async () => {
       if (typeof destroyHandler === "function") {
         await destroyHandler();

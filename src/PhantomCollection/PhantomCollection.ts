@@ -398,7 +398,7 @@ export default class PhantomCollection extends PhantomCore {
    * prior to normal destruct operations for this class.
    * @return {Promise<void>}
    */
-  override async destroy(destroyHandler?: (...args: any[]) => void) {
+  override async destroy(destroyHandler?: () => void) {
     return super.destroy(async () => {
       if (typeof destroyHandler === "function") {
         await destroyHandler();

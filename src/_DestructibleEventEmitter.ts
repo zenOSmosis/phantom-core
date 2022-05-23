@@ -86,7 +86,7 @@ export default class DestructibleEventEmitter extends EventEmitter {
   /**
    * @param {Function} destroyHandler? [optional] If defined, will execute
    * prior to normal destruct operations for this instance.
-   * @param {Function} postDestroyHandler? [optional] If defined, will execute
+   * @param {Function} cleanupHandler? [optional] If defined, will execute
    * after all event listeners have been removed from the instance. This is
    * primarily used for the PhantomCore superclass and exposed via
    * registerCleanupHandler to inheriting classes of PhantomCore.
@@ -98,7 +98,7 @@ export default class DestructibleEventEmitter extends EventEmitter {
    * @emits EVT_DESTROYED Emits a single time, regardless of calls to the
    * destroy() method, after the destroy handler stack has executed.
    */
-  async destroy(destroyHandler?: () => void, postDestroyHandler?: () => void) {
+  async destroy(destroyHandler?: () => void, cleanupHandler?: () => void) {
     if (this._isDestroying) {
       logger.warn(
         `${getClassName(
@@ -151,8 +151,8 @@ export default class DestructibleEventEmitter extends EventEmitter {
 
       // IMPORTANT: This is intended to come after removeAllListeners has been
       // invoked
-      if (typeof postDestroyHandler === "function") {
-        await postDestroyHandler();
+      if (typeof cleanupHandler === "function") {
+        await cleanupHandler();
       }
 
       if (this.getTotalListenerCount()) {
