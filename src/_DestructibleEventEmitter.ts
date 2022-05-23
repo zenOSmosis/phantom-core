@@ -106,9 +106,9 @@ export default class DestructibleEventEmitter extends EventEmitter {
         )} is already being destroyed. The subsequent call has been ignored. Ensure callers are checking for destroy status before calling destroy().`
       );
     } else if (this._isDestroyed) {
-      // NOTE: When calling from PhantomCore, after full destruct, this may not
+      // Note: When calling from PhantomCore, after full destruct, this may not
       // get executed, as PhantomCore itself will reroute the subsequent call to
-      // a null handler
+      // a void handler
       throw new Error(`"${getClassName(this)}" has already been destroyed.`);
     } else {
       this._isDestroying = true;
