@@ -16,7 +16,6 @@ type EventMap = Map<EventName, EventHandler>;
 
 export { EVT_UPDATED };
 
-// TODO: [3.0.0] Rename to PhantomCollectionChildEventBridge?
 /**
  * Handles many-to-one proxying of specified events of PhantomCollection
  * children out of the PhantomCollection itself.
@@ -26,7 +25,7 @@ export { EVT_UPDATED };
  * [for every mapped event] when childA emits EVT_UPDATED, collection emits
  * EVT_UPDATED as well).
  */
-export default class ChildEventBridge extends PhantomCore {
+export default class PhantomCollectionChildEventBridge extends PhantomCore {
   protected _phantomCollection?: PhantomCollection;
 
   /**

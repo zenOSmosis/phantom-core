@@ -11,7 +11,7 @@ import {
   EVT_CHILD_INSTANCE_REMOVED,
 } from "../src/PhantomCollection";
 
-import _ChildEventBridge from "../src/PhantomCollection/_ChildEventBridge";
+import _ChildEventBridge from "../src/PhantomCollection/PhantomCollection.ChildEventBridge";
 
 const EventEmitter = require("events");
 
