@@ -7,10 +7,10 @@ import PhantomCore, {
   PhantomServiceCore,
   PhantomServiceManager,
   EVT_READY,
-  EVT_UPDATED,
+  EVT_UPDATE,
   EVT_BEFORE_DESTROY,
-  EVT_DESTROY_STACK_TIMED_OUT,
-  EVT_DESTROYED,
+  EVT_DESTROY_STACK_TIME_OUT,
+  EVT_DESTROY,
   EVT_NO_INIT_WARN,
 } from "../../src";
 
@@ -22,10 +22,10 @@ test("PhantomCore events", t => {
   t.doesNotThrow(() => {
     compareExportedEvents(PhantomCore, {
       EVT_READY,
-      EVT_UPDATED,
+      EVT_UPDATE,
       EVT_BEFORE_DESTROY,
-      EVT_DESTROY_STACK_TIMED_OUT,
-      EVT_DESTROYED,
+      EVT_DESTROY_STACK_TIME_OUT,
+      EVT_DESTROY,
       EVT_NO_INIT_WARN,
     });
   }, "PhantomCore exports expected events");

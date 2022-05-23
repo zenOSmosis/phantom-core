@@ -1,10 +1,10 @@
 import PhantomState, {
   EVT_NO_INIT_WARN,
   EVT_READY,
-  EVT_UPDATED,
+  EVT_UPDATE,
   EVT_BEFORE_DESTROY,
-  EVT_DESTROY_STACK_TIMED_OUT,
-  EVT_DESTROYED,
+  EVT_DESTROY_STACK_TIME_OUT,
+  EVT_DESTROY,
 } from "../PhantomState";
 import PhantomCollection from "../PhantomCollection";
 import PhantomServiceManager from "../PhantomServiceManager";
@@ -13,10 +13,10 @@ import { Class, ClassInstance } from "../utils/class-utils/types";
 export {
   EVT_NO_INIT_WARN,
   EVT_READY,
-  EVT_UPDATED,
+  EVT_UPDATE,
   EVT_BEFORE_DESTROY,
-  EVT_DESTROY_STACK_TIMED_OUT,
-  EVT_DESTROYED,
+  EVT_DESTROY_STACK_TIME_OUT,
+  EVT_DESTROY,
 };
 
 // TODO: Configure reporter channel (base class PhantomState, SyncObject or
@@ -114,7 +114,7 @@ export default class PhantomServiceCore extends PhantomState {
   /**
    * Binds a PhantomCollection to this service, instantiating it a singleton
    * relative to service instance (instead of the global scope), proxying
-   * EVT_UPDATED events from the collection through the service.
+   * EVT_UPDATE events from the collection through the service.
    *
    * IMPORTANT: Bound collection classes shared with multiple services using
    * bindCollectionClass will use separate instances of the collection.
@@ -140,15 +140,15 @@ export default class PhantomServiceCore extends PhantomState {
       throw new TypeError("collectionInstance is not a PhantomCollection");
     }
 
-    // Proxy collection EVT_UPDATED through the service core
-    this.proxyOn(collectionInstance, EVT_UPDATED, data =>
-      this.emit(EVT_UPDATED, data)
+    // Proxy collection EVT_UPDATE through the service core
+    this.proxyOn(collectionInstance, EVT_UPDATE, data =>
+      this.emit(EVT_UPDATE, data)
     );
 
     this._collectionMap.set(CollectionClass, collectionInstance);
 
     // Remove from collection map once collection is destructed
-    collectionInstance.once(EVT_DESTROYED, () => {
+    collectionInstance.once(EVT_DESTROY, () => {
       this._collectionMap.delete(CollectionClass);
     });
 

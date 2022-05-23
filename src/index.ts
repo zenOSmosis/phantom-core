@@ -1,9 +1,9 @@
 import PhantomCore, {
   EVT_READY,
-  EVT_UPDATED,
+  EVT_UPDATE,
   EVT_BEFORE_DESTROY,
-  EVT_DESTROY_STACK_TIMED_OUT,
-  EVT_DESTROYED,
+  EVT_DESTROY_STACK_TIME_OUT,
+  EVT_DESTROY,
   EVT_NO_INIT_WARN,
   CommonOptions,
 } from "./PhantomCore";
@@ -14,10 +14,10 @@ export type { CommonOptions };
 export {
   PhantomCore,
   EVT_READY,
-  EVT_UPDATED,
+  EVT_UPDATE,
   EVT_BEFORE_DESTROY,
-  EVT_DESTROY_STACK_TIMED_OUT,
-  EVT_DESTROYED,
+  EVT_DESTROY_STACK_TIME_OUT,
+  EVT_DESTROY,
   EVT_NO_INIT_WARN,
 };
 
@@ -52,14 +52,10 @@ export { ArbitraryPhantomWrapper };
 // @see https://github.com/microsoft/TypeScript/issues/33079
 // @see https://github.com/zenOSmosis/phantom-core/issues/98
 import PhantomCollection, {
-  EVT_CHILD_INSTANCE_ADDED,
-  EVT_CHILD_INSTANCE_REMOVED,
+  EVT_CHILD_INSTANCE_ADD,
+  EVT_CHILD_INSTANCE_REMOVE,
 } from "./PhantomCollection";
-export {
-  PhantomCollection,
-  EVT_CHILD_INSTANCE_ADDED,
-  EVT_CHILD_INSTANCE_REMOVED,
-};
+export { PhantomCollection, EVT_CHILD_INSTANCE_ADD, EVT_CHILD_INSTANCE_REMOVE };
 
 import PhantomServiceCore from "./PhantomServiceCore";
 export { PhantomServiceCore };

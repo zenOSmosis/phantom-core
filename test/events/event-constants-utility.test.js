@@ -50,7 +50,7 @@ test("test utility checker", t => {
   t.throws(() => {
     checkEvents({
       EVT_READY: "ready",
-      EVT_DESTROYED: "ready",
+      EVT_DESTROY: "ready",
     });
   }, "non-unique event values throw");
 

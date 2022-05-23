@@ -1,9 +1,9 @@
 import test from "tape";
 import PhantomCore, {
   EVT_READY,
-  EVT_UPDATED,
+  EVT_UPDATE,
   EVT_BEFORE_DESTROY,
-  EVT_DESTROYED,
+  EVT_DESTROY,
   sleep,
 } from "../src";
 
@@ -154,11 +154,11 @@ test("title support", async t => {
 
   await Promise.all([
     new Promise(resolve => {
-      phantom.once(EVT_UPDATED, () => {
+      phantom.once(EVT_UPDATE, () => {
         t.equals(
           phantom.getTitle(),
           "some-other-title",
-          "emits EVT_UPDATED when title has changed"
+          "emits EVT_UPDATE when title has changed"
         );
 
         resolve();
@@ -307,12 +307,12 @@ test("shutdown event handling", async t => {
     phantom.emit("mock-event");
   }, "triggers events");
 
-  phantom.once(EVT_DESTROYED, () => {
-    t.ok(true, "triggers EVT_DESTROYED after destroying");
+  phantom.once(EVT_DESTROY, () => {
+    t.ok(true, "triggers EVT_DESTROY after destroying");
 
     t.ok(
       phantom.getIsDestroyed(),
-      "destroy state is true when EVT_DESTROYED emit"
+      "destroy state is true when EVT_DESTROY emit"
     );
   });
 
@@ -344,7 +344,7 @@ test("shutdown phasing", async t => {
   const phantom = new PhantomCore();
 
   t.notOk(
-    phantom.getIsDestroying(),
+    phantom.getHasDestroyStarted(),
     "does not have is destroying state before shutdown"
   );
   t.notOk(
@@ -353,71 +353,72 @@ test("shutdown phasing", async t => {
   );
 
   phantom.once(EVT_BEFORE_DESTROY, () => {
-    t.ok(
-      phantom.getIsDestroying(),
-      "has destroying state after EVT_BEFORE_DESTROY emit"
+    t.notOk(
+      phantom.getHasDestroyStarted(),
+      "does not have destroying state when EVT_BEFORE_DESTROY emit"
     );
 
     t.notOk(
       phantom.getIsDestroyed(),
-      "does not have destroyed state after EVT_BEFORE_DESTROY emit"
+      "does not have destroyed state when EVT_BEFORE_DESTROY emit"
     );
   });
 
   await phantom.destroy(() => {
-    t.ok(phantom.getIsDestroying(), "has destroying state during shutdown");
+    t.ok(
+      phantom.getHasDestroyStarted(),
+      "has destroying state during shutdown"
+    );
     t.notOk(
       phantom.getIsDestroyed(),
       "does not have destroyed state during shutdown"
     );
 
-    phantom.once(EVT_DESTROYED, () => {
+    phantom.once(EVT_DESTROY, () => {
       t.ok(
-        phantom.getIsDestroying(),
-        "has destroying state after EVT_DESTROYED emit"
+        phantom.getHasDestroyStarted(),
+        "has destroying state when EVT_DESTROY emit"
       );
       t.ok(
         phantom.getIsDestroyed(),
-        "has destroyed state after EVT_DESTROYED emit"
+        "has destroyed state when EVT_DESTROY emit"
       );
     });
   });
 
-  t.notOk(
-    phantom.getIsDestroying(),
-    "does not have destroying state after destroy() resolves"
-  );
   t.ok(
-    phantom.getIsDestroyed(),
-    "has destroyed state after destroy() resolves"
+    phantom.getHasDestroyStarted(),
+    "maintains has-destroying-started state when destroy() resolves"
   );
+
+  t.ok(phantom.getIsDestroyed(), "has destroyed state when destroy() resolves");
 
   t.end();
 });
 
-test("no incorrect usage of EVT_DESTROYED", async t => {
+test("no incorrect usage of EVT_DESTROY", async t => {
   t.plan(3);
 
   const phantom = new PhantomCore();
 
   t.throws(
-    () => phantom.emit(EVT_DESTROYED),
+    () => phantom.emit(EVT_DESTROY),
     Error,
-    "throws Error if EVT_DESTROYED is arbitrarily emit on instance"
+    "throws Error if EVT_DESTROY is arbitrarily emit on instance"
   );
 
   t.ok(
-    phantom.getIsDestroying(),
+    phantom.getHasDestroyStarted(),
     true,
-    "proceeds to destroying phase once EVT_DESTROYED is improperly emit"
+    "proceeds to destroying phase once EVT_DESTROY is improperly emit"
   );
 
-  await new Promise(resolve => phantom.once(EVT_DESTROYED, resolve));
+  await new Promise(resolve => phantom.once(EVT_DESTROY, resolve));
 
   t.ok(
     phantom.getIsDestroyed(),
     true,
-    "shuts down after winding up in destroying phase"
+    "shuts down after finishing up destroying phase"
   );
 
   t.end();
@@ -431,7 +432,7 @@ test("no subsequent usage of destroy() after full destruct", async t => {
   // Don't await
   phantom.destroy();
 
-  await new Promise(resolve => phantom.once(EVT_DESTROYED, resolve));
+  await new Promise(resolve => phantom.once(EVT_DESTROY, resolve));
 
   await phantom.destroy();
   t.ok(true, "subsequent call to destroy is ignored");
@@ -511,21 +512,21 @@ test("on / once / off use super return types", async t => {
 
   const phantom = new PhantomCore();
 
-  const retOn = phantom.on(EVT_UPDATED, () => null);
+  const retOn = phantom.on(EVT_UPDATE, () => null);
 
   t.ok(
     Object.is(retOn, phantom),
     "on returns a self reference to PhantomCore instance"
   );
 
-  const retOnce = phantom.once(EVT_UPDATED, () => null);
+  const retOnce = phantom.once(EVT_UPDATE, () => null);
 
   t.ok(
     Object.is(retOnce, phantom),
     "once returns a self reference to PhantomCore instance"
   );
 
-  const retOff = phantom.off(EVT_UPDATED, () => null);
+  const retOff = phantom.off(EVT_UPDATE, () => null);
 
   t.ok(
     Object.is(retOff, phantom),
@@ -665,7 +666,7 @@ test("shutdown phase event handling", async t => {
     orderOps.push("__TESTING__-shutdown-handler-invoked")
   );
 
-  phantom.once(EVT_DESTROYED, () => {
+  phantom.once(EVT_DESTROY, () => {
     orderOps.push("__TESTING__-destruct-event-emitted");
   });
 
@@ -674,13 +675,13 @@ test("shutdown phase event handling", async t => {
   t.equals(
     orderOps[0],
     "__TESTING__-destruct-event-emitted",
-    "EVT_DESTROYED called successfully"
+    "EVT_DESTROY called successfully"
   );
 
   t.equals(
     orderOps[1],
     "__TESTING__-shutdown-handler-invoked",
-    "shutdown handler invoked after EVT_DESTROYED"
+    "shutdown handler invoked after EVT_DESTROY"
   );
 
   t.end();

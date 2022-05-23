@@ -1,12 +1,12 @@
 import PhantomCollection, {
   EVT_NO_INIT_WARN,
   EVT_READY,
-  // EVT_CHILD_INSTANCE_ADDED,
-  // EVT_CHILD_INSTANCE_REMOVED,
-  EVT_UPDATED,
+  // EVT_CHILD_INSTANCE_ADD,
+  // EVT_CHILD_INSTANCE_REMOVE,
+  EVT_UPDATE,
   EVT_BEFORE_DESTROY,
-  EVT_DESTROY_STACK_TIMED_OUT,
-  EVT_DESTROYED,
+  EVT_DESTROY_STACK_TIME_OUT,
+  EVT_DESTROY,
 } from "../PhantomCollection";
 import PhantomServiceCore from "../PhantomServiceCore";
 import getClassName from "../utils/class-utils/getClassName";
@@ -15,12 +15,12 @@ import { Class } from "../utils/class-utils/types";
 export {
   EVT_NO_INIT_WARN,
   EVT_READY,
-  // EVT_CHILD_INSTANCE_ADDED,
-  // EVT_CHILD_INSTANCE_REMOVED,
-  EVT_UPDATED,
+  // EVT_CHILD_INSTANCE_ADD,
+  // EVT_CHILD_INSTANCE_REMOVE,
+  EVT_UPDATE,
   EVT_BEFORE_DESTROY,
-  EVT_DESTROY_STACK_TIMED_OUT,
-  EVT_DESTROYED,
+  EVT_DESTROY_STACK_TIME_OUT,
+  EVT_DESTROY,
 };
 
 /**
@@ -70,8 +70,8 @@ export default class PhantomServiceManager extends PhantomCollection {
    *
    * @throws {TypeError}
    * @throws {ReferenceError}
-   * @emits EVT_CHILD_INSTANCE_ADDED
-   * @emits EVT_UPDATED
+   * @emits EVT_CHILD_INSTANCE_ADD
+   * @emits EVT_UPDATE
    */
   addClass(ServiceClass: Class<PhantomServiceCore>) {
     if (
