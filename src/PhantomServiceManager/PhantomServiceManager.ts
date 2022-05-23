@@ -74,9 +74,10 @@ export default class PhantomServiceManager extends PhantomCollection {
    * @emits EVT_UPDATED
    */
   addClass(ServiceClass: Class<PhantomServiceCore>) {
-    // TODO: [3.0.0] Fix this ts-ignore
-    // @ts-ignore
-    if (ServiceClass === PhantomServiceCore) {
+    if (
+      ServiceClass ===
+      (PhantomServiceCore as unknown as Class<PhantomServiceCore>)
+    ) {
       throw new TypeError(
         "ServiceClass must derive from PhantomServiceCore but cannot be PhantomServiceCore itself"
       );

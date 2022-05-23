@@ -5,9 +5,11 @@ import PhantomCore, {
   EVT_DESTROY_STACK_TIMED_OUT,
   EVT_DESTROYED,
   EVT_NO_INIT_WARN,
+  CommonOptions,
 } from "./PhantomCore";
 
 export default PhantomCore;
+export type { CommonOptions };
 
 export {
   PhantomCore,

@@ -7,7 +7,7 @@ import PhantomCore, {
   EVT_DESTROY_STACK_TIMED_OUT,
   EVT_DESTROYED,
 } from "../PhantomCore";
-import ChildEventBridge from "./ChildEventBridge";
+import ChildEventBridge from "./_ChildEventBridge";
 import { Class } from "../utils/class-utils/types";
 
 export {

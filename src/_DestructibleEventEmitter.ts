@@ -100,8 +100,7 @@ export default class DestructibleEventEmitter extends EventEmitter {
    */
   async destroy(destroyHandler?: () => void, postDestroyHandler?: () => void) {
     if (this._isDestroying) {
-      // TODO: [3.0.0] Fix any type
-      (logger as any).warn(
+      logger.warn(
         `${getClassName(
           this
         )} is already being destroyed. The subsequent call has been ignored. Ensure callers are checking for destroy status before calling destroy().`

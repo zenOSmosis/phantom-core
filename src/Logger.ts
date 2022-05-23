@@ -28,8 +28,10 @@ export type LogIntersection = Logger & ((...args: any[]) => void);
 export default class Logger {
   public log: LogIntersection;
 
-  // TODO: [3.0.0] Fix any type
-  protected _options: any;
+  protected _options: {
+    logLevel: number;
+    prefix: (strLogLevel: string) => string;
+  };
 
   protected _logLevel: number;
 

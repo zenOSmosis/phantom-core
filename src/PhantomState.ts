@@ -5,6 +5,7 @@ import PhantomCore, {
   EVT_BEFORE_DESTROY,
   EVT_DESTROY_STACK_TIMED_OUT,
   EVT_DESTROYED,
+  CommonOptions,
 } from "./PhantomCore";
 
 export {
@@ -26,7 +27,7 @@ export default class PhantomState extends PhantomCore {
 
   constructor(
     initialState: { [key: string]: unknown } | null = {},
-    superOptions: { [key: string]: unknown } | null = {}
+    superOptions: CommonOptions
   ) {
     super(superOptions);
 

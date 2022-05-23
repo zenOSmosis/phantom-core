@@ -21,7 +21,8 @@ import getClassInstanceMethodNames from "../utils/class-utils/getClassInstanceMe
 import autoBindClassInstanceMethods from "../utils/class-utils/autoBindClassInstanceMethods";
 import shallowMerge from "../utils/shallowMerge";
 import EventProxyStack from "./EventProxyStack";
-import { Class } from "../utils/class-utils/types";
+import { Class, ClassInstance } from "../utils/class-utils/types";
+import { CommonOptions } from "./types";
 
 // Number of milliseconds to allow async inits to initialize before triggering
 // warning
@@ -175,40 +176,22 @@ export default class PhantomCore extends DestructibleEventEmitter {
     return shallowMerge(objA, objB);
   }
 
-  // TODO: [3.0.0] Fix any type
-  protected _options: { [key: string]: any };
+  protected _options: CommonOptions;
 
   protected _instanceStartTime: number;
   protected _isReady: boolean;
-  protected _title: string | void;
+  protected _title: string | null;
   protected _eventProxyStack: EventProxyStack;
   protected _uuid: string;
   protected _shortUUID: string;
   protected _cleanupHandlerStack: FunctionStack;
-  protected _symbol: Symbol | void;
+  protected _symbol: Symbol | null;
 
   public log: LogIntersection;
   public logger: Logger;
 
-  // TODO: [3.0.0] Fix any type
-  constructor(options: { [key: string]: any } | null = {}) {
+  constructor(options: CommonOptions = {}) {
     super();
-
-    const deprecationNotices = [];
-
-    // FIXME: (jh) Remove after isReady has been removed
-    if (options && options.isReady !== undefined) {
-      deprecationNotices.push(
-        "isReady option will be changed to isAsync, defaulting to false"
-      );
-
-      if (options.isAsync === undefined) {
-        // Transform to new value
-        options.isAsync = !options.isReady;
-      }
-
-      delete options.isReady;
-    }
 
     // Provide "off" aliasing if it is not available (fixes issue where
     // PhantomCollection could not use off binding in browsers)
@@ -225,8 +208,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
 
     _instances[this._uuid] = this;
 
-    // TODO: [3.0.0] Fix any type
-    const DEFAULT_OPTIONS: any = {
+    const DEFAULT_OPTIONS: CommonOptions = {
       /**
        * If set to true, this._init() MUST be called during the instance
        * construction, or shortly thereafter (otherwise a warning will be
@@ -234,35 +216,26 @@ export default class PhantomCore extends DestructibleEventEmitter {
        *
        * Note that if set to false, this._init will be discarded, regardless if
        * it was defined in an extension class.
-       *
-       * @type {boolean}
        **/
       isAsync: false,
 
-      /** @type {string | number} */
       logLevel: LOG_LEVEL_INFO,
 
       /**
        * An arbitrary Symbol for this instance, explicitly guaranteed to be
        * unique across instances.
-       *
-       * @type {Symbol | null}
        **/
       symbol: null,
 
       /**
        * An arbitrary title for this instance, not guaranteed to be unique
        * across instances.
-       *
-       * @type {string | null}
        **/
       title: null,
 
       /**
        * Whether or not to automatically bind PhantomCore class methods to the
        * local PhantomCore class.
-       *
-       * @type {boolean}
        */
       hasAutomaticBindings: true,
     };
@@ -306,9 +279,9 @@ export default class PhantomCore extends DestructibleEventEmitter {
       }
 
       return this._options.symbol;
-    })() as symbol | void;
+    })() as symbol | null;
 
-    this._title = this._options.title;
+    this._title = this._options.title as string | null;
 
     this.logger = new Logger({
       logLevel: this._options.logLevel,
@@ -377,10 +350,6 @@ export default class PhantomCore extends DestructibleEventEmitter {
       this.once(EVT_READY, () => clearTimeout(longRespondInitWarnTimeout));
       this.once(EVT_DESTROYED, () => clearTimeout(longRespondInitWarnTimeout));
     }
-
-    deprecationNotices.forEach(deprecation => {
-      this.log.warn(`DEPRECATION NOTICE: ${deprecation}`);
-    });
   }
 
   /**
@@ -465,10 +434,8 @@ export default class PhantomCore extends DestructibleEventEmitter {
     return this.getPropertyNames().filter(
       propName =>
         propName !== "__proto__" &&
-        // TODO: [3.0.0] Fix any type
-        PhantomCore.getIsInstance((this as { [key: string]: any })[propName]) &&
-        // TODO: [3.0.0] Fix any type
-        !(this as { [key: string]: any })[propName].getIsDestroyed()
+        PhantomCore.getIsInstance((this as ClassInstance)[propName]) &&
+        !(this as ClassInstance)[propName].getIsDestroyed()
     );
   }
 
@@ -501,8 +468,6 @@ export default class PhantomCore extends DestructibleEventEmitter {
 
   /**
    * Retrieves the options utilized in the class constructor.
-   *
-   * @return {Object}
    */
   getOptions() {
     return this._options;
@@ -512,6 +477,8 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * Retrieve the option with the given name, if exists.
    */
   getOption(optionName: string) {
+    // TODO: [3.0.0] Fix type
+    // @ts-ignore
     return this._options[optionName];
   }
 
@@ -535,8 +502,6 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * NOTE: It doesn't return properties defined via symbols.
    *
    * @see https://stackoverflow.com/a/31055217
-   *
-   * @return {string[]}
    */
   getPropertyNames() {
     return getClassInstancePropertyNames(this);
@@ -546,15 +511,13 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * Retrieves all methods registered to this class.
    *
    * NOTE: It doesn't return methods defined via symbols.
-   *
-   * @return {string[]}
    */
   getMethodNames() {
     return getClassInstanceMethodNames(this);
   }
 
   /**
-   * @return {Promise<void>} Resolves once the class instance is ready.
+   * Resolves once the class instance is ready.
    */
   async onceReady() {
     if (this._isReady) {
@@ -565,27 +528,23 @@ export default class PhantomCore extends DestructibleEventEmitter {
   }
 
   /**
-   * @return {boolean}
+   * Retrieves whether or not the class instance is ready.
    */
   getIsReady() {
     return this._isReady;
   }
 
   /**
-   * Unique identifier which represents this class instance.
-   *
-   * @return {string}
+   * The unique identifier which represents this class instance.
    */
   getUUID() {
     return this._uuid;
   }
 
   /**
-   * Short unique identifier which represents this class instance.
+   * The short unique identifier which represents this class instance.
    *
    * i.e. "mhvXdrZT4jP5T8vBxuvm75"
-   *
-   * @return {string}
    */
   getShortUUID() {
     return this._shortUUID;
@@ -594,9 +553,6 @@ export default class PhantomCore extends DestructibleEventEmitter {
   /**
    * Determines whether the passed instance is the same as the current
    * instance.
-   *
-   * @param {PhantomCore} instance
-   * @return {boolean}
    */
   getIsSameInstance(instance: PhantomCore | Class) {
     return Object.is(this, instance);
@@ -604,8 +560,6 @@ export default class PhantomCore extends DestructibleEventEmitter {
 
   /**
    * Retrieves the non-instantiated class definition.
-   *
-   * @return {Function}
    */
   getClass() {
     return this.constructor;
@@ -614,8 +568,6 @@ export default class PhantomCore extends DestructibleEventEmitter {
   /**
    * IMPORTANT: This is not safe to rely on and will be modified if the script
    * is minified.
-   *
-   * @return {string}
    */
   getClassName() {
     return getClassName(this);
@@ -775,8 +727,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
         for (const methodName of this.getMethodNames()) {
           // Force non-keep-alive methods to return undefined
           if (!KEEP_ALIVE_SHUTDOWN_METHODS.includes(methodName)) {
-            // TODO: [3.0.0] Fix any type
-            (this as any)[methodName] = (): void => undefined;
+            (this as ClassInstance)[methodName] = (): void => undefined;
           }
 
           // TODO: Reimplement and conditionally silence w/ instance options

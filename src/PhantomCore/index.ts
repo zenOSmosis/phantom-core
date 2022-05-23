@@ -16,3 +16,6 @@ export {
   EVT_DESTROY_STACK_TIMED_OUT,
   EVT_DESTROYED,
 };
+
+import { CommonOptions } from "./types";
+export type { CommonOptions };

@@ -7,16 +7,7 @@ import PhantomCore, { EVT_READY, EVT_NO_INIT_WARN } from "../src";
  */
 
 test("instantiates async", async t => {
-  t.plan(7);
-
-  // FIXME: (jh) Remove after isReady has been removed
-  const p1 = new PhantomCore({ isReady: false });
-  const p2 = new PhantomCore({ isAsync: true });
-  t.deepEquals(
-    p1.getOptions(),
-    p2.getOptions(),
-    "older isReady[false] and newer isAsync[true] produce same options"
-  );
+  t.plan(6);
 
   const phantom = new PhantomCore({
     isAsync: true,
