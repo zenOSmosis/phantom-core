@@ -47,9 +47,6 @@ import ArbitraryPhantomWrapper from "./ArbitraryPhantomWrapper";
 export { ArbitraryPhantomWrapper };
 
 import PhantomCollection, {
-  // FIXME: Use package.json exports once TypeScript is bumped to 4.7
-  // @see https://github.com/microsoft/TypeScript/issues/33079
-  // @see https://github.com/zenOSmosis/phantom-core/issues/98
   EVT_CHILD_INSTANCE_ADDED,
   EVT_CHILD_INSTANCE_REMOVED,
 } from "./PhantomCollection";
