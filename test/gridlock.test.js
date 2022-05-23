@@ -17,9 +17,9 @@ test("gridlock / awaiting circular destructs do not interfere with shutdown proc
     }),
   ]);
 
-  t.ok(p1.UNSAFE_getIsDestroyed(), "p1 is destructed");
+  t.ok(p1.getIsDestroyed(), "p1 is destructed");
 
-  t.ok(p2.UNSAFE_getIsDestroyed(), "p2 is destructed");
+  t.ok(p2.getIsDestroyed(), "p2 is destructed");
 
   t.end();
 });

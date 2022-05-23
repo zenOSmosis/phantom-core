@@ -58,8 +58,8 @@ const _instances: { [key: string]: PhantomCore } = {};
 const KEEP_ALIVE_SHUTDOWN_METHODS = [
   "log",
   "listenerCount",
-  "UNSAFE_getIsDestroying",
-  "UNSAFE_getIsDestroyed",
+  "getHasDestroyStarted",
+  "getIsDestroyed",
   "getInstanceUptime",
   "getTotalListenerCount",
   //
@@ -124,7 +124,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
   static getIsLooseInstance(instance: PhantomCore | Class) {
     return Boolean(
       instance instanceof EventEmitter &&
-        typeof instance.UNSAFE_getIsDestroyed === "function" &&
+        typeof instance.getIsDestroyed === "function" &&
         typeof instance.destroy === "function"
     );
   }
@@ -369,7 +369,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
     // Await promise so that EVT_READY listeners can be invoked on next event
     // loop cycle
     await new Promise<void>((resolve, reject) => {
-      if (!this.UNSAFE_getIsDestroyed()) {
+      if (!this.getIsDestroyed()) {
         this._isReady = true;
         this.emit(EVT_READY);
         resolve();
@@ -436,7 +436,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
       propName =>
         propName !== "__proto__" &&
         PhantomCore.getIsInstance((this as ClassInstance)[propName]) &&
-        !(this as ClassInstance)[propName].UNSAFE_getIsDestroyed()
+        !(this as ClassInstance)[propName].getIsDestroyed()
     );
   }
 
@@ -680,7 +680,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * @return {number}
    */
   getInstanceUptime() {
-    if (!this.UNSAFE_getIsDestroyed()) {
+    if (!this.getIsDestroyed()) {
       return getUnixTime() - this._instanceStartTime;
     } else {
       return 0;

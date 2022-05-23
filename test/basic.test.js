@@ -295,7 +295,7 @@ test("shutdown event handling", async t => {
   const phantom = new PhantomCore();
 
   t.notOk(
-    phantom.UNSAFE_getIsDestroyed(),
+    phantom.getIsDestroyed(),
     "determines that active state is not destroyed"
   );
 
@@ -311,7 +311,7 @@ test("shutdown event handling", async t => {
     t.ok(true, "triggers EVT_DESTROY after destroying");
 
     t.ok(
-      phantom.UNSAFE_getIsDestroyed(),
+      phantom.getIsDestroyed(),
       "destroy state is true when EVT_DESTROY emit"
     );
   });
@@ -320,7 +320,7 @@ test("shutdown event handling", async t => {
   t.ok(true, "successfully destroys");
 
   t.ok(
-    phantom.UNSAFE_getIsDestroyed(),
+    phantom.getIsDestroyed(),
     "determines that post destroyed state is destroyed"
   );
 
@@ -344,56 +344,54 @@ test("shutdown phasing", async t => {
   const phantom = new PhantomCore();
 
   t.notOk(
-    phantom.UNSAFE_getIsDestroying(),
+    phantom.getHasDestroyStarted(),
     "does not have is destroying state before shutdown"
   );
   t.notOk(
-    phantom.UNSAFE_getIsDestroyed(),
+    phantom.getIsDestroyed(),
     "does not have destroyed state before shutdown"
   );
 
   phantom.once(EVT_BEFORE_DESTROY, () => {
-    t.ok(
-      phantom.UNSAFE_getIsDestroying(),
-      "has destroying state when EVT_BEFORE_DESTROY emit"
+    t.notOk(
+      phantom.getHasDestroyStarted(),
+      "does not have destroying state when EVT_BEFORE_DESTROY emit"
     );
 
     t.notOk(
-      phantom.UNSAFE_getIsDestroyed(),
+      phantom.getIsDestroyed(),
       "does not have destroyed state when EVT_BEFORE_DESTROY emit"
     );
   });
 
   await phantom.destroy(() => {
     t.ok(
-      phantom.UNSAFE_getIsDestroying(),
+      phantom.getHasDestroyStarted(),
       "has destroying state during shutdown"
     );
     t.notOk(
-      phantom.UNSAFE_getIsDestroyed(),
+      phantom.getIsDestroyed(),
       "does not have destroyed state during shutdown"
     );
 
     phantom.once(EVT_DESTROY, () => {
       t.ok(
-        phantom.UNSAFE_getIsDestroying(),
+        phantom.getHasDestroyStarted(),
         "has destroying state when EVT_DESTROY emit"
       );
       t.ok(
-        phantom.UNSAFE_getIsDestroyed(),
+        phantom.getIsDestroyed(),
         "has destroyed state when EVT_DESTROY emit"
       );
     });
   });
 
-  t.notOk(
-    phantom.UNSAFE_getIsDestroying(),
-    "does not have destroying state when destroy() resolves"
-  );
   t.ok(
-    phantom.UNSAFE_getIsDestroyed(),
-    "has destroyed state when destroy() resolves"
+    phantom.getHasDestroyStarted(),
+    "maintains has-destroying-started state when destroy() resolves"
   );
+
+  t.ok(phantom.getIsDestroyed(), "has destroyed state when destroy() resolves");
 
   t.end();
 });
@@ -410,7 +408,7 @@ test("no incorrect usage of EVT_DESTROY", async t => {
   );
 
   t.ok(
-    phantom.UNSAFE_getIsDestroying(),
+    phantom.getHasDestroyStarted(),
     true,
     "proceeds to destroying phase once EVT_DESTROY is improperly emit"
   );
@@ -418,7 +416,7 @@ test("no incorrect usage of EVT_DESTROY", async t => {
   await new Promise(resolve => phantom.once(EVT_DESTROY, resolve));
 
   t.ok(
-    phantom.UNSAFE_getIsDestroyed(),
+    phantom.getIsDestroyed(),
     true,
     "shuts down after finishing up destroying phase"
   );

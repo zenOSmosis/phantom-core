@@ -129,7 +129,7 @@ test("service collections", async t => {
   const testCollection4 = testService.getCollectionInstance(TestCollection4);
 
   t.equals(
-    testCollection4.UNSAFE_getIsDestroyed(),
+    testCollection4.getIsDestroyed(),
     false,
     "testCollection4 is not destructed before unbinding"
   );
@@ -137,7 +137,7 @@ test("service collections", async t => {
   await testService.unbindCollectionClass(TestCollection4);
 
   t.equals(
-    testCollection4.UNSAFE_getIsDestroyed(),
+    testCollection4.getIsDestroyed(),
     true,
     "testCollection4 is destructed after unbinding"
   );
@@ -159,7 +159,7 @@ test("service collections", async t => {
 
   t.notOk(
     remainingCollectionClassInstances.find(instance =>
-      instance.UNSAFE_getIsDestroyed()
+      instance.getIsDestroyed()
     ),
     "currently active collection classes do not report destructed"
   );
@@ -168,7 +168,7 @@ test("service collections", async t => {
 
   t.notOk(
     remainingCollectionClassInstances.find(
-      instance => !instance.UNSAFE_getIsDestroyed()
+      instance => !instance.getIsDestroyed()
     ),
     "previously active collection classes report destructed after service destruct"
   );

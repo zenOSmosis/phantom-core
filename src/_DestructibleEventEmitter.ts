@@ -30,19 +30,19 @@ export const SHUT_DOWN_GRACE_PERIOD = 5000;
  * For most purposes, PhantomCore should be utilized instead of this.
  */
 export default class DestructibleEventEmitter extends EventEmitter {
-  protected UNSAFE_isDestroying: boolean;
-  protected UNSAFE_isDestroyed: boolean;
+  protected _hasDestroyStarted: boolean;
+  protected _isDestroyed: boolean;
 
   constructor() {
     super();
 
-    this.UNSAFE_isDestroying = false;
-    this.UNSAFE_isDestroyed = false;
+    this._hasDestroyStarted = false;
+    this._isDestroyed = false;
 
     // Prevent incorrect usage of EVT_DESTROY; EVT_DESTROY should only be
     // emit internally during the shutdown phase
     this.on(EVT_DESTROY, () => {
-      if (!this.UNSAFE_isDestroyed) {
+      if (!this._isDestroyed) {
         // IMPORTANT: Don't await here; we want to throw the error and destruct
         // the instance at the same time due to it being in a potentially invalid
         // state
@@ -64,23 +64,18 @@ export default class DestructibleEventEmitter extends EventEmitter {
       .reduce((a, b) => a + b, 0);
   }
 
-  // TODO: [3.0.0] Rename
   /**
-   * Retrieves whether or not the class is currently being destroyed.
-   *
-   * Note that this will still return true after EVT_DESTROY is emit and will
-   * be false after post-cleanup operations have run.
+   * Retrieves whether or not the class destruct phase has begun.
    */
-  UNSAFE_getIsDestroying() {
-    return this.UNSAFE_isDestroying;
+  getHasDestroyStarted() {
+    return this._hasDestroyStarted;
   }
 
-  // TODO: [3.0.0] Rename
   /**
    * Retrieves whether or not the instance is currently destroyed.
    */
-  UNSAFE_getIsDestroyed() {
-    return this.UNSAFE_isDestroyed;
+  getIsDestroyed() {
+    return this._isDestroyed;
   }
 
   // TODO: [3.0.0] Clean up comments
@@ -103,7 +98,7 @@ export default class DestructibleEventEmitter extends EventEmitter {
     // Note: This method acts as a "firewall" to the actual destroy sequence handler
 
     // Determine if already in destructing phase
-    if (this.UNSAFE_isDestroying) {
+    if (this._hasDestroyStarted) {
       logger.warn(
         `${getClassName(
           this
@@ -114,7 +109,7 @@ export default class DestructibleEventEmitter extends EventEmitter {
     }
 
     // Determine if already destructed
-    if (this.UNSAFE_isDestroyed) {
+    if (this._isDestroyed) {
       // Note: When calling from PhantomCore, after full destruct, this may not
       // get executed, as PhantomCore itself will reroute the subsequent call to
       // a void handler
@@ -135,7 +130,7 @@ export default class DestructibleEventEmitter extends EventEmitter {
     destroyHandler?: () => void,
     cleanupHandler?: () => void
   ) {
-    if (this.UNSAFE_isDestroying || this.UNSAFE_isDestroyed) {
+    if (this._hasDestroyStarted || this._isDestroyed) {
       throw new Error(
         "Calling __initDestructSequence arbitrarily is not intended. You should call destroy() instead."
       );
@@ -143,9 +138,10 @@ export default class DestructibleEventEmitter extends EventEmitter {
 
     // Start destroying phase
 
-    this.UNSAFE_isDestroying = true;
-
+    // TODO: [3.0.0] Document that this is emit immediately before destroy started
     this.emit(EVT_BEFORE_DESTROY);
+
+    this._hasDestroyStarted = true;
 
     if (typeof destroyHandler === "function") {
       // FIXME: There might can be better way of doing this rather than a
@@ -167,11 +163,11 @@ export default class DestructibleEventEmitter extends EventEmitter {
     // Set the state before the event is emit so that any listeners will know
     // the correct state.
     //
-    // IMPORTANT: It is by design UNSAFE_isDestroyed is set to true before
-    // UNSAFE_isDestroying is set to false. The reasoning is that we want to relay
+    // IMPORTANT: It is by design _isDestroyed is set to true before
+    // _hasDestroyStarted is set to false. The reasoning is that we want to relay
     // the "destroyed" state to any subsequent event handlers, while not
     // actually being completely done with our cleanup work at this point.
-    this.UNSAFE_isDestroyed = true;
+    this._isDestroyed = true;
 
     // IMPORTANT: This must come before removal of all listeners
     this.emit(EVT_DESTROY);
@@ -190,9 +186,5 @@ export default class DestructibleEventEmitter extends EventEmitter {
         "An event handler has been registered in a post destruct callback which could cause a potential memory leak."
       );
     }
-
-    // TODO: [3.0.0] Rename
-    // Completely out of "destroying" phase (truly destroyed at this point)
-    this.UNSAFE_isDestroying = false;
   }
 }
