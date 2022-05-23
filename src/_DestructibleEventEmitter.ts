@@ -1,6 +1,6 @@
 import EventEmitter from "events";
 import getClassName from "./utils/class-utils/getClassName";
-import logger from "./globalLogger";
+import Logger from "./Logger";
 
 /**
  * @event EVT_BEFORE_DESTROY Emits directly before any destructor handling.
@@ -32,9 +32,19 @@ export const SHUT_DOWN_GRACE_PERIOD = 5000;
 export default class DestructibleEventEmitter extends EventEmitter {
   protected _hasDestroyStarted: boolean;
   protected _isDestroyed: boolean;
+  protected _logger: Console | Logger;
 
-  constructor() {
+  /**
+   * Console represents the default logger due to Logger extending
+   * DestructibleEventEmitter as well.
+   *
+   * IMPORTANT: If the Logger class is utilized, it is not automatically
+   * destructed when DestructibleEventEmitter is.
+   */
+  constructor(logger = console) {
     super();
+
+    this._logger = logger;
 
     this._hasDestroyStarted = false;
     this._isDestroyed = false;
@@ -53,6 +63,17 @@ export default class DestructibleEventEmitter extends EventEmitter {
         );
       }
     });
+  }
+
+  /**
+   * Overrides the log handler with a custom logger.
+   */
+  set logger(logger: Console | Logger) {
+    this._logger = logger;
+  }
+
+  get logger() {
+    return this._logger;
   }
 
   /**
@@ -99,7 +120,7 @@ export default class DestructibleEventEmitter extends EventEmitter {
 
     // Determine if already in destructing phase
     if (this._hasDestroyStarted) {
-      logger.warn(
+      this.logger.warn(
         `${getClassName(
           this
         )} is already being destroyed. The subsequent call has been ignored. Ensure callers are checking for destroy status before calling destroy().`

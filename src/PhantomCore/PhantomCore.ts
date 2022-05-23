@@ -3,13 +3,13 @@
 import "setimmediate";
 
 import EventEmitter from "events";
+import Logger, { LogIntersection, LOG_LEVEL_INFO } from "../Logger";
+import logger from "../globalLogger";
 import DestructibleEventEmitter, {
   EVT_BEFORE_DESTROY,
   EVT_DESTROY_STACK_TIME_OUT,
   EVT_DESTROY,
 } from "../_DestructibleEventEmitter";
-import Logger, { LogIntersection, LOG_LEVEL_INFO } from "../Logger";
-import logger from "../globalLogger";
 import getPackageJSON from "../utils/getPackageJSON";
 import FunctionStack, { FUNCTION_STACK_OPS_ORDER_LIFO } from "../FunctionStack";
 import getClassName from "../utils/class-utils/getClassName";
@@ -189,7 +189,6 @@ export default class PhantomCore extends DestructibleEventEmitter {
   protected _symbol: Symbol | null;
 
   public log: LogIntersection;
-  public logger: Logger;
 
   constructor(options: CommonOptions = {}) {
     super();
@@ -296,6 +295,9 @@ export default class PhantomCore extends DestructibleEventEmitter {
           this._uuid
         }]`,
     });
+
+    // FIXME: [3.0.0] Fix type so "as" isn't necessary
+    this.registerCleanupHandler(() => (this.logger as Logger).destroy());
 
     /**
      * NOTE: This is called directly in order to not lose the stack trace.
@@ -490,11 +492,13 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * "trace") values.
    */
   setLogLevel(level: number | string) {
-    this.logger.setLogLevel(level);
+    // FIXME: [3.0.0] Fix type so "as" isn't necessary
+    (this.logger as Logger).setLogLevel(level);
   }
 
   getLogLevel() {
-    return this.logger.getLogLevel();
+    // FIXME: [3.0.0] Fix type so "as" isn't necessary
+    return (this.logger as Logger).getLogLevel();
   }
 
   /**
