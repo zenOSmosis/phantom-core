@@ -110,9 +110,9 @@ test("service instantiation", async t => {
   await serviceManager.destroy();
 
   t.ok(
-    serviceManager.getIsDestroyed() &&
-      testCollectionInstance.getIsDestroyed() &&
-      extendedTestCollectionInstance.getIsDestroyed(),
+    serviceManager.UNSAFE_getIsDestroyed() &&
+      testCollectionInstance.UNSAFE_getIsDestroyed() &&
+      extendedTestCollectionInstance.UNSAFE_getIsDestroyed(),
     "TestService instance is destructed when ServiceManager is destructed"
   );
 

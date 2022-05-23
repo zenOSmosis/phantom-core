@@ -400,11 +400,11 @@ test("PhantomCollection broadcasting / post-destruct child retention", async t =
     await collection.destroy();
 
     t.ok(
-      !phantom1.getIsDestroyed(),
+      !phantom1.UNSAFE_getIsDestroyed(),
       "phantom1 is not destroyed after collection is"
     );
     t.ok(
-      !phantom2.getIsDestroyed(),
+      !phantom2.UNSAFE_getIsDestroyed(),
       "phantom2 is not destroyed after collection is"
     );
   } catch (err) {
@@ -816,7 +816,7 @@ test("multiple PhantomCollection destruct all children", async t => {
     "zero children after first collection is destroyed"
   );
 
-  t.ok(coll1.getIsDestroyed(), "coll1 is in destructed state");
+  t.ok(coll1.UNSAFE_getIsDestroyed(), "coll1 is in destructed state");
 
   t.equals(
     coll2.getChildren().length,
@@ -826,7 +826,7 @@ test("multiple PhantomCollection destruct all children", async t => {
 
   [child1, child2, child3, child4, child5].forEach((child, idx) => {
     t.ok(
-      !child.getIsDestroyed(),
+      !child.UNSAFE_getIsDestroyed(),
       `child${idx + 1} is not automatically destructed after coll1 destruct`
     );
   });
@@ -835,7 +835,7 @@ test("multiple PhantomCollection destruct all children", async t => {
 
   [child1, child2, child3, child4, child5].forEach((child, idx) => {
     t.ok(
-      child.getIsDestroyed(),
+      child.UNSAFE_getIsDestroyed(),
       `child${
         idx + 1
       } is automatically destructed after coll destroyAllChildren() is invoked`
@@ -1047,7 +1047,7 @@ test("PhantomCollection emits EVT_UPDATED on child destruct", async t => {
   await Promise.all([
     new Promise(resolve => {
       collection.on(EVT_UPDATED, () => {
-        t.ok(child.getIsDestroyed(), "child is destructed");
+        t.ok(child.UNSAFE_getIsDestroyed(), "child is destructed");
 
         t.equals(
           collection.getChildren().length,

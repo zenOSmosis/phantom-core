@@ -208,7 +208,7 @@ export default class PhantomCollection extends PhantomCore {
       );
     }
 
-    if (phantomCoreInstance.getIsDestroyed()) {
+    if (phantomCoreInstance.UNSAFE_getIsDestroyed()) {
       throw new ReferenceError("Cannot add a destroyed PhantomCore instance");
     }
 
