@@ -46,15 +46,8 @@ export { logger };
 import ArbitraryPhantomWrapper from "./ArbitraryPhantomWrapper";
 export { ArbitraryPhantomWrapper };
 
-import PhantomCollection, {
-  EVT_CHILD_INSTANCE_ADDED,
-  EVT_CHILD_INSTANCE_REMOVED,
-} from "./PhantomCollection";
-export {
-  PhantomCollection,
-  EVT_CHILD_INSTANCE_ADDED,
-  EVT_CHILD_INSTANCE_REMOVED,
-};
+import PhantomCollection from "./PhantomCollection";
+export { PhantomCollection };
 
 import PhantomServiceCore from "./PhantomServiceCore";
 export { PhantomServiceCore };
