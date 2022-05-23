@@ -44,7 +44,7 @@ export const EVT_READY = "ready";
  * @event EVT_UPDATE Emits when something of common significance has updated
  * which any attached views should be aware of.
  */
-export const EVT_UPDATE = "updated";
+export const EVT_UPDATE = "update";
 
 export { EVT_BEFORE_DESTROY, EVT_DESTROY_STACK_TIME_OUT, EVT_DESTROY };
 
