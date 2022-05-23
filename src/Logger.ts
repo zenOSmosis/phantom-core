@@ -1,9 +1,15 @@
+import DestructibleEventEmitter, {
+  EVT_DESTROY,
+} from "./_DestructibleEventEmitter";
+
 export const LOG_LEVEL_TRACE = 0;
 export const LOG_LEVEL_DEBUG = 1;
 export const LOG_LEVEL_INFO = 2;
 export const LOG_LEVEL_WARN = 3;
 export const LOG_LEVEL_ERROR = 4;
 export const LOG_LEVEL_SILENT = 5;
+
+export { EVT_DESTROY };
 
 const LOG_LEVEL_STRING_MAP = {
   trace: LOG_LEVEL_TRACE,
@@ -25,7 +31,7 @@ export type LogIntersection = Logger & ((...args: any[]) => void);
  * the browser's default console.debug mechanism and setting up namespaced
  * loggers wasn't very straightforward.
  */
-export default class Logger {
+export default class Logger extends DestructibleEventEmitter {
   public log: LogIntersection;
 
   protected _options: {
@@ -36,6 +42,8 @@ export default class Logger {
   protected _logLevel: number;
 
   constructor(options = {}) {
+    super();
+
     const DEFAULT_OPTIONS = {
       logLevel: LOG_LEVEL_INFO,
       prefix: (strLogLevel: string) => `[${strLogLevel}]`,

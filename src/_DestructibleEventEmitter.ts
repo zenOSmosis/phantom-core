@@ -1,6 +1,6 @@
 import EventEmitter from "events";
 import getClassName from "./utils/class-utils/getClassName";
-import logger from "./globalLogger";
+import Logger from "./Logger";
 
 /**
  * @event EVT_BEFORE_DESTROY Emits directly before any destructor handling.
@@ -8,16 +8,16 @@ import logger from "./globalLogger";
 export const EVT_BEFORE_DESTROY = "before-destroy";
 
 /**
- * @event EVT_DESTROY_STACK_TIMED_OUT Emits when destroy stack has timed out.
+ * @event EVT_DESTROY_STACK_TIME_OUT Emits when destroy stack has timed out.
  * This should lead to an error.
  */
-export const EVT_DESTROY_STACK_TIMED_OUT = "destroy-stack-timed-out";
+export const EVT_DESTROY_STACK_TIME_OUT = "destroy-stack-time-out";
 
 /**
- * @export EVT_DESTROYED Emits just before event handlers have been removed and
+ * @export EVT_DESTROY Emits just before event handlers have been removed and
  * any post-destruct operations are invoked.
  */
-export const EVT_DESTROYED = "destroyed";
+export const EVT_DESTROY = "destroy";
 
 // Number of milliseconds before the instance will warn about potential
 // destruct problems
@@ -30,18 +30,28 @@ export const SHUT_DOWN_GRACE_PERIOD = 5000;
  * For most purposes, PhantomCore should be utilized instead of this.
  */
 export default class DestructibleEventEmitter extends EventEmitter {
-  protected _isDestroying: boolean;
+  protected _hasDestroyStarted: boolean;
   protected _isDestroyed: boolean;
+  protected _logger: Console | Logger;
 
-  constructor() {
+  /**
+   * Console represents the default logger due to Logger extending
+   * DestructibleEventEmitter as well.
+   *
+   * IMPORTANT: If the Logger class is utilized, it is not automatically
+   * destructed when DestructibleEventEmitter is.
+   */
+  constructor(logger = console) {
     super();
 
-    this._isDestroying = false;
+    this._logger = logger;
+
+    this._hasDestroyStarted = false;
     this._isDestroyed = false;
 
-    // Prevent incorrect usage of EVT_DESTROYED; EVT_DESTROYED should only be
+    // Prevent incorrect usage of EVT_DESTROY; EVT_DESTROY should only be
     // emit internally during the shutdown phase
-    this.on(EVT_DESTROYED, () => {
+    this.on(EVT_DESTROY, () => {
       if (!this._isDestroyed) {
         // IMPORTANT: Don't await here; we want to throw the error and destruct
         // the instance at the same time due to it being in a potentially invalid
@@ -49,10 +59,21 @@ export default class DestructibleEventEmitter extends EventEmitter {
         this.destroy();
 
         throw new Error(
-          "EVT_DESTROYED was incorrectly emit without initially being in a destroyed state. Destructing instance due to potential state invalidation."
+          "EVT_DESTROY was incorrectly emit without initially being in a destroyed state. Destructing instance due to potential state invalidation."
         );
       }
     });
+  }
+
+  /**
+   * Overrides the log handler with a custom logger.
+   */
+  set logger(logger: Console | Logger) {
+    this._logger = logger;
+  }
+
+  get logger() {
+    return this._logger;
   }
 
   /**
@@ -64,15 +85,11 @@ export default class DestructibleEventEmitter extends EventEmitter {
       .reduce((a, b) => a + b, 0);
   }
 
-  // TODO: [3.0.0] Rename
   /**
-   * Retrieves whether or not the class is currently being destroyed.
-   *
-   * Note that this will still return true after EVT_DESTROYED is emit and will
-   * be false after post-cleanup operations have run.
+   * Retrieves whether or not the class destruct phase has begun.
    */
-  getIsDestroying() {
-    return this._isDestroying;
+  getHasDestroyStarted() {
+    return this._hasDestroyStarted;
   }
 
   /**
@@ -93,77 +110,102 @@ export default class DestructibleEventEmitter extends EventEmitter {
    * @return {Promise<void>}
    * @emits EVT_BEFORE_DESTROY Emits a single time, regardless of calls to the
    * destroy() method, before the destroy handler stack is executed.
-   * @emits EVT_DESTROY_STACK_TIMED_OUT Emits if the destroy handler stack
+   * @emits EVT_DESTROY_STACK_TIME_OUT Emits if the destroy handler stack
    * takes longer than expected to execute.
-   * @emits EVT_DESTROYED Emits a single time, regardless of calls to the
+   * @emits EVT_DESTROY Emits a single time, regardless of calls to the
    * destroy() method, after the destroy handler stack has executed.
    */
   async destroy(destroyHandler?: () => void, cleanupHandler?: () => void) {
-    if (this._isDestroying) {
-      logger.warn(
+    // Note: This method acts as a "firewall" to the actual destroy sequence handler
+
+    // Determine if already in destructing phase
+    if (this._hasDestroyStarted) {
+      this.logger.warn(
         `${getClassName(
           this
         )} is already being destroyed. The subsequent call has been ignored. Ensure callers are checking for destroy status before calling destroy().`
       );
-    } else if (this._isDestroyed) {
-      // NOTE: When calling from PhantomCore, after full destruct, this may not
+
+      return;
+    }
+
+    // Determine if already destructed
+    if (this._isDestroyed) {
+      // Note: When calling from PhantomCore, after full destruct, this may not
       // get executed, as PhantomCore itself will reroute the subsequent call to
-      // a null handler
+      // a void handler
       throw new Error(`"${getClassName(this)}" has already been destroyed.`);
-    } else {
-      this._isDestroying = true;
+    }
 
-      this.emit(EVT_BEFORE_DESTROY);
+    // Proceed to destroy sequence
+    return this.__initDestructSequence(destroyHandler, cleanupHandler);
+  }
 
-      // Help ensure where to wind up in a circular awaiting "gridlock"
-      // situation, where two or more instances await on one another to shutdown
-      let longRespondDestroyHandlerTimeout = setTimeout(() => {
-        this.emit(EVT_DESTROY_STACK_TIMED_OUT);
+  /**
+   * Handles the shutdown process for this class instance.
+   *
+   * Note: This is intended to be called by the destroy method after checks
+   * have been made for current phase of destroy sequence.
+   */
+  private async __initDestructSequence(
+    destroyHandler?: () => void,
+    cleanupHandler?: () => void
+  ) {
+    if (this._hasDestroyStarted || this._isDestroyed) {
+      throw new Error(
+        "Calling __initDestructSequence arbitrarily is not intended. You should call destroy() instead."
+      );
+    }
+
+    // Start destroying phase
+
+    // TODO: [3.0.0] Document that this is emit immediately before destroy started
+    this.emit(EVT_BEFORE_DESTROY);
+
+    this._hasDestroyStarted = true;
+
+    if (typeof destroyHandler === "function") {
+      // FIXME: There might can be better way of doing this rather than a
+      // setTimeout (i.e. use a map of destroying instances)
+      //
+      // Determine if entering into a circular awaiting "gridlock" situation,
+      // where two or more instances await on one another to shutdown
+      const longRespondDestroyHandlerTimeout = setTimeout(() => {
+        this.emit(EVT_DESTROY_STACK_TIME_OUT);
       }, SHUT_DOWN_GRACE_PERIOD);
 
-      // This try / await fixes issue where this instance would emit
-      // EVT_DESTROY_STACK_TIMED_OUT after a period of time if the
-      // destroyHandler callback errored
-      if (typeof destroyHandler === "function") {
-        try {
-          await destroyHandler();
-        } catch (err) {
-          throw err;
-        } finally {
-          clearTimeout(longRespondDestroyHandlerTimeout);
-        }
+      try {
+        await destroyHandler();
+      } finally {
+        clearTimeout(longRespondDestroyHandlerTimeout);
       }
+    }
 
-      // Set the state before the event is emit so that any listeners will know
-      // the correct state.
-      //
-      // IMPORTANT: It is by design _isDestroyed is set to true before
-      // _isDestroying is set to false. The reasoning is that we want to relay
-      // the "destroyed" state to any subsequent event handlers, while not
-      // actually being completely done with our cleanup work at this point.
-      this._isDestroyed = true;
+    // Set the state before the event is emit so that any listeners will know
+    // the correct state.
+    //
+    // IMPORTANT: It is by design _isDestroyed is set to true before
+    // _hasDestroyStarted is set to false. The reasoning is that we want to relay
+    // the "destroyed" state to any subsequent event handlers, while not
+    // actually being completely done with our cleanup work at this point.
+    this._isDestroyed = true;
 
-      // IMPORTANT: This must come before removal of all listeners
-      this.emit(EVT_DESTROYED);
+    // IMPORTANT: This must come before removal of all listeners
+    this.emit(EVT_DESTROY);
 
-      // Remove all event listeners; we're stopped
-      this.removeAllListeners();
+    // Remove all event listeners; we're stopped
+    this.removeAllListeners();
 
-      // IMPORTANT: This is intended to come after removeAllListeners has been
-      // invoked
-      if (typeof cleanupHandler === "function") {
-        await cleanupHandler();
-      }
+    // IMPORTANT: This is intended to come after removeAllListeners has been
+    // invoked
+    if (typeof cleanupHandler === "function") {
+      await cleanupHandler();
+    }
 
-      if (this.getTotalListenerCount()) {
-        throw new Error(
-          "An event handler has been registered in a post destruct callback which could cause a potential memory leak."
-        );
-      }
-
-      // TODO: [3.0.0] Rename
-      // Completely out of "destroying" phase (truly destroyed at this point)
-      this._isDestroying = false;
+    if (this.getTotalListenerCount()) {
+      throw new Error(
+        "An event handler has been registered in a post destruct callback which could cause a potential memory leak."
+      );
     }
   }
 }

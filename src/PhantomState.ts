@@ -1,20 +1,20 @@
 import PhantomCore, {
   EVT_NO_INIT_WARN,
   EVT_READY,
-  EVT_UPDATED,
+  EVT_UPDATE,
   EVT_BEFORE_DESTROY,
-  EVT_DESTROY_STACK_TIMED_OUT,
-  EVT_DESTROYED,
+  EVT_DESTROY_STACK_TIME_OUT,
+  EVT_DESTROY,
   CommonOptions,
 } from "./PhantomCore";
 
 export {
   EVT_NO_INIT_WARN,
   EVT_READY,
-  EVT_UPDATED,
+  EVT_UPDATE,
   EVT_BEFORE_DESTROY,
-  EVT_DESTROY_STACK_TIMED_OUT,
-  EVT_DESTROYED,
+  EVT_DESTROY_STACK_TIME_OUT,
+  EVT_DESTROY,
 };
 
 /**
@@ -69,6 +69,6 @@ export default class PhantomState extends PhantomCore {
       this._state = partialNextState;
     }
 
-    this.emit(EVT_UPDATED, partialNextState);
+    this.emit(EVT_UPDATE, partialNextState);
   }
 }

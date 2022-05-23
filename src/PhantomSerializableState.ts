@@ -1,20 +1,20 @@
 import PhantomState, {
   EVT_NO_INIT_WARN,
   EVT_READY,
-  EVT_UPDATED,
+  EVT_UPDATE,
   EVT_BEFORE_DESTROY,
-  EVT_DESTROY_STACK_TIMED_OUT,
-  EVT_DESTROYED,
+  EVT_DESTROY_STACK_TIME_OUT,
+  EVT_DESTROY,
 } from "./PhantomState";
 import { isPlainObject } from "is-plain-object";
 
 export {
   EVT_NO_INIT_WARN,
   EVT_READY,
-  EVT_UPDATED,
+  EVT_UPDATE,
   EVT_BEFORE_DESTROY,
-  EVT_DESTROY_STACK_TIMED_OUT,
-  EVT_DESTROYED,
+  EVT_DESTROY_STACK_TIME_OUT,
+  EVT_DESTROY,
 };
 
 /**
@@ -61,7 +61,7 @@ export default class PhantomSerializableState extends PhantomState {
    *
    * NOTE: The previous state object will be re-referenced.
    *
-   * @emits EVT_UPDATED With partialNextState
+   * @emits EVT_UPDATE With partialNextState
    */
   override setState(
     partialNextState: { [key: string]: unknown },

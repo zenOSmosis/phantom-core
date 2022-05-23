@@ -1,5 +1,5 @@
 import test from "tape";
-import PhantomCore, { EVT_DESTROY_STACK_TIMED_OUT } from "../src";
+import PhantomCore, { EVT_DESTROY_STACK_TIME_OUT } from "../src";
 
 test("gridlock / awaiting circular destructs do not interfere with shutdown process", async t => {
   t.plan(2);
@@ -31,9 +31,9 @@ test("gridlock / forced timeout error", async t => {
 
   await p1.destroy(async () => {
     await new Promise(resolve => {
-      p1.once(EVT_DESTROY_STACK_TIMED_OUT, () => {
+      p1.once(EVT_DESTROY_STACK_TIME_OUT, () => {
         t.ok(
-          "EVT_DESTROY_STACK_TIMED_OUT if destroy handler does not complete in a reasonable amount of time"
+          "EVT_DESTROY_STACK_TIME_OUT if destroy handler does not complete in a reasonable amount of time"
         );
 
         resolve();
