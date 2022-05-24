@@ -28,6 +28,8 @@ export { EVT_UPDATE };
 export default class PhantomCollectionChildEventBridge extends PhantomCore {
   protected _phantomCollection?: PhantomCollection;
 
+  // TODO: [3.0.0] Rename?  This is should represent child -> collection
+  // proxying
   /**
    * The event names this bridge currently (i.e. at any given
    * time) maintains mappings for events which can emit from child instances
@@ -37,6 +39,11 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
     ...DEFAULT_BRIDGE_EVENT_NAMES,
   ];
 
+  // TODO: [3.0.0] Rename?  This is should represent child -> collection
+  // proxying
+  /**
+   * A 2D map of event handlers attached to each respective PhantomCore instance.
+   */
   protected _linkedChildEventHandlers: Map<PhantomCore, EventMap> = new Map();
 
   /**
@@ -95,10 +102,7 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
   }
 
   /**
-   * Retrieves an array of PhantomCore children for the associated
-   * PhantomCollection.
-   *
-   * @return {PhantomCore[]}
+   * Retrieves the array of children of the PhantomCollection.
    */
   getChildren() {
     return (
@@ -107,7 +111,7 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
   }
 
   /**
-   * Internally invoked when the collection adds a new child.
+   * Internally invoked when the PhantomCollection adds a new child.
    *
    * @param {PhantomCore} childInstance
    * @return {void}
@@ -120,7 +124,7 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
   }
 
   /**
-   * Internally invoked when the collection removes a child.
+   * Internally invoked when the PhantomCollection removes a child.
    */
   _handleChildInstanceRemoved(childInstance: PhantomCore) {
     // Clear out linked child event handlers
@@ -129,12 +133,11 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
     );
   }
 
+  // TODO: [3.0.0] Rename?  This is should represent child -> collection
+  // proxying
   /**
-   * Retrieves, or creates, the event map which is associated to the given
-   * child instance.
-   *
-   * This map contains the proxies events which are emit out the collection,
-   * once the child emits the event.
+   * Retrieves, or creates, a map of child events which will be re-emit (or
+   * proxied) out the PhantomCollection.
    */
   _getChildEventMap(childInstance: PhantomCore) {
     const prev = this._linkedChildEventHandlers.get(childInstance);
@@ -143,11 +146,13 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
       return prev;
     }
 
-    const next = new Map() as EventMap;
+    const next: EventMap = new Map();
     this._linkedChildEventHandlers.set(childInstance, next);
     return next;
   }
 
+  // TODO: [3.0.0] Rename?  This is should represent child -> collection
+  // proxying
   /**
    * Unbinds, then removes the child event map for the given child.
    */
@@ -157,6 +162,8 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
     }
   }
 
+  // TODO: [3.0.0] Rename?  This is should represent child -> collection
+  // proxying
   /**
    * Adds an event name to a specific child and registers a wrapping event
    * handler which will proxy out the PhantomCollection when triggered.
@@ -180,6 +187,8 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
     }
   }
 
+  // TODO: [3.0.0] Rename?  This is should represent child -> collection
+  // proxying
   /**
    * Removes the wrapping event handler with the given even name from the
    * relevant child instance.
@@ -203,6 +212,8 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
     }
   }
 
+  // TODO: [3.0.0] Rename?  This is should represent collection -> child
+  // proxying
   /**
    * Adds an event name which will bind to each child and emit out the
    * PhantomCollection when triggered.
@@ -222,6 +233,8 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
     }
   }
 
+  // TODO: [3.0.0] Rename?  This is should represent collection -> child
+  // proxying
   /**
    * Removes an event name from each child which previously would emit out the
    * PhantomCollection when triggered.
