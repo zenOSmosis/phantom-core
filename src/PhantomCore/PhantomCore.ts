@@ -736,7 +736,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
           if (!KEEP_ALIVE_SHUTDOWN_METHODS.includes(methodName)) {
             (this as ClassInstance)[methodName] = (): void =>
               logger.warn(
-                `${className}:${methodName} cannot be invoked on after instance has been destructed`
+                `${className}:${methodName} cannot be invoked after instance has been destructed`
               );
           }
 
