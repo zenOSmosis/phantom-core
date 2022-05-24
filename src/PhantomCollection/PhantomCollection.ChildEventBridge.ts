@@ -16,6 +16,7 @@ type EventMap = Map<EventName, EventHandler>;
 
 export { EVT_UPDATE };
 
+// TODO: [3.0.0] Redo description
 /**
  * Handles many-to-one proxying of specified events of PhantomCollection
  * children out of the PhantomCollection itself.
