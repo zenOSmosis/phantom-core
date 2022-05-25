@@ -321,6 +321,14 @@ export default class PhantomCore extends DestructibleEventEmitter {
 
     // Bound remote event handlers
     this._eventProxyStack = new EventProxyStack();
+    this.registerCleanupHandler(async () => {
+      await this._eventProxyStack.destroy();
+
+      // Ignoring because we don't want this to be an optional property
+      // during runtime
+      // @ts-ignore
+      this._eventProxyStack = null;
+    });
 
     // Force method scope binding to class instance
     if (this._options.hasAutomaticBindings) {
@@ -707,13 +715,6 @@ export default class PhantomCore extends DestructibleEventEmitter {
         if (typeof destroyHandler === "function") {
           await destroyHandler();
         }
-
-        await this._eventProxyStack.destroy();
-
-        // Ignoring because we don't want this to be an optional property
-        // during runtime
-        // @ts-ignore
-        this._eventProxyStack = null;
       },
       async () => {
         await this._cleanupHandlerStack.exec();
