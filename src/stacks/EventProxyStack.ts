@@ -1,5 +1,5 @@
 import assert from "assert";
-import PhantomCore from ".";
+import PhantomCore from "../PhantomCore";
 import _DestructibleEventEmitter, {
   EVT_DESTROY,
 } from "../_DestructibleEventEmitter";

@@ -4,7 +4,7 @@ import { sleep } from "../src";
 import FunctionStack, {
   FUNCTION_STACK_OPS_ORDER_FIFO,
   FUNCTION_STACK_OPS_ORDER_LIFO,
-} from "../src/FunctionStack";
+} from "../src/stacks/FunctionStack";
 
 test("uses default FIFO ops order", t => {
   t.plan(1);

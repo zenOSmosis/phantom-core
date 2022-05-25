@@ -11,7 +11,9 @@ import DestructibleEventEmitter, {
   EVT_DESTROY,
 } from "../_DestructibleEventEmitter";
 import getPackageJSON from "../utils/getPackageJSON";
-import FunctionStack, { FUNCTION_STACK_OPS_ORDER_LIFO } from "../FunctionStack";
+import FunctionStack, {
+  FUNCTION_STACK_OPS_ORDER_LIFO,
+} from "../stacks/FunctionStack";
 import getClassName from "../utils/class-utils/getClassName";
 import { v4 as uuidv4 } from "uuid";
 import shortUUID from "short-uuid";
@@ -21,7 +23,7 @@ import getClassInstancePropertyNames from "../utils/class-utils/getClassInstance
 import getClassInstanceMethodNames from "../utils/class-utils/getClassInstanceMethodNames";
 import autoBindClassInstanceMethods from "../utils/class-utils/autoBindClassInstanceMethods";
 import shallowMerge from "../utils/shallowMerge";
-import EventProxyStack from "./EventProxyStack";
+import EventProxyStack from "../stacks/EventProxyStack";
 import { Class, ClassInstance } from "../utils/class-utils/types";
 import { CommonOptions } from "./types";
 

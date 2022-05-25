@@ -69,8 +69,10 @@ export { PhantomSerializableState };
 import PhantomState from "./PhantomState";
 export { PhantomState };
 
-import FunctionStack from "./FunctionStack";
+import FunctionStack from "./stacks/FunctionStack";
 export { FunctionStack };
+
+// TODO: [3.0.0] Export other stacks here?
 
 // Base utilities
 
