@@ -1,10 +1,7 @@
 import test from "tape";
-// import sinon from "sinon";
 import { sleep } from "../src";
 
 import TimerStack from "../src/stacks/TimerStack";
-
-// const clock = sinon.useFakeTimers();
 
 test("invokes timeout", async t => {
   t.plan(4);

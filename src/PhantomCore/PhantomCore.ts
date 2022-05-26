@@ -715,38 +715,51 @@ export default class PhantomCore extends DestructibleEventEmitter {
   }
 
   /**
-   * Creates a timeout which is managed by PhantomCore.
+   * Creates a timeout which is managed by this instance of PhantomCore.
    */
   setTimeout(fn: Function, delay = 0) {
     return this._timerStack.setTimeout(fn, delay);
   }
 
-  // TODO: [3.0.0] Document
+  /**
+   * Clears the given timeout, if it is managed by this instance of
+   * PhantomCore.
+   */
   clearTimeout(timeoutID: ReturnType<typeof setTimeout>) {
     return this._timerStack.clearTimeout(timeoutID);
   }
 
-  // TODO: [3.0.0] Document
+  /**
+   * Clears all timeouts managed by this instance of PhantomCore.
+   */
   clearAllTimeouts() {
     return this._timerStack.clearAllTimeouts();
   }
 
-  // TODO: [3.0.0] Document
+  /**
+   * Creates an interval which is managed by this instance of PhantomCore.
+   */
   setInterval(fn: Function, delay = 0) {
     return this._timerStack.setInterval(fn, delay);
   }
 
-  // TODO: [3.0.0] Document
+  /**
+   * Clears an interval which is managed by this instance of PhantomCore.
+   */
   clearInterval(intervalID: ReturnType<typeof setInterval>) {
     return this._timerStack.clearInterval(intervalID);
   }
 
-  // TODO: [3.0.0] Document
+  /**
+   * Clears all intervals managed by this instance of PhantomCore.
+   */
   clearAllIntervals() {
     return this._timerStack.clearAllIntervals();
   }
 
-  // TODO: [3.0.0] Document
+  /**
+   * Clears all timeouts and intervals managed by this instance of PhantomCore.
+   */
   clearAllTimers() {
     return this._timerStack.clearAllTimers();
   }

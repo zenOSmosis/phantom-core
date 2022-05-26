@@ -49,14 +49,6 @@ export default class TimerStack extends _DestructibleEventEmitter {
   }
 
   /**
-   * Clears all associated timeouts and intervals managed by this instance.
-   */
-  clearAllTimers() {
-    this.clearAllTimeouts();
-    this.clearAllIntervals();
-  }
-
-  /**
    * Creates a timeout which is managed by this instance.
    */
   setTimeout(fn: Function, delay = 0) {
@@ -71,7 +63,7 @@ export default class TimerStack extends _DestructibleEventEmitter {
   }
 
   /**
-   * Clears the given timeout managed by this instance.
+   * Clears the given timeout, if it is managed by this instance.
    */
   clearTimeout(timeoutID: ReturnType<typeof setTimeout>) {
     this._timeoutStack = this._timeoutStack.filter(pred => pred !== timeoutID);
@@ -80,7 +72,7 @@ export default class TimerStack extends _DestructibleEventEmitter {
   }
 
   /**
-   * Clears all registered timeouts managed by this instance.
+   * Clears all timeouts managed by this instance.
    */
   clearAllTimeouts() {
     do {
@@ -120,6 +112,14 @@ export default class TimerStack extends _DestructibleEventEmitter {
     for (const intervalID of this._intervalStack) {
       this.clearInterval(intervalID);
     }
+  }
+
+  /**
+   * Clears all timeouts and intervals managed by this instance.
+   */
+  clearAllTimers() {
+    this.clearAllTimeouts();
+    this.clearAllIntervals();
   }
 
   override async destroy() {
