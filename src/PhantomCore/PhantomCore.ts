@@ -14,6 +14,8 @@ import getPackageJSON from "../utils/getPackageJSON";
 import FunctionStack, {
   FUNCTION_STACK_OPS_ORDER_LIFO,
 } from "../stacks/FunctionStack";
+import EventProxyStack from "../stacks/EventProxyStack";
+import TimerStack from "../stacks/TimerStack";
 import getClassName from "../utils/class-utils/getClassName";
 import { v4 as uuidv4 } from "uuid";
 import shortUUID from "short-uuid";
@@ -23,7 +25,6 @@ import getClassInstancePropertyNames from "../utils/class-utils/getClassInstance
 import getClassInstanceMethodNames from "../utils/class-utils/getClassInstanceMethodNames";
 import autoBindClassInstanceMethods from "../utils/class-utils/autoBindClassInstanceMethods";
 import shallowMerge from "../utils/shallowMerge";
-import EventProxyStack from "../stacks/EventProxyStack";
 import { Class, ClassInstance } from "../utils/class-utils/types";
 import { CommonOptions } from "./types";
 
@@ -185,9 +186,11 @@ export default class PhantomCore extends DestructibleEventEmitter {
   protected _isReady: boolean;
   protected _title: string | null;
   protected _eventProxyStack: EventProxyStack;
+  protected _cleanupHandlerStack: FunctionStack;
+  protected _timerStack: TimerStack;
   protected _uuid: string;
   protected _shortUUID: string;
-  protected _cleanupHandlerStack: FunctionStack;
+
   protected _symbol: Symbol | null;
 
   public log: LogIntersection;
@@ -330,6 +333,16 @@ export default class PhantomCore extends DestructibleEventEmitter {
       // during runtime
       // @ts-ignore
       this._eventProxyStack = null;
+    });
+
+    this._timerStack = new TimerStack();
+    this.registerCleanupHandler(async () => {
+      await this._timerStack.destroy();
+
+      // Ignoring because we don't want this to be an optional property
+      // during runtime
+      // @ts-ignore
+      this._timerStack = null;
     });
 
     // Force method scope binding to class instance
@@ -699,6 +712,43 @@ export default class PhantomCore extends DestructibleEventEmitter {
     } else {
       return 0;
     }
+  }
+
+  /**
+   * Creates a timeout which is managed by PhantomCore.
+   */
+  setTimeout(fn: Function, delay = 0) {
+    return this._timerStack.setTimeout(fn, delay);
+  }
+
+  // TODO: [3.0.0] Document
+  clearTimeout(timeoutID: ReturnType<typeof setTimeout>) {
+    return this._timerStack.clearTimeout(timeoutID);
+  }
+
+  // TODO: [3.0.0] Document
+  clearAllTimeouts() {
+    return this._timerStack.clearAllTimeouts();
+  }
+
+  // TODO: [3.0.0] Document
+  setInterval(fn: Function, delay = 0) {
+    return this._timerStack.setInterval(fn, delay);
+  }
+
+  // TODO: [3.0.0] Document
+  clearInterval(intervalID: ReturnType<typeof setInterval>) {
+    return this._timerStack.clearInterval(intervalID);
+  }
+
+  // TODO: [3.0.0] Document
+  clearAllIntervals() {
+    return this._timerStack.clearAllIntervals();
+  }
+
+  // TODO: [3.0.0] Document
+  clearAllTimers() {
+    return this._timerStack.clearAllTimers();
   }
 
   /**
