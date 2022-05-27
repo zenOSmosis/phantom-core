@@ -20,13 +20,13 @@ export default function autoBindClassInstanceMethods(
   }
 
   getClassInstanceMethodNames(classInstance).forEach(methodName => {
-    const method = classInstance[methodName];
+    const method = classInstance[methodName] as Function;
 
     if (
       method !== classInstance.constructor &&
       !ignoreMethods.includes(method)
     ) {
-      classInstance[methodName] = classInstance[methodName].bind(classInstance);
+      classInstance[methodName] = method.bind(classInstance);
     }
   });
 }

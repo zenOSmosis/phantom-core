@@ -7,15 +7,15 @@ import { Class, ClassInstance } from "./types";
  */
 export default function getClassInheritance(
   instanceOrClass: Class | ClassInstance
-) {
-  const parents = [];
+): Class[] {
+  const parents: Class[] = [];
 
   let predicate = instanceOrClass;
   do {
     predicate = getSuperClass(predicate);
 
     if (predicate) {
-      parents.push(predicate);
+      parents.push(predicate as Class);
     }
   } while (predicate);
 

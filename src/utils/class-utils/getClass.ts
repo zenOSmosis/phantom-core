@@ -6,12 +6,14 @@ import { Class, ClassInstance } from "./types";
  *
  * If a class is passed in, the original class is returned.
  */
-export default function getClass(instanceOrClass: Class | ClassInstance) {
+export default function getClass(
+  instanceOrClass: Class | ClassInstance
+): Class {
   const isInstance = getIsClassInstance(instanceOrClass);
 
   if (isInstance) {
     return instanceOrClass.constructor;
   } else {
-    return instanceOrClass;
+    return instanceOrClass as Class;
   }
 }
