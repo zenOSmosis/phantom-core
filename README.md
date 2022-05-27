@@ -8,6 +8,7 @@ TODO: Add TypeScript badge
 [![CodeFactor][codefactor-image]][codefactor-url]
 [![phantom-core-architecture][phantom-core-architecture-image]][phantom-core-architecture-url]
 [![Style Status][style-image]][style-url]
+[![TypeScript][typescript-image]][typescript-url]
 
 [license-image]: https://img.shields.io/github/license/zenosmosis/phantom-core
 [license-url]: https://raw.githubusercontent.com/zenOSmosis/phantom-core/main/LICENSE
@@ -25,6 +26,8 @@ TODO: Add TypeScript badge
 [phantom-core-architecture-url]: https://github.com/zenosmosis/phantom-core
 [style-image]: https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat
 [style-url]: https://prettier.io/
+[typescript-image]: https://shields.io/badge/TypeScript-3178C6?logo=TypeScript&logoColor=FFF&style=flat
+[typescript-url]: https://www.typescriptlang.org/
 
 # PhantomCore
 
