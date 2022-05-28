@@ -69,6 +69,9 @@ export { PhantomSerializableState };
 import PhantomState from "./PhantomState";
 export { PhantomState };
 
+import PhantomWatcher from "./PhantomWatcher";
+export { PhantomWatcher };
+
 // Stacks
 
 import FunctionStack from "./stacks/FunctionStack";

@@ -15,6 +15,8 @@ import PhantomCore, {
   sleep,
   performance,
 } from "../src";
+import PhantomCoreUnwatched from "../src/PhantomCore/PhantomCore.unwatched";
+import _DestructibleEventEmitter from "../src/_DestructibleEventEmitter";
 
 test("consume", t => {
   t.plan(7);
@@ -198,16 +200,14 @@ test("super parents", t => {
   class ExtensionD extends ExtensionC {}
   class ExtensionE extends ExtensionD {}
 
-  // This isn't directly exported from src
-  const DestructibleEventEmitter = getSuperClass(PhantomCore);
-
   t.deepEquals(getClassInheritance(ExtensionE), [
     ExtensionD,
     ExtensionC,
     ExtensionB,
     ExtensionA,
     PhantomCore,
-    DestructibleEventEmitter,
+    PhantomCoreUnwatched,
+    _DestructibleEventEmitter,
     EventEmitter,
   ]);
 

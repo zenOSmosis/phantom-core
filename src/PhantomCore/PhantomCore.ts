@@ -6,7 +6,7 @@ import PhantomCoreUnwatched, {
   EVT_DESTROY_STACK_TIME_OUT,
   EVT_DESTROY,
 } from "./PhantomCore.unwatched";
-import _PhantomWatcherProvider from "../PhantomWatcher/_PhantomWatcherProvider";
+import phantomWatcherProviderSingleton from "../PhantomWatcher/_PhantomWatcherProviderSingleton";
 
 export {
   EVT_NO_INIT_WARN,
@@ -22,6 +22,7 @@ export default class PhantomCore extends PhantomCoreUnwatched {
   constructor(...args: any[]) {
     super(...args);
 
-    _PhantomWatcherProvider.addInstance(this);
+    // Note: PhantomWatcher will automatically handle instance de-registration
+    phantomWatcherProviderSingleton.addInstance(this);
   }
 }
