@@ -1,6 +1,7 @@
-import DestructibleEventEmitter, {
+import _DestructibleEventEmitter, {
   EVT_DESTROY,
 } from "./_DestructibleEventEmitter";
+import { ClassInstance } from "./utils/class-utils/types";
 
 export const LOG_LEVEL_TRACE = 0;
 export const LOG_LEVEL_DEBUG = 1;
@@ -32,7 +33,7 @@ export type LogIntersection = Logger & ((...args: any[]) => void);
  * the browser's default console.debug mechanism and setting up namespaced
  * loggers wasn't very straightforward.
  */
-export default class Logger extends DestructibleEventEmitter {
+export default class Logger extends _DestructibleEventEmitter {
   public log: LogIntersection;
 
   protected _options: {
@@ -142,7 +143,7 @@ export default class Logger extends DestructibleEventEmitter {
       }
 
       // Calling this.log() directly will log as info (log info alias)
-      const log = loggerMethods.info;
+      const log: ClassInstance = loggerMethods.info;
 
       // Dynamically assign log methods to log
       // TODO: [3.0.0] Rewrite to handlers which are exposed via class methods
@@ -150,12 +151,10 @@ export default class Logger extends DestructibleEventEmitter {
         // IMPORTANT: Both of these are used intentionally
 
         // Extend off of log method (i.e. PhantomCore's this.log.debug)
-        // TODO: [3.0.0] Fix any type
-        (log as any)[method] = loggerMethods[method];
+        log[method] = loggerMethods[method];
 
         // Extend class with logger methods
-        // TODO: [3.0.0] Fix any type
-        (this as any)[method] = loggerMethods[method];
+        (this as ClassInstance)[method] = loggerMethods[method];
       });
 
       return log;
