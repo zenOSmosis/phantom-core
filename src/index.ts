@@ -43,6 +43,9 @@ export {
 import logger from "./globalLogger";
 export { logger };
 
+import CommonEventEmitter from "./CommonEventEmitter";
+export { CommonEventEmitter };
+
 // Extensions
 
 import ArbitraryPhantomWrapper from "./ArbitraryPhantomWrapper";
