@@ -12,8 +12,7 @@ import {
 } from "../src/PhantomCollection";
 
 import _ChildEventBridge from "../src/PhantomCollection/PhantomCollection.ChildEventBridge";
-
-const EventEmitter = require("events");
+import CommonEventEmitter from "../src/CommonEventEmitter";
 
 test("PhantomCollection loose instance detection", t => {
   t.plan(2);
@@ -105,7 +104,7 @@ test("PhantomCollection add / remove child; get children", async t => {
 
   t.throws(
     () => {
-      new PhantomCollection([new PhantomCore(), new EventEmitter()]);
+      new PhantomCollection([new PhantomCore(), new CommonEventEmitter()]);
     },
     TypeError,
     "cannot instantiate with non-PhantomCore class instances"
@@ -172,7 +171,7 @@ test("PhantomCollection add / remove child; get children", async t => {
 
   t.throws(
     () => {
-      collection.addChild(new EventEmitter());
+      collection.addChild(new CommonEventEmitter());
     },
     TypeError,
     "cannot add non-PhantomCore class instance"

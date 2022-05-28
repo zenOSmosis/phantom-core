@@ -1,4 +1,3 @@
-sauce_connect: true
 browsers:
   - name: firefox
     version: latest
@@ -18,8 +17,9 @@ providers:
   - airtap-sauce
 presets:
   local:
-    providers: airtap-manual
+    providers:
+      - airtap-default # or airtap-system if you prefer
     browsers:
-      - name: manual
+      - name: default
 browserify:
   - plugin: tsify

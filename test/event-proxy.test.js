@@ -1,5 +1,5 @@
 import test from "tape";
-import EventEmitter from "events";
+import CommonEventEmitter from "../src/CommonEventEmitter";
 import PhantomCore, { EVT_DESTROY } from "../src";
 
 test("event proxy error handling", async t => {
@@ -10,7 +10,7 @@ test("event proxy error handling", async t => {
 
   t.throws(
     () => {
-      p1.proxyOn(new EventEmitter(), "mock-event", () =>
+      p1.proxyOn(new CommonEventEmitter(), "mock-event", () =>
         // NOTE: Not throwing here because we want to make sure the error is
         // thrown from the instance
         console.log("Should not get here")

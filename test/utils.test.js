@@ -1,5 +1,6 @@
 import test from "tape";
-import EventEmitter from "events";
+import { EventEmitter } from "events";
+import CommonEventEmitter from "../src/CommonEventEmitter";
 import PhantomCore, {
   PhantomCollection,
   PhantomServiceCore,
@@ -15,6 +16,8 @@ import PhantomCore, {
   sleep,
   performance,
 } from "../src";
+import PhantomCoreUnwatched from "../src/PhantomCore/PhantomCore.unwatched";
+import _DestructibleEventEmitter from "../src/_DestructibleEventEmitter";
 
 test("consume", t => {
   t.plan(7);
@@ -97,14 +100,14 @@ test("unix time", async t => {
 test("class name", t => {
   t.plan(10);
   t.equals(
-    getClassName(EventEmitter),
-    "EventEmitter",
-    "EventEmitter is detected from non-instantiated class"
+    getClassName(CommonEventEmitter),
+    "CommonEventEmitter",
+    "CommonEventEmitter is detected from non-instantiated class"
   );
   t.equals(
-    getClassName(new EventEmitter()),
-    "EventEmitter",
-    "EventEmitter is detected from class instance"
+    getClassName(new CommonEventEmitter()),
+    "CommonEventEmitter",
+    "CommonEventEmitter is detected from class instance"
   );
 
   t.equals(
@@ -198,16 +201,15 @@ test("super parents", t => {
   class ExtensionD extends ExtensionC {}
   class ExtensionE extends ExtensionD {}
 
-  // This isn't directly exported from src
-  const DestructibleEventEmitter = getSuperClass(PhantomCore);
-
   t.deepEquals(getClassInheritance(ExtensionE), [
     ExtensionD,
     ExtensionC,
     ExtensionB,
     ExtensionA,
     PhantomCore,
-    DestructibleEventEmitter,
+    PhantomCoreUnwatched,
+    _DestructibleEventEmitter,
+    CommonEventEmitter,
     EventEmitter,
   ]);
 

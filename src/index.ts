@@ -43,6 +43,9 @@ export {
 import logger from "./globalLogger";
 export { logger };
 
+import CommonEventEmitter from "./CommonEventEmitter";
+export { CommonEventEmitter };
+
 // Extensions
 
 import ArbitraryPhantomWrapper from "./ArbitraryPhantomWrapper";
@@ -68,6 +71,9 @@ export { PhantomSerializableState };
 
 import PhantomState from "./PhantomState";
 export { PhantomState };
+
+import PhantomWatcher from "./PhantomWatcher";
+export { PhantomWatcher };
 
 // Stacks
 
