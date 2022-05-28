@@ -1,5 +1,3 @@
-TODO: Add TypeScript badge
-
 [![MIT License][license-image]][license-url]
 [![version][version-image]][version-url]
 [![ci][ci-image]][ci-url]
