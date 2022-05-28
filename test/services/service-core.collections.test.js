@@ -1,10 +1,10 @@
-const test = require("tape");
-const {
+import test from "tape";
+import {
   PhantomCollection,
   PhantomServiceCore,
   PhantomServiceManager,
-  EVT_UPDATED,
-} = require("../../src");
+  EVT_UPDATE,
+} from "../../src";
 
 test("service collections", async t => {
   t.plan(19);
@@ -55,10 +55,10 @@ test("service collections", async t => {
 
   await Promise.all([
     new Promise(resolve => {
-      testService.once(EVT_UPDATED, data => {
+      testService.once(EVT_UPDATE, data => {
         t.ok(
           data === "test data",
-          "EVT_UPDATED events emit from service collection are proxied through the service with the associated data"
+          "EVT_UPDATE events emit from service collection are proxied through the service with the associated data"
         );
 
         resolve();
@@ -66,7 +66,7 @@ test("service collections", async t => {
     }),
     testService
       .getCollectionInstance(TestCollection1)
-      .emit(EVT_UPDATED, "test data"),
+      .emit(EVT_UPDATE, "test data"),
   ]);
 
   t.ok(

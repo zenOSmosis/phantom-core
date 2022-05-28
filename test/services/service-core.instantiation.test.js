@@ -1,6 +1,8 @@
-const test = require("tape");
-const PhantomCore = require("../../src");
-const { PhantomServiceCore, PhantomServiceManager } = PhantomCore;
+import test from "tape";
+import PhantomCore, {
+  PhantomServiceCore,
+  PhantomServiceManager,
+} from "../../src";
 
 class TestService extends PhantomServiceCore {}
 

@@ -1,7 +1,10 @@
-const test = require("tape");
-const { FunctionStack, sleep } = require("../src");
-const { FUNCTION_STACK_OPS_ORDER_FIFO, FUNCTION_STACK_OPS_ORDER_LIFO } =
-  FunctionStack;
+import test from "tape";
+import { sleep } from "../src";
+
+import FunctionStack, {
+  FUNCTION_STACK_OPS_ORDER_FIFO,
+  FUNCTION_STACK_OPS_ORDER_LIFO,
+} from "../src/stacks/FunctionStack";
 
 test("uses default FIFO ops order", t => {
   t.plan(1);

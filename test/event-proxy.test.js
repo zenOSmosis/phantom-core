@@ -1,7 +1,6 @@
-const test = require("tape");
-const { EventEmitter } = require("events");
-const PhantomCore = require("../src");
-const { EVT_DESTROYED } = PhantomCore;
+import test from "tape";
+import EventEmitter from "events";
+import PhantomCore, { EVT_DESTROY } from "../src";
 
 test("event proxy error handling", async t => {
   t.plan(11);
@@ -531,7 +530,7 @@ test("event proxy destruct handling management", async t => {
   const p1 = new PhantomCore();
   const p2 = new PhantomCore();
 
-  const origPerInstanceDestroyedListenerCount = p1.listenerCount(EVT_DESTROYED);
+  const origPerInstanceDestroyedListenerCount = p1.listenerCount(EVT_DESTROY);
 
   const _eventHandlerA = () => {
     throw new Error("Should not get here");
@@ -544,61 +543,61 @@ test("event proxy destruct handling management", async t => {
   p1.proxyOn(p2, "mock-event", _eventHandlerA);
 
   t.equals(
-    p1.listenerCount(EVT_DESTROYED),
+    p1.listenerCount(EVT_DESTROY),
     origPerInstanceDestroyedListenerCount,
-    "p1 EVT_DESTROYED listener count is unaffected by adding new proxy target instance using proxyOn"
+    "p1 EVT_DESTROY listener count is unaffected by adding new proxy target instance using proxyOn"
   );
 
   t.equals(
-    p2.listenerCount(EVT_DESTROYED),
+    p2.listenerCount(EVT_DESTROY),
     origPerInstanceDestroyedListenerCount + 1,
-    "p2 EVT_DESTROYED listener count is incremented by one, being a target instance for a proxy"
+    "p2 EVT_DESTROY listener count is incremented by one, being a target instance for a proxy"
   );
 
   p1.proxyOnce(p2, "mock-event", _eventHandlerB);
 
   t.equals(
-    p1.listenerCount(EVT_DESTROYED),
+    p1.listenerCount(EVT_DESTROY),
     origPerInstanceDestroyedListenerCount,
-    "p1 EVT_DESTROYED listener count is unaffected by adding new proxy target instance using proxyOnce"
+    "p1 EVT_DESTROY listener count is unaffected by adding new proxy target instance using proxyOnce"
   );
 
   t.equals(
-    p2.listenerCount(EVT_DESTROYED),
+    p2.listenerCount(EVT_DESTROY),
     origPerInstanceDestroyedListenerCount + 1,
-    "p2 EVT_DESTROYED listener count remains incremented by one, despite having subsequent proxy event assigned to it"
+    "p2 EVT_DESTROY listener count remains incremented by one, despite having subsequent proxy event assigned to it"
   );
 
   p1.proxyOff(p2, "mock-event", _eventHandlerB);
 
   t.equals(
-    p2.listenerCount(EVT_DESTROYED),
+    p2.listenerCount(EVT_DESTROY),
     origPerInstanceDestroyedListenerCount + 1,
-    "p2 EVT_DESTROYED listener count remains incremented by one, after removing an event proxy from it"
+    "p2 EVT_DESTROY listener count remains incremented by one, after removing an event proxy from it"
   );
 
   p1.proxyOff(p2, "mock-event", _eventHandlerA);
 
   t.equals(
-    p2.listenerCount(EVT_DESTROYED),
+    p2.listenerCount(EVT_DESTROY),
     origPerInstanceDestroyedListenerCount,
-    "p2 EVT_DESTROYED listener count goes back to original value after removing all event proxies from it"
+    "p2 EVT_DESTROY listener count goes back to original value after removing all event proxies from it"
   );
 
   p1.proxyOn(p2, "mock-event", _eventHandlerA);
 
   t.equals(
-    p2.listenerCount(EVT_DESTROYED),
+    p2.listenerCount(EVT_DESTROY),
     origPerInstanceDestroyedListenerCount + 1,
-    "p2 EVT_DESTROYED listener count is incremented by one after re-assigning an event proxy to it"
+    "p2 EVT_DESTROY listener count is incremented by one after re-assigning an event proxy to it"
   );
 
   p1.proxyOff(p2, "mock-event", _eventHandlerA);
 
   t.equals(
-    p2.listenerCount(EVT_DESTROYED),
+    p2.listenerCount(EVT_DESTROY),
     origPerInstanceDestroyedListenerCount,
-    "p2 EVT_DESTROYED listener count goes back to original value again after removing all event proxies from it"
+    "p2 EVT_DESTROY listener count goes back to original value again after removing all event proxies from it"
   );
 
   t.end();

@@ -1,12 +1,19 @@
-const test = require("tape");
-const PhantomCore = require("../src");
-const { EVT_UPDATED, EVT_BEFORE_DESTROY, EVT_DESTROYED } = PhantomCore;
-const EventEmitter = require("events");
-const PhantomCollection = require("../src/PhantomCollection");
-const { EVT_CHILD_INSTANCE_ADDED, EVT_CHILD_INSTANCE_REMOVED } =
-  PhantomCollection;
+import test from "tape";
+import PhantomCore, {
+  PhantomCollection,
+  EVT_UPDATE,
+  EVT_BEFORE_DESTROY,
+  EVT_DESTROY,
+} from "../src";
 
-const _ChildEventBridge = require("../src/PhantomCollection/ChildEventBridge");
+import {
+  EVT_CHILD_INSTANCE_ADD,
+  EVT_CHILD_INSTANCE_REMOVE,
+} from "../src/PhantomCollection";
+
+import _ChildEventBridge from "../src/PhantomCollection/PhantomCollection.ChildEventBridge";
+
+const EventEmitter = require("events");
 
 test("PhantomCollection loose instance detection", t => {
   t.plan(2);
@@ -62,7 +69,7 @@ test("PhantomCollection children event handler cleanup", async t => {
   t.equals(
     phantom.getTotalListenerCount(),
     initialListenerCount + 2,
-    // One is added for EVT_BEFORE_DESTROY, the other for EVT_UPDATED
+    // One is added for EVT_BEFORE_DESTROY, the other for EVT_UPDATE
     "adding child to collection increments child event emitters by two"
   );
 
@@ -199,8 +206,8 @@ test("PhantomCollection add / remove child; get children", async t => {
 
   await Promise.all([
     new Promise(resolve => {
-      collection.once(EVT_UPDATED, () => {
-        t.ok(true, "emits EVT_UPDATED when instance is added to collection");
+      collection.once(EVT_UPDATE, () => {
+        t.ok(true, "emits EVT_UPDATE when instance is added to collection");
 
         t.ok(
           collection.getChildren().includes(extendedCore2),
@@ -212,10 +219,10 @@ test("PhantomCollection add / remove child; get children", async t => {
     }),
 
     new Promise(resolve => {
-      collection.once(EVT_CHILD_INSTANCE_ADDED, childInstance => {
+      collection.once(EVT_CHILD_INSTANCE_ADD, childInstance => {
         t.ok(
           Object.is(childInstance, extendedCore2),
-          "emits EVT_CHILD_INSTANCE_ADDED when instance is added to collection"
+          "emits EVT_CHILD_INSTANCE_ADD when instance is added to collection"
         );
 
         t.ok(
@@ -232,11 +239,8 @@ test("PhantomCollection add / remove child; get children", async t => {
 
   await Promise.all([
     new Promise(resolve => {
-      collection.once(EVT_UPDATED, () => {
-        t.ok(
-          true,
-          "emits EVT_UPDATED when instance is removed from collection"
-        );
+      collection.once(EVT_UPDATE, () => {
+        t.ok(true, "emits EVT_UPDATE when instance is removed from collection");
 
         t.ok(
           !collection.getChildren().includes(extendedCore2),
@@ -248,10 +252,10 @@ test("PhantomCollection add / remove child; get children", async t => {
     }),
 
     new Promise(resolve => {
-      collection.once(EVT_CHILD_INSTANCE_REMOVED, childInstance => {
+      collection.once(EVT_CHILD_INSTANCE_REMOVE, childInstance => {
         t.ok(
           Object.is(childInstance, extendedCore2),
-          "emits EVT_CHILD_INSTANCE_REMOVED when instance is removed from collection"
+          "emits EVT_CHILD_INSTANCE_REMOVE when instance is removed from collection"
         );
 
         t.ok(
@@ -271,10 +275,10 @@ test("PhantomCollection add / remove child; get children", async t => {
 
     await Promise.all([
       new Promise(resolve => {
-        collection.once(EVT_CHILD_INSTANCE_REMOVED, childInstance => {
+        collection.once(EVT_CHILD_INSTANCE_REMOVE, childInstance => {
           t.ok(
             Object.is(childInstance, autoDestructChild),
-            "collection emits EVT_CHILD_INSTANCE_REMOVED when child destructs"
+            "collection emits EVT_CHILD_INSTANCE_REMOVE when child destructs"
           );
 
           resolve();
@@ -305,11 +309,8 @@ test("PhantomCollection add / remove child; get children", async t => {
 
   await Promise.all([
     new Promise(resolve => {
-      collection.once(EVT_UPDATED, () => {
-        t.ok(
-          true,
-          "emits EVT_UPDATED when instance is removed from collection"
-        );
+      collection.once(EVT_UPDATE, () => {
+        t.ok(true, "emits EVT_UPDATE when instance is removed from collection");
 
         resolve();
       });
@@ -359,7 +360,7 @@ test("PhantomCollection broadcasting / post-destruct child retention", async t =
 
   await Promise.all([
     new Promise(resolve => {
-      phantom1.once(EVT_UPDATED, message => {
+      phantom1.once(EVT_UPDATE, message => {
         t.equals(
           message,
           expectedEventMessage,
@@ -371,7 +372,7 @@ test("PhantomCollection broadcasting / post-destruct child retention", async t =
     }),
 
     new Promise(resolve => {
-      phantom2.once(EVT_UPDATED, message => {
+      phantom2.once(EVT_UPDATE, message => {
         t.equals(
           message,
           expectedEventMessage,
@@ -383,7 +384,7 @@ test("PhantomCollection broadcasting / post-destruct child retention", async t =
     }),
 
     new Promise(resolve => {
-      collection.broadcast(EVT_UPDATED, expectedEventMessage);
+      collection.broadcast(EVT_UPDATE, expectedEventMessage);
 
       resolve();
     }),
@@ -431,33 +432,33 @@ test("PhantomCollection ChildEventBridge", async t => {
 
   t.deepEquals(
     collection.getBoundChildEventNames(),
-    [EVT_UPDATED],
-    "collection includes EVT_UPDATED event by default"
+    [EVT_UPDATE],
+    "collection includes EVT_UPDATE event by default"
   );
 
-  collection.unbindChildEventName(EVT_UPDATED);
+  collection.unbindChildEventName(EVT_UPDATE);
 
   t.deepEquals(
     collection.getBoundChildEventNames(),
     [],
-    "collection has 0 mapped child events after removing EVT_UPDATED"
+    "collection has 0 mapped child events after removing EVT_UPDATE"
   );
 
-  collection.bindChildEventName(EVT_UPDATED);
+  collection.bindChildEventName(EVT_UPDATE);
 
   t.deepEquals(
     collection.getBoundChildEventNames(),
-    [EVT_UPDATED],
+    [EVT_UPDATE],
     "collection can add child event"
   );
 
   t.doesNotThrow(() => {
-    collection.bindChildEventName(EVT_UPDATED);
+    collection.bindChildEventName(EVT_UPDATE);
   }, "collection does not throw when trying to add duplicate event (silently ignores)");
 
   t.deepEquals(
     collection.getBoundChildEventNames(),
-    [EVT_UPDATED],
+    [EVT_UPDATE],
     "collection does not contain duplicate added event"
   );
 
@@ -469,11 +470,11 @@ test("PhantomCollection ChildEventBridge", async t => {
 
       await Promise.all([
         new Promise(resolve => {
-          collection.once(EVT_UPDATED, message => {
+          collection.once(EVT_UPDATE, message => {
             t.equals(
               message,
               "some-test-data",
-              `collection receives EVT_UPDATED emit from child ${idx}`
+              `collection receives EVT_UPDATE emit from child ${idx}`
             );
 
             resolve();
@@ -481,7 +482,7 @@ test("PhantomCollection ChildEventBridge", async t => {
         }),
 
         new Promise(resolve => {
-          child.emit(EVT_UPDATED, "some-test-data");
+          child.emit(EVT_UPDATE, "some-test-data");
 
           resolve();
         }),
@@ -492,26 +493,29 @@ test("PhantomCollection ChildEventBridge", async t => {
   // Test that removing child event names no longer routes the event through
   // the collection
   await (async () => {
-    collection.unbindChildEventName(EVT_UPDATED);
+    // First unbind the EVT_UPDATE
+    collection.unbindChildEventName(EVT_UPDATE);
 
     await Promise.all([
+      // Listen for updates on EVT_UPDATE
       new Promise(resolve => {
         const eventRejectHandler = message => {
-          throw new Error("Should not get here");
+          throw new Error("This handler should not have been called");
         };
 
-        collection.once(EVT_UPDATED, eventRejectHandler);
+        collection.once(EVT_UPDATE, eventRejectHandler);
 
         // FIXME: (jh) Remove?  Why is this needed?
         setTimeout(() => {
-          collection.off(EVT_UPDATED, eventRejectHandler);
+          collection.off(EVT_UPDATE, eventRejectHandler);
 
           resolve();
         }, 500);
       }),
 
+      // Emit out the child
       new Promise(resolve => {
-        child1.emit(EVT_UPDATED, "some-additional-test-data");
+        child1.emit(EVT_UPDATE, "some-additional-test-data");
 
         resolve();
       }),
@@ -520,7 +524,7 @@ test("PhantomCollection ChildEventBridge", async t => {
 
   // Test destruct unbinding
   await (async () => {
-    collection.bindChildEventName(EVT_UPDATED);
+    collection.bindChildEventName(EVT_UPDATE);
     collection.bindChildEventName("some-test");
 
     const coll2 = new PhantomCollection([child1, child2, child3, child4]);
@@ -848,7 +852,7 @@ test("PhantomCollection child event proxies during shutdown", async t => {
   const child2 = new PhantomCore();
 
   const child3 = new PhantomCore();
-  child3.once(EVT_DESTROYED, () => {
+  child3.once(EVT_DESTROY, () => {
     child3.emit("__TESTING__-destruct-event-emitted", "test-data-b");
   });
 
@@ -1005,7 +1009,7 @@ test("PhantomCollection children ignored destructing / destructed children", asy
     }),
 
     new Promise(resolve => {
-      child.once(EVT_DESTROYED, () => {
+      child.once(EVT_DESTROY, () => {
         t.ok(
           collection1.getChildren().length === 0,
           "collection1 shows no children when destructed"
@@ -1026,7 +1030,7 @@ test("PhantomCollection children ignored destructing / destructed children", asy
   t.end();
 });
 
-test("PhantomCollection emits EVT_UPDATED on child destruct", async t => {
+test("PhantomCollection emits EVT_UPDATE on child destruct", async t => {
   t.plan(3);
 
   const child = new PhantomCore();
@@ -1036,7 +1040,7 @@ test("PhantomCollection emits EVT_UPDATED on child destruct", async t => {
 
   await Promise.all([
     new Promise(resolve => {
-      collection.on(EVT_UPDATED, () => {
+      collection.on(EVT_UPDATE, () => {
         t.ok(child.getIsDestroyed(), "child is destructed");
 
         t.equals(
@@ -1069,7 +1073,7 @@ test("child to collection to master collection event passing", async t => {
 
   await Promise.all([
     new Promise(resolve => {
-      collection1.on(EVT_UPDATED, data => {
+      collection1.on(EVT_UPDATE, data => {
         if (data === "testing 1 2 3") {
           t.ok(true, "collection1 received expected test data from child");
         } else if (collection1.getChildren().length === 0) {
@@ -1080,7 +1084,7 @@ test("child to collection to master collection event passing", async t => {
       });
     }),
     new Promise(resolve => {
-      collection2.on(EVT_UPDATED, data => {
+      collection2.on(EVT_UPDATE, data => {
         if (data === "testing 1 2 3") {
           t.ok(true, "collection2 received expected test data from child");
         } else if (collection2.getChildren().length === 0) {
@@ -1091,7 +1095,7 @@ test("child to collection to master collection event passing", async t => {
       });
     }),
     new Promise(resolve => {
-      masterCollection.on(EVT_UPDATED, data => {
+      masterCollection.on(EVT_UPDATE, data => {
         if (data === "testing 1 2 3") {
           // This will be invoked twice since collection1 and collection2 will update
           t.ok(
@@ -1103,7 +1107,7 @@ test("child to collection to master collection event passing", async t => {
         }
       });
     }),
-    child.emit(EVT_UPDATED, "testing 1 2 3"),
+    child.emit(EVT_UPDATE, "testing 1 2 3"),
     child.destroy(),
   ]);
 
@@ -1115,13 +1119,13 @@ test("collection does not contain destructed children", async t => {
 
   class TestCollection extends PhantomCollection {
     addChild(child) {
-      // NOTE: Though not typical, if adding the EVT_DESTROYED handler to the
-      // call BEFORE adding it to the collection, that initial EVT_DESTROYED
+      // NOTE: Though not typical, if adding the EVT_DESTROY handler to the
+      // call BEFORE adding it to the collection, that initial EVT_DESTROY
       // handler will be invoked before the collection invokes its own handler,
       // making it appear that the collection has more children than it should
       // during that event loop cycle if destructed children are not filtered
       // out
-      child.once(EVT_DESTROYED, () => {
+      child.once(EVT_DESTROY, () => {
         t.ok(
           this.getChildren().length === 0,
           "does not contain destructed children from getChildren() call"

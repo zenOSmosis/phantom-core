@@ -1,5 +1,5 @@
-const test = require("tape");
-const { deepMerge } = require("../src");
+import test from "tape";
+import { deepMerge } from "../src";
 
 test("handles null options", t => {
   t.plan(2);

@@ -1,5 +1,5 @@
-const test = require("tape");
-require("../src");
+import test from "tape";
+import "../src";
 
 test("setImmediate", async t => {
   t.plan(6);

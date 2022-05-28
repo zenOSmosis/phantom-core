@@ -1,0 +1,18 @@
+import PhantomServiceManager, {
+  // EVT_CHILD_INSTANCE_ADD,
+  // EVT_CHILD_INSTANCE_REMOVE,
+  EVT_UPDATE,
+  EVT_BEFORE_DESTROY,
+  EVT_DESTROY_STACK_TIME_OUT,
+  EVT_DESTROY,
+} from "./PhantomServiceManager";
+
+export default PhantomServiceManager;
+export {
+  // EVT_CHILD_INSTANCE_ADD,
+  // EVT_CHILD_INSTANCE_REMOVE,
+  EVT_UPDATE,
+  EVT_BEFORE_DESTROY,
+  EVT_DESTROY_STACK_TIME_OUT,
+  EVT_DESTROY,
+};

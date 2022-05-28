@@ -1,5 +1,5 @@
-const test = require("tape");
-const { PhantomServiceCore, PhantomServiceManager } = require("../../src");
+import test from "tape";
+import { PhantomServiceCore, PhantomServiceManager } from "../../src";
 
 test("sub-service", async t => {
   t.plan(4);

@@ -1,5 +1,5 @@
-const test = require("tape");
-const { PhantomSerializableState } = require("../src");
+import test from "tape";
+import { PhantomSerializableState } from "../src";
 
 test("phantom serialized state", async t => {
   t.plan(23);

@@ -1,6 +1,5 @@
-const test = require("tape");
-const PhantomCore = require("../../src");
-const {
+import test from "tape";
+import PhantomCore, {
   ArbitraryPhantomWrapper,
   PhantomCollection,
   PhantomState,
@@ -8,14 +7,14 @@ const {
   PhantomServiceCore,
   PhantomServiceManager,
   EVT_READY,
-  EVT_UPDATED,
+  EVT_UPDATE,
   EVT_BEFORE_DESTROY,
-  EVT_DESTROY_STACK_TIMED_OUT,
-  EVT_DESTROYED,
+  EVT_DESTROY_STACK_TIME_OUT,
+  EVT_DESTROY,
   EVT_NO_INIT_WARN,
-  eventConstantCheckingUtils,
-} = PhantomCore;
-const { compareExportedEvents } = eventConstantCheckingUtils;
+} from "../../src";
+
+import { compareExportedEvents } from "../../src/utils/testing-utils/eventConstantCheckingUtils";
 
 test("PhantomCore events", t => {
   t.plan(1);
@@ -23,10 +22,10 @@ test("PhantomCore events", t => {
   t.doesNotThrow(() => {
     compareExportedEvents(PhantomCore, {
       EVT_READY,
-      EVT_UPDATED,
+      EVT_UPDATE,
       EVT_BEFORE_DESTROY,
-      EVT_DESTROY_STACK_TIMED_OUT,
-      EVT_DESTROYED,
+      EVT_DESTROY_STACK_TIME_OUT,
+      EVT_DESTROY,
       EVT_NO_INIT_WARN,
     });
   }, "PhantomCore exports expected events");
@@ -34,7 +33,7 @@ test("PhantomCore events", t => {
   t.end();
 });
 
-test("ArbitraryPhantomWrapperr events", t => {
+test("ArbitraryPhantomWrapper events", t => {
   t.plan(1);
 
   t.doesNotThrow(() => {

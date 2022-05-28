@@ -1,6 +1,5 @@
-const test = require("tape");
-const PhantomCore = require("../src");
-const { EVT_READY, EVT_NO_INIT_WARN } = PhantomCore;
+import test from "tape";
+import PhantomCore, { EVT_READY, EVT_NO_INIT_WARN } from "../src";
 
 /**
  * Tests instantiation and destroying of PhantomCore with the default options
@@ -8,16 +7,7 @@ const { EVT_READY, EVT_NO_INIT_WARN } = PhantomCore;
  */
 
 test("instantiates async", async t => {
-  t.plan(7);
-
-  // FIXME: (jh) Remove after isReady has been removed
-  const p1 = new PhantomCore({ isReady: false });
-  const p2 = new PhantomCore({ isAsync: true });
-  t.deepEquals(
-    p1.getOptions(),
-    p2.getOptions(),
-    "older isReady[false] and newer isAsync[true] produce same options"
-  );
+  t.plan(6);
 
   const phantom = new PhantomCore({
     isAsync: true,
@@ -99,23 +89,17 @@ test("_init cannot be called more than once", async t => {
 });
 
 test("_init is discarded for non-async instances", async t => {
-  t.plan(2);
+  t.plan(1);
 
   class TestSyncPhantom extends PhantomCore {
     _init() {
-      throw new Error("Should not get here");
+      throw new Error("This error should not be echoed verbatim");
     }
   }
 
   const p = new TestSyncPhantom();
 
-  t.equals(typeof p._init, "undefined", "_init is undefined with sync type");
-
-  t.throws(
-    () => p._init(),
-    TypeError,
-    "_init call throws TypeError when sync type"
-  );
+  t.throws(() => p._init(), Error, "_init cannot be called in non-async mode");
 
   t.end();
 });

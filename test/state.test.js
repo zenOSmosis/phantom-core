@@ -1,6 +1,5 @@
-const test = require("tape");
-const { PhantomState } = require("../src");
-const { EVT_UPDATED } = PhantomState;
+import test from "tape";
+import { PhantomState, EVT_UPDATE } from "../src";
 
 test("phantom state", async t => {
   t.plan(10);
@@ -88,7 +87,7 @@ test("phantom state", async t => {
 
   await Promise.all([
     new Promise(resolve => {
-      extendedState.once(EVT_UPDATED, () => {
+      extendedState.once(EVT_UPDATE, () => {
         t.deepEquals(
           extendedState.getState(),
           {
@@ -98,7 +97,7 @@ test("phantom state", async t => {
               foo: "test",
             },
           },
-          "EVT_UPDATED is emit when state is updated"
+          "EVT_UPDATE is emit when state is updated"
         );
 
         resolve();
@@ -185,8 +184,8 @@ test("phantom state async init", t => {
     () => {
       new SyncPhantomState();
     },
-    TypeError,
-    "_init cannot be called with SyncPhantomState"
+    Error,
+    "_init cannot be called in non-async mode"
   );
 
   t.end();
