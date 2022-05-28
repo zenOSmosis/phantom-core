@@ -11,6 +11,7 @@ export const LOG_LEVEL_SILENT = 5;
 
 export { EVT_DESTROY };
 
+// TODO: [3.0.0] Use enum here?
 const LOG_LEVEL_STRING_MAP = {
   trace: LOG_LEVEL_TRACE,
   debug: LOG_LEVEL_DEBUG,
@@ -165,22 +166,50 @@ export default class Logger extends DestructibleEventEmitter {
     return this._logLevel;
   }
 
+  /**
+   * Outputs a stack trace to the console.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/console/trace
+   */
   trace(...args: any[]): void {
     throw new Error("This should be overridden");
   }
 
+  /**
+   * Outputs a message to the console at the "debug" log level.
+   *
+   * This message is only displayed to the user if the console is configured to
+   * display debug output.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/console/debug
+   */
   debug(...args: any[]): void {
     throw new Error("This should be overridden");
   }
 
+  /**
+   * Outputs an informational message to the console.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/console/info
+   */
   info(...args: any[]): void {
     throw new Error("This should be overridden");
   }
 
+  /**
+   * Outputs a warning message to the console.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/console/warn
+   */
   warn(...args: any[]): void {
     throw new Error("This should be overridden");
   }
 
+  /**
+   * Outputs an error message to the console.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/console/error
+   */
   error(...args: any[]): void {
     throw new Error("This should be overridden");
   }
