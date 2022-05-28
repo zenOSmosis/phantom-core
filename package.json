@@ -13,9 +13,10 @@
     "prepare": "npm run build && husky install",
     "document": "typedoc src/index.ts",
     "build": "tsc",
-    "test": "npm run test-node && npm run test-browser",
+    "test": "npm run test-node && npm run test-sauce-browsers",
     "test-node": "tape -r ts-node/register/transpile-only 'test/{,/**/}*.test.js'",
-    "test-browser": "npm run build && dotenv airtap --coverage --concurrency 1 -- 'test/{,/**/}*.test.js'",
+    "test-sauce-browsers": "npm run build && dotenv airtap --coverage --concurrency 1 -- 'test/{,/**/}*.test.js'",
+    "test-local-browsers": "npm run build && airtap -p local --coverage --concurrency 1 -- 'test/{,/**/}*.test.js'",
     "coverage": "nyc tape -r ts-node/register/transpile-only 'test/{,/**/}*.test.js'",
     "lint": "prettier --write '(**/)*.js'",
     "check-dep-updates": "npx npm-check-updates"
