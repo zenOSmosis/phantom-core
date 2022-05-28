@@ -1,5 +1,6 @@
 import test from "tape";
-import EventEmitter from "events";
+import { EventEmitter } from "events";
+import CommonEventEmitter from "../src/CommonEventEmitter";
 import PhantomCore, {
   PhantomCollection,
   PhantomServiceCore,
@@ -99,14 +100,14 @@ test("unix time", async t => {
 test("class name", t => {
   t.plan(10);
   t.equals(
-    getClassName(EventEmitter),
-    "EventEmitter",
-    "EventEmitter is detected from non-instantiated class"
+    getClassName(CommonEventEmitter),
+    "CommonEventEmitter",
+    "CommonEventEmitter is detected from non-instantiated class"
   );
   t.equals(
-    getClassName(new EventEmitter()),
-    "EventEmitter",
-    "EventEmitter is detected from class instance"
+    getClassName(new CommonEventEmitter()),
+    "CommonEventEmitter",
+    "CommonEventEmitter is detected from class instance"
   );
 
   t.equals(
@@ -208,6 +209,7 @@ test("super parents", t => {
     PhantomCore,
     PhantomCoreUnwatched,
     _DestructibleEventEmitter,
+    CommonEventEmitter,
     EventEmitter,
   ]);
 

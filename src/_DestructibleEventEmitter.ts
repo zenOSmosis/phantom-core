@@ -1,4 +1,4 @@
-import EventEmitter from "events";
+import CommonEventEmitter from "./CommonEventEmitter";
 import getClassName from "./utils/class-utils/getClassName";
 import Logger from "./Logger";
 
@@ -29,7 +29,7 @@ export const SHUT_DOWN_GRACE_PERIOD = 5000;
  *
  * For most purposes, PhantomCore should be utilized instead of this.
  */
-export default class DestructibleEventEmitter extends EventEmitter {
+export default class DestructibleEventEmitter extends CommonEventEmitter {
   protected _hasDestroyStarted: boolean;
   protected _isDestroyed: boolean;
   protected _logger: Console | Logger;

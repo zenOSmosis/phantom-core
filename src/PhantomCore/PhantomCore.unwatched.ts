@@ -2,7 +2,7 @@
 // Exposes setImmediate as a global, if not already defined as a global
 import "setimmediate";
 
-import EventEmitter from "events";
+import CommonEventEmitter from "../CommonEventEmitter";
 import Logger, { LogIntersection, LOG_LEVEL_INFO } from "../Logger";
 import logger from "../globalLogger";
 import DestructibleEventEmitter, {
@@ -126,7 +126,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
    */
   static getIsLooseInstance(instance: PhantomCore | Class) {
     return Boolean(
-      instance instanceof EventEmitter &&
+      instance instanceof CommonEventEmitter &&
         typeof instance.getIsDestroyed === "function" &&
         typeof instance.destroy === "function"
     );
@@ -197,16 +197,6 @@ export default class PhantomCore extends DestructibleEventEmitter {
 
   constructor(options: CommonOptions = {}) {
     super();
-
-    // Provide "off" aliasing if it is not available (fixes issue where
-    // PhantomCollection could not use off binding in browsers)
-    //
-    // NOTE (jh): I don't really know why this was not a problem before
-    //
-    // Reference: https://github.com/zenOSmosis/phantom-core/pull/17
-    if (typeof this.off !== "function") {
-      this.off = this.removeListener;
-    }
 
     this._uuid = uuidv4();
     this._shortUUID = shortUUID().fromUUID(this._uuid);

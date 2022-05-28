@@ -1,9 +1,9 @@
-import { EventEmitter } from "events";
+import CommonEventEmitter from "../CommonEventEmitter";
 import PhantomCore, { EVT_UPDATE } from "../PhantomCore/PhantomCore.unwatched";
 
 // TODO: [3.0.0] This should run as a singleton and never be destructed
 // TODO: [3.0.0] Document
-class _PhantomWatcherProvider extends EventEmitter {
+class _PhantomWatcherProvider extends CommonEventEmitter {
   protected _phantomInstances: Set<PhantomCore> = new Set();
   protected _phantomClassNameSet: Set<string> = new Set();
 
