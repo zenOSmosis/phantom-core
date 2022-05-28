@@ -21,7 +21,7 @@
     "check-dep-updates": "npx npm-check-updates"
   },
   "dependencies": {
-    "dayjs": "^1.10.7",
+    "dayjs": "^1.10.8",
     "deepmerge": "^4.2.2",
     "is-plain-object": "^5.0.0",
     "setimmediate": "^1.0.5",
