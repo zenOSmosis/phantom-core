@@ -9,10 +9,11 @@ type PhantomClassName = string;
 class _PhantomWatcherProvider extends CommonEventEmitter {
   protected _phantomInstances: Set<PhantomCore> = new Set();
   protected _phantomClassNameSet: Set<PhantomClassName> = new Set();
-
-  protected _globalDefaultLogLevel: number = Logger.toNumericLogLevel("info");
   protected _phantomClassNameLogLevelMap: Map<PhantomClassName, number> =
     new Map();
+
+  // TODO: [3.0.0] Use global logger instead
+  protected _globalDefaultLogLevel: number = Logger.toNumericLogLevel("info");
 
   // TODO: [3.0.0] Document
   addInstance(phantom: PhantomCore) {

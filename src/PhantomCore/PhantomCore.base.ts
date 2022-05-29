@@ -350,16 +350,16 @@ export default class PhantomCore extends DestructibleEventEmitter {
 
       this.once(EVT_READY, () => {
         clearTimeout(longRespondInitWarnTimeout);
-
-        this.log.debug("Ready for consumption");
       });
 
       this.once(EVT_DESTROY, () => {
         clearTimeout(longRespondInitWarnTimeout);
-
-        this.log.debug("Destructed");
       });
     }
+
+    this.once(EVT_READY, () => {
+      this.log.debug("Ready for consumption");
+    });
   }
 
   get log(): LogIntersection {
@@ -788,9 +788,22 @@ export default class PhantomCore extends DestructibleEventEmitter {
         if (typeof destroyHandler === "function") {
           await destroyHandler();
         }
+
+        this.log.debug("Destructed");
       },
       async () => {
+        const cleanupQueueDepth = this._cleanupHandlerStack.getQueueDepth();
+
+        this.log.debug(
+          `Executing ${cleanupQueueDepth} cleanup handler${
+            cleanupQueueDepth !== 1 ? "s" : ""
+          }`
+        );
+
         await this._cleanupHandlerStack.exec();
+
+        // FIXME: If wanting to do further logging, the global logger should be
+        // utilized
 
         // TODO: Force regular class properties to be null (as of July 30, 2021,
         // not changing due to unforeseen consequences):
