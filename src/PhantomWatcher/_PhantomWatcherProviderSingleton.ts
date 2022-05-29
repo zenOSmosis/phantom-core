@@ -71,6 +71,17 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
 
     this._globalDefaultLogLevel = numericLogLevel;
 
+    const phantomClassNamesWithLogLevels = [
+      ...this._phantomClassNameLogLevelMap.keys(),
+    ];
+
+    // Update PhantomCore instances which have not already been modified
+    [...this._phantomInstances]
+      .filter(
+        pred => !phantomClassNamesWithLogLevels.includes(pred.getClassName())
+      )
+      .forEach(pred => pred.setLogLevel(numericLogLevel));
+
     this.emit(EVT_UPDATE);
   }
 
