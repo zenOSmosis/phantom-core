@@ -21,24 +21,9 @@ export {
   EVT_NO_INIT_WARN,
 };
 
-import Logger, {
-  LOG_LEVEL_TRACE,
-  LOG_LEVEL_DEBUG,
-  LOG_LEVEL_INFO,
-  LOG_LEVEL_WARN,
-  LOG_LEVEL_ERROR,
-  LOG_LEVEL_SILENT,
-} from "./Logger";
+import Logger, { LogLevel } from "./Logger";
 
-export {
-  Logger,
-  LOG_LEVEL_TRACE,
-  LOG_LEVEL_DEBUG,
-  LOG_LEVEL_INFO,
-  LOG_LEVEL_WARN,
-  LOG_LEVEL_ERROR,
-  LOG_LEVEL_SILENT,
-};
+export { Logger, LogLevel };
 
 import logger from "./globalLogger";
 export { logger };

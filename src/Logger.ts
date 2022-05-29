@@ -3,23 +3,25 @@ import _DestructibleEventEmitter, {
 } from "./_DestructibleEventEmitter";
 import { ClassInstance } from "./utils/class-utils/types";
 
-export const LOG_LEVEL_SILENT = 0;
-export const LOG_LEVEL_ERROR = 1;
-export const LOG_LEVEL_WARN = 2;
-export const LOG_LEVEL_INFO = 3;
-export const LOG_LEVEL_DEBUG = 4;
-export const LOG_LEVEL_TRACE = 5;
+export enum LogLevel {
+  Silent = 0,
+  Error = 1,
+  Warn = 2,
+  Info = 3,
+  Debug = 4,
+  Trace = 5,
+}
 
 export { EVT_DESTROY };
 
-// TODO: [3.0.0] Use enum here?
+// TODO: [3.0.0] Use Map here?
 const LOG_LEVEL_STRING_MAP: { [key: string]: number } = {
-  silent: LOG_LEVEL_SILENT,
-  error: LOG_LEVEL_ERROR,
-  warn: LOG_LEVEL_WARN,
-  info: LOG_LEVEL_INFO,
-  debug: LOG_LEVEL_DEBUG,
-  trace: LOG_LEVEL_TRACE,
+  silent: LogLevel.Silent,
+  error: LogLevel.Error,
+  warn: LogLevel.Warn,
+  info: LogLevel.Info,
+  debug: LogLevel.Debug,
+  trace: LogLevel.Trace,
 };
 
 export type LogIntersection = Logger & ((...args: any[]) => void);
@@ -102,7 +104,7 @@ export default class Logger extends _DestructibleEventEmitter {
     super();
 
     const DEFAULT_OPTIONS = {
-      logLevel: LOG_LEVEL_INFO,
+      logLevel: LogLevel.Info,
       prefix: (strLogLevel: string) => `[${strLogLevel}]`,
     };
 
@@ -135,7 +137,7 @@ export default class Logger extends _DestructibleEventEmitter {
 
       const loggerMethods: { [key: string]: () => null } = {};
 
-      if (this._logLevel >= LOG_LEVEL_ERROR) {
+      if (this._logLevel >= LogLevel.Error) {
         loggerMethods.error = Function.prototype.bind.call(
           console.error,
           console,
@@ -145,7 +147,7 @@ export default class Logger extends _DestructibleEventEmitter {
         loggerMethods.error = () => null;
       }
 
-      if (this._logLevel >= LOG_LEVEL_WARN) {
+      if (this._logLevel >= LogLevel.Warn) {
         loggerMethods.warn = Function.prototype.bind.call(
           console.warn,
           console,
@@ -155,7 +157,7 @@ export default class Logger extends _DestructibleEventEmitter {
         loggerMethods.warn = () => null;
       }
 
-      if (this._logLevel >= LOG_LEVEL_INFO) {
+      if (this._logLevel >= LogLevel.Info) {
         loggerMethods.info = Function.prototype.bind.call(
           console.info,
           console,
@@ -165,7 +167,7 @@ export default class Logger extends _DestructibleEventEmitter {
         loggerMethods.info = () => null;
       }
 
-      if (this._logLevel >= LOG_LEVEL_DEBUG) {
+      if (this._logLevel >= LogLevel.Debug) {
         loggerMethods.debug = Function.prototype.bind.call(
           console.debug,
           console,
@@ -175,7 +177,7 @@ export default class Logger extends _DestructibleEventEmitter {
         loggerMethods.debug = () => null;
       }
 
-      if (this._logLevel >= LOG_LEVEL_TRACE) {
+      if (this._logLevel >= LogLevel.Trace) {
         loggerMethods.trace = Function.prototype.bind.call(
           console.trace,
           console,

@@ -1,14 +1,5 @@
 const test = require("tape");
-import {
-  PhantomCore,
-  LOG_LEVEL_SILENT,
-  LOG_LEVEL_ERROR,
-  LOG_LEVEL_WARN,
-  LOG_LEVEL_INFO,
-  LOG_LEVEL_DEBUG,
-  LOG_LEVEL_TRACE,
-  logger,
-} from "../src";
+import { PhantomCore, LogLevel, logger } from "../src";
 
 test("phantom-core uses logger.info when calling calling phantom.log() directly", t => {
   t.plan(1);
@@ -24,36 +15,33 @@ test("phantom-core uses logger.info when calling calling phantom.log() directly"
 test("log level steps", t => {
   t.plan(6);
 
-  t.ok(LOG_LEVEL_SILENT === 0);
-  t.ok(LOG_LEVEL_ERROR === LOG_LEVEL_SILENT + 1);
-  t.ok(LOG_LEVEL_WARN === LOG_LEVEL_ERROR + 1);
-  t.ok(LOG_LEVEL_INFO === LOG_LEVEL_WARN + 1);
-  t.ok(LOG_LEVEL_DEBUG === LOG_LEVEL_INFO + 1);
-  t.ok(LOG_LEVEL_TRACE === LOG_LEVEL_DEBUG + 1);
+  t.ok(LogLevel.Silent === 0);
+  t.ok(LogLevel.Error === LogLevel.Silent + 1);
+  t.ok(LogLevel.Warn === LogLevel.Error + 1);
+  t.ok(LogLevel.Info === LogLevel.Warn + 1);
+  t.ok(LogLevel.Debug === LogLevel.Info + 1);
+  t.ok(LogLevel.Trace === LogLevel.Debug + 1);
 
   t.end();
 });
 
-test("default logging level", t => {
+test("default logging level", async t => {
   t.plan(1);
 
-  const phantom1 = new PhantomCore();
+  const phantom = new PhantomCore();
 
   t.equals(
-    phantom1.getLogLevel(),
-    LOG_LEVEL_INFO,
-    "LOG_LEVEL_INFO default logging level"
+    phantom.getLogLevel(),
+    LogLevel.Info,
+    "LogLevel.Info default logging level"
   );
 
-  const phantom2 = new PhantomCore({ logLevel: LOG_LEVEL_TRACE });
-
-  phantom1.destroy();
-  phantom2.destroy();
+  await phantom.destroy();
 
   t.end();
 });
 
-test("set log level", t => {
+test("set log level", async t => {
   t.plan(14);
 
   const phantom = new PhantomCore();
@@ -64,98 +52,92 @@ test("set log level", t => {
 
   t.equals(
     phantom.getLogLevel(),
-    LOG_LEVEL_INFO,
-    "retains LOG_LEVEL_INFO after trying to set invalid log level"
+    LogLevel.Info,
+    "retains LogLevel.Info after trying to set invalid log level"
   );
 
   phantom.setLogLevel("trace");
   t.equals(
     phantom.getLogLevel(),
-    LOG_LEVEL_TRACE,
+    LogLevel.Trace,
     'accepts string value "trace"'
   );
 
   phantom.setLogLevel("debug");
   t.equals(
     phantom.getLogLevel(),
-    LOG_LEVEL_DEBUG,
+    LogLevel.Debug,
     'accepts string value "debug"'
   );
 
   phantom.setLogLevel("info");
-  t.equals(
-    phantom.getLogLevel(),
-    LOG_LEVEL_INFO,
-    'accepts string value "info"'
-  );
+  t.equals(phantom.getLogLevel(), LogLevel.Info, 'accepts string value "info"');
 
   phantom.setLogLevel("warn");
-  t.equals(
-    phantom.getLogLevel(),
-    LOG_LEVEL_WARN,
-    'accepts string value "warn"'
-  );
+  t.equals(phantom.getLogLevel(), LogLevel.Warn, 'accepts string value "warn"');
 
   phantom.setLogLevel("error");
   t.equals(
     phantom.getLogLevel(),
-    LOG_LEVEL_ERROR,
+    LogLevel.Error,
     'accepts string value "error"'
   );
 
   phantom.setLogLevel("silent");
   t.equals(
     phantom.getLogLevel(),
-    LOG_LEVEL_SILENT,
+    LogLevel.Silent,
     'accepts string value "error"'
   );
 
-  phantom.setLogLevel(LOG_LEVEL_TRACE);
+  phantom.setLogLevel(LogLevel.Trace);
   t.equals(
     phantom.getLogLevel(),
-    LOG_LEVEL_TRACE,
-    "accepts numeric value LOG_LEVEL_TRACE"
+    LogLevel.Trace,
+    "accepts numeric value LogLevel.Trace"
   );
 
-  phantom.setLogLevel(LOG_LEVEL_DEBUG);
+  phantom.setLogLevel(LogLevel.Debug);
   t.equals(
     phantom.getLogLevel(),
-    LOG_LEVEL_DEBUG,
-    "accepts numeric value LOG_LEVEL_DEBUG"
+    LogLevel.Debug,
+    "accepts numeric value LogLevel.Debug"
   );
 
-  phantom.setLogLevel(LOG_LEVEL_INFO);
+  phantom.setLogLevel(LogLevel.Info);
   t.equals(
     phantom.getLogLevel(),
-    LOG_LEVEL_INFO,
-    "accepts numeric value LOG_LEVEL_INFO"
+    LogLevel.Info,
+    "accepts numeric value LogLevel.Info"
   );
 
-  phantom.setLogLevel(LOG_LEVEL_WARN);
+  phantom.setLogLevel(LogLevel.Warn);
   t.equals(
     phantom.getLogLevel(),
-    LOG_LEVEL_WARN,
-    "accepts numeric value LOG_LEVEL_WARN"
+    LogLevel.Warn,
+    "accepts numeric value LogLevel.Warn"
   );
 
-  phantom.setLogLevel(LOG_LEVEL_ERROR);
+  phantom.setLogLevel(LogLevel.Error);
   t.equals(
     phantom.getLogLevel(),
-    LOG_LEVEL_ERROR,
-    "accepts numeric value LOG_LEVEL_ERROR"
+    LogLevel.Error,
+    "accepts numeric value LogLevel.Error"
   );
 
-  phantom.setLogLevel(LOG_LEVEL_SILENT);
+  phantom.setLogLevel(LogLevel.Silent);
   t.equals(
     phantom.getLogLevel(),
-    LOG_LEVEL_SILENT,
-    "accepts numeric value LOG_LEVEL_SILENT"
+    LogLevel.Silent,
+    "accepts numeric value LogLevel.Silent"
   );
+
+  await phantom.destroy();
 
   t.end();
 });
 
-test("PhantomCore this.log and this.logger calls", t => {
+test("PhantomCore this.log and this.logger calls", async t => {
   t.plan(8);
 
   const phantom = new PhantomCore();
@@ -184,110 +166,37 @@ test("PhantomCore this.log and this.logger calls", t => {
   phantom.logger.error("ok");
   t.ok(true, "call to phantom.logger.error() succeeds");
 
+  await phantom.destroy();
+
   t.end();
 });
 
 test("independent logger", t => {
-  t.plan(4);
+  t.plan(6);
 
   logger.log("ok");
+  // FIXME: Use sinon to ensure this calls logger.info
   t.ok(true, "call to logger.log() succeeds");
 
-  logger.log.debug("ok");
-  logger.debug("ok");
-  t.ok(true, "call to logger.debug() succeeds");
+  logger.log.error("ok");
+  logger.error("ok");
+  t.ok(true, "call to logger.error() succeeds");
 
   logger.log.warn("ok");
   logger.warn("ok");
   t.ok(true, "call to logger.warn() succeeds");
 
-  logger.log.error("ok");
-  logger.error("ok");
-  t.ok(true, "call to logger.ok() succeeds");
+  logger.log.info("ok");
+  logger.info("ok");
+  t.ok(true, "call to logger.info() succeeds");
+
+  logger.log.debug("ok");
+  logger.debug("ok");
+  t.ok(true, "call to logger.debug() succeeds");
+
+  logger.log.trace("ok");
+  logger.trace("ok");
+  t.ok(true, "call to logger.trace() succeeds");
 
   t.end();
 });
-
-/*
-test("custom logger", t => {
-  t.plan(7);
-
-  const phantom = new PhantomCore({
-    logger: {
-      trace: () => {
-        throw new Error("trace");
-      },
-      debug: () => {
-        throw new Error("debug");
-      },
-      info: () => {
-        throw new Error("info");
-      },
-      warn: () => {
-        throw new Error("warn");
-      },
-      error: () => {
-        throw new Error("error");
-      },
-      setLevel: level => (this._level = level),
-      getLevel: () => this._level,
-    },
-  });
-
-  phantom.setLogLevel(LOG_LEVEL_TRACE);
-
-  try {
-    phantom.log("This should throw");
-  } catch (err) {
-    t.equals(err.message, "info", "direct call to log aliases to log.info()");
-  }
-
-  try {
-    phantom.log.trace("This should throw");
-  } catch (err) {
-    t.equals(err.message, "trace", "throws at log.trace()");
-  }
-
-  try {
-    phantom.log.debug("This should throw");
-  } catch (err) {
-    t.equals(err.message, "debug", "throws at log.debug()");
-  }
-
-  try {
-    phantom.log.info("This should throw");
-  } catch (err) {
-    t.equals(err.message, "info", "throws at log.info()");
-  }
-
-  try {
-    phantom.log.warn("This should throw");
-  } catch (err) {
-    t.equals(err.message, "warn", "throws at log.warn()");
-  }
-
-  try {
-    phantom.log.error("This should throw");
-  } catch (err) {
-    t.equals(err.message, "error", "throws at log.error()");
-  }
-
-  phantom.setLogLevel(LOG_LEVEL_ERROR);
-
-  try {
-    phantom.log.warn("This should not execute");
-  } catch (err) {
-    throw new Error("Should not get here");
-  } finally {
-    t.equals(
-      phantom.getLogLevel(),
-      LOG_LEVEL_ERROR,
-      "does not call log.warn() when log level is LOG_LEVEL_ERROR"
-    );
-  }
-
-  phantom.destroy();
-
-  t.end();
-});
-*/

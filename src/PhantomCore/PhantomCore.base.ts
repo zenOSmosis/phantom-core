@@ -497,7 +497,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
   /**
    * Sets the log level, in order to determine log filtering.
    *
-   * Accepts either numeric (i.e. LOG_LEVEL_TRACE constant) or string (i.e.
+   * Accepts either numeric (i.e. LogLevel.Trace constant) or string (i.e.
    * "trace") values.
    */
   setLogLevel(logLevel: number | string) {

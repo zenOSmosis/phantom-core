@@ -5,8 +5,8 @@ import _DestructibleEventEmitter from "../_DestructibleEventEmitter";
  * Types of timers which are managed by TimerStack.
  */
 export enum TimerType {
-  INTERVAL,
-  TIMEOUT,
+  Interval,
+  Timeout,
 }
 
 // TODO: Document
@@ -25,7 +25,7 @@ export default class TimerStack extends _DestructibleEventEmitter {
     fn: Function,
     delay: number = 0
   ) {
-    if (timerType === TimerType.TIMEOUT) {
+    if (timerType === TimerType.Timeout) {
       // Note: The global setTimeout is overridden in order to automatically clear it from the local stack on exit
       const timeoutID: ReturnType<typeof setTimeout> = global.setTimeout(() => {
         // Remove from timeout stack
@@ -55,7 +55,7 @@ export default class TimerStack extends _DestructibleEventEmitter {
    * Creates a timeout which is managed by this instance.
    */
   setTimeout(fn: Function, delay = 0) {
-    return this._setTimerOfType(TimerType.TIMEOUT, fn, delay);
+    return this._setTimerOfType(TimerType.Timeout, fn, delay);
   }
 
   /**
@@ -87,7 +87,7 @@ export default class TimerStack extends _DestructibleEventEmitter {
    * Creates an interval which is managed by this instance.
    */
   setInterval(fn: Function, delay = 0) {
-    return this._setTimerOfType(TimerType.INTERVAL, fn, delay);
+    return this._setTimerOfType(TimerType.Interval, fn, delay);
   }
 
   /**
