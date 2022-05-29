@@ -36,6 +36,7 @@ export default class PhantomWatcher extends PhantomCore {
           ...phantomWatcherProviderSingleton.getPhantomClassNameSet(),
         ];
 
+        // Propagate
         this.emit(EVT_UPDATE);
       };
 

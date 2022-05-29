@@ -70,6 +70,8 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
     const numericLogLevel = Logger.toNumericLogLevel(logLevel);
 
     this._globalDefaultLogLevel = numericLogLevel;
+
+    this.emit(EVT_UPDATE);
   }
 
   // TODO: [3.0.0] Document
@@ -82,6 +84,8 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
     [...this._phantomInstances]
       .filter(pred => pred.getClassName() === phantomClassName)
       .forEach(pred => pred.setLogLevel(numericLogLevel));
+
+    this.emit(EVT_UPDATE);
   }
 
   // TODO: [3.0.0] Document

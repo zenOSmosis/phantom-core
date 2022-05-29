@@ -13,7 +13,7 @@ export const LOG_LEVEL_TRACE = 5;
 export { EVT_DESTROY };
 
 // TODO: [3.0.0] Use enum here?
-const LOG_LEVEL_STRING_MAP = {
+const LOG_LEVEL_STRING_MAP: { [key: string]: number } = {
   silent: LOG_LEVEL_SILENT,
   error: LOG_LEVEL_ERROR,
   warn: LOG_LEVEL_WARN,
@@ -62,10 +62,40 @@ export default class Logger extends _DestructibleEventEmitter {
     // Ignore the next line because we don't yet know if logLevel is incorrect
     // @ts-ignore
     if (!Object.values(LOG_LEVEL_STRING_MAP).includes(numericLogLevel)) {
-      throw new RangeError(`Unknown log level: ${numericLogLevel}`);
+      throw new RangeError(`Unknown log level: ${logLevel}`);
     }
 
     return numericLogLevel;
+  }
+
+  /**
+   * Converts the given log level to a string.
+   *
+   * @throws {RangeError} Throws if the log level is not an expected value.
+   */
+  static toStringLogLevel(logLevel: string | number) {
+    let strLogLevel: string | void;
+
+    if (typeof logLevel === "string") {
+      strLogLevel = logLevel as string;
+    } else {
+      const entry = Object.entries(LOG_LEVEL_STRING_MAP).find(
+        ([key, value]) => value === logLevel
+      );
+
+      if (entry) {
+        strLogLevel = entry[0];
+      }
+    }
+
+    if (
+      !typeof strLogLevel ||
+      typeof LOG_LEVEL_STRING_MAP[strLogLevel as string] === "undefined"
+    ) {
+      throw new RangeError(`Unknown log level: ${logLevel}`);
+    }
+
+    return strLogLevel;
   }
 
   constructor(options = {}) {
@@ -154,9 +184,6 @@ export default class Logger extends _DestructibleEventEmitter {
       } else {
         loggerMethods.trace = () => null;
       }
-
-      // TODO: Remove
-      console.log({ loggerMethods });
 
       // Calling this.log() directly will log as info (log info alias)
       const log: ClassInstance = loggerMethods.info;
