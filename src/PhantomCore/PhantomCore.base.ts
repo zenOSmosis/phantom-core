@@ -279,10 +279,18 @@ export default class PhantomCore extends DestructibleEventEmitter {
        * Currently using ISO8601 formatted date; for date rendering options:
        * @see https://day.js.org/docs/en/display/format
        */
-      prefix: (strLogLevel: string) =>
-        `[${dayjs().format()} ${strLogLevel} ${this.getClassName()} ${
+      prefix: (strLogLevel: string) => {
+        const className = this.getClassName();
+        const title = this.getTitle();
+
+        const classNameWithTitle = !title
+          ? className
+          : `${className}[${title}]`;
+
+        return `[${dayjs().format()} ${strLogLevel} ${classNameWithTitle} ${
           this._uuid
-        }]`,
+        }]`;
+      },
     });
 
     // FIXME: [3.0.0] Fix type so "as" isn't necessary
