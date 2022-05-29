@@ -83,8 +83,8 @@ export { FunctionStack };
 import EventProxyStack from "./stacks/EventProxyStack";
 export { EventProxyStack };
 
-import TimerStack from "./stacks/TimerStack";
-export { TimerStack };
+import TimerStack, { TimerType } from "./stacks/TimerStack";
+export { TimerStack, TimerType };
 
 // Base utilities
 

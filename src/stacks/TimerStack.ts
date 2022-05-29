@@ -1,7 +1,10 @@
 import assert from "assert";
 import _DestructibleEventEmitter from "../_DestructibleEventEmitter";
 
-enum TimerType {
+/**
+ * Types of timers which are managed by TimerStack.
+ */
+export enum TimerType {
   INTERVAL,
   TIMEOUT,
 }
