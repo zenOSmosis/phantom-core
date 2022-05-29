@@ -1,6 +1,7 @@
 import CommonEventEmitter from "../CommonEventEmitter";
 import PhantomCore, { EVT_UPDATE } from "../PhantomCore/PhantomCore.base";
 import Logger from "../Logger";
+import globalLogger from "../globalLogger";
 
 type PhantomClassName = string;
 
@@ -11,9 +12,6 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
   protected _phantomClassNameSet: Set<PhantomClassName> = new Set();
   protected _phantomClassNameLogLevelMap: Map<PhantomClassName, number> =
     new Map();
-
-  // TODO: [3.0.0] Use global logger instead
-  protected _globalDefaultLogLevel: number = Logger.toNumericLogLevel("info");
 
   // TODO: [3.0.0] Document
   addInstance(phantom: PhantomCore) {
@@ -68,9 +66,7 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
 
   // TODO: [3.0.0] Document
   setGlobalLogLevel(logLevel: string | number) {
-    const numericLogLevel = Logger.toNumericLogLevel(logLevel);
-
-    this._globalDefaultLogLevel = numericLogLevel;
+    globalLogger.setLogLevel(logLevel);
 
     const phantomClassNamesWithLogLevels = [
       ...this._phantomClassNameLogLevelMap.keys(),
@@ -81,14 +77,14 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
       .filter(
         pred => !phantomClassNamesWithLogLevels.includes(pred.getClassName())
       )
-      .forEach(pred => pred.setLogLevel(numericLogLevel));
+      .forEach(pred => pred.setLogLevel(logLevel));
 
     this.emit(EVT_UPDATE);
   }
 
   // TODO: [3.0.0] Document
   getGlobalLogLevel() {
-    return this._globalDefaultLogLevel;
+    return globalLogger.getLogLevel();
   }
 
   // TODO: [3.0.0] Document
@@ -109,7 +105,7 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
   getPhantomClassLogLevel(phantomClassName: string) {
     return (
       this._phantomClassNameLogLevelMap.get(phantomClassName) ||
-      this._globalDefaultLogLevel
+      globalLogger.getLogLevel()
     );
   }
 }
