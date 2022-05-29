@@ -155,6 +155,9 @@ export default class Logger extends _DestructibleEventEmitter {
         loggerMethods.trace = () => null;
       }
 
+      // TODO: Remove
+      console.log({ loggerMethods });
+
       // Calling this.log() directly will log as info (log info alias)
       const log: ClassInstance = loggerMethods.info;
 
