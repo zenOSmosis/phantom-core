@@ -20,7 +20,7 @@
     "baseUrl": ".",
     "downlevelIteration": true,
     "noImplicitOverride": true,
-    "inlineSourceMap": true,
+    "inlineSourceMap": false,
     "paths": {
       "*": ["node_modules/*"]
     }
