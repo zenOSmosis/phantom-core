@@ -51,7 +51,7 @@ export { CommonEventEmitter };
 import ArbitraryPhantomWrapper from "./ArbitraryPhantomWrapper";
 export { ArbitraryPhantomWrapper };
 
-// FIXME: Use package.json exports once TypeScript is bumped to 4.7
+// TODO: [3.x] Use package.json exports (requires TypeScript 4.7)
 // @see https://github.com/microsoft/TypeScript/issues/33079
 // @see https://github.com/zenOSmosis/phantom-core/issues/98
 import PhantomCollection, {
@@ -146,5 +146,12 @@ export { getSuperClass };
 
 // Utility for checking PhantomCore (and extension) event exports
 
-import * as eventConstantCheckingUtils from "./utils/testing-utils/eventConstantCheckingUtils";
-export { eventConstantCheckingUtils };
+// TODO: [3.x] Use package.json exports (requires TypeScript 4.7)
+// @see https://github.com/microsoft/TypeScript/issues/33079
+// @see https://github.com/zenOSmosis/phantom-core/issues/98
+import {
+  checkEvents,
+  extractEvents,
+  compareExportedEvents,
+} from "./utils/testing-utils/eventConstantCheckingUtils";
+export { checkEvents, extractEvents, compareExportedEvents };

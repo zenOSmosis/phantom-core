@@ -1,9 +1,5 @@
 import test from "tape";
-import {
-  checkEvents,
-  extractEvents,
-  compareExportedEvents,
-} from "../../src/utils/testing-utils/eventConstantCheckingUtils";
+import { checkEvents, extractEvents, compareExportedEvents } from "../../src";
 
 // Validate event testing utility works as expected
 test("test utility checker", t => {

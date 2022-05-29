@@ -12,9 +12,8 @@ import PhantomCore, {
   EVT_DESTROY_STACK_TIME_OUT,
   EVT_DESTROY,
   EVT_NO_INIT_WARN,
+  compareExportedEvents,
 } from "../../src";
-
-import { compareExportedEvents } from "../../src/utils/testing-utils/eventConstantCheckingUtils";
 
 test("PhantomCore events", t => {
   t.plan(1);
