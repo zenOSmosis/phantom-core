@@ -353,7 +353,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
     }
   }
 
-  get log() {
+  get log(): LogIntersection {
     /**
      * NOTE: This is called directly in order to not lose the stack trace.
      *
@@ -361,7 +361,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
      * logger.info(); The logger.trace(), logger.debug(), logger.info(),
      * logger.warn(), and logger.error() properties can be called directly.
      */
-    return this.logger.log;
+    return (this.logger as Logger).log;
   }
 
   /**
