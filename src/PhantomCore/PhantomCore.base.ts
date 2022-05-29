@@ -348,8 +348,17 @@ export default class PhantomCore extends DestructibleEventEmitter {
         this.emit(EVT_NO_INIT_WARN);
       }, ASYNC_INIT_GRACE_TIME);
 
-      this.once(EVT_READY, () => clearTimeout(longRespondInitWarnTimeout));
-      this.once(EVT_DESTROY, () => clearTimeout(longRespondInitWarnTimeout));
+      this.once(EVT_READY, () => {
+        clearTimeout(longRespondInitWarnTimeout);
+
+        this.log.debug("Ready for consumption");
+      });
+
+      this.once(EVT_DESTROY, () => {
+        clearTimeout(longRespondInitWarnTimeout);
+
+        this.log.debug("Destructed");
+      });
     }
   }
 
