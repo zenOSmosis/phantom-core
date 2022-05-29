@@ -193,8 +193,6 @@ export default class PhantomCore extends DestructibleEventEmitter {
 
   protected _symbol: Symbol | null;
 
-  public log: LogIntersection;
-
   constructor(options: CommonOptions = {}) {
     super();
 
@@ -290,15 +288,6 @@ export default class PhantomCore extends DestructibleEventEmitter {
     // FIXME: [3.0.0] Fix type so "as" isn't necessary
     this.registerCleanupHandler(() => (this.logger as Logger).destroy());
 
-    /**
-     * NOTE: This is called directly in order to not lose the stack trace.
-     *
-     * @type {Function} Calling this function directly will indirectly call
-     * logger.info(); The logger.trace(), logger.debug(), logger.info(),
-     * logger.warn(), and logger.error() properties can be called directly.
-     */
-    this.log = this.logger.log;
-
     this.once(EVT_DESTROY_STACK_TIME_OUT, () => {
       this.log.error(
         "The destruct callstack is taking longer to execute than expected. Ensure a potential gridlock situation is not happening, where two or more PhantomCore instances are awaiting one another to shut down."
@@ -362,6 +351,17 @@ export default class PhantomCore extends DestructibleEventEmitter {
       this.once(EVT_READY, () => clearTimeout(longRespondInitWarnTimeout));
       this.once(EVT_DESTROY, () => clearTimeout(longRespondInitWarnTimeout));
     }
+  }
+
+  get log() {
+    /**
+     * NOTE: This is called directly in order to not lose the stack trace.
+     *
+     * @type {Function} Calling this function directly will indirectly call
+     * logger.info(); The logger.trace(), logger.debug(), logger.info(),
+     * logger.warn(), and logger.error() properties can be called directly.
+     */
+    return this.logger.log;
   }
 
   /**
