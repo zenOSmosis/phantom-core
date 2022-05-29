@@ -105,7 +105,7 @@ export default class Logger extends _DestructibleEventEmitter {
 
       const loggerMethods: { [key: string]: () => null } = {};
 
-      if (this._logLevel <= LOG_LEVEL_ERROR) {
+      if (this._logLevel >= LOG_LEVEL_ERROR) {
         loggerMethods.error = Function.prototype.bind.call(
           console.error,
           console,
@@ -115,7 +115,7 @@ export default class Logger extends _DestructibleEventEmitter {
         loggerMethods.error = () => null;
       }
 
-      if (this._logLevel <= LOG_LEVEL_WARN) {
+      if (this._logLevel >= LOG_LEVEL_WARN) {
         loggerMethods.warn = Function.prototype.bind.call(
           console.warn,
           console,
@@ -125,7 +125,7 @@ export default class Logger extends _DestructibleEventEmitter {
         loggerMethods.warn = () => null;
       }
 
-      if (this._logLevel <= LOG_LEVEL_INFO) {
+      if (this._logLevel >= LOG_LEVEL_INFO) {
         loggerMethods.info = Function.prototype.bind.call(
           console.info,
           console,
@@ -135,7 +135,7 @@ export default class Logger extends _DestructibleEventEmitter {
         loggerMethods.info = () => null;
       }
 
-      if (this._logLevel <= LOG_LEVEL_DEBUG) {
+      if (this._logLevel >= LOG_LEVEL_DEBUG) {
         loggerMethods.debug = Function.prototype.bind.call(
           console.debug,
           console,
@@ -145,7 +145,7 @@ export default class Logger extends _DestructibleEventEmitter {
         loggerMethods.debug = () => null;
       }
 
-      if (this._logLevel <= LOG_LEVEL_TRACE) {
+      if (this._logLevel >= LOG_LEVEL_TRACE) {
         loggerMethods.trace = Function.prototype.bind.call(
           console.trace,
           console,
