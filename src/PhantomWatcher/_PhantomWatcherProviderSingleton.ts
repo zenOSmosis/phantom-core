@@ -1,11 +1,18 @@
 import CommonEventEmitter from "../CommonEventEmitter";
 import PhantomCore, { EVT_UPDATE } from "../PhantomCore/PhantomCore.base";
+import Logger from "../Logger";
+
+type PhantomClassName = string;
 
 // TODO: [3.0.0] This should run as a singleton and never be destructed
 // TODO: [3.0.0] Document
 class _PhantomWatcherProvider extends CommonEventEmitter {
   protected _phantomInstances: Set<PhantomCore> = new Set();
-  protected _phantomClassNameSet: Set<string> = new Set();
+  protected _phantomClassNameSet: Set<PhantomClassName> = new Set();
+
+  protected _globalDefaultLogLevel: number = Logger.toNumericLogLevel("info");
+  protected _phantomClassNameLogLevelMap: Map<PhantomClassName, number> =
+    new Map();
 
   // TODO: [3.0.0] Document
   addInstance(phantom: PhantomCore) {
@@ -18,6 +25,8 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
     }
 
     this._phantomInstances.add(phantom);
+
+    // TODO: Set log level in accordance w/ default or override
 
     // Automatically removes duplicates
     this._phantomClassNameSet.add(phantom.getClassName());
@@ -54,6 +63,30 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
     }
 
     this.emit(EVT_UPDATE);
+  }
+
+  // TODO: [3.0.0] Document
+  setGlobalLogLevel(logLevel: string | number) {
+    const numericLogLevel = Logger.toNumericLogLevel(logLevel);
+
+    this._globalDefaultLogLevel = numericLogLevel;
+  }
+
+  // TODO: [3.0.0] Document
+  setPhantomClassLogLevel(phantomClassName: string, logLevel: string | number) {
+    const numericLogLevel = Logger.toNumericLogLevel(logLevel);
+
+    this._phantomClassNameLogLevelMap.set(phantomClassName, numericLogLevel);
+
+    // TODO: Update this._phantomInstances with updated level
+  }
+
+  // TODO: [3.0.0] Document
+  getPhantomClassLogLevel(phantomClassName: string) {
+    return (
+      this._phantomClassNameLogLevelMap.get(phantomClassName) ||
+      this._globalDefaultLogLevel
+    );
   }
 }
 

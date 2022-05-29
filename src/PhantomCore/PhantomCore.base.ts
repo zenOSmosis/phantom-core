@@ -3,7 +3,7 @@
 import "setimmediate";
 
 import CommonEventEmitter from "../CommonEventEmitter";
-import Logger, { LogIntersection, LOG_LEVEL_INFO } from "../Logger";
+import Logger, { LogIntersection } from "../Logger";
 import logger from "../globalLogger";
 import DestructibleEventEmitter, {
   EVT_BEFORE_DESTROY,
@@ -214,8 +214,6 @@ export default class PhantomCore extends DestructibleEventEmitter {
        **/
       isAsync: false,
 
-      logLevel: LOG_LEVEL_INFO,
-
       /**
        * An arbitrary Symbol for this instance, explicitly guaranteed to be
        * unique across instances.
@@ -279,8 +277,6 @@ export default class PhantomCore extends DestructibleEventEmitter {
     this._title = this._options.title as string | null;
 
     this.logger = new Logger({
-      logLevel: this._options.logLevel,
-
       /**
        * Currently using ISO8601 formatted date; for date rendering options:
        * @see https://day.js.org/docs/en/display/format

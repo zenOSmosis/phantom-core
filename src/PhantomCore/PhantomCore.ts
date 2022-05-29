@@ -24,5 +24,12 @@ export default class PhantomCore extends PhantomCoreUnwatched {
 
     // Note: PhantomWatcher will automatically handle instance de-registration
     phantomWatcherProviderSingleton.addInstance(this);
+
+    // Dynamically set log level
+    this.setLogLevel(
+      phantomWatcherProviderSingleton.getPhantomClassLogLevel(
+        this.getClassName()
+      )
+    );
   }
 }

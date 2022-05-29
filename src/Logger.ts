@@ -43,6 +43,31 @@ export default class Logger extends _DestructibleEventEmitter {
 
   protected _logLevel: number;
 
+  /**
+   * Converts the given log level to a number.
+   *
+   * @throws {RangeError} Throws if the log level is not an expected value.
+   */
+  static toNumericLogLevel(logLevel: string | number) {
+    let numericLogLevel: number;
+
+    if (typeof logLevel === "string") {
+      // Ignore the next line because we don't yet know if logLevel is incorrect
+      // @ts-ignore
+      numericLogLevel = LOG_LEVEL_STRING_MAP[logLevel];
+    } else {
+      numericLogLevel = logLevel;
+    }
+
+    // Ignore the next line because we don't yet know if logLevel is incorrect
+    // @ts-ignore
+    if (!Object.values(LOG_LEVEL_STRING_MAP).includes(numericLogLevel)) {
+      throw new RangeError(`Unknown log level: ${numericLogLevel}`);
+    }
+
+    return numericLogLevel;
+  }
+
   constructor(options = {}) {
     super();
 
@@ -64,20 +89,8 @@ export default class Logger extends _DestructibleEventEmitter {
    * Sets minimum log level to send to actual logger function where subsequent
    * log levels are ignored.
    */
-  setLogLevel(userLogLevel: number | string) {
-    if (typeof userLogLevel === "string") {
-      // Ignore the next line because we don't yet know if logLevel is incorrect
-      // @ts-ignore
-      userLogLevel = LOG_LEVEL_STRING_MAP[userLogLevel];
-    }
-
-    // Ignore the next line because we don't yet know if logLevel is incorrect
-    // @ts-ignore
-    if (!Object.values(LOG_LEVEL_STRING_MAP).includes(userLogLevel)) {
-      throw new Error(`Unknown log level: ${userLogLevel}`);
-    }
-
-    this._logLevel = userLogLevel as number;
+  setLogLevel(logLevel: number | string) {
+    this._logLevel = Logger.toNumericLogLevel(logLevel);
 
     // Dynamically create log function, filtering out methods which are outside
     // of logLevel scope

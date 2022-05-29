@@ -35,7 +35,7 @@ test("log level steps", t => {
 });
 
 test("default logging level", t => {
-  t.plan(2);
+  t.plan(1);
 
   const phantom1 = new PhantomCore();
 
@@ -46,12 +46,6 @@ test("default logging level", t => {
   );
 
   const phantom2 = new PhantomCore({ logLevel: LOG_LEVEL_TRACE });
-
-  t.equals(
-    phantom2.getLogLevel(),
-    LOG_LEVEL_TRACE,
-    "Able to set custom logging level as constructor option"
-  );
 
   phantom1.destroy();
   phantom2.destroy();
