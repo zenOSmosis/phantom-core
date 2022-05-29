@@ -1,12 +1,12 @@
 const test = require("tape");
 import {
   PhantomCore,
-  LOG_LEVEL_TRACE,
-  LOG_LEVEL_DEBUG,
-  LOG_LEVEL_INFO,
-  LOG_LEVEL_WARN,
-  LOG_LEVEL_ERROR,
   LOG_LEVEL_SILENT,
+  LOG_LEVEL_ERROR,
+  LOG_LEVEL_WARN,
+  LOG_LEVEL_INFO,
+  LOG_LEVEL_DEBUG,
+  LOG_LEVEL_TRACE,
   logger,
 } from "../src";
 
@@ -24,12 +24,12 @@ test("phantom-core uses logger.info when calling calling phantom.log() directly"
 test("log level steps", t => {
   t.plan(6);
 
-  t.ok(LOG_LEVEL_TRACE === 0);
-  t.ok(LOG_LEVEL_DEBUG === LOG_LEVEL_TRACE + 1);
-  t.ok(LOG_LEVEL_INFO === LOG_LEVEL_DEBUG + 1);
-  t.ok(LOG_LEVEL_WARN === LOG_LEVEL_INFO + 1);
-  t.ok(LOG_LEVEL_ERROR === LOG_LEVEL_WARN + 1);
-  t.ok(LOG_LEVEL_SILENT === LOG_LEVEL_ERROR + 1);
+  t.ok(LOG_LEVEL_SILENT === 0);
+  t.ok(LOG_LEVEL_ERROR === LOG_LEVEL_SILENT + 1);
+  t.ok(LOG_LEVEL_WARN === LOG_LEVEL_ERROR + 1);
+  t.ok(LOG_LEVEL_INFO === LOG_LEVEL_WARN + 1);
+  t.ok(LOG_LEVEL_DEBUG === LOG_LEVEL_INFO + 1);
+  t.ok(LOG_LEVEL_TRACE === LOG_LEVEL_DEBUG + 1);
 
   t.end();
 });

@@ -16,7 +16,7 @@ import PhantomCore, {
   sleep,
   performance,
 } from "../src";
-import PhantomCoreUnwatched from "../src/PhantomCore/PhantomCore.unwatched";
+import PhantomCoreUnwatched from "../src/PhantomCore/PhantomCore.base";
 import _DestructibleEventEmitter from "../src/_DestructibleEventEmitter";
 
 test("consume", t => {

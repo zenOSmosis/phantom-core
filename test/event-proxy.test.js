@@ -34,7 +34,7 @@ test("event proxy error handling", async t => {
 
   t.throws(
     () => {
-      p1.proxyOnce(new EventEmitter(), "mock-event", () =>
+      p1.proxyOnce(new CommonEventEmitter(), "mock-event", () =>
         // NOTE: Not throwing here because we want to make sure the error is
         // thrown from the instance
         console.log("Should not get here")
@@ -58,7 +58,7 @@ test("event proxy error handling", async t => {
 
   t.throws(
     () => {
-      p1.proxyOff(new EventEmitter(), "mock-event", () =>
+      p1.proxyOff(new CommonEventEmitter(), "mock-event", () =>
         // NOTE: Not throwing here because we want to make sure the error is
         // thrown from the instance
         console.log("Should not get here")

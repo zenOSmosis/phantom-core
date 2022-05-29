@@ -330,8 +330,9 @@ test("shutdown event handling", async t => {
     "removes event listeners after destroying"
   );
 
-  t.ok(
-    undefined === (await phantom.destroy()),
+  t.equals(
+    undefined,
+    await phantom.destroy(),
     "subsequent calls to destroy are ignored"
   );
 

@@ -1,5 +1,5 @@
 import CommonEventEmitter from "../CommonEventEmitter";
-import PhantomCore, { EVT_UPDATE } from "../PhantomCore/PhantomCore.unwatched";
+import PhantomCore, { EVT_UPDATE } from "../PhantomCore/PhantomCore.base";
 
 // TODO: [3.0.0] This should run as a singleton and never be destructed
 // TODO: [3.0.0] Document

@@ -17,7 +17,12 @@ export {
   EVT_DESTROY,
 };
 
-// TODO: [3.0.0] Document
+/**
+ * Provides a limited "birds-eye" view into the PhantomCore ecosystem.
+ *
+ * This also includes utility methods for setting log levels across groups of
+ * PhantomCore instances, based on their class names.
+ */
 export default class PhantomWatcher extends PhantomCore {
   protected _phantomClassNames: string[] = [];
 
@@ -54,5 +59,23 @@ export default class PhantomWatcher extends PhantomCore {
   // TODO: [3.0.0] Document
   getTotalPhantomInstances() {
     return phantomWatcherProviderSingleton.getTotalPhantomInstances();
+  }
+
+  // TODO: [3.0.0] Document
+  setGlobalLogLevel(logLevel: string | number) {
+    return phantomWatcherProviderSingleton.setGlobalLogLevel(logLevel);
+  }
+
+  // TODO: [3.0.0] Document
+  setPhantomClassLogLevel(phantomClassName: string, logLevel: string | number) {
+    return phantomWatcherProviderSingleton.setPhantomClassLogLevel(
+      phantomClassName,
+      logLevel
+    );
+  }
+
+  // TODO: [3.0.0] Document
+  getPhantomClassLogLevel() {
+    return phantomWatcherProviderSingleton.getPhantomClassLogLevel();
   }
 }

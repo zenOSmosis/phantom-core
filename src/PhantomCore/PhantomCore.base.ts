@@ -509,6 +509,9 @@ export default class PhantomCore extends DestructibleEventEmitter {
     (this.logger as Logger).setLogLevel(level);
   }
 
+  /**
+   * Retrieves the current log level (as a number).
+   */
   getLogLevel() {
     // FIXME: [3.0.0] Fix type so "as" isn't necessary
     return (this.logger as Logger).getLogLevel();
@@ -790,10 +793,17 @@ export default class PhantomCore extends DestructibleEventEmitter {
         for (const methodName of this.getMethodNames()) {
           // Force non-keep-alive methods to return undefined
           if (!KEEP_ALIVE_SHUTDOWN_METHODS.includes(methodName)) {
-            (this as ClassInstance)[methodName] = (): void =>
+            // Override the class method
+            (this as ClassInstance)[methodName] = (): void => {
               logger.warn(
                 `${className}:${methodName} cannot be invoked after instance has been destructed`
               );
+
+              // Explicitly return undefined here
+              //
+              // Double-assurance that we're overriding the class implementation
+              return undefined;
+            };
           }
 
           // TODO: Reimplement and conditionally silence w/ instance options

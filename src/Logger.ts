@@ -3,23 +3,23 @@ import _DestructibleEventEmitter, {
 } from "./_DestructibleEventEmitter";
 import { ClassInstance } from "./utils/class-utils/types";
 
-export const LOG_LEVEL_TRACE = 0;
-export const LOG_LEVEL_DEBUG = 1;
-export const LOG_LEVEL_INFO = 2;
-export const LOG_LEVEL_WARN = 3;
-export const LOG_LEVEL_ERROR = 4;
-export const LOG_LEVEL_SILENT = 5;
+export const LOG_LEVEL_SILENT = 0;
+export const LOG_LEVEL_ERROR = 1;
+export const LOG_LEVEL_WARN = 2;
+export const LOG_LEVEL_INFO = 3;
+export const LOG_LEVEL_DEBUG = 4;
+export const LOG_LEVEL_TRACE = 5;
 
 export { EVT_DESTROY };
 
 // TODO: [3.0.0] Use enum here?
 const LOG_LEVEL_STRING_MAP = {
-  trace: LOG_LEVEL_TRACE,
-  debug: LOG_LEVEL_DEBUG,
-  info: LOG_LEVEL_INFO,
-  warn: LOG_LEVEL_WARN,
-  error: LOG_LEVEL_ERROR,
   silent: LOG_LEVEL_SILENT,
+  error: LOG_LEVEL_ERROR,
+  warn: LOG_LEVEL_WARN,
+  info: LOG_LEVEL_INFO,
+  debug: LOG_LEVEL_DEBUG,
+  trace: LOG_LEVEL_TRACE,
 };
 
 export type LogIntersection = Logger & ((...args: any[]) => void);
@@ -92,34 +92,14 @@ export default class Logger extends _DestructibleEventEmitter {
 
       const loggerMethods: { [key: string]: () => null } = {};
 
-      if (this._logLevel <= LOG_LEVEL_TRACE) {
-        loggerMethods.trace = Function.prototype.bind.call(
-          console.trace,
+      if (this._logLevel <= LOG_LEVEL_ERROR) {
+        loggerMethods.error = Function.prototype.bind.call(
+          console.error,
           console,
-          prefix("trace")
+          prefix("error")
         );
       } else {
-        loggerMethods.trace = () => null;
-      }
-
-      if (this._logLevel <= LOG_LEVEL_DEBUG) {
-        loggerMethods.debug = Function.prototype.bind.call(
-          console.debug,
-          console,
-          prefix("debug")
-        );
-      } else {
-        loggerMethods.debug = () => null;
-      }
-
-      if (this._logLevel <= LOG_LEVEL_INFO) {
-        loggerMethods.info = Function.prototype.bind.call(
-          console.info,
-          console,
-          prefix("info")
-        );
-      } else {
-        loggerMethods.info = () => null;
+        loggerMethods.error = () => null;
       }
 
       if (this._logLevel <= LOG_LEVEL_WARN) {
@@ -132,14 +112,34 @@ export default class Logger extends _DestructibleEventEmitter {
         loggerMethods.warn = () => null;
       }
 
-      if (this._logLevel <= LOG_LEVEL_ERROR) {
-        loggerMethods.error = Function.prototype.bind.call(
-          console.error,
+      if (this._logLevel <= LOG_LEVEL_INFO) {
+        loggerMethods.info = Function.prototype.bind.call(
+          console.info,
           console,
-          prefix("error")
+          prefix("info")
         );
       } else {
-        loggerMethods.error = () => null;
+        loggerMethods.info = () => null;
+      }
+
+      if (this._logLevel <= LOG_LEVEL_DEBUG) {
+        loggerMethods.debug = Function.prototype.bind.call(
+          console.debug,
+          console,
+          prefix("debug")
+        );
+      } else {
+        loggerMethods.debug = () => null;
+      }
+
+      if (this._logLevel <= LOG_LEVEL_TRACE) {
+        loggerMethods.trace = Function.prototype.bind.call(
+          console.trace,
+          console,
+          prefix("trace")
+        );
+      } else {
+        loggerMethods.trace = () => null;
       }
 
       // Calling this.log() directly will log as info (log info alias)
