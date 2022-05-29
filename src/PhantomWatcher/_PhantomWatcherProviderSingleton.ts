@@ -26,7 +26,7 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
 
     this._phantomInstances.add(phantom);
 
-    // TODO: Set log level in accordance w/ default or override
+    phantom.setLogLevel(this.getPhantomClassLogLevel(phantom.getClassName()));
 
     // Automatically removes duplicates
     this._phantomClassNameSet.add(phantom.getClassName());
@@ -78,7 +78,10 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
 
     this._phantomClassNameLogLevelMap.set(phantomClassName, numericLogLevel);
 
-    // TODO: Update this._phantomInstances with updated level
+    // Update relevant PhantomCore instances
+    [...this._phantomInstances]
+      .filter(pred => pred.getClassName() === phantomClassName)
+      .forEach(pred => pred.setLogLevel(numericLogLevel));
   }
 
   // TODO: [3.0.0] Document

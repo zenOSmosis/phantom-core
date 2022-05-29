@@ -500,9 +500,17 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * Accepts either numeric (i.e. LOG_LEVEL_TRACE constant) or string (i.e.
    * "trace") values.
    */
-  setLogLevel(level: number | string) {
+  setLogLevel(logLevel: number | string) {
+    const prevLogLevel = this.getLogLevel();
+
     // FIXME: [3.0.0] Fix type so "as" isn't necessary
-    (this.logger as Logger).setLogLevel(level);
+    (this.logger as Logger).setLogLevel(logLevel);
+
+    const nextLogLevel = this.getLogLevel();
+
+    if (prevLogLevel !== nextLogLevel) {
+      this.log.debug(`Changed log level to: "${logLevel}"}`);
+    }
   }
 
   /**
