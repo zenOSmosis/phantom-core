@@ -15,6 +15,8 @@ import PhantomCore, {
   getClassInstancePropertyNames,
   sleep,
   performance,
+  enumToNumericIndexedObject,
+  LogLevel,
 } from "../src";
 import PhantomCoreUnwatched from "../src/PhantomCore/PhantomCore.base";
 import _DestructibleEventEmitter from "../src/_DestructibleEventEmitter";
@@ -275,6 +277,21 @@ test("sleep", async t => {
       "sleep() responds to argument for milliseconds"
     );
   })();
+
+  t.end();
+});
+
+test("enum to numeric indexed object", t => {
+  t.plan(1);
+
+  t.deepEquals(enumToNumericIndexedObject(LogLevel), {
+    0: "Silent",
+    1: "Error",
+    2: "Warn",
+    3: "Info",
+    4: "Debug",
+    5: "Trace",
+  });
 
   t.end();
 });

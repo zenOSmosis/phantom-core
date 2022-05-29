@@ -79,8 +79,14 @@ export { consume };
 import deepMerge from "./utils/deepMerge";
 export { deepMerge };
 
+import enumToNumericIndexedObject from "./utils/enum-utils/enumToNumericIndexedObject";
+export { enumToNumericIndexedObject };
+
 import getIsNodeJS from "./utils/getIsNodeJS";
 export { getIsNodeJS };
+
+import getIsNumeric from "./utils/getIsNumeric";
+export { getIsNumeric };
 
 import getPackageJSON from "./utils/getPackageJSON";
 export { getPackageJSON };
