@@ -3,7 +3,7 @@
 import "setimmediate";
 
 import CommonEventEmitter from "../CommonEventEmitter";
-import Logger, { LogIntersection } from "../Logger";
+import Logger, { LogIntersection, EVT_LOG_MISS } from "../Logger";
 import logger from "../globalLogger";
 import DestructibleEventEmitter, {
   EVT_BEFORE_DESTROY,
@@ -292,6 +292,9 @@ export default class PhantomCore extends DestructibleEventEmitter {
         }]`;
       },
     });
+
+    // Proxies log misses
+    this.logger.on(EVT_LOG_MISS, logLevel => this.emit(EVT_LOG_MISS, logLevel));
 
     // FIXME: [3.0.0] Fix type so "as" isn't necessary
     this.registerCleanupHandler(() => (this.logger as Logger).destroy());

@@ -1,7 +1,10 @@
 import CommonEventEmitter from "../CommonEventEmitter";
 import PhantomCore, { EVT_UPDATE } from "../PhantomCore/PhantomCore.base";
-import Logger from "../Logger";
+import Logger, { EVT_LOG_MISS } from "../Logger";
 import globalLogger from "../globalLogger";
+
+// TODO: [3.0.0] Document
+export const EVT_PHANTOM_WATCHER_LOG_MISS = "phantom-group-log-miss";
 
 type PhantomClassName = string;
 
@@ -27,10 +30,19 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
 
     this._phantomInstances.add(phantom);
 
-    phantom.setLogLevel(this.getPhantomClassLogLevel(phantom.getClassName()));
+    const phantomClassName = phantom.getClassName();
+
+    phantom.setLogLevel(this.getPhantomClassLogLevel(phantomClassName));
+
+    phantom.on(EVT_LOG_MISS, logLevel =>
+      this.emit(EVT_PHANTOM_WATCHER_LOG_MISS, {
+        phantomClassName,
+        logLevel,
+      })
+    );
 
     // Automatically removes duplicates
-    this._phantomClassNameSet.add(phantom.getClassName());
+    this._phantomClassNameSet.add(phantomClassName);
 
     this.emit(EVT_UPDATE);
   }

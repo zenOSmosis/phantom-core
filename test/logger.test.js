@@ -1,6 +1,8 @@
 const test = require("tape");
 import { PhantomCore, LogLevel, logger } from "../src";
 
+// TODO: Add log miss testing
+
 test("phantom-core uses logger.info when calling calling phantom.log() directly", t => {
   t.plan(1);
 

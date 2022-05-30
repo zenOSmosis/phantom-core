@@ -27,6 +27,11 @@ const LOG_LEVEL_STRING_MAP: { [key: string]: number } = {
 export type LogIntersection = Logger & ((...args: any[]) => void);
 
 /**
+ * @event EVT_LOG_MISS Emits with relevant LogLevel if the log is ignored.
+ */
+export const EVT_LOG_MISS = "log-miss";
+
+/**
  * A very simple JavaScript logger, which wraps console.log/debug, etc. calls
  * while retaining the original stack traces.
  *
@@ -135,7 +140,7 @@ export default class Logger extends _DestructibleEventEmitter {
        * @see https://stackoverflow.com/questions/9559725/extending-console-log-without-affecting-log-line
        */
 
-      const loggerMethods: { [key: string]: () => null } = {};
+      const loggerMethods: { [key: string]: () => void } = {};
 
       if (this._logLevel >= LogLevel.Error) {
         loggerMethods.error = Function.prototype.bind.call(
@@ -144,7 +149,7 @@ export default class Logger extends _DestructibleEventEmitter {
           prefix("error")
         );
       } else {
-        loggerMethods.error = () => null;
+        loggerMethods.error = () => this.emit(EVT_LOG_MISS, LogLevel.Error);
       }
 
       if (this._logLevel >= LogLevel.Warn) {
@@ -154,7 +159,7 @@ export default class Logger extends _DestructibleEventEmitter {
           prefix("warn")
         );
       } else {
-        loggerMethods.warn = () => null;
+        loggerMethods.warn = () => this.emit(EVT_LOG_MISS, LogLevel.Warn);
       }
 
       if (this._logLevel >= LogLevel.Info) {
@@ -164,7 +169,7 @@ export default class Logger extends _DestructibleEventEmitter {
           prefix("info")
         );
       } else {
-        loggerMethods.info = () => null;
+        loggerMethods.info = () => this.emit(EVT_LOG_MISS, LogLevel.Info);
       }
 
       if (this._logLevel >= LogLevel.Debug) {
@@ -174,7 +179,7 @@ export default class Logger extends _DestructibleEventEmitter {
           prefix("debug")
         );
       } else {
-        loggerMethods.debug = () => null;
+        loggerMethods.debug = () => this.emit(EVT_LOG_MISS, LogLevel.Debug);
       }
 
       if (this._logLevel >= LogLevel.Trace) {
@@ -184,7 +189,7 @@ export default class Logger extends _DestructibleEventEmitter {
           prefix("trace")
         );
       } else {
-        loggerMethods.trace = () => null;
+        loggerMethods.trace = () => this.emit(EVT_LOG_MISS, LogLevel.Trace);
       }
 
       // Calling this.log() directly will log as info (log info alias)

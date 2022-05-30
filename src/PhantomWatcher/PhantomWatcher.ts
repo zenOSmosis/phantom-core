@@ -6,7 +6,9 @@ import PhantomCore, {
   EVT_DESTROY_STACK_TIME_OUT,
   EVT_DESTROY,
 } from "../PhantomCore";
-import phantomWatcherProviderSingleton from "./_PhantomWatcherProviderSingleton";
+import phantomWatcherProviderSingleton, {
+  EVT_PHANTOM_WATCHER_LOG_MISS,
+} from "./_PhantomWatcherProviderSingleton";
 
 export {
   EVT_NO_INIT_WARN,
@@ -15,6 +17,7 @@ export {
   EVT_BEFORE_DESTROY,
   EVT_DESTROY_STACK_TIME_OUT,
   EVT_DESTROY,
+  EVT_PHANTOM_WATCHER_LOG_MISS,
 };
 
 /**
@@ -49,6 +52,18 @@ export default class PhantomWatcher extends PhantomCore {
       this.registerCleanupHandler(() => {
         phantomWatcherProviderSingleton.off(EVT_UPDATE, _handleUpdate);
       });
+    })();
+
+    // Proxy log misses
+    (() => {
+      phantomWatcherProviderSingleton.on(
+        EVT_PHANTOM_WATCHER_LOG_MISS,
+        this.emit
+      );
+      phantomWatcherProviderSingleton.off(
+        EVT_PHANTOM_WATCHER_LOG_MISS,
+        this.emit
+      );
     })();
   }
 

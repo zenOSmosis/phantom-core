@@ -5,6 +5,7 @@ import PhantomWatcher, {
   EVT_BEFORE_DESTROY,
   EVT_DESTROY_STACK_TIME_OUT,
   EVT_DESTROY,
+  EVT_PHANTOM_WATCHER_LOG_MISS,
 } from "./PhantomWatcher";
 
 export default PhantomWatcher;
@@ -15,4 +16,5 @@ export {
   EVT_BEFORE_DESTROY,
   EVT_DESTROY_STACK_TIME_OUT,
   EVT_DESTROY,
+  EVT_PHANTOM_WATCHER_LOG_MISS,
 };

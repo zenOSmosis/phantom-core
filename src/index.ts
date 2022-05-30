@@ -21,9 +21,9 @@ export {
   EVT_NO_INIT_WARN,
 };
 
-import Logger, { LogLevel } from "./Logger";
+import Logger, { LogLevel, EVT_LOG_MISS } from "./Logger";
 
-export { Logger, LogLevel };
+export { Logger, LogLevel, EVT_LOG_MISS };
 
 import logger from "./globalLogger";
 export { logger };
@@ -57,8 +57,8 @@ export { PhantomSerializableState };
 import PhantomState from "./PhantomState";
 export { PhantomState };
 
-import PhantomWatcher from "./PhantomWatcher";
-export { PhantomWatcher };
+import PhantomWatcher, { EVT_PHANTOM_WATCHER_LOG_MISS } from "./PhantomWatcher";
+export { PhantomWatcher, EVT_PHANTOM_WATCHER_LOG_MISS };
 
 // Stacks
 
