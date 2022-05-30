@@ -8,7 +8,7 @@ import PhantomCore, {
 } from "../PhantomCore";
 import phantomWatcherProviderSingleton, {
   EVT_PHANTOM_WATCHER_LOG_MISS,
-  PhantomWatcherLogMiss,
+  PhantomWatcherLogMissEventData,
 } from "./_PhantomWatcherProviderSingleton";
 
 export {
@@ -57,8 +57,12 @@ export default class PhantomWatcher extends PhantomCore {
 
     // Handle log miss proxying
     (() => {
-      const _handleLogMiss = (data: PhantomWatcherLogMiss) =>
+      const _handleLogMiss = (data: PhantomWatcherLogMissEventData) => {
+        // TODO: Remove
+        console.log("log miss", data);
+
         this.emit(EVT_PHANTOM_WATCHER_LOG_MISS, data);
+      };
 
       phantomWatcherProviderSingleton.on(
         EVT_PHANTOM_WATCHER_LOG_MISS,
