@@ -104,7 +104,7 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
   }
 
   // TODO: [3.0.0] Document
-  getTotalInstancesWithClassName(phantomClassName: string) {
+  getTotalPhantomInstancesWithClassName(phantomClassName: string) {
     return this._phantomClassNameCountMap.get(phantomClassName) || 0;
   }
 

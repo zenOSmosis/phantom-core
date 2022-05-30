@@ -138,7 +138,7 @@ test("per class name instance count", async t => {
   const watcher = new PhantomWatcher();
 
   t.equals(
-    watcher.getTotalInstancesWithClassName("P1"),
+    watcher.getTotalPhantomInstancesWithClassName("P1"),
     0,
     "Returns 0 value if no instances are instantiated"
   );
@@ -146,13 +146,13 @@ test("per class name instance count", async t => {
   const p1_1 = new P1();
 
   t.equals(
-    watcher.getTotalInstancesWithClassName("P1"),
+    watcher.getTotalPhantomInstancesWithClassName("P1"),
     1,
     "Returns 1 value after first instance is instantiated"
   );
 
   t.equals(
-    watcher.getTotalInstancesWithClassName("P2"),
+    watcher.getTotalPhantomInstancesWithClassName("P2"),
     0,
     "Returns 0 value before P2 is instantiated the first time"
   );
@@ -163,7 +163,7 @@ test("per class name instance count", async t => {
   const p2_4 = new P2();
 
   t.equals(
-    watcher.getTotalInstancesWithClassName("P2"),
+    watcher.getTotalPhantomInstancesWithClassName("P2"),
     4,
     "Returns 4 after P2 is instantiated four times"
   );
@@ -171,7 +171,7 @@ test("per class name instance count", async t => {
   await p2_3.destroy();
 
   t.equals(
-    watcher.getTotalInstancesWithClassName("P2"),
+    watcher.getTotalPhantomInstancesWithClassName("P2"),
     3,
     "Returns 3 after one P2 instance is destructed"
   );
@@ -179,7 +179,7 @@ test("per class name instance count", async t => {
   await p1_1.destroy();
 
   t.equals(
-    watcher.getTotalInstancesWithClassName("P1"),
+    watcher.getTotalPhantomInstancesWithClassName("P1"),
     0,
     "Returns 0 value after first instance is destructed"
   );

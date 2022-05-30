@@ -87,8 +87,8 @@ export default class PhantomWatcher extends PhantomCore {
   }
 
   // TODO: [3.0.0] Document
-  getTotalInstancesWithClassName(phantomClassName: string) {
-    return phantomWatcherProviderSingleton.getTotalInstancesWithClassName(
+  getTotalPhantomInstancesWithClassName(phantomClassName: string) {
+    return phantomWatcherProviderSingleton.getTotalPhantomInstancesWithClassName(
       phantomClassName
     );
   }
