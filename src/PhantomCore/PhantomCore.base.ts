@@ -345,7 +345,11 @@ export default class PhantomCore extends DestructibleEventEmitter {
       };
 
       // Allow synchronous queue to drain before emitting EVT_READY
-      setImmediate(() => this.emit(EVT_READY));
+      setImmediate(() => {
+        if (!this.getHasDestroyStarted()) {
+          this.emit(EVT_READY);
+        }
+      });
     } else {
       // IMPORTANT: Implementations which set isAsync to true must call
       // PhantomCore superclass _init on their own
