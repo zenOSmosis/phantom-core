@@ -8,6 +8,8 @@ type PhantomClassName = string;
 // TODO: [3.0.0] This should run as a singleton and never be destructed
 // TODO: [3.0.0] Document
 class _PhantomWatcherProvider extends CommonEventEmitter {
+  protected _initialGlobalLogLevel: number = globalLogger.getLogLevel();
+
   protected _phantomInstances: Set<PhantomCore> = new Set();
   protected _phantomClassNameSet: Set<PhantomClassName> = new Set();
   protected _phantomClassNameLogLevelMap: Map<PhantomClassName, number> =
@@ -85,6 +87,16 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
   // TODO: [3.0.0] Document
   getGlobalLogLevel() {
     return globalLogger.getLogLevel();
+  }
+
+  // TODO: [3.0.0] Document
+  getInitialGlobalLogLevel() {
+    return this._initialGlobalLogLevel;
+  }
+
+  // TODO: [3.0.0] Document
+  getHasGlobalLogLevelChanged() {
+    return this.getGlobalLogLevel() !== this.getInitialGlobalLogLevel();
   }
 
   // TODO: [3.0.0] Document
