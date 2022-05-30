@@ -6,7 +6,7 @@ import globalLogger from "../globalLogger";
 type PhantomClassName = string;
 
 // TODO: [3.0.0] Document
-export const EVT_PHANTOM_WATCHER_LOG_MISS = "phantom-group-log-miss";
+export const EVT_PHANTOM_WATCHER_LOG_MISS = "phantom-group-watcher-log-miss";
 export type PhantomWatcherLogMissEventData = {
   phantomClassName: PhantomClassName;
   title: string | null;
@@ -40,13 +40,6 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
     phantom.setLogLevel(this.getPhantomClassLogLevel(phantomClassName));
 
     phantom.on(EVT_LOG_MISS, (logLevel: number) => {
-      // TODO: Remove
-      console.log("log miss", {
-        phantomClassName,
-        title: phantom.getTitle(),
-        logLevel,
-      });
-
       this.emit(EVT_PHANTOM_WATCHER_LOG_MISS, {
         phantomClassName,
         title: phantom.getTitle(),
@@ -145,10 +138,14 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
 
   // TODO: [3.0.0] Document
   getPhantomClassLogLevel(phantomClassName: string) {
-    return (
-      this._phantomClassNameLogLevelMap.get(phantomClassName) ||
-      globalLogger.getLogLevel()
-    );
+    const phantomClassLogLevel =
+      this._phantomClassNameLogLevelMap.get(phantomClassName);
+
+    if (phantomClassLogLevel !== undefined) {
+      return phantomClassLogLevel;
+    }
+
+    return globalLogger.getLogLevel();
   }
 }
 

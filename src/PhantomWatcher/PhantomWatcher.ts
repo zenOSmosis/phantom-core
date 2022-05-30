@@ -33,6 +33,7 @@ export default class PhantomWatcher extends PhantomCore {
   constructor() {
     super();
 
+    // Handle regular updates
     (() => {
       const _handleUpdate = () => {
         // Note: This type is coerced from a Set
@@ -58,9 +59,6 @@ export default class PhantomWatcher extends PhantomCore {
     // Handle log miss proxying
     (() => {
       const _handleLogMiss = (data: PhantomWatcherLogMissEventData) => {
-        // TODO: Remove
-        console.log("log miss", data);
-
         this.emit(EVT_PHANTOM_WATCHER_LOG_MISS, data);
       };
 
@@ -69,10 +67,12 @@ export default class PhantomWatcher extends PhantomCore {
         _handleLogMiss
       );
 
-      phantomWatcherProviderSingleton.off(
-        EVT_PHANTOM_WATCHER_LOG_MISS,
-        _handleLogMiss
-      );
+      this.registerCleanupHandler(() => {
+        phantomWatcherProviderSingleton.off(
+          EVT_PHANTOM_WATCHER_LOG_MISS,
+          _handleLogMiss
+        );
+      });
     })();
   }
 
