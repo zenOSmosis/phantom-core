@@ -74,12 +74,12 @@ test("phantom log miss with title update", async t => {
 
   const watcher = new PhantomWatcher();
 
+  watcher.resetGlobalLogLevel();
+
   t.deepEquals(
     watcher.getPhantomClassLogMisses("LogMissPhantomCore"),
     [0, 0, 0, 0, 0, 0]
   );
-
-  watcher.resetGlobalLogLevel();
 
   await Promise.all([
     new Promise(resolve => {

@@ -25,6 +25,10 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
   protected _phantomClassNameLogLevelMap: Map<PhantomClassName, number> =
     new Map();
 
+  // TODO: [3.0.0] Update type
+  protected _phantomClassNameLogLevelMissMap: Map<PhantomClassName, number[]> =
+    new Map();
+
   // TODO: [3.0.0] Document
   addInstance(phantom: PhantomCore) {
     phantom.registerCleanupHandler(() => this._removeInstance(phantom));
@@ -47,9 +51,25 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
       perClassNameInstanceCount
     );
 
-    phantom.setLogLevel(this.getPhantomClassLogLevel(phantomClassName));
+    this._phantomClassNameLogLevelMissMap.set(
+      phantomClassName,
+      [0, 0, 0, 0, 0, 0]
+    );
 
     phantom.on(EVT_LOG_MISS, (logLevel: number) => {
+      // Update missMap counts
+      const missMap =
+        this._phantomClassNameLogLevelMissMap.get(phantomClassName);
+
+      // TODO: [3.0.0] Use proper type
+      ++(missMap as number[])[logLevel];
+
+      this._phantomClassNameLogLevelMissMap.set(
+        phantomClassName,
+        // TODO: [3.0.0] Use proper type
+        missMap as number[]
+      );
+
       this.emit(EVT_PHANTOM_WATCHER_LOG_MISS, {
         phantomClassName,
         title: phantom.getTitle(),
@@ -57,22 +77,17 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
       } as PhantomWatcherLogMissEventData);
     });
 
+    // Set the log level to the group / global level
+    phantom.setLogLevel(this.getPhantomClassLogLevel(phantomClassName));
+
     // Automatically removes duplicates
     this._phantomClassNameSet.add(phantomClassName);
 
     this.emit(EVT_UPDATE);
   }
 
-  /**
-   * Retrieves the Set of unique class names of registered PhantomCore
-   * instances.
-   */
-  getPhantomClassNameSet() {
-    return this._phantomClassNameSet;
-  }
-
   // TODO: [3.0.0] Document
-  protected _removeInstance(phantom: PhantomCore) {
+  private _removeInstance(phantom: PhantomCore) {
     this._phantomInstances.delete(phantom);
     const phantomClassName = phantom.getClassName();
 
@@ -98,6 +113,18 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
     this.emit(EVT_UPDATE);
   }
 
+  // TODO: [3.0.0]
+  getPhantomClassLogMisses(phantomClassName: string) {
+    return this._phantomClassNameLogLevelMissMap.get(phantomClassName);
+  }
+
+  /**
+   * Retrieves the Set of unique class names of registered PhantomCore
+   * instances.
+   */
+  getPhantomClassNameSet() {
+    return this._phantomClassNameSet;
+  }
   // TODO: [3.0.0] Document
   getTotalPhantomInstances() {
     return this._phantomInstances.size;

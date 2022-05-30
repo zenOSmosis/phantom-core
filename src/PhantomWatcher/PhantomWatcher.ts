@@ -76,9 +76,15 @@ export default class PhantomWatcher extends PhantomCore {
     })();
   }
 
-  // TODO: [3.0.0] Document
   getPhantomClassNames() {
     return this._phantomClassNames;
+  }
+
+  // TODO: [3.0.0] Document
+  getPhantomClassLogMisses(phantomClassName: string) {
+    return phantomWatcherProviderSingleton.getPhantomClassLogMisses(
+      phantomClassName
+    );
   }
 
   // TODO: [3.0.0] Document
