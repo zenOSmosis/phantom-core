@@ -51,10 +51,12 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
       perClassNameInstanceCount
     );
 
-    this._phantomClassNameLogLevelMissMap.set(
-      phantomClassName,
-      [0, 0, 0, 0, 0, 0]
-    );
+    if (!this._phantomClassNameLogLevelMissMap.has(phantomClassName)) {
+      this._phantomClassNameLogLevelMissMap.set(
+        phantomClassName,
+        [0, 0, 0, 0, 0, 0]
+      );
+    }
 
     phantom.on(EVT_LOG_MISS, (logLevel: number) => {
       // Update missMap counts
