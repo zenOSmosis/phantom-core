@@ -20,6 +20,8 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
 
   protected _phantomInstances: Set<PhantomCore> = new Set();
   protected _phantomClassNameSet: Set<PhantomClassName> = new Set();
+  protected _phantomClassNameCountMap: Map<PhantomClassName, number> =
+    new Map();
   protected _phantomClassNameLogLevelMap: Map<PhantomClassName, number> =
     new Map();
 
@@ -36,6 +38,14 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
     this._phantomInstances.add(phantom);
 
     const phantomClassName = phantom.getClassName();
+
+    let perClassNameInstanceCount =
+      this._phantomClassNameCountMap.get(phantomClassName) || 0;
+    ++perClassNameInstanceCount;
+    this._phantomClassNameCountMap.set(
+      phantomClassName,
+      perClassNameInstanceCount
+    );
 
     phantom.setLogLevel(this.getPhantomClassLogLevel(phantomClassName));
 
@@ -62,26 +72,40 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
   }
 
   // TODO: [3.0.0] Document
-  getTotalPhantomInstances() {
-    return this._phantomInstances.size;
-  }
-
-  // TODO: [3.0.0] Document
   protected _removeInstance(phantom: PhantomCore) {
     this._phantomInstances.delete(phantom);
-    const className = phantom.getClassName();
+    const phantomClassName = phantom.getClassName();
+
+    let perClassNameInstanceCount = this._phantomClassNameCountMap.get(
+      phantomClassName
+    ) as number;
+    --perClassNameInstanceCount;
+    this._phantomClassNameCountMap.set(
+      phantomClassName,
+      perClassNameInstanceCount
+    );
 
     const instancesWithClassName = [...this._phantomInstances].filter(
-      pred => pred.getClassName() === className
+      pred => pred.getClassName() === phantomClassName
     );
 
     // If no remaining instances with the given class name, delete it from the
     // set
     if (!instancesWithClassName.length) {
-      this._phantomClassNameSet.delete(className);
+      this._phantomClassNameSet.delete(phantomClassName);
     }
 
     this.emit(EVT_UPDATE);
+  }
+
+  // TODO: [3.0.0] Document
+  getTotalPhantomInstances() {
+    return this._phantomInstances.size;
+  }
+
+  // TODO: [3.0.0] Document
+  getTotalInstancesWithClassName(phantomClassName: string) {
+    return this._phantomClassNameCountMap.get(phantomClassName) || 0;
   }
 
   // TODO: [3.0.0] Document

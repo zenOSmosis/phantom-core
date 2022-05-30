@@ -128,3 +128,67 @@ test("phantom log miss with title update", async t => {
 
   t.end();
 });
+
+test("per class name instance count", async t => {
+  // TODO: Implement plan
+
+  class P1 extends PhantomCore {}
+  class P2 extends PhantomCore {}
+
+  const watcher = new PhantomWatcher();
+
+  t.equals(
+    watcher.getTotalInstancesWithClassName("P1"),
+    0,
+    "Returns 0 value if no instances are instantiated"
+  );
+
+  const p1_1 = new P1();
+
+  t.equals(
+    watcher.getTotalInstancesWithClassName("P1"),
+    1,
+    "Returns 1 value after first instance is instantiated"
+  );
+
+  t.equals(
+    watcher.getTotalInstancesWithClassName("P2"),
+    0,
+    "Returns 0 value before P2 is instantiated the first time"
+  );
+
+  const p2_1 = new P2();
+  const p2_2 = new P2();
+  const p2_3 = new P2();
+  const p2_4 = new P2();
+
+  t.equals(
+    watcher.getTotalInstancesWithClassName("P2"),
+    4,
+    "Returns 4 after P2 is instantiated four times"
+  );
+
+  await p2_3.destroy();
+
+  t.equals(
+    watcher.getTotalInstancesWithClassName("P2"),
+    3,
+    "Returns 3 after one P2 instance is destructed"
+  );
+
+  await p1_1.destroy();
+
+  t.equals(
+    watcher.getTotalInstancesWithClassName("P1"),
+    0,
+    "Returns 0 value after first instance is destructed"
+  );
+
+  await watcher.destroy();
+
+  await p2_1.destroy();
+  await p2_2.destroy();
+  await p2_4.destroy();
+
+  t.end();
+});
