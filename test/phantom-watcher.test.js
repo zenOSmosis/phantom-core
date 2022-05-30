@@ -61,7 +61,7 @@ test("multiple watchers", async t => {
 });
 
 test("phantom log miss with title update", async t => {
-  t.plan(2);
+  t.plan(5);
 
   const FIRST_TITLE = "first-test-title";
   const SECOND_TITLE = "second-test-title";
@@ -74,12 +74,23 @@ test("phantom log miss with title update", async t => {
 
   const watcher = new PhantomWatcher();
 
+  t.deepEquals(
+    watcher.getPhantomClassLogMisses("LogMissPhantomCore"),
+    [0, 0, 0, 0, 0, 0]
+  );
+
   watcher.resetGlobalLogLevel();
 
   await Promise.all([
     new Promise(resolve => {
       watcher.on(EVT_PHANTOM_WATCHER_LOG_MISS, function handleLogMiss(data) {
         if (data.logLevel === 5 && data.title === FIRST_TITLE) {
+          t.deepEquals(
+            watcher.getPhantomClassLogMisses("LogMissPhantomCore"),
+            [0, 0, 0, 0, 0, 1],
+            "first log miss is accounted for"
+          );
+
           t.deepEquals(
             data,
             {
@@ -103,6 +114,12 @@ test("phantom log miss with title update", async t => {
     new Promise(resolve => {
       watcher.on(EVT_PHANTOM_WATCHER_LOG_MISS, function handleLogMiss(data) {
         if (data.logLevel === 5 && data.title === SECOND_TITLE) {
+          t.deepEquals(
+            watcher.getPhantomClassLogMisses("LogMissPhantomCore"),
+            [0, 0, 0, 0, 0, 2],
+            "second log miss is accounted for"
+          );
+
           t.deepEquals(
             data,
             {
