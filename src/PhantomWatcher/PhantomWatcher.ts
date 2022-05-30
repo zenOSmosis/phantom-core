@@ -74,7 +74,7 @@ export default class PhantomWatcher extends PhantomCore {
 
   // TODO: [3.0.0] Document
   getInitialGlobalLogLevel() {
-    return phantomWatcherProviderSingleton.getGlobalLogLevel();
+    return phantomWatcherProviderSingleton.getInitialGlobalLogLevel();
   }
 
   // TODO: [3.0.0] Document
