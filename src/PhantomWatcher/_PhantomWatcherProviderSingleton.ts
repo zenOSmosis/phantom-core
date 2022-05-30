@@ -100,6 +100,11 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
   }
 
   // TODO: [3.0.0] Document
+  resetGlobalLogLevel() {
+    return this.setGlobalLogLevel(this.getInitialGlobalLogLevel());
+  }
+
+  // TODO: [3.0.0] Document
   setPhantomClassLogLevel(phantomClassName: string, logLevel: string | number) {
     const numericLogLevel = Logger.toNumericLogLevel(logLevel);
 
