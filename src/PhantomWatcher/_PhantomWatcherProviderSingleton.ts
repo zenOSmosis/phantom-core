@@ -3,10 +3,15 @@ import PhantomCore, { EVT_UPDATE } from "../PhantomCore/PhantomCore.base";
 import Logger, { EVT_LOG_MISS } from "../Logger";
 import globalLogger from "../globalLogger";
 
+type PhantomClassName = string;
+
 // TODO: [3.0.0] Document
 export const EVT_PHANTOM_WATCHER_LOG_MISS = "phantom-group-log-miss";
-
-type PhantomClassName = string;
+export type PhantomWatcherLogMiss = {
+  phantomClassName: PhantomClassName;
+  title: string | null;
+  logLevel: number;
+};
 
 // TODO: [3.0.0] This should run as a singleton and never be destructed
 // TODO: [3.0.0] Document
@@ -34,15 +39,13 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
 
     phantom.setLogLevel(this.getPhantomClassLogLevel(phantomClassName));
 
-    phantom.on(EVT_LOG_MISS, logLevel => {
-      // TODO: Remove
-      console.log("TODO: Remove", logLevel);
-
+    phantom.on(EVT_LOG_MISS, (logLevel: number) =>
       this.emit(EVT_PHANTOM_WATCHER_LOG_MISS, {
         phantomClassName,
+        title: phantom.getTitle(),
         logLevel,
-      });
-    });
+      } as PhantomWatcherLogMiss)
+    );
 
     // Automatically removes duplicates
     this._phantomClassNameSet.add(phantomClassName);

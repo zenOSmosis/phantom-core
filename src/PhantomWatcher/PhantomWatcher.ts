@@ -8,6 +8,7 @@ import PhantomCore, {
 } from "../PhantomCore";
 import phantomWatcherProviderSingleton, {
   EVT_PHANTOM_WATCHER_LOG_MISS,
+  PhantomWatcherLogMiss,
 } from "./_PhantomWatcherProviderSingleton";
 
 export {
@@ -54,15 +55,19 @@ export default class PhantomWatcher extends PhantomCore {
       });
     })();
 
-    // Proxy log misses
+    // Handle log miss proxying
     (() => {
+      const _handleLogMiss = (data: PhantomWatcherLogMiss) =>
+        this.emit(EVT_PHANTOM_WATCHER_LOG_MISS, data);
+
       phantomWatcherProviderSingleton.on(
         EVT_PHANTOM_WATCHER_LOG_MISS,
-        this.emit
+        _handleLogMiss
       );
+
       phantomWatcherProviderSingleton.off(
         EVT_PHANTOM_WATCHER_LOG_MISS,
-        this.emit
+        _handleLogMiss
       );
     })();
   }
