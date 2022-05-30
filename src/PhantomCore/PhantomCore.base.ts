@@ -534,7 +534,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
 
     if (prevLogLevel !== nextLogLevel) {
       this.log.debug(
-        `Changed log level to: ${Logger.toStringLogLevel(logLevel)}}`
+        `Changed log level to: ${Logger.toStringLogLevel(logLevel)}`
       );
     }
   }
