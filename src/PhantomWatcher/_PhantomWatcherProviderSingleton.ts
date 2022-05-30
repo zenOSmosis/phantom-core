@@ -40,6 +40,13 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
     phantom.setLogLevel(this.getPhantomClassLogLevel(phantomClassName));
 
     phantom.on(EVT_LOG_MISS, (logLevel: number) => {
+      // TODO: Remove
+      console.log("log miss", {
+        phantomClassName,
+        title: phantom.getTitle(),
+        logLevel,
+      });
+
       this.emit(EVT_PHANTOM_WATCHER_LOG_MISS, {
         phantomClassName,
         title: phantom.getTitle(),
