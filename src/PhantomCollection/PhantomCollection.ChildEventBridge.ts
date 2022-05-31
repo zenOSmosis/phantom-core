@@ -105,7 +105,7 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
   /**
    * Retrieves the array of children of the PhantomCollection.
    */
-  getChildren() {
+  getChildren(): PhantomCore[] {
     return (
       (this._phantomCollection && this._phantomCollection.getChildren()) || []
     );
@@ -117,7 +117,7 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
    * @param {PhantomCore} childInstance
    * @return {void}
    */
-  _handleChildInstanceAdded(childInstance: PhantomCore) {
+  _handleChildInstanceAdded(childInstance: PhantomCore): void {
     // Add linked child event handlers
     this._bridgeEventNames.forEach(eventName =>
       this._mapChildEvent(childInstance, eventName)
@@ -127,7 +127,7 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
   /**
    * Internally invoked when the PhantomCollection removes a child.
    */
-  _handleChildInstanceRemoved(childInstance: PhantomCore) {
+  _handleChildInstanceRemoved(childInstance: PhantomCore): void {
     // Clear out linked child event handlers
     this._bridgeEventNames.forEach(eventName =>
       this._unmapChildEvent(childInstance, eventName)
@@ -140,7 +140,7 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
    * Retrieves, or creates, a map of child events which will be re-emit (or
    * proxied) out the PhantomCollection.
    */
-  _getChildEventMap(childInstance: PhantomCore) {
+  _getChildEventMap(childInstance: PhantomCore): EventMap {
     const prev = this._linkedChildEventHandlers.get(childInstance);
 
     if (prev) {
@@ -157,7 +157,7 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
   /**
    * Unbinds, then removes the child event map for the given child.
    */
-  _deleteChildEventMap(childInstance: PhantomCore) {
+  _deleteChildEventMap(childInstance: PhantomCore): void {
     for (const eventName of this._bridgeEventNames) {
       this._unmapChildEvent(childInstance, eventName);
     }
@@ -171,7 +171,7 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
    *
    * Subsequent attempts to add the same event will be silently ignored.
    */
-  _mapChildEvent(childInstance: PhantomCore, eventName: string | symbol) {
+  _mapChildEvent(childInstance: PhantomCore, eventName: string | symbol): void {
     const childEventMap = this._getChildEventMap(childInstance);
 
     // Silently ignore previously linked events with same name
@@ -194,7 +194,10 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
    * Removes the wrapping event handler with the given even name from the
    * relevant child instance.
    */
-  _unmapChildEvent(childInstance: PhantomCore, eventName: string | symbol) {
+  _unmapChildEvent(
+    childInstance: PhantomCore,
+    eventName: string | symbol
+  ): void {
     const childEventMap = this._getChildEventMap(childInstance);
 
     const eventHandler = childEventMap.get(eventName);
@@ -219,7 +222,7 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
    * Adds an event name which will bind to each child and emit out the
    * PhantomCollection when triggered.
    */
-  addBridgeEventName(eventName: string | symbol) {
+  addBridgeEventName(eventName: string | symbol): void {
     const prevLength = this._bridgeEventNames.length;
 
     // Add only unique values
@@ -240,7 +243,7 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
    * Removes an event name from each child which previously would emit out the
    * PhantomCollection when triggered.
    */
-  removeBridgeEventName(eventName: string | symbol) {
+  removeBridgeEventName(eventName: string | symbol): void {
     const prevLength = this._bridgeEventNames.length;
 
     this._bridgeEventNames = this._bridgeEventNames.filter(
@@ -258,7 +261,7 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
    * Returns the mapped child event names which this class will proxy out the
    * collection.
    */
-  getBridgeEventNames() {
+  getBridgeEventNames(): string[] & symbol[] {
     return this._bridgeEventNames;
   }
 

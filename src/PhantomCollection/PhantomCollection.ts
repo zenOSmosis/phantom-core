@@ -86,7 +86,7 @@ export default class PhantomCollection extends PhantomCore {
   static getChildrenDiff(
     prevChildren: PhantomCore[],
     currChildren: PhantomCore[]
-  ) {
+  ): { added: PhantomCore[]; removed: PhantomCore[] } {
     const added = currChildren.filter(
       predicate => !prevChildren.includes(predicate)
     );
@@ -135,12 +135,10 @@ export default class PhantomCollection extends PhantomCore {
    *
    * IMPORTANT: This is a helper method for extension classes; It is not to be
    * called internally in this base class.
-   *
-   * @return {Promise<void>}
    */
-  async destroyAllChildren() {
+  async destroyAllChildren(): Promise<void> {
     const children = this.getChildren();
-    return Promise.all(children.map(child => child.destroy()));
+    await Promise.all(children.map(child => child.destroy()));
   }
 
   /**
@@ -180,7 +178,8 @@ export default class PhantomCollection extends PhantomCore {
    * @emits EVT_CHILD_INSTANCE_ADD
    * @emits EVT_UPDATE
    */
-  addChild(phantomCoreInstance: PhantomCore, key: unknown = null) {
+  // TODO: [3.0.0] Fix key type to be string | symbol | null.
+  addChild(phantomCoreInstance: PhantomCore, key: unknown = null): void {
     const prevInstanceWithKey = this.getChildWithKey(key);
     if (prevInstanceWithKey) {
       if (prevInstanceWithKey !== phantomCoreInstance) {
@@ -269,7 +268,7 @@ export default class PhantomCollection extends PhantomCore {
    * @emits EVT_UPDATE
    * @return {void}
    */
-  removeChild(phantomCoreInstance: PhantomCore) {
+  removeChild(phantomCoreInstance: PhantomCore): void {
     const childMetadata = this._childrenMetadata.get(phantomCoreInstance);
 
     if (childMetadata) {
@@ -295,10 +294,8 @@ export default class PhantomCollection extends PhantomCore {
 
   /**
    * Removes all children from the collection.
-   *
-   * @return {void}
    */
-  removeAllChildren() {
+  removeAllChildren(): void {
     for (const child of this.getChildren()) {
       this.removeChild(child);
     }
@@ -312,14 +309,17 @@ export default class PhantomCollection extends PhantomCore {
    * Subsequent calls to getChildren() should maintain a stable referential
    * integrity unless one or more of the children wind up in a destructing
    * phase before the next attempt.
-   *
-   * @return {PhantomCore[]}
    */
-  getChildren() {
+  getChildren(): PhantomCore[] {
     return this._children;
   }
 
-  getChildWithKey(key: unknown = null) {
+  /**
+   * Retrieves the associated PhantomCore child with the given key.
+   *
+   * If no child is found with the given key, it will not return anything.
+   */
+  getChildWithKey(key: unknown = null): PhantomCore | void {
     // FIXME: (jh) Having the optional null key is here for backward
     // compatibility with other PhantomCore-based packages.  It should probably
     // be removed in a future version.
@@ -342,7 +342,8 @@ export default class PhantomCollection extends PhantomCore {
   /**
    * Retrieves the associative keys used with added children.
    */
-  getKeys() {
+  // TODO: [3.0.0] Fix return type to be string & symbol
+  getKeys() /* : string[] & symbol[]*/ {
     return [...this._childrenMetadata.entries()]
       .map(([, { [KEY_META_DESC_CHILD_KEY]: key }]) => key)
       .filter(key => key);
@@ -353,7 +354,7 @@ export default class PhantomCollection extends PhantomCore {
    *
    * [one-to-many relationship]
    */
-  broadcast(eventName: string, eventData: unknown) {
+  broadcast(eventName: string, eventData: unknown): void {
     for (const instance of this.getChildren()) {
       instance.emit(eventName, eventData);
     }
@@ -369,7 +370,7 @@ export default class PhantomCollection extends PhantomCore {
    * attaching a listener to this class for the same event name, acting as if
    * the collection instance emit the event directly.
    */
-  bindChildEventName(childEventName: string) {
+  bindChildEventName(childEventName: string): void {
     this._childEventBridge.addBridgeEventName(childEventName);
   }
 
@@ -379,26 +380,19 @@ export default class PhantomCollection extends PhantomCore {
    *
    * [many-to-one relationship]
    */
-  unbindChildEventName(childEventName: string) {
+  unbindChildEventName(childEventName: string): void {
     this._childEventBridge.removeBridgeEventName(childEventName);
   }
 
   /**
    * Retrieves the event names which are mapped to every child which will emit
    * out the PhantomCollection when triggered.
-   *
-   * @return {string[] | symbol[]} Can be a mix of string and symbol types.
    */
-  getBoundChildEventNames() {
+  getBoundChildEventNames(): string[] & symbol[] {
     return this._childEventBridge.getBridgeEventNames();
   }
 
-  /**
-   * @param {Function} destroyHandler? [optional] If defined, will execute
-   * prior to normal destruct operations for this class.
-   * @return {Promise<void>}
-   */
-  override async destroy(destroyHandler?: () => void) {
+  override async destroy(destroyHandler?: () => void): Promise<void> {
     return super.destroy(async () => {
       if (typeof destroyHandler === "function") {
         await destroyHandler();

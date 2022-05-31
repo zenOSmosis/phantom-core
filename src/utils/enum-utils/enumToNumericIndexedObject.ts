@@ -1,7 +1,9 @@
 import getIsNumeric from "../getIsNumeric";
 
 // TODO: [3.0.0] Document
-export default function (enumeration: { [key: string]: string }) {
+export default function enumToNumericIndexedObject(enumeration: {
+  [key: string]: string;
+}): { [key: string]: string | number } {
   return Object.fromEntries(
     Object.entries(enumeration)
       .filter(([key]) => getIsNumeric(key))

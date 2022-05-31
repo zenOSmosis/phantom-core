@@ -5,12 +5,14 @@ import { Class, ClassInstance } from "./types";
 /**
  * Retrieves the given class instance's parent class.
  */
-export default function getSuperClass(classOrInstance: Class | ClassInstance) {
+export default function getSuperClass(
+  classOrInstance: Class | ClassInstance
+): Class | void {
   const JSClass = getClass(classOrInstance);
 
-  const predicate = Object.getPrototypeOf(JSClass);
+  const predicate: Class | null = Object.getPrototypeOf(JSClass);
 
   if (getIsClass(predicate)) {
-    return predicate;
+    return predicate as Class;
   }
 }

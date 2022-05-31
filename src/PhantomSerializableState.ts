@@ -26,7 +26,7 @@ export default class PhantomSerializableState extends PhantomState {
   /**
    * Serializes the given object into a string.
    */
-  static serialize(obj: { [key: string]: unknown }) {
+  static serialize(obj: { [key: string]: unknown }): string {
     if (typeof obj !== "object") {
       throw new TypeError("Expected object type");
     }
@@ -52,6 +52,7 @@ export default class PhantomSerializableState extends PhantomState {
   /**
    * Converts the given string into an object.
    */
+  // TODO: [3.0.0] Add recursive object type
   static unserialize(str: string) {
     return JSON.parse(str);
   }
@@ -66,7 +67,7 @@ export default class PhantomSerializableState extends PhantomState {
   override setState(
     partialNextState: { [key: string]: unknown },
     isMerge = true
-  ) {
+  ): void {
     // Run through obj->serial->obj conversion to ensure partial next state can
     // be serialized, while storing it in memory as an object, to enable
     // subsequent partial updates

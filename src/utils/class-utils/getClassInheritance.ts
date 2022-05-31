@@ -10,7 +10,7 @@ export default function getClassInheritance(
 ): Class[] {
   const parents: Class[] = [];
 
-  let predicate = instanceOrClass;
+  let predicate: Class | ClassInstance | void = instanceOrClass;
   do {
     predicate = getSuperClass(predicate);
 

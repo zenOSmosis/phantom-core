@@ -20,7 +20,7 @@ import libDeepMerge from "deepmerge";
 export default function deepMerge(
   objA: { [key: string]: unknown } | null = {},
   objB: { [key: string]: unknown } | null = {}
-) {
+): { [key: string]: unknown } {
   // Typecast null options to Object for robustness of implementors (i.e.
   // media-stream-track-controller may pass null when merging optional
   // MediaStreamTrack constraints)

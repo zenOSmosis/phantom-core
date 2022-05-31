@@ -76,7 +76,10 @@ export default class PhantomWatcher extends PhantomCore {
     })();
   }
 
-  getPhantomClassNames() {
+  /**
+   * Gets the unique Phantom class names which are currently instantiated.
+   */
+  getPhantomClassNames(): string[] {
     return this._phantomClassNames;
   }
 
@@ -88,44 +91,47 @@ export default class PhantomWatcher extends PhantomCore {
   }
 
   // TODO: [3.0.0] Document
-  getTotalPhantomInstances() {
+  getTotalPhantomInstances(): number {
     return phantomWatcherProviderSingleton.getTotalPhantomInstances();
   }
 
   // TODO: [3.0.0] Document
-  getTotalPhantomInstancesWithClassName(phantomClassName: string) {
+  getTotalPhantomInstancesWithClassName(phantomClassName: string): number {
     return phantomWatcherProviderSingleton.getTotalPhantomInstancesWithClassName(
       phantomClassName
     );
   }
 
   // TODO: [3.0.0] Document
-  setGlobalLogLevel(logLevel: string | number) {
+  setGlobalLogLevel(logLevel: string | number): void {
     return phantomWatcherProviderSingleton.setGlobalLogLevel(logLevel);
   }
 
   // TODO: [3.0.0] Document
-  getGlobalLogLevel() {
+  getGlobalLogLevel(): number {
     return phantomWatcherProviderSingleton.getGlobalLogLevel();
   }
 
   // TODO: [3.0.0] Document
-  getInitialGlobalLogLevel() {
+  getInitialGlobalLogLevel(): number {
     return phantomWatcherProviderSingleton.getInitialGlobalLogLevel();
   }
 
   // TODO: [3.0.0] Document
-  getHasGlobalLogLevelChanged() {
+  getHasGlobalLogLevelChanged(): boolean {
     return phantomWatcherProviderSingleton.getHasGlobalLogLevelChanged();
   }
 
   // TODO: [3.0.0] Document
-  resetGlobalLogLevel() {
+  resetGlobalLogLevel(): void {
     return phantomWatcherProviderSingleton.resetGlobalLogLevel();
   }
 
   // TODO: [3.0.0] Document
-  setPhantomClassLogLevel(phantomClassName: string, logLevel: string | number) {
+  setPhantomClassLogLevel(
+    phantomClassName: string,
+    logLevel: string | number
+  ): void {
     return phantomWatcherProviderSingleton.setPhantomClassLogLevel(
       phantomClassName,
       logLevel
@@ -133,7 +139,7 @@ export default class PhantomWatcher extends PhantomCore {
   }
 
   // TODO: [3.0.0] Document
-  getPhantomClassLogLevel(phantomClassName: string) {
+  getPhantomClassLogLevel(phantomClassName: string): number {
     return phantomWatcherProviderSingleton.getPhantomClassLogLevel(
       phantomClassName
     );

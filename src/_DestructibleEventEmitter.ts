@@ -79,7 +79,7 @@ export default class DestructibleEventEmitter extends CommonEventEmitter {
   /**
    * Retrieves total number of event listeners registered to this instance.
    */
-  getTotalListenerCount() {
+  getTotalListenerCount(): number {
     return this.eventNames()
       .map(eventName => this.listenerCount(eventName))
       .reduce((a, b) => a + b, 0);
@@ -88,14 +88,14 @@ export default class DestructibleEventEmitter extends CommonEventEmitter {
   /**
    * Retrieves whether or not the class destruct phase has begun.
    */
-  getHasDestroyStarted() {
+  getHasDestroyStarted(): boolean {
     return this._hasDestroyStarted;
   }
 
   /**
    * Retrieves whether or not the instance is currently destroyed.
    */
-  getIsDestroyed() {
+  getIsDestroyed(): boolean {
     return this._isDestroyed;
   }
 
@@ -115,7 +115,10 @@ export default class DestructibleEventEmitter extends CommonEventEmitter {
    * @emits EVT_DESTROY Emits a single time, regardless of calls to the
    * destroy() method, after the destroy handler stack has executed.
    */
-  async destroy(destroyHandler?: () => void, cleanupHandler?: () => void) {
+  async destroy(
+    destroyHandler?: () => void,
+    cleanupHandler?: () => void
+  ): Promise<void> {
     // Note: This method acts as a "firewall" to the actual destroy sequence handler
 
     // Determine if already in destructing phase
@@ -150,7 +153,7 @@ export default class DestructibleEventEmitter extends CommonEventEmitter {
   private async __initDestructSequence(
     destroyHandler?: () => void,
     cleanupHandler?: () => void
-  ) {
+  ): Promise<void> {
     if (this._hasDestroyStarted || this._isDestroyed) {
       throw new Error(
         "Calling __initDestructSequence arbitrarily is not intended. You should call destroy() instead."

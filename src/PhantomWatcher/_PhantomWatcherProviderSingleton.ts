@@ -30,7 +30,7 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
     new Map();
 
   // TODO: [3.0.0] Document
-  addInstance(phantom: PhantomCore) {
+  addInstance(phantom: PhantomCore): void {
     phantom.registerCleanupHandler(() => this._removeInstance(phantom));
 
     if (this._phantomInstances.has(phantom)) {
@@ -89,7 +89,7 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
   }
 
   // TODO: [3.0.0] Document
-  private _removeInstance(phantom: PhantomCore) {
+  private _removeInstance(phantom: PhantomCore): void {
     this._phantomInstances.delete(phantom);
     const phantomClassName = phantom.getClassName();
 
@@ -124,21 +124,21 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
    * Retrieves the Set of unique class names of registered PhantomCore
    * instances.
    */
-  getPhantomClassNameSet() {
+  getPhantomClassNameSet(): Set<string> {
     return this._phantomClassNameSet;
   }
   // TODO: [3.0.0] Document
-  getTotalPhantomInstances() {
+  getTotalPhantomInstances(): number {
     return this._phantomInstances.size;
   }
 
   // TODO: [3.0.0] Document
-  getTotalPhantomInstancesWithClassName(phantomClassName: string) {
+  getTotalPhantomInstancesWithClassName(phantomClassName: string): number {
     return this._phantomClassNameCountMap.get(phantomClassName) || 0;
   }
 
   // TODO: [3.0.0] Document
-  setGlobalLogLevel(logLevel: string | number) {
+  setGlobalLogLevel(logLevel: string | number): void {
     globalLogger.setLogLevel(logLevel);
 
     const phantomClassNamesWithLogLevels = [
@@ -156,27 +156,30 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
   }
 
   // TODO: [3.0.0] Document
-  getGlobalLogLevel() {
+  getGlobalLogLevel(): number {
     return globalLogger.getLogLevel();
   }
 
   // TODO: [3.0.0] Document
-  getInitialGlobalLogLevel() {
+  getInitialGlobalLogLevel(): number {
     return this._initialGlobalLogLevel;
   }
 
   // TODO: [3.0.0] Document
-  getHasGlobalLogLevelChanged() {
+  getHasGlobalLogLevelChanged(): boolean {
     return this.getGlobalLogLevel() !== this.getInitialGlobalLogLevel();
   }
 
   // TODO: [3.0.0] Document
-  resetGlobalLogLevel() {
+  resetGlobalLogLevel(): void {
     return this.setGlobalLogLevel(this.getInitialGlobalLogLevel());
   }
 
   // TODO: [3.0.0] Document
-  setPhantomClassLogLevel(phantomClassName: string, logLevel: string | number) {
+  setPhantomClassLogLevel(
+    phantomClassName: string,
+    logLevel: string | number
+  ): void {
     const numericLogLevel = Logger.toNumericLogLevel(logLevel);
 
     this._phantomClassNameLogLevelMap.set(phantomClassName, numericLogLevel);
@@ -190,7 +193,7 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
   }
 
   // TODO: [3.0.0] Document
-  getPhantomClassLogLevel(phantomClassName: string) {
+  getPhantomClassLogLevel(phantomClassName: string): number {
     const phantomClassLogLevel =
       this._phantomClassNameLogLevelMap.get(phantomClassName);
 

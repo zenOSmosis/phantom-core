@@ -9,7 +9,7 @@ import { ClassInstance } from "./types";
  */
 export default function getClassInstanceMethodNames(
   classInstance: ClassInstance
-) {
+): string[] {
   const propertyNames = getClassInstancePropertyNames(classInstance);
 
   return propertyNames.filter(

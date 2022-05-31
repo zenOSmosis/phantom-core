@@ -55,7 +55,7 @@ export default class Logger extends _DestructibleEventEmitter {
    *
    * @throws {RangeError} Throws if the log level is not an expected value.
    */
-  static toNumericLogLevel(logLevel: string | number) {
+  static toNumericLogLevel(logLevel: string | number): number {
     let numericLogLevel: number;
 
     if (typeof logLevel === "string") {
@@ -80,8 +80,8 @@ export default class Logger extends _DestructibleEventEmitter {
    *
    * @throws {RangeError} Throws if the log level is not an expected value.
    */
-  static toStringLogLevel(logLevel: string | number) {
-    let strLogLevel: string | void;
+  static toStringLogLevel(logLevel: string | number): string {
+    let strLogLevel: string = "";
 
     if (typeof logLevel === "string") {
       strLogLevel = logLevel as string;
@@ -96,8 +96,8 @@ export default class Logger extends _DestructibleEventEmitter {
     }
 
     if (
-      !typeof strLogLevel ||
-      typeof LOG_LEVEL_STRING_MAP[strLogLevel as string] === "undefined"
+      !strLogLevel ||
+      typeof LOG_LEVEL_STRING_MAP[strLogLevel] === "undefined"
     ) {
       throw new RangeError(`Unknown log level: ${logLevel}`);
     }
@@ -126,7 +126,7 @@ export default class Logger extends _DestructibleEventEmitter {
    * Sets minimum log level to send to actual logger function where subsequent
    * log levels are ignored.
    */
-  setLogLevel(logLevel: number | string) {
+  setLogLevel(logLevel: number | string): void {
     this._logLevel = Logger.toNumericLogLevel(logLevel);
 
     // Dynamically create log function, filtering out methods which are outside
@@ -211,7 +211,7 @@ export default class Logger extends _DestructibleEventEmitter {
     })() as unknown as LogIntersection;
   }
 
-  getLogLevel() {
+  getLogLevel(): number {
     return this._logLevel;
   }
 

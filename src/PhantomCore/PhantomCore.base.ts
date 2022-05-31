@@ -97,20 +97,18 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * NOTE: As opposed to "getVersion" this longer naming is designed to reduce
    * disambiguation for extended classes which might have a different version
    * number.
-   *
-   * @return {string}
    */
-  static getPhantomCoreVersion() {
+  static getPhantomCoreVersion(): string {
     const { version } = getPackageJSON();
 
-    return version;
+    return version as string;
   }
 
   /**
    * Determines whether or not the given instance is a PhantomCore instance,
    * matching the exact version of this PhantomCore class.
    */
-  static getIsInstance(instance: PhantomCore | Class) {
+  static getIsInstance(instance: PhantomCore | Class): boolean {
     return instance instanceof PhantomCore;
   }
 
@@ -124,7 +122,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * where updating PhantomCore itself requires updating other extension
    * libraries due to minor changes.
    */
-  static getIsLooseInstance(instance: PhantomCore | Class) {
+  static getIsLooseInstance(instance: PhantomCore | Class): boolean {
     return Boolean(
       instance instanceof CommonEventEmitter &&
         typeof instance.getIsDestroyed === "function" &&
@@ -135,10 +133,9 @@ export default class PhantomCore extends DestructibleEventEmitter {
   /**
    * Retrieves PhantomCore instance with the given UUID.
    *
-   * @param {string} uuid
-   * @return {PhantomCore}
+   * If no instance is found with the given UUID, it will return nothing.
    */
-  static getInstanceWithUUID(uuid: string) {
+  static getInstanceWithUUID(uuid: string): PhantomCore | void {
     return _instances[uuid];
   }
 
@@ -151,8 +148,10 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * access the object. That enables a form of weak encapsulation, or a weak
    * form of information hiding.
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol
+   *
+   * If no instance is found with the given Symbol, it will return nothing.
    */
-  static getInstanceWithSymbol(symbol: Symbol) {
+  static getInstanceWithSymbol(symbol: Symbol): PhantomCore | void {
     return Object.values(_instances).find(
       instance => instance.getSymbol() === symbol
     );
@@ -164,7 +163,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * When an instance is created / destroyed, the number is increased / reduced
    * by one.
    */
-  static getInstanceCount() {
+  static getInstanceCount(): number {
     return Object.keys(_instances).length;
   }
 
@@ -173,6 +172,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
    *
    * IMPORTANT: The return is a COPY of the merged; no re-assignment takes place.
    */
+  // TODO: [3.0.0] Use recursive object type
   static mergeOptions(
     objA: { [key: string]: unknown } | null,
     objB: { [key: string]: unknown } | null
@@ -393,10 +393,8 @@ export default class PhantomCore extends DestructibleEventEmitter {
    *
    * IMPORTANT: Extensions which set isReady to false should call this
    * manually.
-   *
-   * @return {Promise<void>}
    */
-  async _init() {
+  async _init(): Promise<void> {
     this._init = () => {
       throw new ReferenceError("_init cannot be called more than once");
     };
@@ -431,10 +429,8 @@ export default class PhantomCore extends DestructibleEventEmitter {
    *
    * IMPORTANT: Once a method is bound, it cannot be rebound to another class.
    * @see https://stackoverflow.com/a/20925268
-   *
-   * @return {void}
    */
-  autoBind() {
+  autoBind(): void {
     // TODO: Adding this.log to the ignore list may not be necessary if
     // auto-binding in the logger itself
 
@@ -449,24 +445,22 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * Registers a function with the cleanup handler stack, which is executed
    * after EVT_DESTROY is emit and all event handlers have been removed.
    */
-  registerCleanupHandler(fn: Function) {
+  registerCleanupHandler(fn: Function): void {
     return this._cleanupHandlerStack.push(fn);
   }
 
   /**
    * Unregisters a function from the cleanup handler stack.
    */
-  unregisterCleanupHandler(fn: Function) {
+  unregisterCleanupHandler(fn: Function): void {
     return this._cleanupHandlerStack.remove(fn);
   }
 
   /**
    * Retrieves the property names which are non-destructed PhantomCore
    * instances.
-   *
-   * @return {string[]}
    */
-  getPhantomProperties() {
+  getPhantomProperties(): string[] {
     return this.getPropertyNames().filter(
       propName =>
         propName !== "__proto__" &&
@@ -480,14 +474,14 @@ export default class PhantomCore extends DestructibleEventEmitter {
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol
    */
-  getSymbol() {
+  getSymbol(): Symbol | null {
     return this._symbol;
   }
 
   /**
    * Retrieves the PhantomCore instance title.
    */
-  getTitle() {
+  getTitle(): string | null {
     return this._title;
   }
 
@@ -496,7 +490,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
    *
    * @emits EVT_UPDATE
    */
-  setTitle(title: string) {
+  setTitle(title: string): void {
     this._title = title;
 
     this.emit(EVT_UPDATE);
@@ -505,6 +499,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
   /**
    * Retrieves the options utilized in the class constructor.
    */
+  // TODO: [3.0.0] Use recursive object type & CommonOptions
   getOptions() {
     return this._options;
   }
@@ -512,7 +507,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
   /**
    * Retrieve the option with the given name, if exists.
    */
-  getOption(optionName: string) {
+  getOption(optionName: string): unknown {
     // TODO: [3.0.0] Fix type
     // @ts-ignore
     return this._options[optionName];
@@ -524,7 +519,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * Accepts either numeric (i.e. LogLevel.Trace constant) or string (i.e.
    * "trace") values.
    */
-  setLogLevel(logLevel: number | string) {
+  setLogLevel(logLevel: number | string): void {
     const prevLogLevel = this.getLogLevel();
 
     // FIXME: [3.0.0] Fix type so "as" isn't necessary
@@ -542,7 +537,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
   /**
    * Retrieves the current log level (as a number).
    */
-  getLogLevel() {
+  getLogLevel(): number {
     // FIXME: [3.0.0] Fix type so "as" isn't necessary
     return (this.logger as Logger).getLogLevel();
   }
@@ -554,7 +549,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
    *
    * @see https://stackoverflow.com/a/31055217
    */
-  getPropertyNames() {
+  getPropertyNames(): string[] {
     return getClassInstancePropertyNames(this);
   }
 
@@ -563,14 +558,16 @@ export default class PhantomCore extends DestructibleEventEmitter {
    *
    * NOTE: It doesn't return methods defined via symbols.
    */
-  getMethodNames() {
+  getMethodNames(): string[] {
     return getClassInstanceMethodNames(this);
   }
 
   /**
    * Resolves once the class instance is ready.
    */
-  async onceReady() {
+  // TODO: [3.0.0] Accept optional callback here: https://github.com/zenOSmosis/phantom-core/issues/109
+  // TODO: [3.0.0] Reject if destructed before ready: https://github.com/zenOSmosis/phantom-core/issues/108
+  async onceReady(): Promise<void> {
     if (this._isReady) {
       return;
     }
@@ -581,14 +578,15 @@ export default class PhantomCore extends DestructibleEventEmitter {
   /**
    * Retrieves whether or not the class instance is ready.
    */
-  getIsReady() {
+  getIsReady(): boolean {
     return this._isReady;
   }
 
   /**
    * The unique identifier which represents this class instance.
    */
-  getUUID() {
+  // TODO: [3.0.0] Show i.e. example in comments, similar to getShortUUID
+  getUUID(): string {
     return this._uuid;
   }
 
@@ -597,7 +595,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
    *
    * i.e. "mhvXdrZT4jP5T8vBxuvm75"
    */
-  getShortUUID() {
+  getShortUUID(): string {
     return this._shortUUID;
   }
 
@@ -605,14 +603,14 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * Determines whether the passed instance is the same as the current
    * instance.
    */
-  getIsSameInstance(instance: PhantomCore | Class) {
+  getIsSameInstance(instance: PhantomCore | Class): boolean {
     return Object.is(this, instance);
   }
 
   /**
    * Retrieves the non-instantiated class definition.
    */
-  getClass() {
+  getClass(): Function {
     return this.constructor;
   }
 
@@ -620,7 +618,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * IMPORTANT: This is not safe to rely on and will be modified if the script
    * is minified.
    */
-  getClassName() {
+  getClassName(): string {
     return getClassName(this);
   }
 
@@ -640,7 +638,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
     targetInstance: PhantomCore,
     eventName: string | symbol,
     eventHandler: (...args: any[]) => void
-  ) {
+  ): void {
     if (!PhantomCore.getIsLooseInstance(targetInstance)) {
       throw new ReferenceError("targetInstance is not a PhantomCore instance");
     }
@@ -673,7 +671,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
     targetInstance: PhantomCore,
     eventName: string | symbol,
     eventHandler: (...args: any[]) => void
-  ) {
+  ): void {
     if (!PhantomCore.getIsLooseInstance(targetInstance)) {
       throw new ReferenceError("targetInstance is not a PhantomCore instance");
     }
@@ -706,7 +704,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
     targetInstance: PhantomCore,
     eventName: string | symbol,
     eventHandler: (...args: any[]) => void
-  ) {
+  ): void {
     if (!PhantomCore.getIsLooseInstance(targetInstance)) {
       throw new ReferenceError("targetInstance is not a PhantomCore instance");
     }
@@ -726,10 +724,8 @@ export default class PhantomCore extends DestructibleEventEmitter {
   /**
    * Retrieves the number of seconds since this class instance was
    * instantiated.
-   *
-   * @return {number}
    */
-  getInstanceUptime() {
+  getInstanceUptime(): number {
     if (!this.getIsDestroyed()) {
       return getUnixTime() - this._instanceStartTime;
     } else {
@@ -740,7 +736,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
   /**
    * Creates a timeout which is managed by this instance of PhantomCore.
    */
-  setTimeout(fn: Function, delay = 0) {
+  setTimeout(fn: Function, delay = 0): NodeJS.Timeout {
     return this._timerStack.setTimeout(fn, delay);
   }
 
@@ -755,14 +751,14 @@ export default class PhantomCore extends DestructibleEventEmitter {
   /**
    * Clears all timeouts managed by this instance of PhantomCore.
    */
-  clearAllTimeouts() {
+  clearAllTimeouts(): void {
     return this._timerStack.clearAllTimeouts();
   }
 
   /**
    * Creates an interval which is managed by this instance of PhantomCore.
    */
-  setInterval(fn: Function, delay = 0) {
+  setInterval(fn: Function, delay = 0): NodeJS.Timeout {
     return this._timerStack.setInterval(fn, delay);
   }
 
@@ -776,14 +772,14 @@ export default class PhantomCore extends DestructibleEventEmitter {
   /**
    * Clears all intervals managed by this instance of PhantomCore.
    */
-  clearAllIntervals() {
+  clearAllIntervals(): void {
     return this._timerStack.clearAllIntervals();
   }
 
   /**
    * Clears all timeouts and intervals managed by this instance of PhantomCore.
    */
-  clearAllTimers() {
+  clearAllTimers(): void {
     return this._timerStack.clearAllTimers();
   }
 
@@ -794,7 +790,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
    *  2. EVT_DESTROY triggers
    *  3. registerCleanupHandler call stack
    */
-  override async destroy(destroyHandler?: () => void) {
+  override async destroy(destroyHandler?: () => void): Promise<void> {
     return super.destroy(
       async () => {
         // Unregister from _instances

@@ -8,7 +8,7 @@ const eventPrefix = "EVT_";
  *
  * @throws {ReferenceError | TypeError}
  */
-export function checkEvents(events: { [key: string]: string | symbol }) {
+export function checkEvents(events: { [key: string]: string | symbol }): void {
   const keys = Object.keys(events);
   const values = Object.values(events);
 
@@ -44,7 +44,9 @@ export function checkEvents(events: { [key: string]: string | symbol }) {
  * Retrieves a filtered object, based on the the given require object (i.e. via
  * require('phantom-core')) which contains events, and nothing else.
  */
-export function extractEvents(es5Import: { [key: string]: string | symbol }) {
+export function extractEvents(es5Import: { [key: string]: string | symbol }): {
+  [key: string]: string | symbol;
+} {
   const keys = Object.keys(es5Import).filter(predicate =>
     predicate.startsWith(eventPrefix)
   );
@@ -61,12 +63,14 @@ export function extractEvents(es5Import: { [key: string]: string | symbol }) {
  * Compares the given extension import against the base import in order to see
  * if the same events have been exported, with the exception of the exclusion
  * list.
+ *
+ * @throws {ReferenceError}
  */
 export function compareExportedEvents(
   baseES5Import: { [key: string]: string | symbol },
   extensionES5Import: { [key: string]: string | symbol },
   baseES5ImportExclusions: { [key: string]: string | symbol } = {}
-) {
+): void {
   const exportsA = extractEvents(baseES5Import);
   const exportsB = extractEvents(extensionES5Import);
 
