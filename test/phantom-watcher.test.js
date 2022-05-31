@@ -78,7 +78,7 @@ test("phantom log miss with title update", async t => {
 
   t.deepEquals(
     watcher.getPhantomClassLogMisses("LogMissPhantomCore"),
-    [0, 0, 0, 0, 0, 0]
+    [0, 0, 0, 0, 0]
   );
 
   await Promise.all([
@@ -87,7 +87,7 @@ test("phantom log miss with title update", async t => {
         if (data.logLevel === 5 && data.title === FIRST_TITLE) {
           t.deepEquals(
             watcher.getPhantomClassLogMisses("LogMissPhantomCore"),
-            [0, 0, 0, 0, 0, 1],
+            [0, 0, 0, 0, 1],
             "first log miss is accounted for"
           );
 
@@ -116,7 +116,7 @@ test("phantom log miss with title update", async t => {
         if (data.logLevel === 5 && data.title === SECOND_TITLE) {
           t.deepEquals(
             watcher.getPhantomClassLogMisses("LogMissPhantomCore"),
-            [0, 0, 0, 0, 0, 2],
+            [0, 0, 0, 0, 2],
             "second log miss is accounted for"
           );
 

@@ -54,7 +54,7 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
     if (!this._phantomClassNameLogLevelMissMap.has(phantomClassName)) {
       this._phantomClassNameLogLevelMissMap.set(
         phantomClassName,
-        [0, 0, 0, 0, 0, 0]
+        [0, 0, 0, 0, 0]
       );
     }
 
@@ -64,7 +64,7 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
         this._phantomClassNameLogLevelMissMap.get(phantomClassName);
 
       // TODO: [3.0.0] Use proper type
-      ++(missMap as number[])[logLevel];
+      ++(missMap as number[])[logLevel - 1];
 
       this._phantomClassNameLogLevelMissMap.set(
         phantomClassName,
