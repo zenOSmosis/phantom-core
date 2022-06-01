@@ -52,6 +52,7 @@ export const EVT_UPDATE = "update";
 
 export { EVT_BEFORE_DESTROY, EVT_DESTROY_STACK_TIME_OUT, EVT_DESTROY };
 
+// TODO: [3.0.0] Use PhantomWatcher for this
 // Instances for this particular thread
 const _instanceMap: Map<string, PhantomCore> = new Map();
 
@@ -180,23 +181,21 @@ export default class PhantomCore extends DestructibleEventEmitter {
 
   protected _options: CommonOptions;
 
-  protected _instanceStartTime: number;
-  protected _isReady: boolean;
-  protected _title: string | null;
+  protected _uuid: string = uuidv4();
+  protected _shortUUID: string = shortUUID().fromUUID(this._uuid);
+  protected _instanceStartTime: number = getUnixTime();
+  protected _isReady: boolean = false;
+  protected _title: string | null = null;
   protected _eventProxyStack: EventProxyStack;
   protected _cleanupHandlerStack: FunctionStack;
   protected _timerStack: TimerStack;
-  protected _uuid: string;
-  protected _shortUUID: string;
 
   protected _symbol: Symbol | null;
 
   constructor(options: CommonOptions = {}) {
     super();
 
-    this._uuid = uuidv4();
-    this._shortUUID = shortUUID().fromUUID(this._uuid);
-
+    // Register with instances
     _instanceMap.set(this._uuid, this);
 
     const DEFAULT_OPTIONS: CommonOptions = {
@@ -302,9 +301,6 @@ export default class PhantomCore extends DestructibleEventEmitter {
         "The destruct callstack is taking longer to execute than expected. Ensure a potential gridlock situation is not happening, where two or more PhantomCore instances are awaiting one another to shut down."
       );
     });
-
-    /** @type {number} UTC Unix time */
-    this._instanceStartTime = getUnixTime();
 
     this._isReady = !this._options.isAsync || false;
 
