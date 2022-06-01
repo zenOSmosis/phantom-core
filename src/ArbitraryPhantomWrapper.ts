@@ -29,7 +29,7 @@ export default class ArbitraryPhantomWrapper extends PhantomCore {
   }
 
   // TODO: [3.0.0] Document
-  _setWrappedValue(wrappedValue: unknown): void {
+  protected _setWrappedValue(wrappedValue: unknown): void {
     if (this._wrappedValue) {
       throw new Error("_setWrappedValue cannot be called more than once");
     }
