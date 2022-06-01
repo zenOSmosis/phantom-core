@@ -5,6 +5,8 @@ import globalLogger from "../globalLogger";
 
 type PhantomClassName = string;
 
+let _instance: _PhantomWatcherProvider;
+
 // TODO: [3.0.0] Document
 export const EVT_PHANTOM_WATCHER_LOG_MISS = "phantom-group-watcher-log-miss";
 export type PhantomWatcherLogMissEventData = {
@@ -29,7 +31,21 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
   protected _phantomClassNameLogLevelMissMap: Map<PhantomClassName, number[]> =
     new Map();
 
-  // TODO: [3.0.0] Document
+  constructor() {
+    if (_instance) {
+      throw new Error(
+        "Cannot instantiate _PhantomWatcherProvider more than once"
+      );
+    }
+
+    super();
+
+    _instance = this;
+  }
+
+  /**
+   * Adds a PhantomCore instance to the watch list.
+   */
   addInstance(phantom: PhantomCore): void {
     phantom.registerCleanupHandler(() => this._removeInstance(phantom));
 
@@ -88,7 +104,9 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
     this.emit(EVT_UPDATE);
   }
 
-  // TODO: [3.0.0] Document
+  /**
+   * Removes a PhantomCore instance from the watch list.
+   */
   private _removeInstance(phantom: PhantomCore): void {
     this._phantomInstances.delete(phantom);
     const phantomClassName = phantom.getClassName();
@@ -115,11 +133,6 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
     this.emit(EVT_UPDATE);
   }
 
-  // TODO: [3.0.0]
-  getPhantomClassLogMisses(phantomClassName: string) {
-    return this._phantomClassNameLogLevelMissMap.get(phantomClassName);
-  }
-
   /**
    * Retrieves the Set of unique class names of registered PhantomCore
    * instances.
@@ -127,17 +140,31 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
   getPhantomClassNameSet(): Set<string> {
     return this._phantomClassNameSet;
   }
-  // TODO: [3.0.0] Document
+
+  // TODO: [3.0.0] Document type
+  getPhantomClassLogMisses(phantomClassName: string) {
+    return this._phantomClassNameLogLevelMissMap.get(phantomClassName);
+  }
+
+  /**
+   * Retrieves the total number of PhantomCore instances which are currently
+   * instantiated.
+   */
   getTotalPhantomInstances(): number {
     return this._phantomInstances.size;
   }
 
-  // TODO: [3.0.0] Document
+  /**
+   * Retrieves the total number of PhantomCore instances which share the given
+   * class name.
+   */
   getTotalPhantomInstancesWithClassName(phantomClassName: string): number {
     return this._phantomClassNameCountMap.get(phantomClassName) || 0;
   }
 
-  // TODO: [3.0.0] Document
+  /**
+   * Sets the global log level.
+   */
   setGlobalLogLevel(logLevel: string | number): void {
     globalLogger.setLogLevel(logLevel);
 
@@ -155,27 +182,38 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
     this.emit(EVT_UPDATE);
   }
 
-  // TODO: [3.0.0] Document
+  /**
+   * Retrieves the numeric global log level.
+   */
   getGlobalLogLevel(): number {
     return globalLogger.getLogLevel();
   }
 
-  // TODO: [3.0.0] Document
+  /**
+   * Retrieves the initial numeric global log level.
+   */
   getInitialGlobalLogLevel(): number {
     return this._initialGlobalLogLevel;
   }
 
-  // TODO: [3.0.0] Document
+  /**
+   * Determines if the log level has changed from the initial global value.
+   */
   getHasGlobalLogLevelChanged(): boolean {
     return this.getGlobalLogLevel() !== this.getInitialGlobalLogLevel();
   }
 
-  // TODO: [3.0.0] Document
+  /**
+   * Restores the global log level to its default value.
+   */
   resetGlobalLogLevel(): void {
     return this.setGlobalLogLevel(this.getInitialGlobalLogLevel());
   }
 
-  // TODO: [3.0.0] Document
+  /**
+   * Sets the log level of all current and future PhantomCore instances with
+   * the given class name.
+   */
   setPhantomClassLogLevel(
     phantomClassName: string,
     logLevel: string | number
@@ -192,7 +230,9 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
     this.emit(EVT_UPDATE);
   }
 
-  // TODO: [3.0.0] Document
+  /**
+   * Retrieves the numeric log level of the given Phantom class grouping.
+   */
   getPhantomClassLogLevel(phantomClassName: string): number {
     const phantomClassLogLevel =
       this._phantomClassNameLogLevelMap.get(phantomClassName);

@@ -138,7 +138,9 @@ export default class PhantomWatcher extends PhantomCore {
     );
   }
 
-  // TODO: [3.0.0] Document
+  /**
+   * Retrieves the numeric log level of the given Phantom class grouping.
+   */
   getPhantomClassLogLevel(phantomClassName: string): number {
     return phantomWatcherProviderSingleton.getPhantomClassLogLevel(
       phantomClassName
