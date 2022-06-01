@@ -90,44 +90,63 @@ export default class PhantomWatcher extends PhantomCore {
     );
   }
 
-  // TODO: [3.0.0] Document
+  /**
+   * Retrieves the total number of PhantomCore instances which are currently
+   * instantiated.
+   */
   getTotalPhantomInstances(): number {
     return phantomWatcherProviderSingleton.getTotalPhantomInstances();
   }
 
-  // TODO: [3.0.0] Document
+  /**
+   * Retrieves the total number of PhantomCore instances which share the given
+   * class name.
+   */
   getTotalPhantomInstancesWithClassName(phantomClassName: string): number {
     return phantomWatcherProviderSingleton.getTotalPhantomInstancesWithClassName(
       phantomClassName
     );
   }
 
-  // TODO: [3.0.0] Document
+  /**
+   * Sets the global log level.
+   */
   setGlobalLogLevel(logLevel: string | number): void {
     return phantomWatcherProviderSingleton.setGlobalLogLevel(logLevel);
   }
 
-  // TODO: [3.0.0] Document
+  /**
+   * Retrieves the numeric global log level.
+   */
   getGlobalLogLevel(): number {
     return phantomWatcherProviderSingleton.getGlobalLogLevel();
   }
 
-  // TODO: [3.0.0] Document
+  /**
+   * Retrieves the initial numeric global log level.
+   */
   getInitialGlobalLogLevel(): number {
     return phantomWatcherProviderSingleton.getInitialGlobalLogLevel();
   }
 
-  // TODO: [3.0.0] Document
+  /**
+   * Determines if the log level has changed from the initial global value.
+   */
   getHasGlobalLogLevelChanged(): boolean {
     return phantomWatcherProviderSingleton.getHasGlobalLogLevelChanged();
   }
 
-  // TODO: [3.0.0] Document
+  /**
+   * Restores the global log level to its default value.
+   */
   resetGlobalLogLevel(): void {
     return phantomWatcherProviderSingleton.resetGlobalLogLevel();
   }
 
-  // TODO: [3.0.0] Document
+  /**
+   * Sets the log level of all current and future PhantomCore instances with
+   * the given class name.
+   */
   setPhantomClassLogLevel(
     phantomClassName: string,
     logLevel: string | number
