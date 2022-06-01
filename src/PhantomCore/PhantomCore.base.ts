@@ -53,9 +53,7 @@ export const EVT_UPDATE = "update";
 export { EVT_BEFORE_DESTROY, EVT_DESTROY_STACK_TIME_OUT, EVT_DESTROY };
 
 // Instances for this particular thread
-//
-// TODO: [3.0.0] Convert to map
-const _instances: { [key: string]: PhantomCore } = {};
+const _instanceMap: Map<string, PhantomCore> = new Map();
 
 // Methods which should continue working after class destruct
 const KEEP_ALIVE_SHUTDOWN_METHODS = [
@@ -136,7 +134,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * If no instance is found with the given UUID, it will return nothing.
    */
   static getInstanceWithUUID(uuid: string): PhantomCore | void {
-    return _instances[uuid];
+    return _instanceMap.get(uuid);
   }
 
   /**
@@ -152,7 +150,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * If no instance is found with the given Symbol, it will return nothing.
    */
   static getInstanceWithSymbol(symbol: Symbol): PhantomCore | void {
-    return Object.values(_instances).find(
+    return [..._instanceMap.values()].find(
       instance => instance.getSymbol() === symbol
     );
   }
@@ -164,7 +162,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * by one.
    */
   static getInstanceCount(): number {
-    return Object.keys(_instances).length;
+    return _instanceMap.size;
   }
 
   /**
@@ -199,7 +197,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
     this._uuid = uuidv4();
     this._shortUUID = shortUUID().fromUUID(this._uuid);
 
-    _instances[this._uuid] = this;
+    _instanceMap.set(this._uuid, this);
 
     const DEFAULT_OPTIONS: CommonOptions = {
       /**
@@ -793,8 +791,8 @@ export default class PhantomCore extends DestructibleEventEmitter {
   override async destroy(destroyHandler?: () => void): Promise<void> {
     return super.destroy(
       async () => {
-        // Unregister from _instances
-        delete _instances[this._uuid];
+        // Unregister from instances
+        _instanceMap.delete(this._uuid);
 
         if (typeof destroyHandler === "function") {
           await destroyHandler();
