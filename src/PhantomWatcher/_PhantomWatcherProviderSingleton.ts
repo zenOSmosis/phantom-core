@@ -1,5 +1,5 @@
 import CommonEventEmitter from "../CommonEventEmitter";
-import PhantomCore, { EVT_UPDATE } from "../PhantomCore/PhantomCore.base";
+import PhantomCore, { EVT_UPDATE } from "../PhantomCore/PhantomCore";
 import Logger, { EVT_LOG_MISS } from "../Logger";
 import globalLogger from "../globalLogger";
 
