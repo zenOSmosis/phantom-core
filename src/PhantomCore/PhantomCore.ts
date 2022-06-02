@@ -27,7 +27,7 @@ import autoBindClassInstanceMethods from "../utils/class-utils/autoBindClassInst
 import shallowMerge from "../utils/shallowMerge";
 import { Class, ClassInstance } from "../utils/class-utils/types";
 import { CommonOptions } from "./types";
-import phantomWatcherProviderSingleton from "../PhantomWatcher/_PhantomWatcherProviderSingleton";
+import phantomCoreOrchestrator from "./PhantomCoreOrchestrator";
 
 // Number of milliseconds to allow async inits to initialize before triggering
 // warning
@@ -297,6 +297,9 @@ export default class PhantomCore extends DestructibleEventEmitter {
     // FIXME: [3.0.0] Fix type so "as" isn't necessary
     this.registerCleanupHandler(() => (this.logger as Logger).destroy());
 
+    // Note: PhantomWatcher will automatically handle instance de-registration
+    phantomCoreOrchestrator.addInstance(this);
+
     this.once(EVT_DESTROY_STACK_TIME_OUT, () => {
       this.log.error(
         "The destruct callstack is taking longer to execute than expected. Ensure a potential gridlock situation is not happening, where two or more PhantomCore instances are awaiting one another to shut down."
@@ -370,9 +373,6 @@ export default class PhantomCore extends DestructibleEventEmitter {
     this.once(EVT_READY, () => {
       this.log.debug("Ready for consumption");
     });
-
-    // Note: PhantomWatcher will automatically handle instance de-registration
-    phantomWatcherProviderSingleton.addInstance(this);
   }
 
   get log(): LogIntersection {
@@ -613,7 +613,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
   }
 
   /**
-   * IMPORTANT: This is not safe to rely on and will be modified if the script
+   * IMPORTANT: This is not safe to rely on and may be modified if the script
    * is minified.
    */
   getClassName(): string {

@@ -5,11 +5,11 @@ import PhantomCore, {
   EVT_BEFORE_DESTROY,
   EVT_DESTROY_STACK_TIME_OUT,
   EVT_DESTROY,
-} from "../PhantomCore";
+} from "./PhantomCore";
 import phantomWatcherProviderSingleton, {
   EVT_PHANTOM_WATCHER_LOG_MISS,
   PhantomWatcherLogMissEventData,
-} from "./_PhantomWatcherProviderSingleton";
+} from "./PhantomCore/PhantomCoreOrchestrator";
 
 export {
   EVT_NO_INIT_WARN,

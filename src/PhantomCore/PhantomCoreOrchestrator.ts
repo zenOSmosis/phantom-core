@@ -5,7 +5,7 @@ import globalLogger from "../globalLogger";
 
 type PhantomClassName = string;
 
-let _instance: _PhantomWatcherProvider;
+let _orchestrator: PhantomCoreOrchestrator;
 
 // TODO: [3.0.0] Document
 export const EVT_PHANTOM_WATCHER_LOG_MISS = "phantom-group-watcher-log-miss";
@@ -17,7 +17,7 @@ export type PhantomWatcherLogMissEventData = {
 
 // TODO: [3.0.0] This should run as a singleton and never be destructed
 // TODO: [3.0.0] Document
-class _PhantomWatcherProvider extends CommonEventEmitter {
+class PhantomCoreOrchestrator extends CommonEventEmitter {
   protected _initialGlobalLogLevel: number = globalLogger.getLogLevel();
 
   protected _phantomInstances: Set<PhantomCore> = new Set();
@@ -32,15 +32,15 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
     new Map();
 
   constructor() {
-    if (_instance) {
+    if (_orchestrator) {
       throw new Error(
-        "Cannot instantiate _PhantomWatcherProvider more than once"
+        "Cannot instantiate PhantomCoreOrchestrator more than once"
       );
     }
 
     super();
 
-    _instance = this;
+    _orchestrator = this;
   }
 
   /**
@@ -245,4 +245,4 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
   }
 }
 
-export default new _PhantomWatcherProvider();
+export default new PhantomCoreOrchestrator();
