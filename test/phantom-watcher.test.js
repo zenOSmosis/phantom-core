@@ -2,6 +2,7 @@ import test from "tape";
 import {
   PhantomCore,
   PhantomWatcher,
+  EVT_UPDATE,
   EVT_PHANTOM_WATCHER_LOG_MISS,
 } from "../src";
 
@@ -19,6 +20,10 @@ test("phantom watcher setup and cleanup", async t => {
   class PhantomCore_WatcherSetup extends PhantomCore {}
 
   const phantom = new PhantomCore_WatcherSetup();
+
+  t.equals(watcher.getPhantomClassNames().length, n);
+
+  await new Promise(resolve => watcher.once(EVT_UPDATE, resolve));
 
   t.equals(watcher.getPhantomClassNames().length, n + 1);
 
