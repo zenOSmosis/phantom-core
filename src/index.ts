@@ -154,5 +154,6 @@ import {
   checkEvents,
   extractEvents,
   compareExportedEvents,
+  checkEventValue,
 } from "./utils/testing-utils/eventConstantCheckingUtils";
-export { checkEvents, extractEvents, compareExportedEvents };
+export { checkEventValue, checkEvents, extractEvents, compareExportedEvents };

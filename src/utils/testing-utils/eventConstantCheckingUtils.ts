@@ -1,13 +1,28 @@
-// TODO: [3.0.0] Define PhantomCoreEvent type
-
-import { RecursiveObject } from "../../types";
+import { RecursiveObject, Primitive } from "../../types";
 import { EventConstant, EventTypes } from "../../PhantomCore";
 import getEnumValues from "../enum-utils/getEnumValues";
 
 const eventPrefix = "EVT_";
 
 /**
- * Ensures that given object of event constants contains valid, individual
+ * Ensures the given value is a proper event value.
+ *
+ * @throws {TypeError}
+ */
+export function checkEventValue(event: Primitive): void {
+  if (typeof event === "string") {
+    if (!/^[a-z]+(-[a-z]+)*$/g.test(event)) {
+      throw new TypeError("Event must be all lowercase letters and hypens");
+    }
+  }
+
+  if (!getEnumValues(EventTypes).includes(typeof event)) {
+    throw new TypeError(`Value "${String(event)}" is not a string`);
+  }
+}
+
+/**
+ * Ensures that the given object of event constants contains valid, individual
  * events in the formatting this project expects.
  *
  * If not valid, an error is raised, otherwise the return is void.
@@ -34,9 +49,7 @@ export function checkEvents(events: RecursiveObject): void {
   }
 
   for (const value of values) {
-    if (!getEnumValues(EventTypes).includes(typeof value)) {
-      throw new TypeError(`Value "${String(value)}" is not a string`);
-    }
+    checkEventValue(value);
   }
 
   const lenEvents = keys.length;
@@ -44,7 +57,6 @@ export function checkEvents(events: RecursiveObject): void {
   const lenUniqueEvents = uniqueEvents.length;
 
   if (lenEvents !== lenUniqueEvents) {
-    // FIXME: (jh) Add symbol support?
     throw new ReferenceError("Events are not unique");
   }
 }

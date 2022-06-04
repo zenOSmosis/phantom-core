@@ -1,5 +1,76 @@
 import test from "tape";
-import { checkEvents, extractEvents, compareExportedEvents } from "../../src";
+import {
+  checkEvents,
+  checkEventValue,
+  extractEvents,
+  compareExportedEvents,
+} from "../../src";
+
+test("ensures valid event values", t => {
+  t.plan(9);
+
+  t.doesNotThrow(() => {
+    checkEventValue("test");
+  }, "accepts lowercase event name");
+
+  t.doesNotThrow(() => {
+    checkEventValue("update-test");
+  }, "accepts lowercase event name with hyphen");
+
+  t.doesNotThrow(() => {
+    checkEventValue("update-test-test");
+  }, "accepts lowercase event name with multiple hyphens");
+
+  t.throws(
+    () => {
+      checkEventValue("ending-hyphen-");
+    },
+    TypeError,
+    "throws if trailing hyphen"
+  );
+
+  t.throws(
+    () => {
+      checkEventValue("-beginning-hyphen");
+    },
+    TypeError,
+    "throws if leading hyphen"
+  );
+
+  t.throws(
+    () => {
+      checkEventValue("camelCase");
+    },
+    TypeError,
+    "throws if camelCase"
+  );
+
+  t.throws(
+    () => {
+      checkEventValue("PascalCase");
+    },
+    TypeError,
+    "throws if PascalCase"
+  );
+
+  t.throws(
+    () => {
+      checkEventValue(" padded ");
+    },
+    TypeError,
+    'throws if " padded "'
+  );
+
+  t.throws(
+    () => {
+      checkEventValue("UPPERCASE-TEST-EVENT");
+    },
+    TypeError,
+    "throws if uppercase"
+  );
+
+  t.end();
+});
 
 // Validate event testing utility works as expected
 test("test utility checker", t => {
