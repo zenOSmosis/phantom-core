@@ -357,7 +357,7 @@ export default class PhantomCollection extends PhantomCore {
       const childKey: PhantomCollectionChildKey =
         entry[1][KEY_META_DESC_CHILD_KEY];
       if (childKey) {
-        keys.push(childKey as string & symbol);
+        keys.push(childKey as string | symbol);
       }
     }
 
@@ -403,7 +403,7 @@ export default class PhantomCollection extends PhantomCore {
    * Retrieves the event names which are mapped to every child which will emit
    * out the PhantomCollection when triggered.
    */
-  getBoundChildEventNames(): string[] & symbol[] {
+  getBoundChildEventNames(): (string | symbol)[] {
     return this._childEventBridge.getBridgeEventNames();
   }
 

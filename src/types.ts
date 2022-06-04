@@ -43,3 +43,12 @@ interface Instantiable {
 
   prototype: (...args: Primitive[]) => Function;
 }
+
+/**
+ * Type wrapper for TypeScript Enums.
+ *
+ * @see https://www.typescriptlang.org/docs/handbook/enums.html
+ *
+ * FIXME: Use generics to make string | number enum.
+ */
+export type Enum = { [key: string]: string | number };

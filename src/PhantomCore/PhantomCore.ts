@@ -24,7 +24,7 @@ import getUnixTime from "../utils/getUnixTime";
 import getClassInstancePropertyNames from "../utils/class-utils/getClassInstancePropertyNames";
 import getClassInstanceMethodNames from "../utils/class-utils/getClassInstanceMethodNames";
 import autoBindClassInstanceMethods from "../utils/class-utils/autoBindClassInstanceMethods";
-import shallowMerge from "../utils/shallowMerge";
+import shallowMerge from "../utils/object-utils/shallowMerge";
 
 import phantomCoreOrchestrator from "./_PhantomCoreOrchestrator";
 

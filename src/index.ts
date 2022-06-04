@@ -80,11 +80,14 @@ export { TimerStack, TimerType };
 import consume from "./utils/consume";
 export { consume };
 
-import deepMerge from "./utils/deepMerge";
+import deepMerge from "./utils/object-utils/deepMerge";
 export { deepMerge };
 
 import enumToNumericIndexedObject from "./utils/enum-utils/enumToNumericIndexedObject";
 export { enumToNumericIndexedObject };
+
+import getEnumValues from "./utils/enum-utils/getEnumValues";
+export { getEnumValues };
 
 import getIsNodeJS from "./utils/getIsNodeJS";
 export { getIsNodeJS };
@@ -104,7 +107,7 @@ export { getUptime };
 import performance from "./utils/performance";
 export { performance };
 
-import shallowMerge from "./utils/shallowMerge";
+import shallowMerge from "./utils/object-utils/shallowMerge";
 export { shallowMerge };
 
 import sleep from "./utils/sleep";

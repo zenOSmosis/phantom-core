@@ -3,6 +3,7 @@ import PhantomCore from "../PhantomCore";
 import _DestructibleEventEmitter, {
   EVT_DESTROY,
 } from "../_DestructibleEventEmitter";
+import getEnumValues from "../utils/enum-utils/getEnumValues";
 
 /**
  * The bindable types which may be proxied via EventProxyStack.
@@ -40,7 +41,7 @@ export default class EventProxyStack extends _DestructibleEventEmitter {
     eventName: string | symbol,
     eventHandler: (...args: any[]) => void
   ): void {
-    if (!Object.values(EventProxyStackBindTypes).includes(bindType)) {
+    if (!getEnumValues(EventProxyStackBindTypes).includes(bindType)) {
       throw new ReferenceError(`Unhandled value "${bindType}" for bindType`);
     }
 
