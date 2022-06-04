@@ -1,13 +1,3 @@
-[![MIT License][license-image]][license-url]
-[![version][version-image]][version-url]
-[![ci][ci-image]][ci-url]
-[![CodeQL][codeql-image]][codeql-url]
-[![Known Vulnerabilities][snyk-image]][snyk-url]
-[![CodeFactor][codefactor-image]][codefactor-url]
-[![phantom-core-architecture][phantom-core-architecture-image]][phantom-core-architecture-url]
-[![Style Status][style-image]][style-url]
-[![TypeScript][typescript-image]][typescript-url]
-
 [license-image]: https://img.shields.io/github/license/zenosmosis/phantom-core
 [license-url]: https://raw.githubusercontent.com/zenOSmosis/phantom-core/main/LICENSE
 [version-image]: https://img.shields.io/github/package-json/v/zenosmosis/phantom-core
@@ -27,15 +17,27 @@
 [typescript-image]: https://shields.io/badge/TypeScript-3178C6?logo=TypeScript&logoColor=FFF&style=flat
 [typescript-url]: https://www.typescriptlang.org/
 
+[![MIT License][license-image]][license-url]
+[![version][version-image]][version-url]
+[![ci][ci-image]][ci-url]
+[![CodeQL][codeql-image]][codeql-url]
+[![Known Vulnerabilities][snyk-image]][snyk-url]
+[![CodeFactor][codefactor-image]][codefactor-url]
+[![phantom-core-architecture][phantom-core-architecture-image]][phantom-core-architecture-url]
+[![Style Status][style-image]][style-url]
+[![TypeScript][typescript-image]][typescript-url]
+
 # PhantomCore
 
+<center>
 <img src="phantom.svg" alt="Phantom" width="200"/>
+</center>
 
-**This is a work in progress, subject to many API updates and feature regressions in a short amount of time, as it is used for development and prototyping of several applications at once.**
+_**This is a work in progress, subject to many API updates and feature regressions in a short amount of time, as it is used for the development and prototyping of several applications at once.**_
 
-PhantomCore is an EventEmitter-based, object-oriented application architecture for browsers and Node.js, featuring lifecycle management, exported common event constants, and some basic utilities which build on top of these principles which form some basic building blocks.
+PhantomCore is an EventEmitter-based, object-oriented application architecture for browsers and Node.js, featuring lifecycle management, exported common event constants, and some basic utilities which build on top of these principles and form some basic building blocks.
 
-Within the context of another application, it can be integrated as lightly as only having a single class using PhantomCore, or the entire application being built on top of PhantomCore.
+Within the context of another application, it can be integrated as lightly as only having a single class using PhantomCore, or the entire application is built on top of PhantomCore.
 
 It is the common base package utilized in [Speaker App](https://speaker.app) / [ReShell](https://reshell.org) which most other classes derive from, independent of their React view layers.
 
@@ -52,7 +54,7 @@ It is the common base package utilized in [Speaker App](https://speaker.app) / [
 - PhantomCollection:
   - Maintains a collection of arbitrary PhantomCore (and derived) instances
   - Can broadcast events to all of its children
-  - Can re-emit events sent from one child out the collection itself (via included ChildEventBridge object)
+  - Can re-emit events sent from one child out of the collection itself (via included ChildEventBridge object)
   - Can add and remove child instances during runtime (i.e. "group size varies")
   - Can contain children bound to other PhantomCollections (share children across collections)
   - Can contain other collections as children (linked collections)
