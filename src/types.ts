@@ -48,7 +48,5 @@ interface Instantiable {
  * Type wrapper for TypeScript Enums.
  *
  * @see https://www.typescriptlang.org/docs/handbook/enums.html
- *
- * FIXME: Use generics to make string | number enum.
  */
-export type Enum = { [key: string]: string | number };
+export type Enum<T = string | number> = { [key: string]: T };
