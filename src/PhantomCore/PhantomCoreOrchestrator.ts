@@ -1,5 +1,12 @@
+// @see https://github.com/YuzuJS/setImmediate
+// Exposes setImmediate as a global, if not already defined as a global
+import "setimmediate";
+
 import CommonEventEmitter from "../CommonEventEmitter";
-import PhantomCore, { EVT_UPDATE } from "../PhantomCore/PhantomCore";
+import PhantomCore, {
+  EVT_UPDATE,
+  EVT_DESTROY,
+} from "../PhantomCore/PhantomCore";
 import Logger, { EVT_LOG_MISS } from "../Logger";
 import globalLogger from "../globalLogger";
 
@@ -47,7 +54,9 @@ class PhantomCoreOrchestrator extends CommonEventEmitter {
    * Adds a PhantomCore instance to the watch list.
    */
   addInstance(phantom: PhantomCore): void {
-    phantom.registerCleanupHandler(() => this._removeInstance(phantom));
+    // FIXME: Auto-convert to cleanup handler after init to reduce number of
+    // event listeners
+    phantom.once(EVT_DESTROY, () => this._removeInstance(phantom));
 
     if (this._phantomInstances.has(phantom)) {
       throw new Error(
@@ -95,13 +104,15 @@ class PhantomCoreOrchestrator extends CommonEventEmitter {
       } as PhantomWatcherLogMissEventData);
     });
 
-    // Set the log level to the group / global level
-    phantom.setLogLevel(this.getPhantomClassLogLevel(phantomClassName));
-
-    // Automatically removes duplicates
+    // Add class name to set (ignored if duplicate)
     this._phantomClassNameSet.add(phantomClassName);
 
-    this.emit(EVT_UPDATE);
+    setImmediate(() => {
+      // Set the log level to the group / global level
+      phantom.setLogLevel(this.getPhantomClassLogLevel(phantomClassName));
+
+      this.emit(EVT_UPDATE);
+    });
   }
 
   /**

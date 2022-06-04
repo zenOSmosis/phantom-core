@@ -1,7 +1,3 @@
-// @see https://github.com/YuzuJS/setImmediate
-// Exposes setImmediate as a global, if not already defined as a global
-import "setimmediate";
-
 import CommonEventEmitter from "../CommonEventEmitter";
 import Logger, { LogIntersection, EVT_LOG_MISS } from "../Logger";
 import logger from "../globalLogger";
@@ -53,7 +49,7 @@ export const EVT_UPDATE = "update";
 
 export { EVT_BEFORE_DESTROY, EVT_DESTROY_STACK_TIME_OUT, EVT_DESTROY };
 
-// TODO: [3.0.0] Use PhantomWatcher for this
+// TODO: [3.0.0] Use PhantomOrchestrator for this
 // Instances for this particular thread
 const _instanceMap: Map<string, PhantomCore> = new Map();
 
@@ -196,6 +192,10 @@ export default class PhantomCore extends DestructibleEventEmitter {
   constructor(options: CommonOptions = {}) {
     super();
 
+    // Note: PhantomWatcher will automatically handle instance de-registration
+    phantomCoreOrchestrator.addInstance(this);
+
+    // TODO: [3.0.0] Remove
     // Register with instances
     _instanceMap.set(this._uuid, this);
 
@@ -296,9 +296,6 @@ export default class PhantomCore extends DestructibleEventEmitter {
 
     // FIXME: [3.0.0] Fix type so "as" isn't necessary
     this.registerCleanupHandler(() => (this.logger as Logger).destroy());
-
-    // Note: PhantomWatcher will automatically handle instance de-registration
-    phantomCoreOrchestrator.addInstance(this);
 
     this.once(EVT_DESTROY_STACK_TIME_OUT, () => {
       this.log.error(
