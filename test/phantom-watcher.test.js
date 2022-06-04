@@ -8,7 +8,7 @@ import {
 
 // TODO: [3.0.0] Build out
 test("phantom watcher setup and cleanup", async t => {
-  // TODO: Implement plan
+  t.plan(3);
 
   const watcher = new PhantomWatcher();
 
@@ -48,7 +48,7 @@ test("phantom watcher setup and cleanup", async t => {
 
 // TODO: [3.0.0] Build out
 test("multiple watchers", async t => {
-  // TODO: Implement plan
+  t.plan(7);
 
   const watcher1 = new PhantomWatcher();
   const watcher2 = new PhantomWatcher();
@@ -167,7 +167,7 @@ test("phantom log miss with title update", async t => {
 });
 
 test("per class name instance count", async t => {
-  // TODO: Implement plan
+  t.plan(6);
 
   class P1 extends PhantomCore {}
   class P2 extends PhantomCore {}
