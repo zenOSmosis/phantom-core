@@ -66,6 +66,10 @@ It is the common base package utilized in [Speaker App](https://speaker.app) / [
   - PhantomServiceCore instances act as singletons within a PhantomServiceManager context, instead of a global context
   - Currently being prototyped for usage with [ReShell](https://reshell.org) desktop prototype
 
+## Documentation
+
+PhantomCore's TypeScript API documentation is available online at: https://docs.phantom-core.zenosmosis.com/ (generated with [TypeDoc](https://typedoc.org/): A documentation generator for TypeScript projects)
+
 ## Additional Information
 
 Any reasonable attempt to try to explain this thing will surely develop over time, and such conclusions theoretically will eventually work their way back into the README.
