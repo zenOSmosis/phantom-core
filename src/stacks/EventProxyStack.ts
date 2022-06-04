@@ -4,6 +4,9 @@ import _DestructibleEventEmitter, {
   EVT_DESTROY,
 } from "../_DestructibleEventEmitter";
 
+/**
+ * The bindable types which may be proxied via EventProxyStack.
+ */
 export enum EventProxyStackBindTypes {
   On = "on",
   Once = "once",
@@ -32,19 +35,19 @@ export default class EventProxyStack extends _DestructibleEventEmitter {
    * Adds the given proxy handler to the given target instance.
    */
   addProxyHandler(
-    onOrOnce: EventProxyStackBindTypes.On | EventProxyStackBindTypes.Once,
+    bindType: EventProxyStackBindTypes.On | EventProxyStackBindTypes.Once,
     targetInstance: PhantomCore,
     eventName: string | symbol,
     eventHandler: (...args: any[]) => void
   ): void {
-    if (!Object.values(EventProxyStackBindTypes).includes(onOrOnce)) {
-      throw new ReferenceError(`Unhandled value "${onOrOnce}" for onOrOnce`);
+    if (!Object.values(EventProxyStackBindTypes).includes(bindType)) {
+      throw new ReferenceError(`Unhandled value "${bindType}" for bindType`);
     }
 
     this._eventProxyBinds.push({ targetInstance, eventName, eventHandler });
 
     // Bind the event handler to the target instance
-    targetInstance[onOrOnce](eventName, eventHandler);
+    targetInstance[bindType](eventName, eventHandler);
 
     // Automatically unregister if the target instance is destructed before
     // this instance
