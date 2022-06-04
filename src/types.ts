@@ -1,3 +1,7 @@
+/**
+ * Type definitions which aren't categorizable, or are suited for general purposes.
+ */
+
 interface Instantiable {
   name: string;
 

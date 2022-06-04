@@ -1,7 +1,7 @@
 import _DestructibleEventEmitter, {
   EVT_DESTROY,
 } from "./_DestructibleEventEmitter";
-import { ClassInstance } from "./utils/class-utils/types";
+import { ClassInstance } from "./types";
 
 export enum LogLevel {
   Silent = 0,

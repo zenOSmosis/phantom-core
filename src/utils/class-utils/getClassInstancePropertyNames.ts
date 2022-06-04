@@ -1,5 +1,5 @@
 import getIsClassInstance from "./getIsClassInstance";
-import { ClassInstance } from "./types";
+import { ClassInstance } from "../../types";
 
 /**
  * Retrieves an array of the given class property names.

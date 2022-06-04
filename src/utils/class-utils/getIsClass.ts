@@ -1,4 +1,4 @@
-import { Class, ClassInstance } from "./types";
+import { Class, ClassInstance } from "../../types";
 
 /**
  * Determines if the given object is a JavaScript class.

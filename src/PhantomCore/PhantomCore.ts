@@ -21,7 +21,7 @@ import getClassInstancePropertyNames from "../utils/class-utils/getClassInstance
 import getClassInstanceMethodNames from "../utils/class-utils/getClassInstanceMethodNames";
 import autoBindClassInstanceMethods from "../utils/class-utils/autoBindClassInstanceMethods";
 import shallowMerge from "../utils/shallowMerge";
-import { Class, ClassInstance } from "../utils/class-utils/types";
+import { Class, ClassInstance } from "../types";
 import { CommonOptions } from "./types";
 import phantomCoreOrchestrator from "./_PhantomCoreOrchestrator";
 

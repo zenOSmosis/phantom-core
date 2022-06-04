@@ -8,7 +8,7 @@ import PhantomCore, {
   EVT_DESTROY,
 } from "../PhantomCore";
 import ChildEventBridge from "./PhantomCollection.ChildEventBridge";
-import { Class } from "../utils/class-utils/types";
+import { Class } from "../types";
 
 export {
   EVT_NO_INIT_WARN,

@@ -1,5 +1,5 @@
 import getClass from "./getClass";
-import { Class, ClassInstance } from "./types";
+import { Class, ClassInstance } from "../../types";
 
 /**
  * Retrieves the JavaScript class name of the given class or class instance.

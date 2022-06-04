@@ -11,7 +11,7 @@ import PhantomCollection, {
 } from "../PhantomCollection";
 import PhantomServiceCore from "../PhantomServiceCore";
 import getClassName from "../utils/class-utils/getClassName";
-import { Class } from "../utils/class-utils/types";
+import { Class } from "../types";
 
 export {
   EVT_NO_INIT_WARN,

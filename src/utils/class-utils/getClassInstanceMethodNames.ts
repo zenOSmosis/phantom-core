@@ -1,5 +1,5 @@
 import getClassInstancePropertyNames from "./getClassInstancePropertyNames";
-import { ClassInstance } from "./types";
+import { ClassInstance } from "../../types";
 
 /**
  * Retrieves an array of class method names for the given JavaScript class.

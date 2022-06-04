@@ -1,6 +1,6 @@
 import getClassInstanceMethodNames from "./getClassInstanceMethodNames";
 import getIsClassInstance from "./getIsClassInstance";
-import { ClassInstance } from "./types";
+import { ClassInstance } from "../../types";
 
 /**
  * Force scope binding of JavaScript class methods to the class itself,
