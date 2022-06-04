@@ -2,7 +2,7 @@ import test from "tape";
 import { PhantomServiceCore, PhantomServiceManager } from "../../src";
 
 test("sub-service", async t => {
-  t.plan(4);
+  t.plan(5);
 
   class TestSubService extends PhantomServiceCore {}
 
@@ -38,13 +38,22 @@ test("sub-service", async t => {
     "service manager reports two services after automatic start of sub-service"
   );
 
-  // TODO: Add test to ensure that trying to start a service class more than once does not run up the numbers
+  serviceManager.startServiceClass(TestService);
+
+  t.equals(
+    serviceManager.getServiceClasses().length,
+    2,
+    "adding duplicate sub-service does not re-instantiate"
+  );
 
   const testService = serviceManager.getServiceInstance(TestService);
 
   await testService.destroy();
 
-  // TODO: Should this be changed?
+  // FIXME: This handling might need to change in a future version, using
+  // dependency counters, where a sub-service can still be a child of at
+  // least one service, and if all parent services are destructed, then
+  // the child destructs as well.
   t.equals(
     serviceManager.getServiceClasses().length,
     1,
