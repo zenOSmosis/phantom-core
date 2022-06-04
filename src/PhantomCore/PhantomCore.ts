@@ -12,7 +12,9 @@ import getPackageJSON from "../utils/getPackageJSON";
 import FunctionStack, {
   FUNCTION_STACK_OPS_ORDER_LIFO,
 } from "../stacks/FunctionStack";
-import EventProxyStack from "../stacks/EventProxyStack";
+import EventProxyStack, {
+  EventProxyStackBindTypes,
+} from "../stacks/EventProxyStack";
 import TimerStack from "../stacks/TimerStack";
 import getClassName from "../utils/class-utils/getClassName";
 import { v4 as uuidv4 } from "uuid";
@@ -565,7 +567,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
     }
 
     this._eventProxyStack.addProxyHandler(
-      "on",
+      EventProxyStackBindTypes.On,
       targetInstance,
       eventName,
       eventHandler
@@ -598,7 +600,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
     }
 
     this._eventProxyStack.addProxyHandler(
-      "once",
+      EventProxyStackBindTypes.Once,
       targetInstance,
       eventName,
       eventHandler

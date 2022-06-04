@@ -4,6 +4,11 @@ import _DestructibleEventEmitter, {
   EVT_DESTROY,
 } from "../_DestructibleEventEmitter";
 
+export enum EventProxyStackBindTypes {
+  On = "on",
+  Once = "once",
+}
+
 /**
  * Provides event proxy management for PhantomCore's, proxyOn, proxyOnce, and
  * proxyOff methods.
@@ -19,35 +24,20 @@ export default class EventProxyStack extends _DestructibleEventEmitter {
     targetInstance: PhantomCore;
     eventName: string | symbol;
     eventHandler: (...args: any[]) => void;
-  }[];
-  protected _targetDestroyHandlers: Map<PhantomCore, (...args: any[]) => void>;
-
-  constructor() {
-    super();
-
-    /**
-     * Associated event proxy handlers attached to target instances.
-     */
-    this._eventProxyBinds = [];
-
-    /**
-     * Associated EVT_DESTROY handlers attached to target instances, which
-     * are invoked if the target instance is destructed before the local
-     * instance.
-     */
-    this._targetDestroyHandlers = new Map();
-  }
+  }[] = [];
+  protected _targetDestroyHandlers: Map<PhantomCore, (...args: any[]) => void> =
+    new Map();
 
   /**
    * Adds the given proxy handler to the given target instance.
    */
   addProxyHandler(
-    onOrOnce: "on" | "once",
+    onOrOnce: EventProxyStackBindTypes.On | EventProxyStackBindTypes.Once,
     targetInstance: PhantomCore,
     eventName: string | symbol,
     eventHandler: (...args: any[]) => void
-  ) {
-    if (onOrOnce !== "on" && onOrOnce !== "once") {
+  ): void {
+    if (!Object.values(EventProxyStackBindTypes).includes(onOrOnce)) {
       throw new ReferenceError(`Unhandled value "${onOrOnce}" for onOrOnce`);
     }
 
@@ -90,7 +80,7 @@ export default class EventProxyStack extends _DestructibleEventEmitter {
     targetInstance: PhantomCore,
     eventName: string | symbol,
     eventHandler: (...args: any[]) => void
-  ) {
+  ): void {
     let hasRemoved = false;
 
     this._eventProxyBinds = this._eventProxyBinds.filter(
@@ -142,10 +132,8 @@ export default class EventProxyStack extends _DestructibleEventEmitter {
 
   /**
    * Removes all proxy handlers for all of the target instances.
-   *
-   * @return {void}
    */
-  _removeAllProxyHandlers() {
+  _removeAllProxyHandlers(): void {
     this._eventProxyBinds.forEach(
       ({ targetInstance, eventName, eventHandler }) =>
         this.removeProxyHandler(targetInstance, eventName, eventHandler)
@@ -155,7 +143,7 @@ export default class EventProxyStack extends _DestructibleEventEmitter {
   /**
    * Unregisters a the remote destroy handler from a single target instance.
    */
-  _removeTargetInstanceDestroyHandler(targetInstance: PhantomCore) {
+  _removeTargetInstanceDestroyHandler(targetInstance: PhantomCore): void {
     const destroyHandler = this._targetDestroyHandlers.get(targetInstance);
 
     if (destroyHandler) {
@@ -167,10 +155,8 @@ export default class EventProxyStack extends _DestructibleEventEmitter {
 
   /**
    * Unregisters the remote destroy handlers from all of the target instances.
-   *
-   * @return {void}
    */
-  _removeAllTargetInstanceDestroyHandlers() {
+  _removeAllTargetInstanceDestroyHandlers(): void {
     for (const [targetInstance] of this._targetDestroyHandlers.entries()) {
       this._removeTargetInstanceDestroyHandler(targetInstance);
     }
@@ -179,7 +165,7 @@ export default class EventProxyStack extends _DestructibleEventEmitter {
   /**
    * Retrieves the number of proxied events to the given target instance.
    */
-  getTargetInstanceQueueDepth(targetInstance: PhantomCore) {
+  getTargetInstanceQueueDepth(targetInstance: PhantomCore): number {
     return this._eventProxyBinds.reduce((acc, curr) => {
       const predTargetInstance = curr.targetInstance;
       if (targetInstance === predTargetInstance) {
@@ -190,7 +176,7 @@ export default class EventProxyStack extends _DestructibleEventEmitter {
     }, 0);
   }
 
-  override async destroy() {
+  override async destroy(): Promise<void> {
     return super.destroy(() => {
       // Perform cleanup
       this._removeAllProxyHandlers();

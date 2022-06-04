@@ -67,8 +67,10 @@ export { PhantomWatcher, EVT_PHANTOM_WATCHER_LOG_MISS };
 import FunctionStack from "./stacks/FunctionStack";
 export { FunctionStack };
 
-import EventProxyStack from "./stacks/EventProxyStack";
-export { EventProxyStack };
+import EventProxyStack, {
+  EventProxyStackBindTypes,
+} from "./stacks/EventProxyStack";
+export { EventProxyStack, EventProxyStackBindTypes };
 
 import TimerStack, { TimerType } from "./stacks/TimerStack";
 export { TimerStack, TimerType };
