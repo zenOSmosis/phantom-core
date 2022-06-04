@@ -1,14 +1,18 @@
+// @see https://github.com/YuzuJS/setImmediate
+// Exposes setImmediate as a global, if not already defined as a global
+import "setimmediate";
+
 import CommonEventEmitter from "../CommonEventEmitter";
-import PhantomCore, { EVT_UPDATE } from "../PhantomCore/PhantomCore.base";
+import PhantomCore, { EVT_UPDATE, EVT_DESTROY } from "./PhantomCore";
 import Logger, { EVT_LOG_MISS } from "../Logger";
 import globalLogger from "../globalLogger";
 
 type PhantomClassName = string;
 
-let _instance: _PhantomWatcherProvider;
+let _orchestrator: PhantomCoreOrchestrator;
 
 // TODO: [3.0.0] Document
-export const EVT_PHANTOM_WATCHER_LOG_MISS = "phantom-group-watcher-log-miss";
+export const EVT_PHANTOM_WATCHER_LOG_MISS = "phantom-watcher-log-miss";
 export type PhantomWatcherLogMissEventData = {
   phantomClassName: PhantomClassName;
   title: string | null;
@@ -16,8 +20,10 @@ export type PhantomWatcherLogMissEventData = {
 };
 
 // TODO: [3.0.0] This should run as a singleton and never be destructed
-// TODO: [3.0.0] Document
-class _PhantomWatcherProvider extends CommonEventEmitter {
+/**
+ * Manages all PhantomCore instances and attaches centralized log handling.
+ */
+class PhantomCoreOrchestrator extends CommonEventEmitter {
   protected _initialGlobalLogLevel: number = globalLogger.getLogLevel();
 
   protected _phantomInstances: Set<PhantomCore> = new Set();
@@ -32,48 +38,56 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
     new Map();
 
   constructor() {
-    if (_instance) {
+    if (_orchestrator) {
       throw new Error(
-        "Cannot instantiate _PhantomWatcherProvider more than once"
+        "Cannot instantiate PhantomCoreOrchestrator more than once"
       );
     }
 
     super();
 
-    _instance = this;
+    _orchestrator = this;
   }
 
   /**
    * Adds a PhantomCore instance to the watch list.
    */
   addInstance(phantom: PhantomCore): void {
-    phantom.registerCleanupHandler(() => this._removeInstance(phantom));
-
+    // Ensure the instance is not already added
     if (this._phantomInstances.has(phantom)) {
       throw new Error(
         "PhantomWatcherProvider already contains the given phantom instance"
       );
     }
 
+    // FIXME: Auto-convert to cleanup handler after init to reduce number of
+    // event listeners
+    phantom.once(EVT_DESTROY, () => this._removeInstance(phantom));
+
     this._phantomInstances.add(phantom);
 
     const phantomClassName = phantom.getClassName();
 
-    let perClassNameInstanceCount =
-      this._phantomClassNameCountMap.get(phantomClassName) || 0;
-    ++perClassNameInstanceCount;
-    this._phantomClassNameCountMap.set(
-      phantomClassName,
-      perClassNameInstanceCount
-    );
+    // Set the per-unique-class-name-count
+    (() => {
+      let perClassNameInstanceCount =
+        this._phantomClassNameCountMap.get(phantomClassName) || 0;
+      ++perClassNameInstanceCount;
+      this._phantomClassNameCountMap.set(
+        phantomClassName,
+        perClassNameInstanceCount
+      );
+    })();
 
     if (!this._phantomClassNameLogLevelMissMap.has(phantomClassName)) {
+      // Set initial log level miss-map array
       this._phantomClassNameLogLevelMissMap.set(
         phantomClassName,
         [0, 0, 0, 0, 0]
       );
     }
 
+    // Bind log miss events
     phantom.on(EVT_LOG_MISS, (logLevel: number) => {
       // Update missMap counts
       const missMap =
@@ -95,13 +109,18 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
       } as PhantomWatcherLogMissEventData);
     });
 
-    // Set the log level to the group / global level
-    phantom.setLogLevel(this.getPhantomClassLogLevel(phantomClassName));
-
-    // Automatically removes duplicates
+    // Add class name to set (ignored if duplicate)
     this._phantomClassNameSet.add(phantomClassName);
 
-    this.emit(EVT_UPDATE);
+    // Allow event loop to complete before continuing
+    setImmediate(() => {
+      if (!phantom.getHasDestroyStarted()) {
+        // Set the log level to the group / global level
+        phantom.setLogLevel(this.getPhantomClassLogLevel(phantomClassName));
+
+        this.emit(EVT_UPDATE);
+      }
+    });
   }
 
   /**
@@ -131,6 +150,17 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
     }
 
     this.emit(EVT_UPDATE);
+  }
+
+  /**
+   * Retrieves the total number of active PhantomCore instances running on this
+   * CPU thread.
+   *
+   * When an instance is created / destroyed, the number is increased / reduced
+   * by one.
+   */
+  getPhantomInstanceCount() {
+    return this._phantomInstances.size;
   }
 
   /**
@@ -245,4 +275,4 @@ class _PhantomWatcherProvider extends CommonEventEmitter {
   }
 }
 
-export default new _PhantomWatcherProvider();
+export default new PhantomCoreOrchestrator();

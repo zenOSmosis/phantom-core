@@ -41,7 +41,7 @@ export default class DestructibleEventEmitter extends CommonEventEmitter {
    * IMPORTANT: If the Logger class is utilized, it is not automatically
    * destructed when DestructibleEventEmitter is.
    */
-  constructor(logger = console) {
+  constructor(logger: Console | Logger = console) {
     super();
 
     this._logger = logger;

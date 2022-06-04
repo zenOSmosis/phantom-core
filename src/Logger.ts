@@ -1,7 +1,8 @@
 import _DestructibleEventEmitter, {
   EVT_DESTROY,
 } from "./_DestructibleEventEmitter";
-import { ClassInstance } from "./utils/class-utils/types";
+import { ClassInstance } from "./types";
+import autoBindClassInstanceMethods from "./utils/class-utils/autoBindClassInstanceMethods";
 
 export enum LogLevel {
   Silent = 0,
@@ -48,7 +49,8 @@ export default class Logger extends _DestructibleEventEmitter {
     prefix: (strLogLevel: string) => string;
   };
 
-  protected _logLevel: number;
+  protected _logLevel: number = LogLevel.Info;
+  protected _prefix: (strLogLevel: string) => string;
 
   /**
    * Converts the given log level to a number.
@@ -115,11 +117,18 @@ export default class Logger extends _DestructibleEventEmitter {
 
     this._options = { ...DEFAULT_OPTIONS, ...options };
     this.log = null as unknown as LogIntersection;
-
-    this._logLevel = this._options.logLevel;
+    this._prefix = this._options.prefix;
 
     // Set up log level, extending this class functionality with log levels
     this.setLogLevel(this._options.logLevel);
+  }
+
+  /**
+   * Provides the ability to override the logging prefix with a custom string
+   * handler.
+   */
+  setPrefix(prefix: (strLogLevel: string) => string): void {
+    this._prefix = prefix;
   }
 
   /**
@@ -132,7 +141,7 @@ export default class Logger extends _DestructibleEventEmitter {
     // Dynamically create log function, filtering out methods which are outside
     // of logLevel scope
     this.log = (() => {
-      const prefix = this._options.prefix;
+      const prefix = this._prefix;
 
       /**
        * Each logger method should retain original stack trace
@@ -206,6 +215,9 @@ export default class Logger extends _DestructibleEventEmitter {
         // Extend class with logger methods
         (this as ClassInstance)[method] = loggerMethods[method];
       });
+
+      // Apply scope binding of dynamically created methods to the Logger instance
+      autoBindClassInstanceMethods(this);
 
       return log;
     })() as unknown as LogIntersection;

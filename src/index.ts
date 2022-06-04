@@ -1,3 +1,5 @@
+export * from "./types";
+
 import PhantomCore, {
   EVT_READY,
   EVT_UPDATE,

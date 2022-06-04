@@ -1,5 +1,5 @@
 import getIsClassInstance from "./getIsClassInstance";
-import { Class, ClassInstance } from "./types";
+import { Class, ClassInstance } from "../../types";
 
 /**
  * Retrieves the JavaScript class of the given object instance, or class.

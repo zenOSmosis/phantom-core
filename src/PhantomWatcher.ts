@@ -5,11 +5,11 @@ import PhantomCore, {
   EVT_BEFORE_DESTROY,
   EVT_DESTROY_STACK_TIME_OUT,
   EVT_DESTROY,
-} from "../PhantomCore";
+} from "./PhantomCore";
 import phantomWatcherProviderSingleton, {
   EVT_PHANTOM_WATCHER_LOG_MISS,
   PhantomWatcherLogMissEventData,
-} from "./_PhantomWatcherProviderSingleton";
+} from "./PhantomCore/_PhantomCoreOrchestrator";
 
 export {
   EVT_NO_INIT_WARN,
@@ -33,10 +33,11 @@ export default class PhantomWatcher extends PhantomCore {
   constructor() {
     super();
 
-    // Handle regular updates
+    // Handle orchestrator update events
     (() => {
       const _handleUpdate = () => {
-        // Note: This type is coerced from a Set
+        // Note: This type is coerced from a Set and is cached so that it
+        // doesn't have to be iterated each time it is requested
         this._phantomClassNames = [
           ...phantomWatcherProviderSingleton.getPhantomClassNameSet(),
         ];
@@ -62,11 +63,12 @@ export default class PhantomWatcher extends PhantomCore {
         this.emit(EVT_PHANTOM_WATCHER_LOG_MISS, data);
       };
 
+      // Note that since PhantomCoreOrchestrator is not a PhantomCore instance
+      // itself, the event proxy functions are not immediately available to it
       phantomWatcherProviderSingleton.on(
         EVT_PHANTOM_WATCHER_LOG_MISS,
         _handleLogMiss
       );
-
       this.registerCleanupHandler(() => {
         phantomWatcherProviderSingleton.off(
           EVT_PHANTOM_WATCHER_LOG_MISS,

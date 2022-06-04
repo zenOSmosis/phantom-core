@@ -1,6 +1,6 @@
 import getClass from "./getClass";
 import getIsClass from "./getIsClass";
-import { Class, ClassInstance } from "./types";
+import { Class, ClassInstance } from "../../types";
 
 /**
  * Retrieves the given class instance's parent class.

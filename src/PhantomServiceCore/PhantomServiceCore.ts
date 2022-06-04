@@ -8,7 +8,7 @@ import PhantomState, {
 } from "../PhantomState";
 import PhantomCollection from "../PhantomCollection";
 import PhantomServiceManager from "../PhantomServiceManager";
-import { Class, ClassInstance } from "../utils/class-utils/types";
+import { Class, ClassInstance } from "../types";
 
 export {
   EVT_NO_INIT_WARN,

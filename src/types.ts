@@ -1,0 +1,45 @@
+/**
+ * Data that is not an object and has no methods or properties.
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Glossary/Primitive
+ */
+export type Primitive =
+  | number
+  | string
+  | boolean
+  | null
+  | undefined
+  | symbol
+  | bigint
+  | RecursiveObject;
+
+/**
+ * A general-purpose (i.e. "plain") object which can contain other general-
+ * purpose objects.
+ */
+export type RecursiveObject = {
+  [key: string]: Primitive;
+};
+
+// Borrowed from: https://stackoverflow.com/questions/39392853/is-there-a-type-for-class-in-typescript-and-does-any-include-it
+export type Class<T = Instantiable> = Instantiable | T;
+
+/**
+ * A class instance.
+ */
+export interface ClassInstance {
+  constructor: Instantiable;
+
+  // TODO: [3.0.0] Fix any type
+  [key: string]: Primitive | Function | Instantiable | any;
+}
+
+/**
+ * Type definitions which aren't categorizable, or are suited for general purposes.
+ */
+
+interface Instantiable {
+  name: string;
+
+  prototype: (...args: Primitive[]) => Function;
+}

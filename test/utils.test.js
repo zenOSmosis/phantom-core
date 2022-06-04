@@ -18,7 +18,6 @@ import PhantomCore, {
   enumToNumericIndexedObject,
   LogLevel,
 } from "../src";
-import PhantomCoreUnwatched from "../src/PhantomCore/PhantomCore.base";
 import _DestructibleEventEmitter from "../src/_DestructibleEventEmitter";
 
 test("consume", t => {
@@ -209,7 +208,6 @@ test("super parents", t => {
     ExtensionB,
     ExtensionA,
     PhantomCore,
-    PhantomCoreUnwatched,
     _DestructibleEventEmitter,
     CommonEventEmitter,
     EventEmitter,
