@@ -20,7 +20,9 @@ export type PhantomWatcherLogMissEventData = {
 };
 
 // TODO: [3.0.0] This should run as a singleton and never be destructed
-// TODO: [3.0.0] Document
+/**
+ * Manages all PhantomCore instances and attaches centralized log handling.
+ */
 class PhantomCoreOrchestrator extends CommonEventEmitter {
   protected _initialGlobalLogLevel: number = globalLogger.getLogLevel();
 
@@ -51,34 +53,41 @@ class PhantomCoreOrchestrator extends CommonEventEmitter {
    * Adds a PhantomCore instance to the watch list.
    */
   addInstance(phantom: PhantomCore): void {
-    // FIXME: Auto-convert to cleanup handler after init to reduce number of
-    // event listeners
-    phantom.once(EVT_DESTROY, () => this._removeInstance(phantom));
-
+    // Ensure the instance is not already added
     if (this._phantomInstances.has(phantom)) {
       throw new Error(
         "PhantomWatcherProvider already contains the given phantom instance"
       );
     }
 
+    // FIXME: Auto-convert to cleanup handler after init to reduce number of
+    // event listeners
+    phantom.once(EVT_DESTROY, () => this._removeInstance(phantom));
+
     this._phantomInstances.add(phantom);
 
     const phantomClassName = phantom.getClassName();
 
-    let perClassNameInstanceCount =
-      this._phantomClassNameCountMap.get(phantomClassName) || 0;
-    ++perClassNameInstanceCount;
-    this._phantomClassNameCountMap.set(
-      phantomClassName,
-      perClassNameInstanceCount
-    );
+    // Set the per-unique-class-name-count
+    (() => {
+      let perClassNameInstanceCount =
+        this._phantomClassNameCountMap.get(phantomClassName) || 0;
+      ++perClassNameInstanceCount;
+      this._phantomClassNameCountMap.set(
+        phantomClassName,
+        perClassNameInstanceCount
+      );
+    })();
 
     if (!this._phantomClassNameLogLevelMissMap.has(phantomClassName)) {
+      // Set initial log level miss-map array
       this._phantomClassNameLogLevelMissMap.set(
         phantomClassName,
         [0, 0, 0, 0, 0]
       );
     }
+
+    // Bind log miss events
     phantom.on(EVT_LOG_MISS, (logLevel: number) => {
       // Update missMap counts
       const missMap =
@@ -103,6 +112,7 @@ class PhantomCoreOrchestrator extends CommonEventEmitter {
     // Add class name to set (ignored if duplicate)
     this._phantomClassNameSet.add(phantomClassName);
 
+    // Allow event loop to complete before continuing
     setImmediate(() => {
       if (!phantom.getHasDestroyStarted()) {
         // Set the log level to the group / global level

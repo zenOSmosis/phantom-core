@@ -158,7 +158,10 @@ export default class PhantomCore extends DestructibleEventEmitter {
   protected _timerStack: TimerStack;
 
   constructor(options: CommonOptions = {}) {
-    super();
+    super(new Logger());
+
+    // Note: PhantomWatcher will automatically handle instance de-registration
+    phantomCoreOrchestrator.addInstance(this);
 
     const DEFAULT_OPTIONS: CommonOptions = {
       /**
@@ -208,33 +211,24 @@ export default class PhantomCore extends DestructibleEventEmitter {
 
     this._title = this._options.title as string | null;
 
-    this.logger = new Logger({
-      /**
-       * Currently using ISO8601 formatted date; for date rendering options:
-       * @see https://day.js.org/docs/en/display/format
-       */
-      prefix: (strLogLevel: string) => {
-        const className = this.getClassName();
-        const title = this.getTitle();
+    (this.logger as Logger).setPrefix((strLogLevel: string) => {
+      const className = this.getClassName();
+      const title = this.getTitle();
 
-        const classNameWithTitle = !title
-          ? className
-          : `${className}[${title}]`;
+      const classNameWithTitle = !title ? className : `${className}[${title}]`;
 
-        return `[${dayjs().format()} ${strLogLevel} ${classNameWithTitle} ${
-          this._uuid
-        }]`;
-      },
+      return `[${dayjs().format()} ${strLogLevel} ${classNameWithTitle} ${
+        this._uuid
+      }]`;
     });
 
     // Proxies log misses
-    this.logger.on(EVT_LOG_MISS, logLevel => this.emit(EVT_LOG_MISS, logLevel));
+    (this.logger as Logger).on(EVT_LOG_MISS, logLevel =>
+      this.emit(EVT_LOG_MISS, logLevel)
+    );
 
     // FIXME: [3.0.0] Fix type so "as" isn't necessary
     this.registerCleanupHandler(() => (this.logger as Logger).destroy());
-
-    // Note: PhantomWatcher will automatically handle instance de-registration
-    phantomCoreOrchestrator.addInstance(this);
 
     this.once(EVT_DESTROY_STACK_TIME_OUT, () => {
       this.log.error(
