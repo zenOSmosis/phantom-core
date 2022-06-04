@@ -66,6 +66,55 @@ It is the common base package utilized in [Speaker App](https://speaker.app) / [
   - PhantomServiceCore instances act as singletons within a PhantomServiceManager context, instead of a global context
   - Currently being prototyped for usage with [ReShell](https://reshell.org) desktop prototype
 
+## Basic Example
+
+```js
+import PhantomCore, {
+  EVT_READY,
+  EVT_DESTROY,
+  globalLogger,
+} from "phantom-core";
+
+class MyExtension extends PhantomCore {
+  constructor() {
+    super();
+
+    this.registerCleanupHandler(() => {
+      // PhantomCore has its own logger, and the log level is configurable per
+      // instance. It's currently a wrapper around the Console log methods, has
+      // a custom prefix, and retains the original stack trace.
+      this.logger.log("Do some cleanup work here...");
+    });
+
+    this.registerCleanupHandler(() => {
+      this.logger.log("And some additional cleanup work here...");
+    });
+
+    // Asynchronous methods in registerCleanupHandler are executed awaited upon
+    // as if they were run synchronously, to eliminate race conditions
+  }
+}
+
+const ext = new MyExtension();
+
+evt.once(EVT_READY, () => {
+  globalLogger.log("Ready...");
+});
+
+evt.once(EVT_DESTROY, () => {
+  // Outside of an instance, the global logger can be used
+  globalLogger.log("Extension destroyed");
+});
+
+ext.destroy();
+
+// Destruct logs are rendered in the following order:
+//
+// "Extension destroyed"
+// "Do some cleanup work here..."
+// "And some additional cleanup work here..."
+```
+
 ## Documentation
 
 PhantomCore's TypeScript API documentation is available online at: https://docs.phantom-core.zenosmosis.com/ (generated with [TypeDoc](https://typedoc.org/): A documentation generator for TypeScript projects)
