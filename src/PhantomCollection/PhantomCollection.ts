@@ -1,3 +1,5 @@
+import { Class } from "../types";
+import { PhantomCollectionChildKey } from "./types";
 import assert from "assert";
 import PhantomCore, {
   EVT_NO_INIT_WARN,
@@ -8,7 +10,6 @@ import PhantomCore, {
   EVT_DESTROY,
 } from "../PhantomCore";
 import ChildEventBridge from "./PhantomCollection.ChildEventBridge";
-import { Class } from "../types";
 
 export {
   EVT_NO_INIT_WARN,
@@ -105,7 +106,7 @@ export default class PhantomCollection extends PhantomCore {
   protected _childrenMetadata: Map<
     PhantomCore,
     {
-      childKey?: unknown;
+      childKey?: PhantomCollectionChildKey;
       beforeDestroyHandler: (...args: any[]) => void;
     }
   >;
@@ -150,14 +151,16 @@ export default class PhantomCollection extends PhantomCore {
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol/iterator
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#the_iterable_protocol
    *
-   * @return {PhantomCore<IterableIterator>} FIXME: (jh) This may not be the correct type,
-   * but close enough?
    * @throws {TypeError} After instance destruction, future attempts to try to
    * iterate will throw a TypeError.
    */
-  get [Symbol.iterator]() {
+  get [Symbol.iterator](): IterableIterator<PhantomCore> {
     const children = this.getChildren();
 
+    // TODO: [3.0.0] Fix "Type 'typeof Symbol.iterator' does not satisfy the
+    // constraint '(...args: any) => any'"
+    //
+    // @ts-ignore
     return function* () {
       for (const child of children) {
         yield child;
@@ -178,13 +181,17 @@ export default class PhantomCollection extends PhantomCore {
    * @emits EVT_CHILD_INSTANCE_ADD
    * @emits EVT_UPDATE
    */
-  // TODO: [3.0.0] Fix key type to be string | symbol | null.
-  addChild(phantomCoreInstance: PhantomCore, key: unknown = null): void {
+  addChild(
+    phantomCoreInstance: PhantomCore,
+    key: PhantomCollectionChildKey = null
+  ): void {
     const prevInstanceWithKey = this.getChildWithKey(key);
     if (prevInstanceWithKey) {
       if (prevInstanceWithKey !== phantomCoreInstance) {
         throw new ReferenceError(
-          `A duplicate key is trying to be added with a different PhantomCore instance than what is already registered with the key: "${key}"`
+          `A duplicate key is trying to be added with a different PhantomCore instance than what is already registered with the key: "${String(
+            key
+          )}"`
         );
       } else {
         // Silently ignore trying to add child with same key
@@ -319,7 +326,7 @@ export default class PhantomCollection extends PhantomCore {
    *
    * If no child is found with the given key, it will not return anything.
    */
-  getChildWithKey(key: unknown = null): PhantomCore | void {
+  getChildWithKey(key: PhantomCollectionChildKey = null): PhantomCore | void {
     // FIXME: (jh) Having the optional null key is here for backward
     // compatibility with other PhantomCore-based packages.  It should probably
     // be removed in a future version.
@@ -342,11 +349,19 @@ export default class PhantomCollection extends PhantomCore {
   /**
    * Retrieves the associative keys used with added children.
    */
-  // TODO: [3.0.0] Fix return type to be string & symbol
-  getKeys() /* : string[] & symbol[]*/ {
-    return [...this._childrenMetadata.entries()]
-      .map(([, { [KEY_META_DESC_CHILD_KEY]: key }]) => key)
-      .filter(key => key);
+  getKeys(): PhantomCollectionChildKey[] {
+    const entries = this._childrenMetadata.entries();
+    const keys: PhantomCollectionChildKey[] = [];
+
+    for (const entry of entries) {
+      const childKey: PhantomCollectionChildKey =
+        entry[1][KEY_META_DESC_CHILD_KEY];
+      if (childKey) {
+        keys.push(childKey as string & symbol);
+      }
+    }
+
+    return keys;
   }
 
   /**
