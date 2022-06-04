@@ -1,11 +1,15 @@
 import test from "tape";
-import PhantomCore, {
-  ArbitraryPhantomWrapper,
-  PhantomCollection,
-  PhantomState,
-  PhantomSerializableState,
-  PhantomServiceCore,
-  PhantomServiceManager,
+
+import * as PhantomCoreExports from "../../src/PhantomCore";
+import * as ArbitraryPhantomWrapperExports from "../../src/ArbitraryPhantomWrapper";
+import * as PhantomCollectionExports from "../../src/PhantomCollection";
+import * as PhantomStateExports from "../../src/PhantomState";
+import * as PhantomSerializableStateExports from "../../src/PhantomSerializableState";
+import * as PhantomServiceCoreExports from "../../src/PhantomServiceCore";
+import * as PhantomServiceManagerExports from "../../src/PhantomServiceManager";
+import * as PhantomWatcherExports from "../../src/PhantomWatcher";
+
+import {
   EVT_READY,
   EVT_UPDATE,
   EVT_BEFORE_DESTROY,
@@ -19,7 +23,7 @@ test("PhantomCore events", t => {
   t.plan(1);
 
   t.doesNotThrow(() => {
-    compareExportedEvents(PhantomCore, {
+    compareExportedEvents(PhantomCoreExports, {
       EVT_READY,
       EVT_UPDATE,
       EVT_BEFORE_DESTROY,
@@ -36,7 +40,7 @@ test("ArbitraryPhantomWrapper events", t => {
   t.plan(1);
 
   t.doesNotThrow(() => {
-    compareExportedEvents(PhantomCore, ArbitraryPhantomWrapper);
+    compareExportedEvents(PhantomCoreExports, ArbitraryPhantomWrapperExports);
   }, "ArbitraryPhantomWrapper exports expected events");
 
   t.end();
@@ -46,7 +50,7 @@ test("PhantomCollection events", t => {
   t.plan(1);
 
   t.doesNotThrow(() => {
-    compareExportedEvents(PhantomCore, PhantomCollection);
+    compareExportedEvents(PhantomCoreExports, PhantomCollectionExports);
   }, "PhantomCollection exports expected events");
 
   t.end();
@@ -56,7 +60,7 @@ test("PhantomState events", t => {
   t.plan(1);
 
   t.doesNotThrow(() => {
-    compareExportedEvents(PhantomCore, PhantomState);
+    compareExportedEvents(PhantomCoreExports, PhantomStateExports);
   }, "PhantomState exports expected events");
 
   t.end();
@@ -66,7 +70,7 @@ test("PhantomSerializableState events", t => {
   t.plan(1);
 
   t.doesNotThrow(() => {
-    compareExportedEvents(PhantomState, PhantomSerializableState);
+    compareExportedEvents(PhantomCoreExports, PhantomSerializableStateExports);
   }, "PhantomSerializableState exports expected events");
 
   t.end();
@@ -76,7 +80,7 @@ test("PhantomServiceCore events", t => {
   t.plan(1);
 
   t.doesNotThrow(() => {
-    compareExportedEvents(PhantomState, PhantomServiceCore);
+    compareExportedEvents(PhantomStateExports, PhantomServiceCoreExports);
   }, "PhantomServiceCore exports expected events");
 
   t.end();
@@ -86,8 +90,21 @@ test("PhantomServiceManager events", t => {
   t.plan(1);
 
   t.doesNotThrow(() => {
-    compareExportedEvents(PhantomCollection, PhantomServiceManager);
+    compareExportedEvents(
+      PhantomCollectionExports,
+      PhantomServiceManagerExports
+    );
   }, "PhantomServiceManager exports expected events");
+
+  t.end();
+});
+
+test("PhantomWatcher events", t => {
+  t.plan(1);
+
+  t.doesNotThrow(() => {
+    compareExportedEvents(PhantomCoreExports, PhantomWatcherExports);
+  }, "PhantomWatcher exports expected events");
 
   t.end();
 });

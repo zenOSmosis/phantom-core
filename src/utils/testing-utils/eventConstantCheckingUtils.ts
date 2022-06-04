@@ -1,3 +1,7 @@
+// TODO: [3.0.0] Define PhantomCoreEvent type
+
+import { RecursiveObject } from "../../types";
+
 const eventPrefix = "EVT_";
 
 /**
@@ -8,8 +12,11 @@ const eventPrefix = "EVT_";
  *
  * @throws {ReferenceError | TypeError}
  */
-export function checkEvents(events: { [key: string]: string | symbol }): void {
+export function checkEvents(events: RecursiveObject): void {
   const keys = Object.keys(events);
+
+  validateKeysExist(keys);
+
   const values = Object.values(events);
 
   for (const key of keys) {
@@ -35,21 +42,26 @@ export function checkEvents(events: { [key: string]: string | symbol }): void {
   const lenUniqueEvents = uniqueEvents.length;
 
   if (lenEvents !== lenUniqueEvents) {
-    // FIXME: (jh) Add symbol support
+    // FIXME: (jh) Add symbol support?
     throw new ReferenceError("Events are not unique");
   }
 }
 
 /**
- * Retrieves a filtered object, based on the the given require object (i.e. via
- * require('phantom-core')) which contains events, and nothing else.
+ * Extracts PhantomCore-based events from the given imports.
+ *
+ * Retrieves a filtered object, based on the the given exported values (i.e.
+ * via import * as MyImportExports from 'x') which contains events, and nothing
+ * else.
+ *
+ * @throws {ReferenceError}
  */
-export function extractEvents(es5Import: { [key: string]: string | symbol }): {
-  [key: string]: string | symbol;
-} {
-  const keys = Object.keys(es5Import).filter(predicate =>
-    predicate.startsWith(eventPrefix)
+export function extractEvents(es5Import: RecursiveObject): RecursiveObject {
+  const keys = Object.keys(es5Import).filter(pred =>
+    pred.startsWith(eventPrefix)
   );
+
+  validateKeysExist(keys);
 
   const events = Object.fromEntries(keys.map(key => [key, es5Import[key]]));
 
@@ -67,12 +79,12 @@ export function extractEvents(es5Import: { [key: string]: string | symbol }): {
  * @throws {ReferenceError}
  */
 export function compareExportedEvents(
-  baseES5Import: { [key: string]: string | symbol },
-  extensionES5Import: { [key: string]: string | symbol },
-  baseES5ImportExclusions: { [key: string]: string | symbol } = {}
+  baseES5Import: RecursiveObject,
+  inheritingES5Import: RecursiveObject,
+  baseES5ImportExclusions: RecursiveObject = {}
 ): void {
   const exportsA = extractEvents(baseES5Import);
-  const exportsB = extractEvents(extensionES5Import);
+  const exportsB = extractEvents(inheritingES5Import);
 
   // Check that extensionES5Import contains same events as baseES5Import, minus any exceptions
   for (const [keyA, valueA] of Object.entries(exportsA)) {
@@ -89,5 +101,18 @@ export function compareExportedEvents(
         `Extension has mismatched event value for constant "${keyA}"`
       );
     }
+  }
+}
+
+/**
+ * Validate keys are not empty.
+ *
+ * @throws {ReferenceError}
+ */
+function validateKeysExist(keys: string[]) {
+  if (!keys.length) {
+    throw new ReferenceError(
+      "No keys have been found. Are you sure you are comparing all exported values?"
+    );
   }
 }

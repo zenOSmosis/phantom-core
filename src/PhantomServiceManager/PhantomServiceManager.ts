@@ -2,12 +2,12 @@ import PhantomCore from "../PhantomCore";
 import PhantomCollection, {
   EVT_NO_INIT_WARN,
   EVT_READY,
-  // EVT_CHILD_INSTANCE_ADD,
-  // EVT_CHILD_INSTANCE_REMOVE,
   EVT_UPDATE,
   EVT_BEFORE_DESTROY,
   EVT_DESTROY_STACK_TIME_OUT,
   EVT_DESTROY,
+  EVT_CHILD_INSTANCE_ADD,
+  EVT_CHILD_INSTANCE_REMOVE,
 } from "../PhantomCollection";
 import PhantomServiceCore from "../PhantomServiceCore";
 import getClassName from "../utils/class-utils/getClassName";
@@ -16,12 +16,12 @@ import { Class } from "../types";
 export {
   EVT_NO_INIT_WARN,
   EVT_READY,
-  // EVT_CHILD_INSTANCE_ADD,
-  // EVT_CHILD_INSTANCE_REMOVE,
   EVT_UPDATE,
   EVT_BEFORE_DESTROY,
   EVT_DESTROY_STACK_TIME_OUT,
   EVT_DESTROY,
+  EVT_CHILD_INSTANCE_ADD,
+  EVT_CHILD_INSTANCE_REMOVE,
 };
 
 /**

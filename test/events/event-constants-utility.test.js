@@ -3,7 +3,23 @@ import { checkEvents, extractEvents, compareExportedEvents } from "../../src";
 
 // Validate event testing utility works as expected
 test("test utility checker", t => {
-  t.plan(15);
+  t.plan(17);
+
+  t.throws(
+    () => {
+      checkEvents({});
+    },
+    ReferenceError,
+    "throws if checked events are empty"
+  );
+
+  t.throws(
+    () => {
+      extractEvents({});
+    },
+    ReferenceError,
+    "throws if extracted events are empty"
+  );
 
   t.throws(() => {
     checkEvents({
