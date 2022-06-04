@@ -8,10 +8,12 @@ import PhantomCore, {
   EVT_DESTROY,
   EVT_NO_INIT_WARN,
   CommonOptions,
+  EventConstant,
+  EventTypes,
 } from "./PhantomCore";
 
 export default PhantomCore;
-export type { CommonOptions };
+export type { CommonOptions, EventConstant };
 
 export {
   PhantomCore,
@@ -21,6 +23,7 @@ export {
   EVT_DESTROY_STACK_TIME_OUT,
   EVT_DESTROY,
   EVT_NO_INIT_WARN,
+  EventTypes,
 };
 
 import Logger, { LogLevel, EVT_LOG_MISS } from "./Logger";

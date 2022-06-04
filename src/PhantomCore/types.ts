@@ -4,3 +4,5 @@ export type CommonOptions = {
   title?: string | null;
   hasAutomaticBindings?: boolean;
 };
+
+export type EventConstant = `EVT_${string}`;

@@ -1,6 +1,8 @@
 // TODO: [3.0.0] Define PhantomCoreEvent type
 
 import { RecursiveObject } from "../../types";
+import { EventConstant, EventTypes } from "../../PhantomCore";
+import getEnumValues from "../enum-utils/getEnumValues";
 
 const eventPrefix = "EVT_";
 
@@ -32,8 +34,8 @@ export function checkEvents(events: RecursiveObject): void {
   }
 
   for (const value of values) {
-    if (typeof value !== "string" && typeof value !== "symbol") {
-      throw new TypeError(`Value "${value}" is not a string or symbol`);
+    if (!getEnumValues(EventTypes).includes(typeof value)) {
+      throw new TypeError(`Value "${String(value)}" is not a string`);
     }
   }
 
@@ -56,19 +58,23 @@ export function checkEvents(events: RecursiveObject): void {
  *
  * @throws {ReferenceError}
  */
-export function extractEvents(es5Import: RecursiveObject): RecursiveObject {
+export function extractEvents(es5Import: RecursiveObject): {
+  [key: EventConstant]: string;
+} {
   const keys = Object.keys(es5Import).filter(pred =>
     pred.startsWith(eventPrefix)
   );
 
   validateKeysExist(keys);
 
-  const events = Object.fromEntries(keys.map(key => [key, es5Import[key]]));
+  const events: RecursiveObject = Object.fromEntries(
+    keys.map(key => [key, es5Import[key]])
+  );
 
   // Ensure the events are valid
   checkEvents(events);
 
-  return events;
+  return events as { [key: EventConstant]: string };
 }
 
 /**
@@ -88,7 +94,7 @@ export function compareExportedEvents(
 
   // Check that extensionES5Import contains same events as baseES5Import, minus any exceptions
   for (const [keyA, valueA] of Object.entries(exportsA)) {
-    const valueB = exportsB[keyA];
+    const valueB = (exportsB as { [key: string]: string })[keyA];
 
     // Ensure that exportB contains same object and value, with exception of exclusions
     if (valueB !== valueA) {
