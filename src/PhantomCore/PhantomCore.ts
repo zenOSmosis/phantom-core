@@ -1,11 +1,13 @@
+import { Class, ClassInstance, RecursiveObject } from "../types";
+import { CommonOptions } from "./types";
 import CommonEventEmitter from "../CommonEventEmitter";
-import Logger, { LogIntersection, EVT_LOG_MISS } from "../Logger";
-import logger from "../globalLogger";
 import DestructibleEventEmitter, {
   EVT_BEFORE_DESTROY,
   EVT_DESTROY_STACK_TIME_OUT,
   EVT_DESTROY,
 } from "../_DestructibleEventEmitter";
+import Logger, { LogIntersection, EVT_LOG_MISS } from "../Logger";
+import logger from "../globalLogger";
 import getPackageJSON from "../utils/getPackageJSON";
 import FunctionStack, {
   FUNCTION_STACK_OPS_ORDER_LIFO,
@@ -21,8 +23,7 @@ import getClassInstancePropertyNames from "../utils/class-utils/getClassInstance
 import getClassInstanceMethodNames from "../utils/class-utils/getClassInstanceMethodNames";
 import autoBindClassInstanceMethods from "../utils/class-utils/autoBindClassInstanceMethods";
 import shallowMerge from "../utils/shallowMerge";
-import { Class, ClassInstance } from "../types";
-import { CommonOptions } from "./types";
+
 import phantomCoreOrchestrator from "./_PhantomCoreOrchestrator";
 
 // Number of milliseconds to allow async inits to initialize before triggering
@@ -138,10 +139,9 @@ export default class PhantomCore extends DestructibleEventEmitter {
    *
    * IMPORTANT: The return is a COPY of the merged; no re-assignment takes place.
    */
-  // TODO: [3.0.0] Use recursive object type
   static mergeOptions(
-    objA: { [key: string]: unknown } | null,
-    objB: { [key: string]: unknown } | null
+    objA: RecursiveObject | null,
+    objB: RecursiveObject | null
   ) {
     return shallowMerge(objA, objB);
   }
