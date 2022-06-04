@@ -2,6 +2,7 @@ import _DestructibleEventEmitter, {
   EVT_DESTROY,
 } from "./_DestructibleEventEmitter";
 import { ClassInstance } from "./types";
+import autoBindClassInstanceMethods from "./utils/class-utils/autoBindClassInstanceMethods";
 
 export enum LogLevel {
   Silent = 0,
@@ -214,6 +215,9 @@ export default class Logger extends _DestructibleEventEmitter {
         // Extend class with logger methods
         (this as ClassInstance)[method] = loggerMethods[method];
       });
+
+      // Apply scope binding of dynamically created methods to the Logger instance
+      autoBindClassInstanceMethods(this);
 
       return log;
     })() as unknown as LogIntersection;

@@ -13,7 +13,7 @@ import { ClassInstance } from "../../types";
  */
 export default function autoBindClassInstanceMethods(
   classInstance: ClassInstance,
-  ignoreMethods: Function[]
+  ignoreMethods: Function[] = []
 ): void {
   if (!getIsClassInstance(classInstance)) {
     throw new TypeError("classInstance must be an instance of a class");
