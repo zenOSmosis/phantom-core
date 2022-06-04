@@ -23,7 +23,7 @@ import autoBindClassInstanceMethods from "../utils/class-utils/autoBindClassInst
 import shallowMerge from "../utils/shallowMerge";
 import { Class, ClassInstance } from "../utils/class-utils/types";
 import { CommonOptions } from "./types";
-import phantomCoreOrchestrator from "./PhantomCoreOrchestrator";
+import phantomCoreOrchestrator from "./_PhantomCoreOrchestrator";
 
 // Number of milliseconds to allow async inits to initialize before triggering
 // warning

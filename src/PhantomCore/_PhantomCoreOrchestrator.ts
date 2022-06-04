@@ -3,10 +3,7 @@
 import "setimmediate";
 
 import CommonEventEmitter from "../CommonEventEmitter";
-import PhantomCore, {
-  EVT_UPDATE,
-  EVT_DESTROY,
-} from "../PhantomCore/PhantomCore";
+import PhantomCore, { EVT_UPDATE, EVT_DESTROY } from "./PhantomCore";
 import Logger, { EVT_LOG_MISS } from "../Logger";
 import globalLogger from "../globalLogger";
 
@@ -15,7 +12,7 @@ type PhantomClassName = string;
 let _orchestrator: PhantomCoreOrchestrator;
 
 // TODO: [3.0.0] Document
-export const EVT_PHANTOM_WATCHER_LOG_MISS = "phantom-group-watcher-log-miss";
+export const EVT_PHANTOM_WATCHER_LOG_MISS = "phantom-watcher-log-miss";
 export type PhantomWatcherLogMissEventData = {
   phantomClassName: PhantomClassName;
   title: string | null;

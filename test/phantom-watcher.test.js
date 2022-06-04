@@ -14,22 +14,32 @@ test("phantom watcher setup and cleanup", async t => {
 
   const n = watcher.getPhantomClassNames().length;
 
-  t.equals(watcher.getPhantomClassNames().length, n);
-
   // Avoid name conflicts with other PhantomCore instances
   class PhantomCore_WatcherSetup extends PhantomCore {}
 
   const phantom = new PhantomCore_WatcherSetup();
 
-  t.equals(watcher.getPhantomClassNames().length, n);
+  t.equals(
+    watcher.getPhantomClassNames().length,
+    n,
+    "does not initially contain watched node class name"
+  );
 
   await new Promise(resolve => watcher.once(EVT_UPDATE, resolve));
 
-  t.equals(watcher.getPhantomClassNames().length, n + 1);
+  t.equals(
+    watcher.getPhantomClassNames().length,
+    n + 1,
+    "watched node is added to unique class names after update"
+  );
 
   await phantom.destroy();
 
-  t.equals(watcher.getPhantomClassNames().length, n);
+  t.equals(
+    watcher.getPhantomClassNames().length,
+    n,
+    "watched node is remove from unique class names after destruct "
+  );
 
   await watcher.destroy();
 
@@ -45,8 +55,13 @@ test("multiple watchers", async t => {
 
   const n = watcher1.getTotalPhantomInstances();
 
-  t.equals(watcher1.getTotalPhantomInstances(), n);
-  t.equals(watcher2.getTotalPhantomInstances(), n);
+  t.equals(
+    watcher1.getTotalPhantomInstances(),
+    n,
+    "watcher1 contains n phantom class instances"
+  );
+  t.equals(watcher2.getTotalPhantomInstances(), n),
+    "watcher2 container same n phantom class instances";
 
   const phantom = new PhantomCore();
 
