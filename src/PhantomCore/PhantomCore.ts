@@ -49,10 +49,6 @@ export const EVT_UPDATE = "update";
 
 export { EVT_BEFORE_DESTROY, EVT_DESTROY_STACK_TIME_OUT, EVT_DESTROY };
 
-// TODO: [3.0.0] Use PhantomOrchestrator for this
-// Instances for this particular thread
-const _instanceMap: Map<string, PhantomCore> = new Map();
-
 // Methods which should continue working after class destruct
 const KEEP_ALIVE_SHUTDOWN_METHODS = [
   "log",
@@ -127,40 +123,14 @@ export default class PhantomCore extends DestructibleEventEmitter {
   }
 
   /**
-   * Retrieves PhantomCore instance with the given UUID.
-   *
-   * If no instance is found with the given UUID, it will return nothing.
-   */
-  static getInstanceWithUUID(uuid: string): PhantomCore | void {
-    return _instanceMap.get(uuid);
-  }
-
-  /**
-   * Symbol is a built-in object whose constructor returns a symbol primitive —
-   * also called a Symbol value or just a Symbol — that’s guaranteed to be
-   * unique. Symbols are often used to add unique property keys to an object
-   * that won’t collide with keys any other code might add to the object, and
-   * which are hidden from any mechanisms other code will typically use to
-   * access the object. That enables a form of weak encapsulation, or a weak
-   * form of information hiding.
-   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol
-   *
-   * If no instance is found with the given Symbol, it will return nothing.
-   */
-  static getInstanceWithSymbol(symbol: Symbol): PhantomCore | void {
-    return [..._instanceMap.values()].find(
-      instance => instance.getSymbol() === symbol
-    );
-  }
-
-  /**
-   * Retrieves the number of instances for this thread.
+   * Retrieves the total number of active PhantomCore instances running on this
+   * CPU thread.
    *
    * When an instance is created / destroyed, the number is increased / reduced
    * by one.
    */
   static getInstanceCount(): number {
-    return _instanceMap.size;
+    return phantomCoreOrchestrator.getPhantomInstanceCount();
   }
 
   /**
@@ -187,17 +157,8 @@ export default class PhantomCore extends DestructibleEventEmitter {
   protected _cleanupHandlerStack: FunctionStack;
   protected _timerStack: TimerStack;
 
-  protected _symbol: Symbol | null;
-
   constructor(options: CommonOptions = {}) {
     super();
-
-    // Note: PhantomWatcher will automatically handle instance de-registration
-    phantomCoreOrchestrator.addInstance(this);
-
-    // TODO: [3.0.0] Remove
-    // Register with instances
-    _instanceMap.set(this._uuid, this);
 
     const DEFAULT_OPTIONS: CommonOptions = {
       /**
@@ -209,12 +170,6 @@ export default class PhantomCore extends DestructibleEventEmitter {
        * it was defined in an extension class.
        **/
       isAsync: false,
-
-      /**
-       * An arbitrary Symbol for this instance, explicitly guaranteed to be
-       * unique across instances.
-       **/
-      symbol: null,
 
       /**
        * An arbitrary title for this instance, not guaranteed to be unique
@@ -251,25 +206,6 @@ export default class PhantomCore extends DestructibleEventEmitter {
       FUNCTION_STACK_OPS_ORDER_LIFO
     );
 
-    this._symbol = (() => {
-      if (this._options.symbol) {
-        if (PhantomCore.getInstanceWithSymbol(this._options.symbol)) {
-          throw new Error(
-            "Existing instance with symbol",
-            // TODO: [3.0.0] Remove ts-ignore
-            // @ts-ignore
-            this._options.symbol
-          );
-        }
-
-        if (typeof this._options.symbol !== "symbol") {
-          throw new TypeError("options.symbol is not a Symbol");
-        }
-      }
-
-      return this._options.symbol;
-    })() as symbol | null;
-
     this._title = this._options.title as string | null;
 
     this.logger = new Logger({
@@ -296,6 +232,9 @@ export default class PhantomCore extends DestructibleEventEmitter {
 
     // FIXME: [3.0.0] Fix type so "as" isn't necessary
     this.registerCleanupHandler(() => (this.logger as Logger).destroy());
+
+    // Note: PhantomWatcher will automatically handle instance de-registration
+    phantomCoreOrchestrator.addInstance(this);
 
     this.once(EVT_DESTROY_STACK_TIME_OUT, () => {
       this.log.error(
@@ -462,15 +401,6 @@ export default class PhantomCore extends DestructibleEventEmitter {
         PhantomCore.getIsInstance((this as ClassInstance)[propName]) &&
         !(this as ClassInstance)[propName].getIsDestroyed()
     );
-  }
-
-  /**
-   * Retrieves the associated symbol to this PhantomCore instance.
-   *
-   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol
-   */
-  getSymbol(): Symbol | null {
-    return this._symbol;
   }
 
   /**
@@ -788,9 +718,6 @@ export default class PhantomCore extends DestructibleEventEmitter {
   override async destroy(destroyHandler?: () => void): Promise<void> {
     return super.destroy(
       async () => {
-        // Unregister from instances
-        _instanceMap.delete(this._uuid);
-
         if (typeof destroyHandler === "function") {
           await destroyHandler();
         }

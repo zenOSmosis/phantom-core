@@ -82,7 +82,6 @@ class PhantomCoreOrchestrator extends CommonEventEmitter {
         [0, 0, 0, 0, 0]
       );
     }
-
     phantom.on(EVT_LOG_MISS, (logLevel: number) => {
       // Update missMap counts
       const missMap =
@@ -108,10 +107,12 @@ class PhantomCoreOrchestrator extends CommonEventEmitter {
     this._phantomClassNameSet.add(phantomClassName);
 
     setImmediate(() => {
-      // Set the log level to the group / global level
-      phantom.setLogLevel(this.getPhantomClassLogLevel(phantomClassName));
+      if (!phantom.getHasDestroyStarted()) {
+        // Set the log level to the group / global level
+        phantom.setLogLevel(this.getPhantomClassLogLevel(phantomClassName));
 
-      this.emit(EVT_UPDATE);
+        this.emit(EVT_UPDATE);
+      }
     });
   }
 
@@ -142,6 +143,17 @@ class PhantomCoreOrchestrator extends CommonEventEmitter {
     }
 
     this.emit(EVT_UPDATE);
+  }
+
+  /**
+   * Retrieves the total number of active PhantomCore instances running on this
+   * CPU thread.
+   *
+   * When an instance is created / destroyed, the number is increased / reduced
+   * by one.
+   */
+  getPhantomInstanceCount() {
+    return this._phantomInstances.size;
   }
 
   /**
