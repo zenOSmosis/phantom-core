@@ -30,8 +30,15 @@ export type Class<T = Instantiable> = Instantiable | T;
 export interface ClassInstance {
   constructor: Instantiable;
 
-  // TODO: [3.0.0] Fix any type
-  [key: string]: Primitive | Function | Instantiable | any;
+  [key: string]:
+    | Primitive
+    | RecursiveObject
+    | Function
+    | Instantiable
+    | Class
+    | ClassInstance
+    // TODO: [3.0.0] Fix any type
+    | any;
 }
 
 /**
@@ -41,7 +48,7 @@ export interface ClassInstance {
 interface Instantiable {
   name: string;
 
-  prototype: (...args: Primitive[]) => Function;
+  prototype: ((...args: Primitive[]) => Function) | Primitive | RecursiveObject;
 }
 
 /**
