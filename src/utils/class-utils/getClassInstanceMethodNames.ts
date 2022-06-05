@@ -4,8 +4,8 @@ import { ClassInstance } from "../../types";
 /**
  * Retrieves an array of class method names for the given JavaScript class.
  *
- * IMPORTANT: This retrieves an array of strings, and not pointers to the
- * methods themselves.
+ * IMPORTANT: This retrieves an array of strings instead of references to the
+ * properties themselves.
  */
 export default function getClassInstanceMethodNames(
   classInstance: ClassInstance

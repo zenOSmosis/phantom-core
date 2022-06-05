@@ -4,7 +4,7 @@ import { ClassInstance } from "../../types";
 /**
  * Retrieves an array of the given class property names.
  *
- * IMPORTANT: This retrieves an array of strings, and not pointers to the
+ * IMPORTANT: This retrieves an array of strings instead of references to the
  * properties themselves.
  */
 export default function getClassInstancePropertyNames(
