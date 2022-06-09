@@ -21,6 +21,7 @@ export type RecursiveObject = {
   [key: string]: Primitive;
 };
 
+// TODO: [3.0.0] See https://github.com/sindresorhus/type-fest/blob/main/test-d/class.ts
 // Borrowed from: https://stackoverflow.com/questions/39392853/is-there-a-type-for-class-in-typescript-and-does-any-include-it
 export type Class<T = Instantiable> = Instantiable | T;
 
