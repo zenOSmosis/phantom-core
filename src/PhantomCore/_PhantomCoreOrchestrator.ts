@@ -228,6 +228,9 @@ class PhantomCoreOrchestrator extends CommonEventEmitter {
 
   /**
    * Determines if the log level has changed from the initial global value.
+   *
+   * Note: If the log level is changed to back to the original value, this will
+   * report false.
    */
   getHasGlobalLogLevelChanged(): boolean {
     return this.getGlobalLogLevel() !== this.getInitialGlobalLogLevel();
