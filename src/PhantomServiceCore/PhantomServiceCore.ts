@@ -91,11 +91,11 @@ export default class PhantomServiceCore extends PhantomState {
 
     // Auto-init this async service.
     //
-    // IMPORTANT: The setImmediate handler fixes issue where _init is invoked
+    // IMPORTANT: The queueMicrotask handler fixes issue where _init is invoked
     // before extension constructors have a chance to initialize, despite the
     // fact it is an async method (without it, it fails a test case in
     // service-core.instantiation.test.js)
-    (global || window).setImmediate(() => {
+    queueMicrotask(() => {
       this._init();
     });
   }

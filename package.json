@@ -25,13 +25,11 @@
     "dayjs": "^1.11.2",
     "deepmerge": "^4.2.2",
     "is-plain-object": "^5.0.0",
-    "setimmediate": "^1.0.5",
     "short-uuid": "^4.2.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/node": "^17.0.35",
-    "@types/setimmediate": "^1.0.2",
     "@types/uuid": "^8.3.4",
     "airtap": "^4.0.4",
     "airtap-sauce": "^1.1.2",

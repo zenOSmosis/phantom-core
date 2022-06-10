@@ -1,7 +1,3 @@
-// @see https://github.com/YuzuJS/setImmediate
-// Exposes setImmediate as a global, if not already defined as a global
-import "setimmediate";
-
 import CommonEventEmitter from "../CommonEventEmitter";
 import PhantomCore, { EVT_UPDATE, EVT_DESTROY } from "./PhantomCore";
 import Logger, { EVT_LOG_MISS } from "../Logger";
@@ -113,7 +109,7 @@ class PhantomCoreOrchestrator extends CommonEventEmitter {
     this._phantomClassNameSet.add(phantomClassName);
 
     // Allow event loop to complete before continuing
-    setImmediate(() => {
+    queueMicrotask(() => {
       if (!phantom.getHasDestroyStarted()) {
         // Set the log level to the group / global level
         phantom.setLogLevel(this.getPhantomClassLogLevel(phantomClassName));

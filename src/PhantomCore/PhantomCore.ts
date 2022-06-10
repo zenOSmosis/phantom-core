@@ -275,7 +275,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
       };
 
       // Allow synchronous queue to drain before emitting EVT_READY
-      setImmediate(() => {
+      queueMicrotask(() => {
         if (!this.getHasDestroyStarted()) {
           this.emit(EVT_READY);
         }
