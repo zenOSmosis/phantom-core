@@ -9,9 +9,13 @@ test("does not allow multiple instances of orchestrator", async t => {
 
   const p = new PhantomCore();
 
-  t.throws(() => {
-    new PhantomCoreOrchestrator();
-  });
+  t.throws(
+    () => {
+      new PhantomCoreOrchestrator();
+    },
+    Error,
+    "orchestrator blocks subsequent instance creation"
+  );
 
   await p.destroy();
 
@@ -91,6 +95,66 @@ test("sets and retrieves global log levels", async t => {
     orchestrator.getHasGlobalLogLevelChanged(),
     false,
     "orchestrator reports log level has reset"
+  );
+
+  t.end();
+});
+
+test("sets and retrieves PhantomCore log level", async t => {
+  t.plan(7);
+
+  t.equals(
+    orchestrator.getPhantomClassLogLevel("NonExistent"),
+    globalLogger.getLogLevel(),
+    "non-existent phantom class log level is treated as global log level"
+  );
+
+  class CustomLogLevelPhantomCore extends PhantomCore {}
+
+  const p = new CustomLogLevelPhantomCore();
+
+  t.equals(
+    orchestrator.getPhantomClassLogLevel("CustomLogLevelPhantomCore"),
+    orchestrator.getInitialGlobalLogLevel(),
+    "new phantom class has initial global log level"
+  );
+
+  orchestrator.setPhantomClassLogLevel("CustomLogLevelPhantomCore", "debug");
+
+  t.equals(
+    orchestrator.getPhantomClassLogLevel("CustomLogLevelPhantomCore"),
+    4,
+    "setting phantom class log level affects classes"
+  );
+
+  t.doesNotEqual(
+    orchestrator.getGlobalLogLevel(),
+    4,
+    "setting phantom class log level does not affect global log level"
+  );
+
+  t.equals(
+    orchestrator.getTotalPhantomInstancesWithClassName(
+      "CustomLogLevelPhantomCore"
+    ),
+    1,
+    "orchestrator reports one custom log level instance before destruct"
+  );
+
+  await p.destroy();
+
+  t.equals(
+    orchestrator.getTotalPhantomInstancesWithClassName(
+      "CustomLogLevelPhantomCore"
+    ),
+    0,
+    "orchestrator reports zero custom log level instances before destruct"
+  );
+
+  t.equals(
+    orchestrator.getPhantomClassLogLevel("CustomLogLevelPhantomCore"),
+    4,
+    "custom phantom class log level is retained after all existing instances are destructed"
   );
 
   t.end();
