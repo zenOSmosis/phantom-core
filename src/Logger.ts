@@ -4,6 +4,9 @@ import _DestructibleEventEmitter, {
 import { ClassInstance } from "./types";
 import autoBindClassInstanceMethods from "./utils/class-utils/autoBindClassInstanceMethods";
 
+/**
+ * Note: At this time, getLogLevel retrieves the numeric value.
+ */
 export enum LogLevel {
   Silent = 0,
   Error = 1,
@@ -223,6 +226,7 @@ export default class Logger extends _DestructibleEventEmitter {
     })() as unknown as LogIntersection;
   }
 
+  /** Retrieves the current log level */
   getLogLevel(): number {
     return this._logLevel;
   }

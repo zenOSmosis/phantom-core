@@ -1,9 +1,9 @@
 const test = require("tape");
-import { PhantomCore, LogLevel, logger } from "../src";
+import { PhantomCore, LogLevel, globalLogger } from "../src";
 
 // TODO: Add log miss testing
 
-test("phantom-core uses logger.info when calling calling phantom.log() directly", t => {
+test("phantom-core uses globalLogger.info when calling calling phantom.log() directly", t => {
   t.plan(1);
 
   const phantom = new PhantomCore();
@@ -146,7 +146,7 @@ test("PhantomCore this.log and this.logger calls", async t => {
 
   // phantom.log and phantom.logger can be called independently and are treated
   // the same for all usages except that calling phantom.log() directly will
-  // indirectly call logger.info
+  // indirectly call globalLogger.info
 
   phantom.log("ok");
   t.ok(true, "call to phantom.log() succeeds");
@@ -176,29 +176,29 @@ test("PhantomCore this.log and this.logger calls", async t => {
 test("independent logger", t => {
   t.plan(6);
 
-  logger.log("ok");
-  // FIXME: Use sinon to ensure this calls logger.info
-  t.ok(true, "call to logger.log() succeeds");
+  globalLogger.log("ok");
+  // FIXME: Use sinon to ensure this calls globalLogger.info
+  t.ok(true, "call to globalLogger.log() succeeds");
 
-  logger.log.error("ok");
-  logger.error("ok");
-  t.ok(true, "call to logger.error() succeeds");
+  globalLogger.log.error("ok");
+  globalLogger.error("ok");
+  t.ok(true, "call to globalLogger.error() succeeds");
 
-  logger.log.warn("ok");
-  logger.warn("ok");
-  t.ok(true, "call to logger.warn() succeeds");
+  globalLogger.log.warn("ok");
+  globalLogger.warn("ok");
+  t.ok(true, "call to globalLogger.warn() succeeds");
 
-  logger.log.info("ok");
-  logger.info("ok");
-  t.ok(true, "call to logger.info() succeeds");
+  globalLogger.log.info("ok");
+  globalLogger.info("ok");
+  t.ok(true, "call to globalLogger.info() succeeds");
 
-  logger.log.debug("ok");
-  logger.debug("ok");
-  t.ok(true, "call to logger.debug() succeeds");
+  globalLogger.log.debug("ok");
+  globalLogger.debug("ok");
+  t.ok(true, "call to globalLogger.debug() succeeds");
 
-  logger.log.trace("ok");
-  logger.trace("ok");
-  t.ok(true, "call to logger.trace() succeeds");
+  globalLogger.log.trace("ok");
+  globalLogger.trace("ok");
+  t.ok(true, "call to globalLogger.trace() succeeds");
 
   t.end();
 });

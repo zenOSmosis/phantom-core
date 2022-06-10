@@ -30,8 +30,8 @@ import Logger, { LogLevel, EVT_LOG_MISS } from "./Logger";
 
 export { Logger, LogLevel, EVT_LOG_MISS };
 
-import logger from "./globalLogger";
-export { logger };
+import globalLogger from "./globalLogger";
+export { globalLogger };
 
 import CommonEventEmitter from "./CommonEventEmitter";
 export { CommonEventEmitter };
