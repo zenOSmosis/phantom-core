@@ -7,8 +7,12 @@ type PhantomClassName = string;
 
 let _orchestrator: PhantomCoreOrchestrator;
 
-// TODO: [3.0.0] Document
+/**
+ * @event EVT_PHANTOM_WATCHER_LOG_MISS Emits with PhatomWatcherLogMissEventData
+ * when there is a filtered log miss.
+ */
 export const EVT_PHANTOM_WATCHER_LOG_MISS = "phantom-watcher-log-miss";
+
 export type PhantomWatcherLogMissEventData = {
   phantomClassName: PhantomClassName;
   title: string | null;

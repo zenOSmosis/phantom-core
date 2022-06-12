@@ -9,8 +9,9 @@ export enum TimerType {
   Timeout,
 }
 
-// TODO: Document
-// Contains two internal stacks (timeout and interval)
+/**
+ * Manages setTimeout and setInterval as if they were non-globals.
+ */
 export default class TimerStack extends _DestructibleEventEmitter {
   protected _timeoutStack: ReturnType<typeof setTimeout>[] = [];
   protected _intervalStack: ReturnType<typeof setInterval>[] = [];

@@ -1,7 +1,9 @@
 import { Enum } from "../../types";
 import getIsNumeric from "../getIsNumeric";
 
-// TODO: [3.0.0] Document
+/**
+ * Creates a numerically indexed object from the given enum.
+ */
 export default function enumToNumericIndexedObject(obj: Enum): {
   [key: string]: string | number;
 } {
