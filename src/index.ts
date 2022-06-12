@@ -89,6 +89,9 @@ export { deepMerge };
 import enumToNumericIndexedObject from "./utils/enum-utils/enumToNumericIndexedObject";
 export { enumToNumericIndexedObject };
 
+import enumToStringIndexedObject from "./utils/enum-utils/enumToStringIndexedObject";
+export { enumToStringIndexedObject };
+
 import getEnumValues from "./utils/enum-utils/getEnumValues";
 export { getEnumValues };
 

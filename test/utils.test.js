@@ -16,6 +16,7 @@ import PhantomCore, {
   sleep,
   performance,
   enumToNumericIndexedObject,
+  enumToStringIndexedObject,
   LogLevel,
 } from "../src";
 import _DestructibleEventEmitter from "../src/_DestructibleEventEmitter";
@@ -289,6 +290,21 @@ test("enum to numeric indexed object", t => {
     3: "Info",
     4: "Debug",
     5: "Trace",
+  });
+
+  t.end();
+});
+
+test("enum to string indexed object", t => {
+  t.plan(1);
+
+  t.deepEquals(enumToStringIndexedObject(LogLevel), {
+    silent: 0,
+    error: 1,
+    warn: 2,
+    info: 3,
+    debug: 4,
+    trace: 5,
   });
 
   t.end();

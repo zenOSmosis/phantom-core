@@ -3,6 +3,7 @@ import _DestructibleEventEmitter, {
 } from "./_DestructibleEventEmitter";
 import { ClassInstance } from "./types";
 import autoBindClassInstanceMethods from "./utils/class-utils/autoBindClassInstanceMethods";
+import enumToStringIndexedObject from "./utils/enum-utils/enumToStringIndexedObject";
 
 /**
  * Note: At this time, getLogLevel retrieves the numeric value.
@@ -19,13 +20,8 @@ export enum LogLevel {
 export { EVT_DESTROY };
 
 // TODO: [3.0.0] Use Map here?
-const LOG_LEVEL_STRING_MAP: { [key: string]: number } = {
-  silent: LogLevel.Silent,
-  error: LogLevel.Error,
-  warn: LogLevel.Warn,
-  info: LogLevel.Info,
-  debug: LogLevel.Debug,
-  trace: LogLevel.Trace,
+const LOG_LEVEL_STRING_MAP = enumToStringIndexedObject(LogLevel) as {
+  [key: string]: number;
 };
 
 export type LogIntersection = Logger & ((...args: any[]) => void);
