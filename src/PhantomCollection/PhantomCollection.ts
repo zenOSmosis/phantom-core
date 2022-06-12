@@ -386,7 +386,7 @@ export default class PhantomCollection extends PhantomCore {
    * the collection instance emit the event directly.
    */
   bindChildEventName(childEventName: string): void {
-    this._childEventBridge.addBridgeEventName(childEventName);
+    this._childEventBridge.proxyCollectionEvent(childEventName);
   }
 
   /**
@@ -396,7 +396,7 @@ export default class PhantomCollection extends PhantomCore {
    * [many-to-one relationship]
    */
   unbindChildEventName(childEventName: string): void {
-    this._childEventBridge.removeBridgeEventName(childEventName);
+    this._childEventBridge.unproxyCollectionEvent(childEventName);
   }
 
   /**
@@ -404,7 +404,7 @@ export default class PhantomCollection extends PhantomCore {
    * out the PhantomCollection when triggered.
    */
   getBoundChildEventNames(): (string | symbol)[] {
-    return this._childEventBridge.getBridgeEventNames();
+    return this._childEventBridge.getProxiedCollectionEventNames();
   }
 
   override async destroy(destroyHandler?: () => void): Promise<void> {
