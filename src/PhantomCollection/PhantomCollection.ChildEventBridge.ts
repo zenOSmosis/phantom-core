@@ -7,14 +7,9 @@ import PhantomCollection, {
 
 const DEFAULT_BRIDGE_EVENT_NAMES = [EVT_UPDATE] as string[] & symbol[];
 
-const EVT_BRIDGE_EVENT_NAME_ADD = "bridge-event-name-add";
-const EVT_BRIDGE_EVENT_NAME_REMOVE = "bridge-event-name-remove";
-
 type EventName = string | symbol;
 type EventHandler = (...args: any[]) => void;
 type EventMap = Map<EventName, EventHandler>;
-
-export { EVT_UPDATE };
 
 /**
  * Manages the relationships of proxied events to / from a collection and its
@@ -71,24 +66,6 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
         this._handleChildInstanceRemoved
       );
     })();
-
-    // Invoked when new proxying event name is added
-    this.on(EVT_BRIDGE_EVENT_NAME_ADD, eventName => {
-      const children = this.getChildren();
-
-      for (const child of children) {
-        this._proxyChildEvent(child, eventName);
-      }
-    });
-
-    // Invoked when proxying event name is removed
-    this.on(EVT_BRIDGE_EVENT_NAME_REMOVE, eventName => {
-      const children = this.getChildren();
-
-      for (const child of children) {
-        this._unproxyChildEvent(child, eventName);
-      }
-    });
   }
 
   /**
@@ -115,7 +92,11 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
     const nextLength = this._childToCollectionEventNames.length;
 
     if (nextLength > prevLength) {
-      this.emit(EVT_BRIDGE_EVENT_NAME_ADD, eventName);
+      const children = this.getChildren();
+
+      for (const child of children) {
+        this._proxyChildEvent(child, eventName);
+      }
     }
   }
 
@@ -134,7 +115,11 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
     const nextLength = this._childToCollectionEventNames.length;
 
     if (nextLength < prevLength) {
-      this.emit(EVT_BRIDGE_EVENT_NAME_REMOVE, eventName);
+      const children = this.getChildren();
+
+      for (const child of children) {
+        this._unproxyChildEvent(child, eventName);
+      }
     }
   }
 
