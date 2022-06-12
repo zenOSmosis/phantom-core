@@ -86,15 +86,6 @@ export { consume };
 import deepMerge from "./utils/object-utils/deepMerge";
 export { deepMerge };
 
-import enumToNumericIndexedObject from "./utils/enum-utils/enumToNumericIndexedObject";
-export { enumToNumericIndexedObject };
-
-import enumToStringIndexedObject from "./utils/enum-utils/enumToStringIndexedObject";
-export { enumToStringIndexedObject };
-
-import getEnumValues from "./utils/enum-utils/getEnumValues";
-export { getEnumValues };
-
 import getIsNodeJS from "./utils/getIsNodeJS";
 export { getIsNodeJS };
 
@@ -119,7 +110,7 @@ export { shallowMerge };
 import sleep from "./utils/sleep";
 export { sleep };
 
-// Utilities for working with JavaScript classes
+// JavaScript class utilities
 
 import autoBindClassInstanceMethods from "./utils/class-utils/autoBindClassInstanceMethods";
 export { autoBindClassInstanceMethods };
@@ -148,7 +139,31 @@ export { getIsClassInstance };
 import getSuperClass from "./utils/class-utils/getSuperClass";
 export { getSuperClass };
 
-// Utility for checking PhantomCore (and extension) event exports
+// Enumeration utilities
+
+import enumToNumericIndexedObject from "./utils/enum-utils/enumToNumericIndexedObject";
+export { enumToNumericIndexedObject };
+
+import enumToMap, {
+  ENUM_MAP_KEY,
+  ENUM_MAP_VALUE,
+} from "./utils/enum-utils/enumToMap";
+export { enumToMap };
+export type { ENUM_MAP_KEY, ENUM_MAP_VALUE };
+
+import enumToStringIndexedObject from "./utils/enum-utils/enumToStringIndexedObject";
+export { enumToStringIndexedObject };
+
+import getEnumValues from "./utils/enum-utils/getEnumValues";
+export { getEnumValues };
+
+// String utilities
+
+import toLCFirstLetter from "./utils/string-utils/toLCFirstLetter";
+import toUCFirstLetter from "./utils/string-utils/toUCFirstLetter";
+export { toLCFirstLetter, toUCFirstLetter };
+
+// PhantomCore event utilities
 
 // TODO: [3.x] Use package.json exports (requires TypeScript 4.7)
 // @see https://github.com/microsoft/TypeScript/issues/33079

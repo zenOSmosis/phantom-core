@@ -2,7 +2,7 @@ import { Enum } from "../../types";
 import getIsNumeric from "../getIsNumeric";
 
 /**
- * Creates a string indexed object from the given enum.
+ * Creates a string-indexed object from the given enum.
  *
  * Note: The first letter of each key will be lower-case.
  */

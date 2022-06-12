@@ -16,7 +16,10 @@ import PhantomCore, {
   sleep,
   performance,
   enumToNumericIndexedObject,
+  enumToMap,
   enumToStringIndexedObject,
+  toLCFirstLetter,
+  toUCFirstLetter,
   LogLevel,
 } from "../src";
 import _DestructibleEventEmitter from "../src/_DestructibleEventEmitter";
@@ -306,6 +309,39 @@ test("enum to string indexed object", t => {
     debug: 4,
     trace: 5,
   });
+
+  t.end();
+});
+
+test("enum to map", t => {
+  t.plan(1);
+
+  t.deepEquals(
+    enumToMap(LogLevel),
+    new Map([
+      [0, "silent"],
+      [1, "error"],
+      [2, "warn"],
+      [3, "info"],
+      [4, "debug"],
+      [5, "trace"],
+      ["silent", 0],
+      ["error", 1],
+      ["warn", 2],
+      ["info", 3],
+      ["debug", 4],
+      ["trace", 5],
+    ])
+  );
+
+  t.end();
+});
+
+test("lowercase and uppercase string utilities", t => {
+  t.plan(2);
+
+  t.equals(toUCFirstLetter("pascalCase"), "PascalCase");
+  t.equals(toLCFirstLetter("CamelCase"), "camelCase");
 
   t.end();
 });

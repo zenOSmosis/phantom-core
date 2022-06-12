@@ -3,7 +3,7 @@ import _DestructibleEventEmitter, {
 } from "./_DestructibleEventEmitter";
 import { ClassInstance } from "./types";
 import autoBindClassInstanceMethods from "./utils/class-utils/autoBindClassInstanceMethods";
-import enumToStringIndexedObject from "./utils/enum-utils/enumToStringIndexedObject";
+import enumToMap from "./utils/enum-utils/enumToMap";
 
 /**
  * Note: At this time, getLogLevel retrieves the numeric value.
@@ -19,10 +19,7 @@ export enum LogLevel {
 
 export { EVT_DESTROY };
 
-// TODO: [3.0.0] Use Map here?
-const LOG_LEVEL_STRING_MAP = enumToStringIndexedObject(LogLevel) as {
-  [key: string]: number;
-};
+const LOG_LEVEL_MAP = enumToMap(LogLevel);
 
 export type LogIntersection = Logger & ((...args: any[]) => void);
 
@@ -62,14 +59,14 @@ export default class Logger extends _DestructibleEventEmitter {
     if (typeof logLevel === "string") {
       // Ignore the next line because we don't yet know if logLevel is incorrect
       // @ts-ignore
-      numericLogLevel = LOG_LEVEL_STRING_MAP[logLevel];
+      numericLogLevel = LOG_LEVEL_MAP.get(logLevel);
     } else {
       numericLogLevel = logLevel;
     }
 
     // Ignore the next line because we don't yet know if logLevel is incorrect
     // @ts-ignore
-    if (!Object.values(LOG_LEVEL_STRING_MAP).includes(numericLogLevel)) {
+    if (!LOG_LEVEL_MAP.has(numericLogLevel)) {
       throw new RangeError(`Unknown log level: ${logLevel}`);
     }
 
@@ -87,19 +84,10 @@ export default class Logger extends _DestructibleEventEmitter {
     if (typeof logLevel === "string") {
       strLogLevel = logLevel as string;
     } else {
-      const entry = Object.entries(LOG_LEVEL_STRING_MAP).find(
-        ([key, value]) => value === logLevel
-      );
-
-      if (entry) {
-        strLogLevel = entry[0];
-      }
+      strLogLevel = LOG_LEVEL_MAP.get(logLevel) as string;
     }
 
-    if (
-      !strLogLevel ||
-      typeof LOG_LEVEL_STRING_MAP[strLogLevel] === "undefined"
-    ) {
+    if (!strLogLevel || !LOG_LEVEL_MAP.has(strLogLevel)) {
       throw new RangeError(`Unknown log level: ${logLevel}`);
     }
 

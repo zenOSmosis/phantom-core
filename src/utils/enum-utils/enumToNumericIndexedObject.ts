@@ -2,7 +2,7 @@ import { Enum } from "../../types";
 import getIsNumeric from "../getIsNumeric";
 
 /**
- * Creates a numerically indexed object from the given enum.
+ * Creates a numerically-indexed object from the given enum.
  *
  * Note: Due to JavaScript language design the keys are still a string type,
  * but a numeric representation.

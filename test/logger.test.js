@@ -1,7 +1,7 @@
 const test = require("tape");
 import { PhantomCore, LogLevel, globalLogger } from "../src";
 
-// TODO: Add log miss testing
+// TODO: [3.0.0] Add log miss testing
 
 test("phantom-core uses globalLogger.info when calling calling phantom.log() directly", t => {
   t.plan(1);
