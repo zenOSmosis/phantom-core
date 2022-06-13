@@ -2,6 +2,12 @@
 
 ### Version 3.0.0 -- TODO
 
+- PhantomOrchestrator with per-class log level management
+- Remove PhantomCore getInstanceByUUID and getInstanceBySymbol methods
+- Remove PhantomCore symbol association
+- Rename global logger export to globalLogger
+- Swap out setImmediate shim w/ native queueMicrotask
+
 ### Version 2.7.3 (Mar. 27, 2022)
 
 - Revert getUnixTime to not rely on performance.now for time tracking as it was not accurate after the host system was suspended
