@@ -97,7 +97,7 @@ test("phantom log miss with title update", async t => {
   watcher.resetGlobalLogLevel();
 
   t.deepEquals(
-    watcher.getPhantomClassLogMisses("LogMissPhantomCore"),
+    watcher.getPhantomClassLogMissCounts("LogMissPhantomCore"),
     [0, 0, 0, 0, 0]
   );
 
@@ -106,7 +106,7 @@ test("phantom log miss with title update", async t => {
       watcher.on(EVT_PHANTOM_WATCHER_LOG_MISS, function handleLogMiss(data) {
         if (data.logLevel === 5 && data.title === FIRST_TITLE) {
           t.deepEquals(
-            watcher.getPhantomClassLogMisses("LogMissPhantomCore"),
+            watcher.getPhantomClassLogMissCounts("LogMissPhantomCore"),
             [0, 0, 0, 0, 1],
             "first log miss is accounted for"
           );
@@ -135,7 +135,7 @@ test("phantom log miss with title update", async t => {
       watcher.on(EVT_PHANTOM_WATCHER_LOG_MISS, function handleLogMiss(data) {
         if (data.logLevel === 5 && data.title === SECOND_TITLE) {
           t.deepEquals(
-            watcher.getPhantomClassLogMisses("LogMissPhantomCore"),
+            watcher.getPhantomClassLogMissCounts("LogMissPhantomCore"),
             [0, 0, 0, 0, 2],
             "second log miss is accounted for"
           );

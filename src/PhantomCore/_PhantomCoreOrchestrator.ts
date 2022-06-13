@@ -1,6 +1,6 @@
 import CommonEventEmitter from "../CommonEventEmitter";
 import PhantomCore, { EVT_UPDATE, EVT_DESTROY } from "./PhantomCore";
-import Logger, { EVT_LOG_MISS } from "../Logger";
+import Logger, { EVT_LOG_MISS, LogLevel } from "../Logger";
 import globalLogger from "../globalLogger";
 
 type PhantomClassName = string;
@@ -19,6 +19,22 @@ export type PhantomWatcherLogMissEventData = {
   logLevel: number;
 };
 
+/**
+ * Represents an index in a LogMissCounts.
+ */
+export type LogMissCountIndex<T = number> = T;
+
+/**
+ * Channel-based log-miss counts.
+ */
+export type LogMissCounts = [
+  LogMissCountIndex<LogLevel.Error>,
+  LogMissCountIndex<LogLevel.Warn>,
+  LogMissCountIndex<LogLevel.Info>,
+  LogMissCountIndex<LogLevel.Debug>,
+  LogMissCountIndex<LogLevel.Trace>
+];
+
 // TODO: [3.0.0] This should run as a singleton and never be destructed
 /**
  * Manages all PhantomCore instances and attaches centralized log handling.
@@ -33,9 +49,10 @@ class PhantomCoreOrchestrator extends CommonEventEmitter {
   protected _phantomClassNameLogLevelMap: Map<PhantomClassName, number> =
     new Map();
 
-  // TODO: [3.0.0] Update type
-  protected _phantomClassNameLogLevelMissMap: Map<PhantomClassName, number[]> =
-    new Map();
+  protected _phantomClassNameLogMissCountMap: Map<
+    PhantomClassName,
+    LogMissCounts
+  > = new Map();
 
   constructor() {
     if (_orchestrator) {
@@ -79,9 +96,9 @@ class PhantomCoreOrchestrator extends CommonEventEmitter {
       );
     })();
 
-    if (!this._phantomClassNameLogLevelMissMap.has(phantomClassName)) {
+    if (!this._phantomClassNameLogMissCountMap.has(phantomClassName)) {
       // Set initial log level miss-map array
-      this._phantomClassNameLogLevelMissMap.set(
+      this._phantomClassNameLogMissCountMap.set(
         phantomClassName,
         [0, 0, 0, 0, 0]
       );
@@ -89,18 +106,15 @@ class PhantomCoreOrchestrator extends CommonEventEmitter {
 
     // Bind log miss events
     phantom.on(EVT_LOG_MISS, (logLevel: number) => {
+      const logMiss = this._phantomClassNameLogMissCountMap.get(
+        phantomClassName
+      ) as LogMissCounts;
+
       // Update missMap counts
-      const missMap =
-        this._phantomClassNameLogLevelMissMap.get(phantomClassName);
+      ++logMiss[logLevel - 1];
 
-      // TODO: [3.0.0] Use proper type
-      ++(missMap as number[])[logLevel - 1];
-
-      this._phantomClassNameLogLevelMissMap.set(
-        phantomClassName,
-        // TODO: [3.0.0] Use proper type
-        missMap as number[]
-      );
+      // Write back to miss map
+      this._phantomClassNameLogMissCountMap.set(phantomClassName, logMiss);
 
       this.emit(EVT_PHANTOM_WATCHER_LOG_MISS, {
         phantomClassName,
@@ -171,9 +185,10 @@ class PhantomCoreOrchestrator extends CommonEventEmitter {
     return this._phantomClassNameSet;
   }
 
-  // TODO: [3.0.0] Document type
-  getPhantomClassLogMisses(phantomClassName: string) {
-    return this._phantomClassNameLogLevelMissMap.get(phantomClassName);
+  getPhantomClassLogMissCounts(phantomClassName: string): LogMissCounts {
+    return this._phantomClassNameLogMissCountMap.get(
+      phantomClassName
+    ) as LogMissCounts;
   }
 
   /**

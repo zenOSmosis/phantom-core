@@ -62,8 +62,13 @@ export { PhantomSerializableState };
 import PhantomState from "./PhantomState";
 export { PhantomState };
 
-import PhantomWatcher, { EVT_PHANTOM_WATCHER_LOG_MISS } from "./PhantomWatcher";
+import PhantomWatcher, {
+  EVT_PHANTOM_WATCHER_LOG_MISS,
+  LogMissCounts,
+  LogMissCountIndex,
+} from "./PhantomWatcher";
 export { PhantomWatcher, EVT_PHANTOM_WATCHER_LOG_MISS };
+export type { LogMissCounts, LogMissCountIndex };
 
 // Stacks
 

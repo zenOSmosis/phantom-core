@@ -6,9 +6,11 @@ import PhantomCore, {
   EVT_DESTROY_STACK_TIME_OUT,
   EVT_DESTROY,
 } from "./PhantomCore";
-import phantomWatcherProviderSingleton, {
+import phantomCoreOrchestrator, {
   EVT_PHANTOM_WATCHER_LOG_MISS,
   PhantomWatcherLogMissEventData,
+  LogMissCounts,
+  LogMissCountIndex,
 } from "./PhantomCore/_PhantomCoreOrchestrator";
 
 export {
@@ -20,6 +22,8 @@ export {
   EVT_DESTROY,
   EVT_PHANTOM_WATCHER_LOG_MISS,
 };
+
+export type { LogMissCounts, LogMissCountIndex };
 
 /**
  * Provides a limited "birds-eye" view into the PhantomCore ecosystem.
@@ -39,7 +43,7 @@ export default class PhantomWatcher extends PhantomCore {
         // Note: This type is coerced from a Set and is cached so that it
         // doesn't have to be iterated each time it is requested
         this._phantomClassNames = [
-          ...phantomWatcherProviderSingleton.getPhantomClassNameSet(),
+          ...phantomCoreOrchestrator.getPhantomClassNameSet(),
         ];
 
         // Propagate
@@ -49,11 +53,11 @@ export default class PhantomWatcher extends PhantomCore {
       // Perform first sync
       _handleUpdate();
 
-      // Note: Since phantomWatcherProviderSingleton is not a PhantomCore
+      // Note: Since phantomCoreOrchestrator is not a PhantomCore
       // instance itself, Phantom event proxies will not work here
-      phantomWatcherProviderSingleton.on(EVT_UPDATE, _handleUpdate);
+      phantomCoreOrchestrator.on(EVT_UPDATE, _handleUpdate);
       this.registerCleanupHandler(() => {
-        phantomWatcherProviderSingleton.off(EVT_UPDATE, _handleUpdate);
+        phantomCoreOrchestrator.off(EVT_UPDATE, _handleUpdate);
       });
     })();
 
@@ -65,12 +69,9 @@ export default class PhantomWatcher extends PhantomCore {
 
       // Note that since PhantomCoreOrchestrator is not a PhantomCore instance
       // itself, the event proxy functions are not immediately available to it
-      phantomWatcherProviderSingleton.on(
-        EVT_PHANTOM_WATCHER_LOG_MISS,
-        _handleLogMiss
-      );
+      phantomCoreOrchestrator.on(EVT_PHANTOM_WATCHER_LOG_MISS, _handleLogMiss);
       this.registerCleanupHandler(() => {
-        phantomWatcherProviderSingleton.off(
+        phantomCoreOrchestrator.off(
           EVT_PHANTOM_WATCHER_LOG_MISS,
           _handleLogMiss
         );
@@ -85,9 +86,8 @@ export default class PhantomWatcher extends PhantomCore {
     return this._phantomClassNames;
   }
 
-  // TODO: [3.0.0] Document
-  getPhantomClassLogMisses(phantomClassName: string) {
-    return phantomWatcherProviderSingleton.getPhantomClassLogMisses(
+  getPhantomClassLogMissCounts(phantomClassName: string): LogMissCounts {
+    return phantomCoreOrchestrator.getPhantomClassLogMissCounts(
       phantomClassName
     );
   }
@@ -97,7 +97,7 @@ export default class PhantomWatcher extends PhantomCore {
    * instantiated.
    */
   getTotalPhantomInstances(): number {
-    return phantomWatcherProviderSingleton.getTotalPhantomInstances();
+    return phantomCoreOrchestrator.getTotalPhantomInstances();
   }
 
   /**
@@ -105,7 +105,7 @@ export default class PhantomWatcher extends PhantomCore {
    * class name.
    */
   getTotalPhantomInstancesWithClassName(phantomClassName: string): number {
-    return phantomWatcherProviderSingleton.getTotalPhantomInstancesWithClassName(
+    return phantomCoreOrchestrator.getTotalPhantomInstancesWithClassName(
       phantomClassName
     );
   }
@@ -114,35 +114,35 @@ export default class PhantomWatcher extends PhantomCore {
    * Sets the global log level.
    */
   setGlobalLogLevel(logLevel: string | number): void {
-    return phantomWatcherProviderSingleton.setGlobalLogLevel(logLevel);
+    return phantomCoreOrchestrator.setGlobalLogLevel(logLevel);
   }
 
   /**
    * Retrieves the numeric global log level.
    */
   getGlobalLogLevel(): number {
-    return phantomWatcherProviderSingleton.getGlobalLogLevel();
+    return phantomCoreOrchestrator.getGlobalLogLevel();
   }
 
   /**
    * Retrieves the initial numeric global log level.
    */
   getInitialGlobalLogLevel(): number {
-    return phantomWatcherProviderSingleton.getInitialGlobalLogLevel();
+    return phantomCoreOrchestrator.getInitialGlobalLogLevel();
   }
 
   /**
    * Determines if the log level has changed from the initial global value.
    */
   getHasGlobalLogLevelChanged(): boolean {
-    return phantomWatcherProviderSingleton.getHasGlobalLogLevelChanged();
+    return phantomCoreOrchestrator.getHasGlobalLogLevelChanged();
   }
 
   /**
    * Restores the global log level to its default value.
    */
   resetGlobalLogLevel(): void {
-    return phantomWatcherProviderSingleton.resetGlobalLogLevel();
+    return phantomCoreOrchestrator.resetGlobalLogLevel();
   }
 
   /**
@@ -153,7 +153,7 @@ export default class PhantomWatcher extends PhantomCore {
     phantomClassName: string,
     logLevel: string | number
   ): void {
-    return phantomWatcherProviderSingleton.setPhantomClassLogLevel(
+    return phantomCoreOrchestrator.setPhantomClassLogLevel(
       phantomClassName,
       logLevel
     );
@@ -163,8 +163,6 @@ export default class PhantomWatcher extends PhantomCore {
    * Retrieves the numeric log level of the given Phantom class grouping.
    */
   getPhantomClassLogLevel(phantomClassName: string): number {
-    return phantomWatcherProviderSingleton.getPhantomClassLogLevel(
-      phantomClassName
-    );
+    return phantomCoreOrchestrator.getPhantomClassLogLevel(phantomClassName);
   }
 }
