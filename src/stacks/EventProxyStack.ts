@@ -27,6 +27,7 @@ export default class EventProxyStack extends _DestructibleEventEmitter {
   protected _eventProxyBinds: {
     targetInstance: PhantomCore;
     eventName: string | symbol;
+    // TODO: [3.0.0] Use Listener type
     eventHandler: (...args: any[]) => void;
   }[] = [];
   protected _targetDestroyHandlers: Map<PhantomCore, (...args: any[]) => void> =
@@ -39,6 +40,7 @@ export default class EventProxyStack extends _DestructibleEventEmitter {
     bindType: EventProxyStackBindTypes.On | EventProxyStackBindTypes.Once,
     targetInstance: PhantomCore,
     eventName: string | symbol,
+    // TODO: [3.0.0] Use Listener type
     eventHandler: (...args: any[]) => void
   ): void {
     if (!getEnumValues(EventProxyStackBindTypes).includes(bindType)) {
@@ -83,6 +85,7 @@ export default class EventProxyStack extends _DestructibleEventEmitter {
   removeProxyHandler(
     targetInstance: PhantomCore,
     eventName: string | symbol,
+    // TODO: [3.0.0] Use Listener type
     eventHandler: (...args: any[]) => void
   ): void {
     let hasRemoved = false;

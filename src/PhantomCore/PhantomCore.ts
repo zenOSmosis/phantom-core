@@ -556,6 +556,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
   proxyOn(
     targetInstance: PhantomCore,
     eventName: string | symbol,
+    // TODO: [3.0.0] Use Listener type
     eventHandler: (...args: any[]) => void
   ): void {
     if (!PhantomCore.getIsLooseInstance(targetInstance)) {
@@ -589,6 +590,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
   proxyOnce(
     targetInstance: PhantomCore,
     eventName: string | symbol,
+    // TODO: [3.0.0] Use Listener type
     eventHandler: (...args: any[]) => void
   ): void {
     if (!PhantomCore.getIsLooseInstance(targetInstance)) {
@@ -622,6 +624,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
   proxyOff(
     targetInstance: PhantomCore,
     eventName: string | symbol,
+    // TODO: [3.0.0] Use Listener type
     eventHandler: (...args: any[]) => void
   ): void {
     if (!PhantomCore.getIsLooseInstance(targetInstance)) {

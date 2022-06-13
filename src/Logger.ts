@@ -21,6 +21,7 @@ export { EVT_DESTROY };
 
 const LOG_LEVEL_MAP = enumToMap(LogLevel);
 
+// TODO: [3.0.0] Fix any type
 export type LogIntersection = Logger & ((...args: any[]) => void);
 
 /**
@@ -220,6 +221,7 @@ export default class Logger extends _DestructibleEventEmitter {
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/API/console/trace
    */
+  // TODO: [3.0.0] Fix any type
   trace(...args: any[]): void {
     throw new Error("This should be overridden");
   }
@@ -241,6 +243,7 @@ export default class Logger extends _DestructibleEventEmitter {
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/API/console/info
    */
+  // TODO: [3.0.0] Fix any type
   info(...args: any[]): void {
     throw new Error("This should be overridden");
   }
@@ -250,6 +253,7 @@ export default class Logger extends _DestructibleEventEmitter {
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/API/console/warn
    */
+  // TODO: [3.0.0] Fix any type
   warn(...args: any[]): void {
     throw new Error("This should be overridden");
   }
@@ -259,6 +263,7 @@ export default class Logger extends _DestructibleEventEmitter {
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/API/console/error
    */
+  // TODO: [3.0.0] Fix any type
   error(...args: any[]): void {
     throw new Error("This should be overridden");
   }

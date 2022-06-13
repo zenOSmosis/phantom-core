@@ -7,6 +7,7 @@ import PhantomState, {
   EVT_DESTROY,
 } from "./PhantomState";
 import { isPlainObject } from "is-plain-object";
+import { RecursiveObject } from "./types";
 
 export {
   EVT_NO_INIT_WARN,
@@ -52,8 +53,7 @@ export default class PhantomSerializableState extends PhantomState {
   /**
    * Converts the given string into an object.
    */
-  // TODO: [3.0.0] Add recursive object type
-  static unserialize(str: string) {
+  static unserialize(str: string): RecursiveObject {
     return JSON.parse(str);
   }
 
@@ -64,10 +64,7 @@ export default class PhantomSerializableState extends PhantomState {
    *
    * @emits EVT_UPDATE With partialNextState
    */
-  override setState(
-    partialNextState: { [key: string]: unknown },
-    isMerge = true
-  ): void {
+  override setState(partialNextState: RecursiveObject, isMerge = true): void {
     // Run through obj->serial->obj conversion to ensure partial next state can
     // be serialized, while storing it in memory as an object, to enable
     // subsequent partial updates

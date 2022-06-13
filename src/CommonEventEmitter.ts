@@ -1,12 +1,13 @@
 import { EventEmitter } from "events";
+import { Primitive, RecursiveObject } from "./types";
 
 /**
  * A lightly-wrapped EventEmitter which is compatible with Node.js and
  * browsers.
  */
 export default class CommonEventEmitter extends EventEmitter {
-  constructor(...args: any[]) {
-    super(...args);
+  constructor() {
+    super();
 
     /**
      * "off" method shim for browsers:

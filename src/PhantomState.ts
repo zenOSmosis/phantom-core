@@ -7,6 +7,7 @@ import PhantomCore, {
   EVT_DESTROY,
   CommonOptions,
 } from "./PhantomCore";
+import { RecursiveObject } from "./types";
 
 export {
   EVT_NO_INIT_WARN,
@@ -23,18 +24,16 @@ export {
 export default class PhantomState extends PhantomCore {
   // FIXME: [3.0.0]? This may be more performant as a Map:
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map#objects_vs._maps
-  // TODO: [3.0.0] Use recursive object type
-  protected _state: { [key: string]: unknown } = {};
+  protected _state: RecursiveObject = {};
 
   constructor(
-    // TODO: [3.0.0] Use recursive object type
-    initialState: { [key: string]: unknown } | null = {},
+    initialState: RecursiveObject | null = {},
     superOptions: CommonOptions
   ) {
     super(superOptions);
 
     if (initialState) {
-      this.setState(initialState);
+      this.setState(initialState as RecursiveObject);
     }
 
     // Reset state on destruct
@@ -58,7 +57,7 @@ export default class PhantomState extends PhantomCore {
    *
    * NOTE: The previous state object will be re-referenced.
    */
-  setState(partialNextState: { [key: string]: unknown }, isMerge = true): void {
+  setState(partialNextState: RecursiveObject, isMerge = true): void {
     if (typeof partialNextState !== "object") {
       throw new TypeError("partialNextState must be an object");
     }
