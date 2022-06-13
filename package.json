@@ -11,7 +11,7 @@
   "main": "dist/index.js",
   "scripts": {
     "prepare": "npm run build && husky install",
-    "document": "rm -rf docs && typedoc src/index.ts && cp phantom.svg docs",
+    "document": "rm -rf docs && typedoc src/index.ts && cp phantom.svg docs && echo 'docs.phantom-core.zenosmosis.com' > docs/CNAME",
     "build": "tsc",
     "test": "npm run test-node && npm run test-sauce-browsers",
     "test-node": "tape -r ts-node/register/transpile-only 'test/{,/**/}*.test.js'",
