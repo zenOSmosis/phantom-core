@@ -3,6 +3,7 @@
 ### Version 3.0.0 -- TODO
 
 - PhantomOrchestrator with per-class log level management
+- Remove per-PhantomCore config option for log level (managed by PhantomOrchestrator)
 - Remove PhantomCore getInstanceByUUID and getInstanceBySymbol methods
 - Remove PhantomCore symbol association
 - Rename global logger export to globalLogger
