@@ -1,27 +1,32 @@
-import DestructibleEventEmitter, {
+import _DestructibleEventEmitter, {
   EVT_DESTROY,
 } from "./_DestructibleEventEmitter";
+import { ClassInstance } from "./types";
+import autoBindClassInstanceMethods from "./utils/class-utils/autoBindClassInstanceMethods";
+import enumToMap from "./utils/enum-utils/enumToMap";
 
-export const LOG_LEVEL_TRACE = 0;
-export const LOG_LEVEL_DEBUG = 1;
-export const LOG_LEVEL_INFO = 2;
-export const LOG_LEVEL_WARN = 3;
-export const LOG_LEVEL_ERROR = 4;
-export const LOG_LEVEL_SILENT = 5;
+/**
+ * Note: At this time, getLogLevel retrieves the numeric value.
+ */
+export enum LogLevel {
+  Silent = 0,
+  Error = 1,
+  Warn = 2,
+  Info = 3,
+  Debug = 4,
+  Trace = 5,
+}
 
 export { EVT_DESTROY };
 
-// TODO: [3.0.0] Use enum here?
-const LOG_LEVEL_STRING_MAP = {
-  trace: LOG_LEVEL_TRACE,
-  debug: LOG_LEVEL_DEBUG,
-  info: LOG_LEVEL_INFO,
-  warn: LOG_LEVEL_WARN,
-  error: LOG_LEVEL_ERROR,
-  silent: LOG_LEVEL_SILENT,
-};
+const LOG_LEVEL_MAP = enumToMap(LogLevel);
 
 export type LogIntersection = Logger & ((...args: any[]) => void);
+
+/**
+ * @event EVT_LOG_MISS Emits with relevant LogLevel if the log is ignored.
+ */
+export const EVT_LOG_MISS = "log-miss";
 
 /**
  * A very simple JavaScript logger, which wraps console.log/debug, etc. calls
@@ -32,7 +37,7 @@ export type LogIntersection = Logger & ((...args: any[]) => void);
  * the browser's default console.debug mechanism and setting up namespaced
  * loggers wasn't very straightforward.
  */
-export default class Logger extends DestructibleEventEmitter {
+export default class Logger extends _DestructibleEventEmitter {
   public log: LogIntersection;
 
   protected _options: {
@@ -40,48 +45,90 @@ export default class Logger extends DestructibleEventEmitter {
     prefix: (strLogLevel: string) => string;
   };
 
-  protected _logLevel: number;
+  protected _logLevel: number = LogLevel.Info;
+  protected _prefix: (strLogLevel: string) => string;
+
+  /**
+   * Converts the given log level to a number.
+   *
+   * @throws {RangeError} Throws if the log level is not an expected value.
+   */
+  static toNumericLogLevel(logLevel: string | number): number {
+    let numericLogLevel: number;
+
+    if (typeof logLevel === "string") {
+      // Ignore the next line because we don't yet know if logLevel is incorrect
+      // @ts-ignore
+      numericLogLevel = LOG_LEVEL_MAP.get(logLevel);
+    } else {
+      numericLogLevel = logLevel;
+    }
+
+    // Ignore the next line because we don't yet know if logLevel is incorrect
+    // @ts-ignore
+    if (!LOG_LEVEL_MAP.has(numericLogLevel)) {
+      throw new RangeError(`Unknown log level: ${logLevel}`);
+    }
+
+    return numericLogLevel;
+  }
+
+  /**
+   * Converts the given log level to a string.
+   *
+   * @throws {RangeError} Throws if the log level is not an expected value.
+   */
+  static toStringLogLevel(logLevel: string | number): string {
+    let strLogLevel: string = "";
+
+    if (typeof logLevel === "string") {
+      strLogLevel = logLevel as string;
+    } else {
+      strLogLevel = LOG_LEVEL_MAP.get(logLevel) as string;
+    }
+
+    if (!strLogLevel || !LOG_LEVEL_MAP.has(strLogLevel)) {
+      throw new RangeError(`Unknown log level: ${logLevel}`);
+    }
+
+    return strLogLevel;
+  }
 
   constructor(options = {}) {
     super();
 
     const DEFAULT_OPTIONS = {
-      logLevel: LOG_LEVEL_INFO,
+      logLevel: LogLevel.Info,
       prefix: (strLogLevel: string) => `[${strLogLevel}]`,
     };
 
     this._options = { ...DEFAULT_OPTIONS, ...options };
     this.log = null as unknown as LogIntersection;
-
-    this._logLevel = this._options.logLevel;
+    this._prefix = this._options.prefix;
 
     // Set up log level, extending this class functionality with log levels
     this.setLogLevel(this._options.logLevel);
   }
 
   /**
+   * Provides the ability to override the logging prefix with a custom string
+   * handler.
+   */
+  setPrefix(prefix: (strLogLevel: string) => string): void {
+    this._prefix = prefix;
+  }
+
+  /**
    * Sets minimum log level to send to actual logger function where subsequent
    * log levels are ignored.
    */
-  setLogLevel(userLogLevel: number | string) {
-    if (typeof userLogLevel === "string") {
-      // Ignore the next line because we don't yet know if logLevel is incorrect
-      // @ts-ignore
-      userLogLevel = LOG_LEVEL_STRING_MAP[userLogLevel];
-    }
-
-    // Ignore the next line because we don't yet know if logLevel is incorrect
-    // @ts-ignore
-    if (!Object.values(LOG_LEVEL_STRING_MAP).includes(userLogLevel)) {
-      throw new Error(`Unknown log level: ${userLogLevel}`);
-    }
-
-    this._logLevel = userLogLevel as number;
+  setLogLevel(logLevel: number | string): void {
+    this._logLevel = Logger.toNumericLogLevel(logLevel);
 
     // Dynamically create log function, filtering out methods which are outside
     // of logLevel scope
     this.log = (() => {
-      const prefix = this._options.prefix;
+      const prefix = this._prefix;
 
       /**
        * Each logger method should retain original stack trace
@@ -89,60 +136,60 @@ export default class Logger extends DestructibleEventEmitter {
        * @see https://stackoverflow.com/questions/9559725/extending-console-log-without-affecting-log-line
        */
 
-      const loggerMethods: { [key: string]: () => null } = {};
+      const loggerMethods: { [key: string]: () => void } = {};
 
-      if (this._logLevel <= LOG_LEVEL_TRACE) {
-        loggerMethods.trace = Function.prototype.bind.call(
-          console.trace,
-          console,
-          prefix("trace")
-        );
-      } else {
-        loggerMethods.trace = () => null;
-      }
-
-      if (this._logLevel <= LOG_LEVEL_DEBUG) {
-        loggerMethods.debug = Function.prototype.bind.call(
-          console.debug,
-          console,
-          prefix("debug")
-        );
-      } else {
-        loggerMethods.debug = () => null;
-      }
-
-      if (this._logLevel <= LOG_LEVEL_INFO) {
-        loggerMethods.info = Function.prototype.bind.call(
-          console.info,
-          console,
-          prefix("info")
-        );
-      } else {
-        loggerMethods.info = () => null;
-      }
-
-      if (this._logLevel <= LOG_LEVEL_WARN) {
-        loggerMethods.warn = Function.prototype.bind.call(
-          console.warn,
-          console,
-          prefix("warn")
-        );
-      } else {
-        loggerMethods.warn = () => null;
-      }
-
-      if (this._logLevel <= LOG_LEVEL_ERROR) {
+      if (this._logLevel >= LogLevel.Error) {
         loggerMethods.error = Function.prototype.bind.call(
           console.error,
           console,
           prefix("error")
         );
       } else {
-        loggerMethods.error = () => null;
+        loggerMethods.error = () => this.emit(EVT_LOG_MISS, LogLevel.Error);
+      }
+
+      if (this._logLevel >= LogLevel.Warn) {
+        loggerMethods.warn = Function.prototype.bind.call(
+          console.warn,
+          console,
+          prefix("warn")
+        );
+      } else {
+        loggerMethods.warn = () => this.emit(EVT_LOG_MISS, LogLevel.Warn);
+      }
+
+      if (this._logLevel >= LogLevel.Info) {
+        loggerMethods.info = Function.prototype.bind.call(
+          console.info,
+          console,
+          prefix("info")
+        );
+      } else {
+        loggerMethods.info = () => this.emit(EVT_LOG_MISS, LogLevel.Info);
+      }
+
+      if (this._logLevel >= LogLevel.Debug) {
+        loggerMethods.debug = Function.prototype.bind.call(
+          console.debug,
+          console,
+          prefix("debug")
+        );
+      } else {
+        loggerMethods.debug = () => this.emit(EVT_LOG_MISS, LogLevel.Debug);
+      }
+
+      if (this._logLevel >= LogLevel.Trace) {
+        loggerMethods.trace = Function.prototype.bind.call(
+          console.trace,
+          console,
+          prefix("trace")
+        );
+      } else {
+        loggerMethods.trace = () => this.emit(EVT_LOG_MISS, LogLevel.Trace);
       }
 
       // Calling this.log() directly will log as info (log info alias)
-      const log = loggerMethods.info;
+      const log: ClassInstance = loggerMethods.info;
 
       // Dynamically assign log methods to log
       // TODO: [3.0.0] Rewrite to handlers which are exposed via class methods
@@ -150,19 +197,21 @@ export default class Logger extends DestructibleEventEmitter {
         // IMPORTANT: Both of these are used intentionally
 
         // Extend off of log method (i.e. PhantomCore's this.log.debug)
-        // TODO: [3.0.0] Fix any type
-        (log as any)[method] = loggerMethods[method];
+        log[method] = loggerMethods[method];
 
         // Extend class with logger methods
-        // TODO: [3.0.0] Fix any type
-        (this as any)[method] = loggerMethods[method];
+        (this as ClassInstance)[method] = loggerMethods[method];
       });
+
+      // Apply scope binding of dynamically created methods to the Logger instance
+      autoBindClassInstanceMethods(this);
 
       return log;
     })() as unknown as LogIntersection;
   }
 
-  getLogLevel() {
+  /** Retrieves the current log level */
+  getLogLevel(): number {
     return this._logLevel;
   }
 

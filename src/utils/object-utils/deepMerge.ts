@@ -1,4 +1,5 @@
 import libDeepMerge from "deepmerge";
+import { RecursiveObject } from "../../types";
 
 // Potential lib replacements if the performance is low:
 // (NOTE: (jh) I haven't looked into these much but the idea of smart merging
@@ -18,9 +19,9 @@ import libDeepMerge from "deepmerge";
  * with an empty object.
  */
 export default function deepMerge(
-  objA: { [key: string]: unknown } | null = {},
-  objB: { [key: string]: unknown } | null = {}
-) {
+  objA: RecursiveObject | null = {},
+  objB: RecursiveObject | null = {}
+): RecursiveObject {
   // Typecast null options to Object for robustness of implementors (i.e.
   // media-stream-track-controller may pass null when merging optional
   // MediaStreamTrack constraints)

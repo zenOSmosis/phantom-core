@@ -72,7 +72,7 @@ test("uuid and short uuid", async t => {
 });
 
 test("get options", t => {
-  t.plan(4);
+  t.plan(3);
 
   const phantom = new PhantomCore({
     testOption: 123,
@@ -80,63 +80,15 @@ test("get options", t => {
   });
 
   t.deepEquals(phantom.getOptions(), {
-    testOption: 123,
-    logLevel: 4,
     isAsync: false,
-    symbol: null,
     title: null,
     hasAutomaticBindings: true,
+    testOption: 123,
+    logLevel: 4,
   });
 
   t.equals(phantom.getOption("testOption"), 123, "retrieves testOption option");
   t.equals(phantom.getOption("logLevel"), 4, "retrieves logLevel option");
-  t.equals(phantom.getOption("symbol"), null, "retrieves symbol option");
-
-  t.end();
-});
-
-test("get instance with symbol", t => {
-  t.plan(7);
-
-  t.throws(
-    () => {
-      new PhantomCore({ symbol: { notASymbol: true } });
-    },
-    TypeError,
-    "throws TypeError when passing invalid symbol type"
-  );
-
-  const s1 = Symbol("a");
-  const s2 = Symbol("a");
-
-  // NOTE: These tests should not technically be needed, but might help
-  // determine if there is a browser bug?
-  t.ok(s1 === s1, "symbol compares against itself");
-  t.ok(s1 !== s2, "symbol differentiates against other symbol with same value");
-
-  const p1 = new PhantomCore({ symbol: s1 });
-
-  t.ok(
-    p1.getIsSameInstance(PhantomCore.getInstanceWithSymbol(s1)),
-    "retrieves instance with symbol"
-  );
-
-  t.throws(() => {
-    new PhantomCore({ symbol: s1 });
-  }, "does not allow creation of new instance with previously used symbol");
-
-  p1.destroy();
-
-  t.ok(
-    new PhantomCore({ symbol: s1 }),
-    "enables creation of new instance with existing symbol if the previous instance has been destroyed"
-  );
-
-  const p2 = new PhantomCore();
-  t.ok(
-    p2.getSymbol() === null,
-    "instance created without a symbol returns null for getSymbol()"
-  );
 
   t.end();
 });
@@ -236,7 +188,7 @@ test("emits EVT_READY (even in sync mode)", async t => {
 });
 
 test("same instance detection", t => {
-  t.plan(4);
+  t.plan(2);
 
   const phantom1 = new PhantomCore();
   const phantom1UUID = phantom1.getUUID();
@@ -246,17 +198,9 @@ test("same instance detection", t => {
 
   t.ok(phantom1.getIsSameInstance(phantom1), "can identify its own instance");
 
-  t.ok(
-    PhantomCore.getInstanceWithUUID(phantom1UUID).getIsSameInstance(phantom1)
-  );
-
   t.notOk(
     phantom1.getIsSameInstance(phantom2),
     "knows other instance is not its own"
-  );
-
-  t.ok(
-    PhantomCore.getInstanceWithUUID(phantom2UUID).getIsSameInstance(phantom2)
   );
 
   phantom1.destroy();
@@ -330,8 +274,9 @@ test("shutdown event handling", async t => {
     "removes event listeners after destroying"
   );
 
-  t.ok(
-    undefined === (await phantom.destroy()),
+  t.equals(
+    undefined,
+    await phantom.destroy(),
     "subsequent calls to destroy are ignored"
   );
 

@@ -6,6 +6,7 @@ import PhantomCore, {
   EVT_DESTROY_STACK_TIME_OUT,
   EVT_DESTROY,
 } from "./PhantomCore";
+import { EventTypes } from "./enums";
 
 export default PhantomCore;
 export {
@@ -15,7 +16,8 @@ export {
   EVT_BEFORE_DESTROY,
   EVT_DESTROY_STACK_TIME_OUT,
   EVT_DESTROY,
+  EventTypes,
 };
 
-import { CommonOptions } from "./types";
-export type { CommonOptions };
+import { CommonOptions, EventConstant } from "./types";
+export type { CommonOptions, EventConstant };

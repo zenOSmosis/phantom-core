@@ -1,26 +1,27 @@
+import PhantomCore from "../PhantomCore";
 import PhantomCollection, {
   EVT_NO_INIT_WARN,
   EVT_READY,
-  // EVT_CHILD_INSTANCE_ADD,
-  // EVT_CHILD_INSTANCE_REMOVE,
   EVT_UPDATE,
   EVT_BEFORE_DESTROY,
   EVT_DESTROY_STACK_TIME_OUT,
   EVT_DESTROY,
+  EVT_CHILD_INSTANCE_ADD,
+  EVT_CHILD_INSTANCE_REMOVE,
 } from "../PhantomCollection";
 import PhantomServiceCore from "../PhantomServiceCore";
 import getClassName from "../utils/class-utils/getClassName";
-import { Class } from "../utils/class-utils/types";
+import { Class } from "../types";
 
 export {
   EVT_NO_INIT_WARN,
   EVT_READY,
-  // EVT_CHILD_INSTANCE_ADD,
-  // EVT_CHILD_INSTANCE_REMOVE,
   EVT_UPDATE,
   EVT_BEFORE_DESTROY,
   EVT_DESTROY_STACK_TIME_OUT,
   EVT_DESTROY,
+  EVT_CHILD_INSTANCE_ADD,
+  EVT_CHILD_INSTANCE_REMOVE,
 };
 
 /**
@@ -54,8 +55,11 @@ export default class PhantomServiceManager extends PhantomCollection {
     this._circularWarningMessages = [];
   }
 
+  /**
+   * @throws {TypeError}
+   */
   override addChild() {
-    throw new Error(
+    throw new TypeError(
       "addChild cannot be called directly on PhantomServiceManager"
     );
   }
@@ -73,7 +77,7 @@ export default class PhantomServiceManager extends PhantomCollection {
    * @emits EVT_CHILD_INSTANCE_ADD
    * @emits EVT_UPDATE
    */
-  addClass(ServiceClass: Class<PhantomServiceCore>) {
+  addClass(ServiceClass: Class<PhantomServiceCore>): PhantomCore {
     if (
       ServiceClass ===
       (PhantomServiceCore as unknown as Class<PhantomServiceCore>)
@@ -174,7 +178,7 @@ export default class PhantomServiceManager extends PhantomCollection {
    *
    * @see this.addChild
    */
-  startServiceClass(ServiceClass: Class<PhantomServiceCore>) {
+  startServiceClass(ServiceClass: Class<PhantomServiceCore>): PhantomCore {
     return this.addClass(ServiceClass);
   }
 
@@ -184,7 +188,9 @@ export default class PhantomServiceManager extends PhantomCollection {
    * @param {PhantomServiceCore} ServiceClass
    * @return {Promise<void>}
    */
-  async stopServiceClass(ServiceClass: Class<PhantomServiceCore>) {
+  async stopServiceClass(
+    ServiceClass: Class<PhantomServiceCore>
+  ): Promise<void> {
     const cachedService = this.getServiceInstance(ServiceClass);
 
     if (cachedService) {
@@ -194,23 +200,29 @@ export default class PhantomServiceManager extends PhantomCollection {
 
   /**
    * Retrieves associated class instance of the given ServiceClass.
+   *
+   * If no class instance is found it will return nothing.
    */
-  getServiceInstance(ServiceClass: Class<PhantomServiceCore>) {
+  getServiceInstance(
+    ServiceClass: Class<PhantomServiceCore>
+  ): PhantomCore | void {
     const cachedService = this.getChildWithKey(ServiceClass);
 
     return cachedService;
   }
 
+  override getKeys(): PhantomServiceCore[] {
+    return super.getKeys() as PhantomServiceCore[];
+  }
+
   /**
    * Retrieves the active PhantomServiceCore classes managed by this manager.
-   *
-   * @return {PhantomServiceCore[]}
    */
-  getServiceClasses() {
+  getServiceClasses(): PhantomServiceCore[] {
     return this.getKeys();
   }
 
-  override async destroy(destroyHandler?: () => void) {
+  override async destroy(destroyHandler?: () => void): Promise<void> {
     return super.destroy(async () => {
       if (typeof destroyHandler === "function") {
         await destroyHandler();

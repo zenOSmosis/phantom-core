@@ -1,3 +1,5 @@
+import { RecursiveObject } from "../../types";
+
 /**
  * Shallow-merges two objects together.
  *
@@ -9,9 +11,9 @@
  * with an empty object.
  */
 export default function shallowMerge(
-  objA: { [key: string]: unknown } | null = {},
-  objB: { [key: string]: unknown } | null = {}
-) {
+  objA: RecursiveObject | null = {},
+  objB: RecursiveObject | null = {}
+): RecursiveObject {
   // Typecast null options to Object for robustness of implementors (i.e.
   // media-stream-track-controller may pass null when merging optional
   // MediaStreamTrack constraints)

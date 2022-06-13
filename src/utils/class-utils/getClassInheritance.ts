@@ -1,5 +1,5 @@
 import getSuperClass from "./getSuperClass";
-import { Class, ClassInstance } from "./types";
+import { Class, ClassInstance } from "../../types";
 
 /**
  * Retrieves an array of JavaScript classes which form the inheritance of the
@@ -10,7 +10,7 @@ export default function getClassInheritance(
 ): Class[] {
   const parents: Class[] = [];
 
-  let predicate = instanceOrClass;
+  let predicate: Class | ClassInstance | void = instanceOrClass;
   do {
     predicate = getSuperClass(predicate);
 

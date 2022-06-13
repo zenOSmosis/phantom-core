@@ -23,9 +23,11 @@ export {
 export default class PhantomState extends PhantomCore {
   // FIXME: [3.0.0]? This may be more performant as a Map:
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map#objects_vs._maps
+  // TODO: [3.0.0] Use recursive object type
   protected _state: { [key: string]: unknown } = {};
 
   constructor(
+    // TODO: [3.0.0] Use recursive object type
     initialState: { [key: string]: unknown } | null = {},
     superOptions: CommonOptions
   ) {
@@ -46,8 +48,6 @@ export default class PhantomState extends PhantomCore {
 
   /**
    * Retrieves the current state.
-   *
-   * @return {Object}
    */
   getState() {
     return this._state;
@@ -58,7 +58,7 @@ export default class PhantomState extends PhantomCore {
    *
    * NOTE: The previous state object will be re-referenced.
    */
-  setState(partialNextState: { [key: string]: unknown }, isMerge = true) {
+  setState(partialNextState: { [key: string]: unknown }, isMerge = true): void {
     if (typeof partialNextState !== "object") {
       throw new TypeError("partialNextState must be an object");
     }

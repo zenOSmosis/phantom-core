@@ -1,3 +1,4 @@
+// TODO: [3.0.0] Move handling into PhantomWatcher
 import Logger from "./Logger";
 
 /**

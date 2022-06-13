@@ -8,7 +8,7 @@ import PhantomState, {
 } from "../PhantomState";
 import PhantomCollection from "../PhantomCollection";
 import PhantomServiceManager from "../PhantomServiceManager";
-import { Class, ClassInstance } from "../utils/class-utils/types";
+import { Class, ClassInstance } from "../types";
 
 export {
   EVT_NO_INIT_WARN,
@@ -91,11 +91,11 @@ export default class PhantomServiceCore extends PhantomState {
 
     // Auto-init this async service.
     //
-    // IMPORTANT: The setImmediate handler fixes issue where _init is invoked
+    // IMPORTANT: The queueMicrotask handler fixes issue where _init is invoked
     // before extension constructors have a chance to initialize, despite the
     // fact it is an async method (without it, it fails a test case in
     // service-core.instantiation.test.js)
-    (global || window).setImmediate(() => {
+    queueMicrotask(() => {
       this._init();
     });
   }
@@ -107,7 +107,7 @@ export default class PhantomServiceCore extends PhantomState {
    * This service class is treated as a singleton, relative to the associated
    * PhantomServiceManager instead of the global scope.
    */
-  useServiceClass(ServiceClass: Class<PhantomServiceCore>) {
+  useServiceClass(ServiceClass: Class<PhantomServiceCore>): ClassInstance {
     return this.__MANAGED__useServiceClassHandler(ServiceClass);
   }
 
@@ -119,6 +119,7 @@ export default class PhantomServiceCore extends PhantomState {
    * IMPORTANT: Bound collection classes shared with multiple services using
    * bindCollectionClass will use separate instances of the collection.
    */
+  // TODO: [3.0.0] Fix any return type
   bindCollectionClass(CollectionClass: Class<PhantomCollection>) {
     const prevCollectionInstance = this._collectionMap.get(CollectionClass);
 
@@ -159,7 +160,9 @@ export default class PhantomServiceCore extends PhantomState {
    * Unbinds the given CollectionClass from this service and destructs the
    * instance.
    */
-  async unbindCollectionClass(CollectionClass: Class<PhantomCollection>) {
+  async unbindCollectionClass(
+    CollectionClass: Class<PhantomCollection>
+  ): Promise<void> {
     const collectionInstance = this.getCollectionInstance(CollectionClass);
 
     if (collectionInstance) {
@@ -169,8 +172,13 @@ export default class PhantomServiceCore extends PhantomState {
 
   /**
    * Retrieves the PhantomCollection with the given class.
+   *
+   * If no collection instance is found with the given class it will return
+   * nothing.
    */
-  getCollectionInstance(CollectionClass: Class<PhantomCollection>) {
+  getCollectionInstance(
+    CollectionClass: Class<PhantomCollection>
+  ): PhantomCollection | undefined {
     return this._collectionMap.get(CollectionClass);
   }
 
@@ -178,13 +186,13 @@ export default class PhantomServiceCore extends PhantomState {
    * Retrieves an array of PhantomCollection classes (not instances) which are
    * bound to the service.
    */
-  getCollectionClasses() {
+  getCollectionClasses(): Class<PhantomCollection>[] {
     // Coerce to array since map.keys() is not an array (it's an Iterator object)
     // @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/keys
     return [...this._collectionMap.keys()];
   }
 
-  override async destroy(destroyHandler?: () => void) {
+  override async destroy(destroyHandler?: () => void): Promise<void> {
     return super.destroy(async () => {
       if (typeof destroyHandler === "function") {
         await destroyHandler();

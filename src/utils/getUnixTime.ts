@@ -4,7 +4,7 @@
  * Related [potential] performance issue:
  * @see https://github.com/zenOSmosis/phantom-core/issues/127
  */
-export default function getUnixTime() {
+export default function getUnixTime(): number {
   const date = new Date();
 
   const utc = Date.UTC(

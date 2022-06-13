@@ -1,7 +1,8 @@
 export type CommonOptions = {
   isAsync?: boolean;
   logLevel?: number;
-  symbol?: Symbol | null;
   title?: string | null;
   hasAutomaticBindings?: boolean;
 };
+
+export type EventConstant = `EVT_${string}`;

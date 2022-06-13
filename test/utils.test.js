@@ -15,8 +15,13 @@ import PhantomCore, {
   getClassInstancePropertyNames,
   sleep,
   performance,
+  enumToNumericIndexedObject,
+  enumToMap,
+  enumToStringIndexedObject,
+  toLCFirstLetter,
+  toUCFirstLetter,
+  LogLevel,
 } from "../src";
-import PhantomCoreUnwatched from "../src/PhantomCore/PhantomCore.unwatched";
 import _DestructibleEventEmitter from "../src/_DestructibleEventEmitter";
 
 test("consume", t => {
@@ -207,7 +212,6 @@ test("super parents", t => {
     ExtensionB,
     ExtensionA,
     PhantomCore,
-    PhantomCoreUnwatched,
     _DestructibleEventEmitter,
     CommonEventEmitter,
     EventEmitter,
@@ -275,6 +279,69 @@ test("sleep", async t => {
       "sleep() responds to argument for milliseconds"
     );
   })();
+
+  t.end();
+});
+
+test("enum to numeric indexed object", t => {
+  t.plan(1);
+
+  t.deepEquals(enumToNumericIndexedObject(LogLevel), {
+    0: "Silent",
+    1: "Error",
+    2: "Warn",
+    3: "Info",
+    4: "Debug",
+    5: "Trace",
+  });
+
+  t.end();
+});
+
+test("enum to string indexed object", t => {
+  t.plan(1);
+
+  t.deepEquals(enumToStringIndexedObject(LogLevel), {
+    silent: 0,
+    error: 1,
+    warn: 2,
+    info: 3,
+    debug: 4,
+    trace: 5,
+  });
+
+  t.end();
+});
+
+test("enum to map", t => {
+  t.plan(1);
+
+  t.deepEquals(
+    enumToMap(LogLevel),
+    new Map([
+      [0, "silent"],
+      [1, "error"],
+      [2, "warn"],
+      [3, "info"],
+      [4, "debug"],
+      [5, "trace"],
+      ["silent", 0],
+      ["error", 1],
+      ["warn", 2],
+      ["info", 3],
+      ["debug", 4],
+      ["trace", 5],
+    ])
+  );
+
+  t.end();
+});
+
+test("lowercase and uppercase string utilities", t => {
+  t.plan(2);
+
+  t.equals(toUCFirstLetter("pascalCase"), "PascalCase");
+  t.equals(toLCFirstLetter("CamelCase"), "camelCase");
 
   t.end();
 });

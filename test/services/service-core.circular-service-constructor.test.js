@@ -25,9 +25,6 @@ test("circular service constructors", async t => {
   try {
     serviceManager.startServiceClass(TestServiceA);
   } catch (err) {
-    // TODO: Remove
-    console.error(err);
-
     if (
       err instanceof RangeError ||
       /** Firefox */ (typeof InternalError !== "undefined" &&
