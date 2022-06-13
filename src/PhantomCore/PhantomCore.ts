@@ -504,11 +504,13 @@ export default class PhantomCore extends DestructibleEventEmitter {
   /**
    * The unique identifier which represents this class instance.
    */
-  // TODO: [3.0.0] Show i.e. example in comments, similar to getShortUUID
+  // TODO: [3.0.0] Show i.e. example (with length) in comments, similar to
+  // getShortUUID
   getUUID(): string {
     return this._uuid;
   }
 
+  // TODO: [3.0.0] Show length in comments
   /**
    * The short unique identifier which represents this class instance.
    *
@@ -519,7 +521,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
   }
 
   /**
-   * Determines whether the passed instance is the same as the current
+   * Determines whether the given instance is the same as the current
    * instance.
    */
   getIsSameInstance(instance: PhantomCore | Class): boolean {
@@ -529,7 +531,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
   /**
    * Retrieves the non-instantiated class definition.
    */
-  getClass(): Function {
+  getClass(): Class {
     return this.constructor;
   }
 
