@@ -97,11 +97,11 @@ class MyExtension extends PhantomCore {
 
 const ext = new MyExtension();
 
-evt.once(EVT_READY, () => {
+ext.once(EVT_READY, () => {
   globalLogger.log("Ready...");
 });
 
-evt.once(EVT_DESTROY, () => {
+ext.once(EVT_DESTROY, () => {
   // Outside of an instance, the global logger can be used
   globalLogger.log("Extension destroyed");
 });
