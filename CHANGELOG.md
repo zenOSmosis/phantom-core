@@ -2,12 +2,17 @@
 
 ### Version 3.0.0 -- TODO
 
+- Convert to TypeScript
 - PhantomOrchestrator with per-class log level management
 - Remove per-PhantomCore config option for log level (managed by PhantomOrchestrator)
 - Remove PhantomCore getInstanceByUUID and getInstanceBySymbol methods
 - Remove PhantomCore symbol association
 - Rename global logger export to globalLogger
 - Swap out setImmediate shim w/ native queueMicrotask
+- Remove exported performance shim (which was previously utilized solely for Node.js testing)
+- Add managed setTimeout / setInterval methods
+- Remove past participle from event names
+- Fix confusing getIsDestroying / getIsDestroyed methods.  In most cases, the usage of getHasDestroyStarted should be sufficient for checking if instance-level shutdown operations have started.
 
 ### Version 2.7.3 (Mar. 27, 2022)
 
