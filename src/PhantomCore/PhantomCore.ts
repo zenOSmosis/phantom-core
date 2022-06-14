@@ -498,7 +498,6 @@ export default class PhantomCore extends DestructibleEventEmitter {
 
     if (this._isReady) {
       _handleReady();
-
       return;
     }
 
@@ -509,7 +508,6 @@ export default class PhantomCore extends DestructibleEventEmitter {
 
       this.once(EVT_READY, () => {
         _handleReady();
-
         resolve();
       });
 
