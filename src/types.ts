@@ -17,7 +17,19 @@ export type Primitive =
  * purpose objects.
  */
 export type RecursiveObject = {
-  [key: string]: Primitive | RecursiveObject;
+  [key: string]:
+    | Primitive
+    | Primitive[]
+    | RecursiveObject
+    | RecursiveObject[]
+    | Class
+    | Class[]
+    | ClassInstance
+    | ClassInstance[]
+    | Instantiable
+    | Instantiable[]
+    | unknown
+    | unknown[];
 };
 
 // TODO: [3.0.0] See https://github.com/sindresorhus/type-fest/blob/main/test-d/class.ts
