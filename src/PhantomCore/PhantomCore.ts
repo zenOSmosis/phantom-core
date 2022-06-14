@@ -489,14 +489,32 @@ export default class PhantomCore extends DestructibleEventEmitter {
   /**
    * Resolves once the class instance is ready.
    */
-  // TODO: [3.0.0] Accept optional callback here: https://github.com/zenOSmosis/phantom-core/issues/109
-  // TODO: [3.0.0] Reject if destructed before ready: https://github.com/zenOSmosis/phantom-core/issues/108
-  async onceReady(): Promise<void> {
+  async onceReady(onReady?: EventListener): Promise<void> {
+    const _handleReady = () => {
+      if (typeof onReady === "function") {
+        onReady();
+      }
+    };
+
     if (this._isReady) {
+      _handleReady();
+
       return;
     }
 
-    return new Promise(resolve => this.once(EVT_READY, resolve));
+    return new Promise((resolve, reject) => {
+      if (this.getHasDestroyStarted()) {
+        return reject();
+      }
+
+      this.once(EVT_READY, () => {
+        _handleReady();
+
+        resolve();
+      });
+
+      this.once(EVT_BEFORE_DESTROY, reject);
+    });
   }
 
   /**

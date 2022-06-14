@@ -151,7 +151,7 @@ test("determines class name", async t => {
   t.end();
 });
 
-test("onceReady handling", async t => {
+test("onceReady as-a-promise handling", async t => {
   t.plan(3);
 
   const phantom = new PhantomCore();
@@ -165,6 +165,55 @@ test("onceReady handling", async t => {
   t.ok(true, "after second onceReady");
 
   phantom.destroy();
+
+  t.end();
+});
+
+test("onceReady reject callback", async t => {
+  t.plan(1);
+
+  class TestPrematureDestructPhantomCore extends PhantomCore {
+    constructor() {
+      super({
+        isAsync: true,
+      });
+
+      queueMicrotask(() => {
+        this._init();
+      });
+    }
+
+    _init() {
+      // Premature destruct
+      return this.destroy();
+    }
+  }
+
+  const phantom = new TestPrematureDestructPhantomCore();
+
+  try {
+    await phantom.onceReady(() => {
+      throw new Error("onceReady handler should not be invoked");
+    });
+  } catch (err) {
+    t.ok(true, "onceReady rejects if premature destruct");
+  }
+
+  await phantom.destroy();
+
+  t.end();
+});
+
+test("onceReady success callback", async t => {
+  t.plan(1);
+
+  const phantom = new PhantomCore();
+
+  await phantom.onceReady(() => {
+    t.ok(phantom.getIsReady(), "callback is called once ready");
+  });
+
+  await phantom.destroy();
 
   t.end();
 });
