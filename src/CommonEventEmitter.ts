@@ -1,5 +1,8 @@
 import { EventEmitter } from "events";
 
+export type EventName = string | symbol;
+export type EventMap = Map<EventName, EventListener>;
+
 /**
  * A callback which is invoked after the connected event has emit.
  *

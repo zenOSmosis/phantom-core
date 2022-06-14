@@ -1,4 +1,5 @@
 import assert from "assert";
+import { EventMap } from "../CommonEventEmitter";
 import PhantomCore, { EVT_UPDATE } from "../PhantomCore";
 import PhantomCollection, {
   EVT_CHILD_INSTANCE_ADD,
@@ -6,10 +7,6 @@ import PhantomCollection, {
 } from "./PhantomCollection";
 
 const DEFAULT_BRIDGE_EVENT_NAMES = [EVT_UPDATE] as string[] & symbol[];
-
-type EventName = string | symbol;
-type EventHandler = (...args: any[]) => void;
-type EventMap = Map<EventName, EventHandler>;
 
 /**
  * Manages the relationships of proxied events to / from a collection and its

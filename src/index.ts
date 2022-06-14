@@ -33,9 +33,13 @@ export type { LogIntersection };
 import globalLogger from "./globalLogger";
 export { globalLogger };
 
-import CommonEventEmitter, { EventListener } from "./CommonEventEmitter";
+import CommonEventEmitter, {
+  EventName,
+  EventMap,
+  EventListener,
+} from "./CommonEventEmitter";
 export { CommonEventEmitter };
-export type { EventListener };
+export type { EventName, EventMap, EventListener };
 
 // Extensions
 
