@@ -488,6 +488,8 @@ export default class PhantomCore extends DestructibleEventEmitter {
 
   /**
    * Resolves once the class instance is ready.
+   *
+   * If the destruct phase begins before ready, it will reject.
    */
   async onceReady(onReady?: EventListener): Promise<void> {
     const _handleReady = () => {
@@ -502,17 +504,21 @@ export default class PhantomCore extends DestructibleEventEmitter {
     }
 
     return new Promise((resolve, reject) => {
+      const _handleReject = () => {
+        reject("Destruct phase started before ready");
+      };
+
       // Don't proceed if destruct phase has already begun
       if (this.getHasDestroyStarted()) {
-        return reject();
+        return _handleReject();
       }
 
       // Reject if destructed before it's fully ready
-      this.once(EVT_BEFORE_DESTROY, reject);
+      this.once(EVT_BEFORE_DESTROY, _handleReject);
 
       this.once(EVT_READY, () => {
         // Remove temporary destruct event listener
-        this.off(EVT_BEFORE_DESTROY, reject);
+        this.off(EVT_BEFORE_DESTROY, _handleReject);
 
         _handleReady();
         resolve();

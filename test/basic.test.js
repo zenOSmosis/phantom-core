@@ -196,7 +196,11 @@ test("onceReady reject callback", async t => {
       throw new Error("onceReady handler should not be invoked");
     });
   } catch (err) {
-    t.ok(true, "onceReady rejects if premature destruct");
+    t.equals(
+      err,
+      "Destruct phase started before ready",
+      "onceReady rejects if premature destruct"
+    );
   }
 
   await phantom.destroy();
@@ -272,10 +276,8 @@ test("same instance detection", t => {
   t.plan(2);
 
   const phantom1 = new PhantomCore();
-  const phantom1UUID = phantom1.getUUID();
 
   const phantom2 = new PhantomCore();
-  const phantom2UUID = phantom2.getUUID();
 
   t.ok(phantom1.getIsSameInstance(phantom1), "can identify its own instance");
 
