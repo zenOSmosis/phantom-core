@@ -8,6 +8,8 @@ import PhantomCollection, {
   EVT_CHILD_INSTANCE_ADD,
   EVT_CHILD_INSTANCE_REMOVE,
 } from "./PhantomCollection";
+import { PhantomCollectionChildKey } from "./types";
+import PhantomCollectionChildEventBridge from "./PhantomCollection.ChildEventBridge";
 
 export default PhantomCollection;
 export {
@@ -20,3 +22,5 @@ export {
   EVT_CHILD_INSTANCE_ADD,
   EVT_CHILD_INSTANCE_REMOVE,
 };
+export type { PhantomCollectionChildKey };
+export { PhantomCollectionChildEventBridge };

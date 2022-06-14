@@ -45,7 +45,7 @@ export interface ClassInstance {
  * Type definitions which aren't categorizable, or are suited for general purposes.
  */
 
-interface Instantiable {
+export interface Instantiable {
   name: string;
 
   prototype:

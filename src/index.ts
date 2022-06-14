@@ -26,9 +26,9 @@ export {
   EventTypes,
 };
 
-import Logger, { LogLevel, EVT_LOG_MISS } from "./Logger";
-
+import Logger, { LogLevel, EVT_LOG_MISS, LogIntersection } from "./Logger";
 export { Logger, LogLevel, EVT_LOG_MISS };
+export type { LogIntersection };
 
 import globalLogger from "./globalLogger";
 export { globalLogger };
@@ -48,8 +48,16 @@ export { ArbitraryPhantomWrapper };
 import PhantomCollection, {
   EVT_CHILD_INSTANCE_ADD,
   EVT_CHILD_INSTANCE_REMOVE,
+  PhantomCollectionChildEventBridge,
+  PhantomCollectionChildKey,
 } from "./PhantomCollection";
-export { PhantomCollection, EVT_CHILD_INSTANCE_ADD, EVT_CHILD_INSTANCE_REMOVE };
+export {
+  PhantomCollection,
+  EVT_CHILD_INSTANCE_ADD,
+  EVT_CHILD_INSTANCE_REMOVE,
+  PhantomCollectionChildEventBridge,
+};
+export type { PhantomCollectionChildKey };
 
 import PhantomServiceCore from "./PhantomServiceCore";
 export { PhantomServiceCore };
