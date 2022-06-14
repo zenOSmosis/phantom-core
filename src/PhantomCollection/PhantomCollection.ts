@@ -9,6 +9,7 @@ import PhantomCore, {
   EVT_DESTROY_STACK_TIME_OUT,
   EVT_DESTROY,
   CommonOptions,
+  EventListener,
 } from "../PhantomCore";
 import ChildEventBridge from "./PhantomCollection.ChildEventBridge";
 
@@ -32,10 +33,6 @@ export const EVT_CHILD_INSTANCE_ADD = "child-instance-add";
  * was removed from the collection.
  **/
 export const EVT_CHILD_INSTANCE_REMOVE = "child-instance-remove";
-
-// TODO: [3.0.0] Redeclare via type
-const KEY_META_DESC_CHILD_KEY = "childKey";
-const KEY_META_CHILD_BEFORE_DESTROY_HANDLER = "beforeDestroyHandler";
 
 /**
  * A PhantomCollection is an array-like collection of unique PhantomCore
@@ -103,15 +100,15 @@ export default class PhantomCollection extends PhantomCore {
     };
   }
 
-  protected _children: PhantomCore[];
+  protected _children: PhantomCore[] = [];
   protected _childrenMetadata: Map<
     PhantomCore,
     {
-      childKey?: PhantomCollectionChildKey;
-      beforeDestroyHandler: (...args: any[]) => void;
+      key?: PhantomCollectionChildKey;
+      onBeforeDestroy: EventListener;
     }
-  >;
-  protected _childEventBridge: ChildEventBridge;
+  > = new Map();
+  protected _childEventBridge: ChildEventBridge = new ChildEventBridge(this);
 
   constructor(
     initialPhantomInstances: PhantomCore[] = [],
@@ -122,14 +119,6 @@ export default class PhantomCollection extends PhantomCore {
     }
 
     super(options);
-
-    /** @type {PhantomCore[]} */
-    this._children = [];
-
-    this._childrenMetadata = new Map();
-
-    // Controls proxying of events emit from children out the collection itself
-    this._childEventBridge = new ChildEventBridge(this);
 
     // Add all initial instances
     initialPhantomInstances.forEach(instance => this.addChild(instance));
@@ -246,10 +235,8 @@ export default class PhantomCollection extends PhantomCore {
 
     // Register w/ _childMetaDescriptions property
     this._childrenMetadata.set(phantomCoreInstance, {
-      [KEY_META_DESC_CHILD_KEY]: key,
-      // IMPORTANT: The handleBeforeDestroy is bound to the meta data so we can
-      // arbitrarily remove it when removing the child from the collection
-      [KEY_META_CHILD_BEFORE_DESTROY_HANDLER]: handleBeforeDestroy,
+      key,
+      onBeforeDestroy: handleBeforeDestroy,
     });
 
     // NOTE: Not using proxyOnce here for two reasons:
@@ -284,8 +271,7 @@ export default class PhantomCollection extends PhantomCore {
 
     if (childMetadata) {
       // Remove the destroyListener from the child
-      const destroyListener =
-        childMetadata[KEY_META_CHILD_BEFORE_DESTROY_HANDLER];
+      const destroyListener = childMetadata.onBeforeDestroy;
       phantomCoreInstance.off(EVT_BEFORE_DESTROY, destroyListener);
 
       // NOTE: These may have already been filtered out if removeChild is
@@ -344,7 +330,7 @@ export default class PhantomCollection extends PhantomCore {
       phantomCoreInstance,
       metadata,
     ] of this._childrenMetadata.entries()) {
-      if (metadata[KEY_META_DESC_CHILD_KEY] === key) {
+      if (metadata.key === key) {
         return phantomCoreInstance;
       }
     }
@@ -352,16 +338,15 @@ export default class PhantomCollection extends PhantomCore {
 
   /**
    * Retrieves the associative keys used with added children.
+   *
+   * Note: This will skip children which do not have defined keys.
    */
   getKeys(): PhantomCollectionChildKey[] {
-    const entries = this._childrenMetadata.entries();
-    const keys: PhantomCollectionChildKey[] = [];
+    const keys = [];
 
-    for (const entry of entries) {
-      const childKey: PhantomCollectionChildKey =
-        entry[1][KEY_META_DESC_CHILD_KEY];
-      if (childKey) {
-        keys.push(childKey as string | symbol);
+    for (const entry of this._childrenMetadata.values()) {
+      if (entry.key) {
+        keys.push(entry.key);
       }
     }
 

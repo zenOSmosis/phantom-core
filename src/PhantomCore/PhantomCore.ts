@@ -51,6 +51,7 @@ export const EVT_READY = "ready";
 export const EVT_UPDATE = "update";
 
 export { EVT_BEFORE_DESTROY, EVT_DESTROY_STACK_TIME_OUT, EVT_DESTROY };
+export type { EventListener };
 
 // Methods which should continue working after class destruct
 const KEEP_ALIVE_SHUTDOWN_METHODS = [
