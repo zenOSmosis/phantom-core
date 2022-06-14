@@ -290,7 +290,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
       // PhantomCore superclass _init on their own
 
       // Warn if _init() is not invoked in a short time period
-      const longRespondInitWarnTimeout = setTimeout(() => {
+      const longRespondInitWarnTimeout = this.setTimeout(() => {
         this.logger.warn(
           "PhantomCore superclass _init has not been called in a reasonable amount of time. All instances which use isAsync option must call _init on the PhantomCore superclass."
         );
@@ -686,18 +686,22 @@ export default class PhantomCore extends DestructibleEventEmitter {
     }
   }
 
+  // TODO: [3.0.0] Add optional param1, …, paramN args
   /**
-   * Creates a timeout which is managed by this instance of PhantomCore.
+   * Creates a timeout which is managed by this instance.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/setTimeout
    */
   setTimeout(cb: EventListener, delay = 0): NodeJS.Timeout {
     return this._timerStack.setTimeout(cb, delay);
   }
 
   /**
-   * Clears the given timeout, if it is managed by this instance of
-   * PhantomCore.
+   * Clears the given timeout, if it is managed by this instance.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/clearTimeout
    */
-  clearTimeout(timeoutID: ReturnType<typeof setTimeout>) {
+  clearTimeout(timeoutID: NodeJS.Timeout) {
     return this._timerStack.clearTimeout(timeoutID);
   }
 
@@ -708,17 +712,22 @@ export default class PhantomCore extends DestructibleEventEmitter {
     return this._timerStack.clearAllTimeouts();
   }
 
+  // TODO: [3.0.0] Add additional arg0, ...argN args
   /**
-   * Creates an interval which is managed by this instance of PhantomCore.
+   * Creates an interval which is managed by this instance.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/setInterval
    */
-  setInterval(cb: EventListener, delay = 0): NodeJS.Timeout {
+  setInterval(cb: EventListener, delay = 0): NodeJS.Timer {
     return this._timerStack.setInterval(cb, delay);
   }
 
   /**
-   * Clears an interval which is managed by this instance of PhantomCore.
+   * Clears an interval which is managed by this instance.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/clearInterval
    */
-  clearInterval(intervalID: ReturnType<typeof setInterval>) {
+  clearInterval(intervalID: NodeJS.Timer) {
     return this._timerStack.clearInterval(intervalID);
   }
 

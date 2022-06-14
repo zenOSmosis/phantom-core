@@ -62,6 +62,7 @@ export default class TimerStack extends _DestructibleEventEmitter {
     }
   }
 
+  // TODO: [3.0.0] Add optional param1, …, paramN args
   /**
    * Creates a timeout which is managed by this instance.
    *
@@ -98,12 +99,13 @@ export default class TimerStack extends _DestructibleEventEmitter {
     } while (this._timeoutStack.length);
   }
 
+  // TODO: [3.0.0] Add additional arg0, ...argN args
   /**
    * Creates an interval which is managed by this instance.
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/API/setInterval
    */
-  setInterval(cb: EventListener, delay = 0): NodeJS.Timeout {
+  setInterval(cb: EventListener, delay = 0): NodeJS.Timer {
     return this._setTimerOfType(TimerType.Interval, cb, delay);
   }
 
