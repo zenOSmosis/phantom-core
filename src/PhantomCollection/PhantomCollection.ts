@@ -84,11 +84,6 @@ export default class PhantomCollection extends PhantomCore {
   /**
    * Determines added and removed children from the given previous and current
    * children.
-   *
-   * NOTE: This accepts any parameter for previous and current children because
-   * extension classes may use expose different child types to their own
-   * implementors (i.e. media-stream-track-controller uses MediaStreamTrack
-   * instances as exposed children in one of its classes).
    */
   static getChildrenDiff(
     prevChildren: PhantomCore[],
