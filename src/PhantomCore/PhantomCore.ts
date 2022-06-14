@@ -502,16 +502,21 @@ export default class PhantomCore extends DestructibleEventEmitter {
     }
 
     return new Promise((resolve, reject) => {
+      // Don't proceed if destruct phase has already begun
       if (this.getHasDestroyStarted()) {
         return reject();
       }
 
+      // Reject if destructed before it's fully ready
+      this.once(EVT_BEFORE_DESTROY, reject);
+
       this.once(EVT_READY, () => {
+        // Remove temporary destruct event listener
+        this.off(EVT_BEFORE_DESTROY, reject);
+
         _handleReady();
         resolve();
       });
-
-      this.once(EVT_BEFORE_DESTROY, reject);
     });
   }
 
