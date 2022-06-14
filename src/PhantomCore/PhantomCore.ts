@@ -736,10 +736,10 @@ export default class PhantomCore extends DestructibleEventEmitter {
 
         await this._cleanupHandlerStack.exec();
 
-        // FIXME: If wanting to do further logging, the global logger should be
+        // Note: If wanting to do further logging, the global logger should be
         // utilized
 
-        // TODO: Force regular class properties to be null (as of July 30, 2021,
+        // TODO: [3.0.0] Force regular class properties to be null (as of July 30, 2021,
         // not changing due to unforeseen consequences):
         // @see related issue: https://github.com/zenOSmosis/phantom-core/issues/34
         // @see potentially related issue: https://github.com/zenOSmosis/phantom-core/issues/100
@@ -768,7 +768,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
             };
           }
 
-          // TODO: Reimplement and conditionally silence w/ instance options
+          // TODO: [3.0.0] Reimplement w/ global logger and conditionally silence w/ instance options
           // or env
           // this.logger.warn(
           //  `Cannot call this.${method}() after class ${className} is destroyed`
