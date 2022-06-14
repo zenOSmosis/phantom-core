@@ -170,7 +170,7 @@ test("onceReady as-a-promise handling", async t => {
 });
 
 test("onceReady reject callback", async t => {
-  t.plan(1);
+  t.plan(2);
 
   class TestPrematureDestructPhantomCore extends PhantomCore {
     constructor() {
@@ -196,8 +196,10 @@ test("onceReady reject callback", async t => {
       throw new Error("onceReady handler should not be invoked");
     });
   } catch (err) {
+    t.ok(err instanceof Error, "onceReady rejects with Error object");
+
     t.equals(
-      err,
+      err.message,
       "Destruct phase started before ready",
       "onceReady rejects if premature destruct"
     );

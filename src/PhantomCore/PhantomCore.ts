@@ -505,7 +505,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
 
     return new Promise((resolve, reject) => {
       const _handleReject = () => {
-        reject("Destruct phase started before ready");
+        reject(new Error("Destruct phase started before ready"));
       };
 
       // Don't proceed if destruct phase has already begun
