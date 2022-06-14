@@ -2,6 +2,7 @@ import assert from "assert";
 import PhantomCore from "../PhantomCore";
 import _DestructibleEventEmitter, {
   EVT_DESTROY,
+  EventListener,
 } from "../_DestructibleEventEmitter";
 import getEnumValues from "../utils/enum-utils/getEnumValues";
 
@@ -27,11 +28,9 @@ export default class EventProxyStack extends _DestructibleEventEmitter {
   protected _eventProxyBinds: {
     targetInstance: PhantomCore;
     eventName: string | symbol;
-    // TODO: [3.0.0] Use Listener type
-    eventHandler: (...args: any[]) => void;
+    eventHandler: EventListener;
   }[] = [];
-  protected _targetDestroyHandlers: Map<PhantomCore, (...args: any[]) => void> =
-    new Map();
+  protected _targetDestroyHandlers: Map<PhantomCore, EventListener> = new Map();
 
   /**
    * Adds the given proxy handler to the given target instance.
@@ -40,8 +39,7 @@ export default class EventProxyStack extends _DestructibleEventEmitter {
     bindType: EventProxyStackBindTypes.On | EventProxyStackBindTypes.Once,
     targetInstance: PhantomCore,
     eventName: string | symbol,
-    // TODO: [3.0.0] Use Listener type
-    eventHandler: (...args: any[]) => void
+    eventHandler: EventListener
   ): void {
     if (!getEnumValues(EventProxyStackBindTypes).includes(bindType)) {
       throw new ReferenceError(`Unhandled value "${bindType}" for bindType`);
@@ -85,8 +83,7 @@ export default class EventProxyStack extends _DestructibleEventEmitter {
   removeProxyHandler(
     targetInstance: PhantomCore,
     eventName: string | symbol,
-    // TODO: [3.0.0] Use Listener type
-    eventHandler: (...args: any[]) => void
+    eventHandler: EventListener
   ): void {
     let hasRemoved = false;
 

@@ -33,8 +33,9 @@ export { Logger, LogLevel, EVT_LOG_MISS };
 import globalLogger from "./globalLogger";
 export { globalLogger };
 
-import CommonEventEmitter from "./CommonEventEmitter";
+import CommonEventEmitter, { EventListener } from "./CommonEventEmitter";
 export { CommonEventEmitter };
+export type { EventListener };
 
 // Extensions
 

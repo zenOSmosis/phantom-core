@@ -1,6 +1,6 @@
 import { Class, ClassInstance, RecursiveObject } from "../types";
 import { CommonOptions } from "./types";
-import CommonEventEmitter from "../CommonEventEmitter";
+import CommonEventEmitter, { EventListener } from "../CommonEventEmitter";
 import DestructibleEventEmitter, {
   EVT_BEFORE_DESTROY,
   EVT_DESTROY_STACK_TIME_OUT,
@@ -558,8 +558,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
   proxyOn(
     targetInstance: PhantomCore,
     eventName: string | symbol,
-    // TODO: [3.0.0] Use Listener type
-    eventHandler: (...args: any[]) => void
+    eventHandler: EventListener
   ): void {
     if (!PhantomCore.getIsLooseInstance(targetInstance)) {
       throw new ReferenceError("targetInstance is not a PhantomCore instance");
@@ -592,8 +591,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
   proxyOnce(
     targetInstance: PhantomCore,
     eventName: string | symbol,
-    // TODO: [3.0.0] Use Listener type
-    eventHandler: (...args: any[]) => void
+    eventHandler: EventListener
   ): void {
     if (!PhantomCore.getIsLooseInstance(targetInstance)) {
       throw new ReferenceError("targetInstance is not a PhantomCore instance");
@@ -626,8 +624,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
   proxyOff(
     targetInstance: PhantomCore,
     eventName: string | symbol,
-    // TODO: [3.0.0] Use Listener type
-    eventHandler: (...args: any[]) => void
+    eventHandler: EventListener
   ): void {
     if (!PhantomCore.getIsLooseInstance(targetInstance)) {
       throw new ReferenceError("targetInstance is not a PhantomCore instance");

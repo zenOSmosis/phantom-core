@@ -1,6 +1,8 @@
-import CommonEventEmitter from "./CommonEventEmitter";
+import CommonEventEmitter, { EventListener } from "./CommonEventEmitter";
 import getClassName from "./utils/class-utils/getClassName";
 import Logger from "./Logger";
+
+export type { EventListener };
 
 /**
  * @event EVT_BEFORE_DESTROY Emits directly before any destructor handling.

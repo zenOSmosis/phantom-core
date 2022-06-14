@@ -1,5 +1,16 @@
 import { EventEmitter } from "events";
-import { Primitive, RecursiveObject } from "./types";
+
+/**
+ * A callback which is invoked after the connected event has emit.
+ *
+ * FIXME: (jh) [Even before renaming] I tried to import this from
+ * DefinitelyTyped but could not get the type to pick up:
+ * @see https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/events/index.d.ts
+ *
+ * Possible related issue:
+ * @see https://github.com/microsoft/TypeScript/issues/32205
+ */
+export type EventListener = (...args: any[]) => void;
 
 /**
  * A lightly-wrapped EventEmitter which is compatible with Node.js and
