@@ -9,15 +9,19 @@ const eventPrefix = "EVT_";
  *
  * @throws {TypeError}
  */
-export function checkEventValue(event: Primitive): void {
+export function checkEventValue(event: Primitive | unknown): void {
   if (typeof event === "string") {
     if (!/^[a-z]+(-[a-z]+)*$/g.test(event)) {
-      throw new TypeError("Event must be all lowercase letters and hypens");
+      throw new TypeError("Event must be all lowercase letters and hyphens");
     }
   }
 
-  if (!getEnumValues(EventTypes).includes(typeof event)) {
-    throw new TypeError(`Value "${String(event)}" is not a string`);
+  const acceptableTypes = getEnumValues(EventTypes);
+
+  if (!acceptableTypes.includes(typeof event)) {
+    throw new TypeError(
+      `Value "${String(event)}" is not an acceptable type (${acceptableTypes})`
+    );
   }
 }
 
@@ -70,17 +74,17 @@ export function checkEvents(events: RecursiveObject): void {
  *
  * @throws {ReferenceError}
  */
-export function extractEvents(es5Import: RecursiveObject): {
+export function extractEvents(esImports: RecursiveObject): {
   [key: EventConstant]: string;
 } {
-  const keys = Object.keys(es5Import).filter(pred =>
+  const keys = Object.keys(esImports).filter(pred =>
     pred.startsWith(eventPrefix)
   );
 
   validateKeysExist(keys);
 
   const events: RecursiveObject = Object.fromEntries(
-    keys.map(key => [key, es5Import[key]])
+    keys.map(key => [key, esImports[key]])
   );
 
   // Ensure the events are valid
@@ -97,21 +101,21 @@ export function extractEvents(es5Import: RecursiveObject): {
  * @throws {ReferenceError}
  */
 export function compareExportedEvents(
-  baseES5Import: RecursiveObject,
-  inheritingES5Import: RecursiveObject,
-  baseES5ImportExclusions: RecursiveObject = {}
+  esImports: RecursiveObject,
+  inheritingESImports: RecursiveObject,
+  esImportExclusions: RecursiveObject = {}
 ): void {
-  const exportsA = extractEvents(baseES5Import);
-  const exportsB = extractEvents(inheritingES5Import);
+  const exportsA = extractEvents(esImports);
+  const exportsB = extractEvents(inheritingESImports);
 
-  // Check that extensionES5Import contains same events as baseES5Import, minus any exceptions
+  // Check that extensionesImports contains same events as esImports, minus any exceptions
   for (const [keyA, valueA] of Object.entries(exportsA)) {
     const valueB = (exportsB as { [key: string]: string })[keyA];
 
     // Ensure that exportB contains same object and value, with exception of exclusions
     if (valueB !== valueA) {
       // Ignore exclusion, if exists
-      if (valueB === undefined && baseES5ImportExclusions[keyA]) {
+      if (valueB === undefined && esImportExclusions[keyA]) {
         continue;
       }
 

@@ -10,15 +10,14 @@ export type Primitive =
   | null
   | undefined
   | symbol
-  | bigint
-  | RecursiveObject;
+  | bigint;
 
 /**
  * A general-purpose (i.e. "plain") object which can contain other general-
  * purpose objects.
  */
 export type RecursiveObject = {
-  [key: string]: Primitive;
+  [key: string]: Primitive | RecursiveObject;
 };
 
 // TODO: [3.0.0] See https://github.com/sindresorhus/type-fest/blob/main/test-d/class.ts
@@ -49,7 +48,10 @@ export interface ClassInstance {
 interface Instantiable {
   name: string;
 
-  prototype: ((...args: Primitive[]) => Function) | Primitive | RecursiveObject;
+  prototype:
+    | ((...args: (Primitive & RecursiveObject)[]) => Function)
+    | Primitive
+    | RecursiveObject;
 }
 
 /**
