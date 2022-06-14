@@ -84,6 +84,10 @@ const KEEP_ALIVE_SHUTDOWN_METHODS = [
 /**
  * Base class for zenOSmosis Phantom architecture, from which Speaker.app and
  * ReShell classes derive.
+ *
+ * @see https://speaker.app
+ * @see https://github.com/zenOSmosis/speaker.app
+ * @see https://github.com/zenOSmosis/reshell
  */
 export default class PhantomCore extends DestructibleEventEmitter {
   /**

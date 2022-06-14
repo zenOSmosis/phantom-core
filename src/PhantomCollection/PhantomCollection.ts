@@ -37,12 +37,17 @@ const KEY_META_DESC_CHILD_KEY = "childKey";
 const KEY_META_CHILD_BEFORE_DESTROY_HANDLER = "beforeDestroyHandler";
 
 /**
- * A PhantomCollection contains an array of unique PhantomCore instances
- * which are bound as child instances.
+ * A PhantomCollection is an array-like collection of unique PhantomCore
+ * instances which are bound as child instances.
  *
- * Events can be sent to a children by broadcasting them, and events can be
- * bridged from every child which will emit out the collection as if the
- * collection itself generated the event.
+ * Together they form a single collective, where the collection acts as an
+ * event proxy for designated events that emit on a particular child's behalf.
+ *
+ * Reverse proxying also comes into play, where each child can emit an event
+ * (i.e. broadcast) that is sent via the collection.
+ *
+ * To the outside world, all of the instances in a collection are represented as
+ * a single unit, by the collection itself.
  *
  * In addition, this collection strives to include all of the properties which
  * Techopedia defines as a collection:
