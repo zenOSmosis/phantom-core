@@ -69,25 +69,23 @@ It is the common base package utilized in [Speaker App](https://speaker.app) / [
 ## Basic Example
 
 ```js
-import PhantomCore, {
-  EVT_READY,
-  EVT_DESTROY,
-  globalLogger,
-} from "phantom-core";
+import PhantomCore, { EVT_READY, EVT_DESTROY } from "phantom-core";
 
 class MyExtension extends PhantomCore {
   constructor() {
     super();
 
+    // Cleanup handlers are invoked in LIFO order by default
+
+    this.registerCleanupHandler(() => {
+      this.log("And some additional cleanup work here...");
+    });
+
     this.registerCleanupHandler(() => {
       // PhantomCore has its own logger, and the log level is configurable per
       // instance. It's currently a wrapper around the Console log methods, has
       // a custom prefix, and retains the original stack trace.
-      this.logger.log("Do some cleanup work here...");
-    });
-
-    this.registerCleanupHandler(() => {
-      this.logger.log("And some additional cleanup work here...");
+      this.log("Do some cleanup work here...");
     });
 
     // Asynchronous methods in registerCleanupHandler are executed awaited upon
@@ -95,24 +93,29 @@ class MyExtension extends PhantomCore {
   }
 }
 
-const ext = new MyExtension();
+// Example implementation
+(async () => {
+  const ext = new MyExtension();
 
-ext.once(EVT_READY, () => {
-  globalLogger.log("Ready...");
-});
+  ext.once(EVT_READY, () => {
+    ext.log("Ready...");
 
-ext.once(EVT_DESTROY, () => {
-  // Outside of an instance, the global logger can be used
-  globalLogger.log("Extension destroyed");
-});
+    // For demonstration
+    ext.destroy();
+  });
 
-ext.destroy();
+  ext.once(EVT_DESTROY, () => {
+    // Outside of an instance, the global logger can be used
+    ext.log("Extension destroyed");
+  });
 
-// Destruct logs are rendered in the following order:
-//
-// "Extension destroyed"
-// "Do some cleanup work here..."
-// "And some additional cleanup work here..."
+  // Destruct logs are rendered in the following order:
+  //
+  // [2022-06-14T01:46:52+00:00 info MyExtension 655eba48-892a-4d4d-8f45-a4ab20204679] Ready...
+  // [2022-06-14T01:46:52+00:00 info MyExtension 655eba48-892a-4d4d-8f45-a4ab20204679] Extension destroyed
+  // [2022-06-14T01:46:52+00:00 info MyExtension 655eba48-892a-4d4d-8f45-a4ab20204679] Do some cleanup work here...
+  // [2022-06-14T01:46:52+00:00 info MyExtension 655eba48-892a-4d4d-8f45-a4ab20204679] And some additional cleanup work here...
+})();
 ```
 
 ## Documentation
