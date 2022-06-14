@@ -1,5 +1,7 @@
 import assert from "assert";
-import _DestructibleEventEmitter from "../_DestructibleEventEmitter";
+import _DestructibleEventEmitter, {
+  EventListener,
+} from "../_DestructibleEventEmitter";
 
 /**
  * Types of timers which are managed by TimerStack.
@@ -11,10 +13,17 @@ export enum TimerType {
 
 /**
  * Manages setTimeout and setInterval as if they were non-globals.
+ *
+ * Why? Forgotten timers and callbacks can make the memory usage of your app go
+ * up.
+ *
+ * Utilized as a module within PhantomCore instances, once an instance is
+ * destructed, the attached timers are automatically decommissioned.
+ * @see https://felixgerschau.com/javascript-memory-management/#forgotten-timers-and-callbacks
  */
 export default class TimerStack extends _DestructibleEventEmitter {
-  protected _timeoutStack: ReturnType<typeof setTimeout>[] = [];
-  protected _intervalStack: ReturnType<typeof setInterval>[] = [];
+  protected _timeoutStack: NodeJS.Timeout[] = [];
+  protected _intervalStack: NodeJS.Timer[] = [];
 
   /**
    * Handles the registering of the given callback handler with the relevant
@@ -23,17 +32,17 @@ export default class TimerStack extends _DestructibleEventEmitter {
    */
   protected _setTimerOfType(
     timerType: TimerType,
-    fn: Function,
+    cb: EventListener,
     delay: number = 0
-  ) {
+  ): NodeJS.Timeout {
     if (timerType === TimerType.Timeout) {
       // Note: The global setTimeout is overridden in order to automatically clear it from the local stack on exit
-      const timeoutID: ReturnType<typeof setTimeout> = global.setTimeout(() => {
+      const timeoutID: NodeJS.Timeout = global.setTimeout(() => {
         // Remove from timeout stack
         this.clearTimeout(timeoutID);
 
         // Execute the callback handler
-        fn();
+        cb();
       }, delay);
 
       // Add to timeout stack
@@ -41,10 +50,11 @@ export default class TimerStack extends _DestructibleEventEmitter {
 
       return timeoutID;
     } else {
-      const intervalID: ReturnType<typeof setInterval> = global.setInterval(
-        fn,
+      const intervalID: NodeJS.Timer = global.setInterval(
+        cb,
         delay
-      ) as unknown as ReturnType<typeof setInterval>;
+      ) as unknown as NodeJS.Timer;
+
       // Add to interval stack
       this._intervalStack.push(intervalID);
 
@@ -54,22 +64,26 @@ export default class TimerStack extends _DestructibleEventEmitter {
 
   /**
    * Creates a timeout which is managed by this instance.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/setTimeout
    */
-  setTimeout(fn: Function, delay = 0) {
-    return this._setTimerOfType(TimerType.Timeout, fn, delay);
+  setTimeout(cb: EventListener, delay = 0): NodeJS.Timeout {
+    return this._setTimerOfType(TimerType.Timeout, cb, delay);
   }
 
   /**
    * Mainly utilized for testing and debugging.
    */
-  getTimeoutStack() {
+  getTimeoutStack(): NodeJS.Timeout[] {
     return this._timeoutStack;
   }
 
   /**
    * Clears the given timeout, if it is managed by this instance.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/clearTimeout
    */
-  clearTimeout(timeoutID: ReturnType<typeof setTimeout>) {
+  clearTimeout(timeoutID: NodeJS.Timeout): void {
     this._timeoutStack = this._timeoutStack.filter(pred => pred !== timeoutID);
 
     global.clearTimeout(timeoutID);
@@ -78,7 +92,7 @@ export default class TimerStack extends _DestructibleEventEmitter {
   /**
    * Clears all timeouts managed by this instance.
    */
-  clearAllTimeouts() {
+  clearAllTimeouts(): void {
     do {
       this.clearTimeout(this._timeoutStack[0]);
     } while (this._timeoutStack.length);
@@ -86,33 +100,37 @@ export default class TimerStack extends _DestructibleEventEmitter {
 
   /**
    * Creates an interval which is managed by this instance.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/setInterval
    */
-  setInterval(fn: Function, delay = 0) {
-    return this._setTimerOfType(TimerType.Interval, fn, delay);
+  setInterval(cb: EventListener, delay = 0): NodeJS.Timeout {
+    return this._setTimerOfType(TimerType.Interval, cb, delay);
   }
 
   /**
    * Mainly utilized for testing and debugging.
    */
-  getIntervalStack() {
+  getIntervalStack(): NodeJS.Timer[] {
     return this._intervalStack;
   }
 
   /**
    * Clears an interval which is managed by this instance.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/clearInterval
    */
-  clearInterval(intervalID: ReturnType<typeof setInterval>) {
+  clearInterval(intervalID: NodeJS.Timer) {
     this._intervalStack = this._intervalStack.filter(
       pred => pred !== intervalID
     );
 
-    global.clearTimeout(intervalID);
+    global.clearInterval(intervalID);
   }
 
   /**
    * Clears all intervals managed by this instance.
    */
-  clearAllIntervals() {
+  clearAllIntervals(): void {
     for (const intervalID of this._intervalStack) {
       this.clearInterval(intervalID);
     }
@@ -121,12 +139,12 @@ export default class TimerStack extends _DestructibleEventEmitter {
   /**
    * Clears all timeouts and intervals managed by this instance.
    */
-  clearAllTimers() {
+  clearAllTimers(): void {
     this.clearAllTimeouts();
     this.clearAllIntervals();
   }
 
-  override async destroy() {
+  override async destroy(): Promise<void> {
     return super.destroy(() => {
       this.clearAllTimers();
 

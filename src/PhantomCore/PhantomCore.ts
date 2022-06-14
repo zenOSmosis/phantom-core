@@ -689,8 +689,8 @@ export default class PhantomCore extends DestructibleEventEmitter {
   /**
    * Creates a timeout which is managed by this instance of PhantomCore.
    */
-  setTimeout(fn: Function, delay = 0): NodeJS.Timeout {
-    return this._timerStack.setTimeout(fn, delay);
+  setTimeout(cb: EventListener, delay = 0): NodeJS.Timeout {
+    return this._timerStack.setTimeout(cb, delay);
   }
 
   /**
@@ -711,8 +711,8 @@ export default class PhantomCore extends DestructibleEventEmitter {
   /**
    * Creates an interval which is managed by this instance of PhantomCore.
    */
-  setInterval(fn: Function, delay = 0): NodeJS.Timeout {
-    return this._timerStack.setInterval(fn, delay);
+  setInterval(cb: EventListener, delay = 0): NodeJS.Timeout {
+    return this._timerStack.setInterval(cb, delay);
   }
 
   /**
