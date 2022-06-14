@@ -204,7 +204,7 @@ test("onceReady reject callback", async t => {
   t.end();
 });
 
-test("onceReady success callback", async t => {
+test("onceReady success callback -- sync mode", async t => {
   t.plan(1);
 
   const phantom = new PhantomCore();
@@ -218,7 +218,39 @@ test("onceReady success callback", async t => {
   t.end();
 });
 
-test("emits EVT_READY (even in sync mode)", async t => {
+test("onceReady success callback -- async mode", async t => {
+  t.plan(2);
+
+  class TestAsyncReadySuccessPhantomCore extends PhantomCore {
+    constructor() {
+      super({
+        isAsync: true,
+      });
+
+      queueMicrotask(() => {
+        this._init();
+      });
+    }
+
+    async _init() {
+      t.notOk(this.getIsReady());
+
+      return super._init();
+    }
+  }
+
+  const phantom = new TestAsyncReadySuccessPhantomCore();
+
+  await phantom.onceReady(() => {
+    t.ok(phantom.getIsReady(), "callback is called once ready");
+  });
+
+  await phantom.destroy();
+
+  t.end();
+});
+
+test("emits EVT_READY in sync mode", async t => {
   t.plan(1);
 
   const phantom = new PhantomCore();
