@@ -19,7 +19,12 @@
     "jsx": "react",
     "baseUrl": ".",
     "downlevelIteration": true,
+    "noImplicitAny": true,
     "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUnusedLocals": true,
     "inlineSourceMap": false,
     "paths": {
       "*": ["node_modules/*"]

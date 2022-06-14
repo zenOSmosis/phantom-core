@@ -17,6 +17,14 @@ export enum LogLevel {
   Trace = 5,
 }
 
+enum LoggerMethods {
+  Error = "error",
+  Warn = "warn",
+  Info = "info",
+  Debug = "debug",
+  Trace = "trace",
+}
+
 export { EVT_DESTROY };
 
 const LOG_LEVEL_MAP = enumToMap(LogLevel);
@@ -136,61 +144,67 @@ export default class Logger extends _DestructibleEventEmitter {
        *
        * @see https://stackoverflow.com/questions/9559725/extending-console-log-without-affecting-log-line
        */
-
-      const loggerMethods: { [key: string]: () => void } = {};
+      // TODO: [3.0.0] Fix type
+      const loggerMethods: { [key: string]: unknown } = {};
 
       if (this._logLevel >= LogLevel.Error) {
-        loggerMethods.error = Function.prototype.bind.call(
+        loggerMethods[LoggerMethods.Error] = Function.prototype.bind.call(
           console.error,
           console,
-          prefix("error")
+          prefix(LoggerMethods.Error)
         );
       } else {
-        loggerMethods.error = () => this.emit(EVT_LOG_MISS, LogLevel.Error);
+        loggerMethods[LoggerMethods.Error] = () =>
+          this.emit(EVT_LOG_MISS, LogLevel.Error);
       }
 
       if (this._logLevel >= LogLevel.Warn) {
-        loggerMethods.warn = Function.prototype.bind.call(
+        loggerMethods[LoggerMethods.Warn] = Function.prototype.bind.call(
           console.warn,
           console,
-          prefix("warn")
+          prefix(LoggerMethods.Warn)
         );
       } else {
-        loggerMethods.warn = () => this.emit(EVT_LOG_MISS, LogLevel.Warn);
+        loggerMethods[LoggerMethods.Warn] = () =>
+          this.emit(EVT_LOG_MISS, LogLevel.Warn);
       }
 
       if (this._logLevel >= LogLevel.Info) {
-        loggerMethods.info = Function.prototype.bind.call(
+        loggerMethods[LoggerMethods.Info] = Function.prototype.bind.call(
           console.info,
           console,
-          prefix("info")
+          prefix(LoggerMethods.Info)
         );
       } else {
-        loggerMethods.info = () => this.emit(EVT_LOG_MISS, LogLevel.Info);
+        loggerMethods[LoggerMethods.Info] = () =>
+          this.emit(EVT_LOG_MISS, LogLevel.Info);
       }
 
       if (this._logLevel >= LogLevel.Debug) {
-        loggerMethods.debug = Function.prototype.bind.call(
+        loggerMethods[LoggerMethods.Debug] = Function.prototype.bind.call(
           console.debug,
           console,
-          prefix("debug")
+          prefix(LoggerMethods.Debug)
         );
       } else {
-        loggerMethods.debug = () => this.emit(EVT_LOG_MISS, LogLevel.Debug);
+        loggerMethods[LoggerMethods.Debug] = () =>
+          this.emit(EVT_LOG_MISS, LogLevel.Debug);
       }
 
       if (this._logLevel >= LogLevel.Trace) {
-        loggerMethods.trace = Function.prototype.bind.call(
+        loggerMethods[LoggerMethods.Trace] = Function.prototype.bind.call(
           console.trace,
           console,
-          prefix("trace")
+          prefix(LoggerMethods.Trace)
         );
       } else {
-        loggerMethods.trace = () => this.emit(EVT_LOG_MISS, LogLevel.Trace);
+        loggerMethods[LoggerMethods.Trace] = () =>
+          this.emit(EVT_LOG_MISS, LogLevel.Trace);
       }
 
       // Calling this.log() directly will log as info (log info alias)
-      const log: ClassInstance = loggerMethods.info;
+      // TODO: [3.0.0] Fix any type
+      const log: any = loggerMethods[LoggerMethods.Info];
 
       // Dynamically assign log methods to log
       // TODO: [3.0.0] Rewrite to handlers which are exposed via class methods
@@ -221,8 +235,7 @@ export default class Logger extends _DestructibleEventEmitter {
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/API/console/trace
    */
-  // TODO: [3.0.0] Fix any type
-  trace(...args: any[]): void {
+  trace(...args: unknown[]): void {
     throw new Error("This should be overridden");
   }
 
@@ -234,7 +247,7 @@ export default class Logger extends _DestructibleEventEmitter {
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/API/console/debug
    */
-  debug(...args: any[]): void {
+  debug(...args: unknown[]): void {
     throw new Error("This should be overridden");
   }
 
@@ -243,8 +256,7 @@ export default class Logger extends _DestructibleEventEmitter {
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/API/console/info
    */
-  // TODO: [3.0.0] Fix any type
-  info(...args: any[]): void {
+  info(...args: unknown[]): void {
     throw new Error("This should be overridden");
   }
 
@@ -253,8 +265,7 @@ export default class Logger extends _DestructibleEventEmitter {
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/API/console/warn
    */
-  // TODO: [3.0.0] Fix any type
-  warn(...args: any[]): void {
+  warn(...args: unknown[]): void {
     throw new Error("This should be overridden");
   }
 
@@ -263,8 +274,7 @@ export default class Logger extends _DestructibleEventEmitter {
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/API/console/error
    */
-  // TODO: [3.0.0] Fix any type
-  error(...args: any[]): void {
+  error(...args: unknown[]): void {
     throw new Error("This should be overridden");
   }
 }
