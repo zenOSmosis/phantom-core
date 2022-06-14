@@ -5,6 +5,7 @@ import PhantomCore, {
   EVT_BEFORE_DESTROY,
   EVT_DESTROY_STACK_TIME_OUT,
   EVT_DESTROY,
+  CommonOptions,
 } from "./PhantomCore";
 
 export {
@@ -22,7 +23,7 @@ export {
 export default class ArbitraryPhantomWrapper extends PhantomCore {
   protected _wrappedValue: unknown = null;
 
-  constructor(wrappedValue: unknown, options = {}) {
+  constructor(wrappedValue: unknown, options: CommonOptions = {}) {
     super(options);
 
     this._setWrappedValue(wrappedValue);

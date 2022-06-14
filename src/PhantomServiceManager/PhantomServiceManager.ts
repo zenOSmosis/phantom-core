@@ -1,4 +1,4 @@
-import PhantomCore from "../PhantomCore";
+import PhantomCore, { CommonOptions } from "../PhantomCore";
 import PhantomCollection, {
   EVT_NO_INIT_WARN,
   EVT_READY,
@@ -33,8 +33,8 @@ export default class PhantomServiceManager extends PhantomCollection {
   protected _pendingServiceClassInstanceSet: Set<Class<PhantomServiceCore>>;
   protected _circularWarningMessages: string[];
 
-  constructor() {
-    super();
+  constructor(options: CommonOptions = {}) {
+    super([], options);
 
     // Keeps track of pending service class instances to help avoid maximum
     // recursion error if two or more services are circular dependencies of one

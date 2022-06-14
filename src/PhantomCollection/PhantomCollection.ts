@@ -8,6 +8,7 @@ import PhantomCore, {
   EVT_BEFORE_DESTROY,
   EVT_DESTROY_STACK_TIME_OUT,
   EVT_DESTROY,
+  CommonOptions,
 } from "../PhantomCore";
 import ChildEventBridge from "./PhantomCollection.ChildEventBridge";
 
@@ -117,7 +118,10 @@ export default class PhantomCollection extends PhantomCore {
   >;
   protected _childEventBridge: ChildEventBridge;
 
-  constructor(initialPhantomInstances: PhantomCore[] = [], options = {}) {
+  constructor(
+    initialPhantomInstances: PhantomCore[] = [],
+    options: CommonOptions = {}
+  ) {
     if (!Array.isArray(initialPhantomInstances)) {
       throw new TypeError("initialPhantomInstances must be an array");
     }

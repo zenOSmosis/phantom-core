@@ -5,6 +5,7 @@ import PhantomCore, {
   EVT_BEFORE_DESTROY,
   EVT_DESTROY_STACK_TIME_OUT,
   EVT_DESTROY,
+  CommonOptions,
 } from "./PhantomCore";
 import phantomCoreOrchestrator, {
   EVT_PHANTOM_WATCHER_LOG_MISS,
@@ -34,8 +35,8 @@ export type { LogMissCounts, LogMissCountIndex };
 export default class PhantomWatcher extends PhantomCore {
   protected _phantomClassNames: string[] = [];
 
-  constructor() {
-    super();
+  constructor(options: CommonOptions = {}) {
+    super(options);
 
     // Handle orchestrator update events
     (() => {
