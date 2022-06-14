@@ -16,7 +16,7 @@ export const EVT_BEFORE_DESTROY = "before-destroy";
 export const EVT_DESTROY_STACK_TIME_OUT = "destroy-stack-time-out";
 
 /**
- * @export EVT_DESTROY Emits just before event handlers have been removed and
+ * @event EVT_DESTROY Emits just before event handlers have been removed and
  * any post-destruct operations are invoked.
  */
 export const EVT_DESTROY = "destroy";
