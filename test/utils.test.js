@@ -260,10 +260,14 @@ test("sleep", async t => {
   // the time attribute actually affects sleep time.
   const graceBuffer = 100;
 
+  if (!global.performance) {
+    global.performance = require("perf_hooks").performance;
+  }
+
   await (async () => {
-    const beforeStart = performance.now();
+    const beforeStart = global.performance.now();
     await sleep();
-    const afterEnd = performance.now();
+    const afterEnd = global.performance.now();
     t.ok(
       afterEnd - beforeStart >= 1000 - graceBuffer,
       "sleep() defaults to 1000 ms"
@@ -271,9 +275,9 @@ test("sleep", async t => {
   })();
 
   await (async () => {
-    const beforeStart = performance.now();
+    const beforeStart = global.performance.now();
     await sleep(1500);
-    const afterEnd = performance.now();
+    const afterEnd = global.performance.now();
     t.ok(
       afterEnd - beforeStart >= 1500 - graceBuffer,
       "sleep() responds to argument for milliseconds"
