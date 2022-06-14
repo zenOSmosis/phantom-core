@@ -40,7 +40,9 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
       );
     }
 
-    super();
+    super({
+      title: phantomCollection.getTitle(),
+    });
 
     this._phantomCollection = phantomCollection;
     this.registerCleanupHandler(() => delete this._phantomCollection);
