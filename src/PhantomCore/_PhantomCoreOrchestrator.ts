@@ -35,9 +35,10 @@ export type LogMissCounts = [
   LogMissCountIndex<LogLevel.Trace>
 ];
 
-// TODO: [3.0.0] This should run as a singleton and never be destructed
 /**
  * Manages all PhantomCore instances and attaches centralized log handling.
+ *
+ * IMPORTANT: This should be treated as a singleton and never be destructed.
  */
 class PhantomCoreOrchestrator extends CommonEventEmitter {
   protected _initialGlobalLogLevel: number = globalLogger.getLogLevel();
