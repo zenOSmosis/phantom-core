@@ -207,6 +207,10 @@ export default class PhantomServiceManager extends PhantomCollection {
     return cachedService;
   }
 
+  /**
+   * Retrieves the underlying JavaScript classes which have been instantiated
+   * into running services.
+   */
   override getKeys(): PhantomServiceCore[] {
     return super.getKeys() as PhantomServiceCore[];
   }
