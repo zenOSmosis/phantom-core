@@ -65,16 +65,18 @@ export default class PhantomCollection extends PhantomCore {
    * be present by using this across incompatible versions.
    *
    */
-  static override getIsLooseInstance(instance: PhantomCollection & Class) {
+  static override getIsLooseInstance(instance: PhantomCollection | Class) {
+    const pcInstance = instance as PhantomCollection;
+
     return Boolean(
-      PhantomCore.getIsLooseInstance(instance) &&
-        typeof instance.addChild === "function" &&
-        typeof instance.removeChild === "function" &&
-        typeof instance.getChildren === "function" &&
-        typeof instance.getKeys === "function" &&
-        typeof instance.broadcast === "function" &&
-        typeof instance.removeAllChildren === "function" &&
-        typeof instance.destroyAllChildren === "function"
+      PhantomCore.getIsLooseInstance(pcInstance) &&
+        typeof pcInstance.addChild === "function" &&
+        typeof pcInstance.removeChild === "function" &&
+        typeof pcInstance.getChildren === "function" &&
+        typeof pcInstance.getKeys === "function" &&
+        typeof pcInstance.broadcast === "function" &&
+        typeof pcInstance.removeAllChildren === "function" &&
+        typeof pcInstance.destroyAllChildren === "function"
     );
   }
 

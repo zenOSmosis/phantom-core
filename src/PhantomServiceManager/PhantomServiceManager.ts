@@ -77,17 +77,16 @@ export default class PhantomServiceManager extends PhantomCollection {
    * @emits EVT_CHILD_INSTANCE_ADD
    * @emits EVT_UPDATE
    */
-  addClass(ServiceClass: Class<PhantomServiceCore>): PhantomCore {
-    if (
-      ServiceClass ===
-      (PhantomServiceCore as unknown as Class<PhantomServiceCore>)
-    ) {
+  addClass(ServiceClass: Constructor<PhantomServiceCore>): PhantomServiceCore {
+    if (ServiceClass === PhantomServiceCore) {
       throw new TypeError(
         "ServiceClass must derive from PhantomServiceCore but cannot be PhantomServiceCore itself"
       );
     }
 
-    const cachedService = this.getChildWithKey(ServiceClass);
+    const cachedService = this.getChildWithKey(
+      ServiceClass
+    ) as PhantomServiceCore;
 
     if (cachedService) {
       return cachedService;
@@ -103,7 +102,7 @@ export default class PhantomServiceManager extends PhantomCollection {
     // passed to super. Any other error checking in this try / catch can make
     // things trickier to manage.
     try {
-      service = new (ServiceClass as Constructor<PhantomServiceCore>)({
+      service = new ServiceClass({
         // While not EXPLICITLY required to make the functionality work, the
         // internal check inside of PhantomServiceCore for this property helps to
         // guarantee integrity of the PhantomServiceManager type
@@ -112,7 +111,7 @@ export default class PhantomServiceManager extends PhantomCollection {
         // Bind functionality to the service to be able to use other services,
         // using this service collection as the backend
         useServiceClassHandler: (
-          ChildServiceClass: Class<PhantomServiceCore>
+          ChildServiceClass: Constructor<PhantomServiceCore>
         ) => {
           if (ChildServiceClass === ServiceClass) {
             throw new TypeError(
@@ -176,15 +175,14 @@ export default class PhantomServiceManager extends PhantomCollection {
    *
    * @see this.addChild
    */
-  startServiceClass(ServiceClass: Class<PhantomServiceCore>): PhantomCore {
+  startServiceClass(
+    ServiceClass: Constructor<PhantomServiceCore>
+  ): PhantomServiceCore {
     return this.addClass(ServiceClass);
   }
 
   /**
    * Stops associated class instance.
-   *
-   * @param {PhantomServiceCore} ServiceClass
-   * @return {Promise<void>}
    */
   async stopServiceClass(
     ServiceClass: Class<PhantomServiceCore>

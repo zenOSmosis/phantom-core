@@ -8,7 +8,7 @@ import PhantomState, {
 } from "../PhantomState";
 import PhantomCollection from "../PhantomCollection";
 import PhantomServiceManager from "../PhantomServiceManager";
-import { Class, ClassInstance } from "../types";
+import { Class, ClassInstance, Constructor } from "../types";
 
 export {
   EVT_NO_INIT_WARN,
@@ -120,15 +120,13 @@ export default class PhantomServiceCore extends PhantomState {
    * bindCollectionClass will use separate instances of the collection.
    */
   // TODO: [3.0.0] Fix any return type
-  bindCollectionClass(CollectionClass: Class<PhantomCollection>) {
+  bindCollectionClass(CollectionClass: Constructor<PhantomCollection>) {
     const prevCollectionInstance = this._collectionMap.get(CollectionClass);
 
     if (prevCollectionInstance) {
       return prevCollectionInstance;
     }
 
-    // TODO: [3.0.0] Fix this type
-    // @ts-ignore
     const collectionInstance = new CollectionClass();
 
     // FIXME: (jh) A better check would be to determine this before
