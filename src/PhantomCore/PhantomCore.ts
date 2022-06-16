@@ -423,8 +423,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
   /**
    * Retrieves the options utilized in the class constructor.
    */
-  // TODO: [3.0.0] Use recursive object type & CommonOptions
-  getOptions() {
+  getOptions(): CommonOptions {
     return this._options;
   }
 
@@ -432,8 +431,6 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * Retrieve the option with the given name, if exists.
    */
   getOption(optionName: string): unknown {
-    // TODO: [3.0.0] Fix type
-    // @ts-ignore
     return this._options[optionName];
   }
 
@@ -534,17 +531,19 @@ export default class PhantomCore extends DestructibleEventEmitter {
   }
 
   /**
-   * The unique identifier which represents this class instance.
+   * A 36-character unique identifier, conforming to RFC4122 (RFC 4122 A UUID
+   * URN Namespace) designed to be unique across space and time, which
+   * represents this class instance.
+   *
+   * @see https://www.ietf.org/rfc/rfc4122.txt
    */
-  // TODO: [3.0.0] Show i.e. example (with length) in comments, similar to
-  // getShortUUID
   getUUID(): string {
     return this._uuid;
   }
 
-  // TODO: [3.0.0] Show length in comments
   /**
-   * The short unique identifier which represents this class instance.
+   * The short-uuid starts with RFC4122 v4-compliant UUIDs and translates them
+   * into other, usually shorter formats.
    *
    * i.e. "mhvXdrZT4jP5T8vBxuvm75"
    */
