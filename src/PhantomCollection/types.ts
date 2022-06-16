@@ -5,4 +5,5 @@ export type PhantomCollectionChildKey =
   | Primitive
   | RecursiveObject
   | Class
-  | Class<PhantomCore>;
+  | Class<PhantomCore>
+  | unknown;

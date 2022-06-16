@@ -11,7 +11,7 @@ import PhantomCollection, {
 } from "../PhantomCollection";
 import PhantomServiceCore from "../PhantomServiceCore";
 import getClassName from "../utils/class-utils/getClassName";
-import { Class } from "../types";
+import { Class, Constructor } from "../types";
 
 export {
   EVT_NO_INIT_WARN,
@@ -103,9 +103,7 @@ export default class PhantomServiceManager extends PhantomCollection {
     // passed to super. Any other error checking in this try / catch can make
     // things trickier to manage.
     try {
-      // TODO: [3.0.0] Remove
-      // @ts-ignore
-      service = new ServiceClass({
+      service = new (ServiceClass as Constructor<PhantomServiceCore>)({
         // While not EXPLICITLY required to make the functionality work, the
         // internal check inside of PhantomServiceCore for this property helps to
         // guarantee integrity of the PhantomServiceManager type

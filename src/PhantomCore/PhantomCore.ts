@@ -16,6 +16,7 @@ import EventProxyStack, {
   EventProxyStackBindTypes,
 } from "../stacks/EventProxyStack";
 import TimerStack from "../stacks/TimerStack";
+import getClass from "../utils/class-utils/getClass";
 import getClassName from "../utils/class-utils/getClassName";
 import { v4 as uuidv4 } from "uuid";
 import shortUUID from "short-uuid";
@@ -563,7 +564,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * Retrieves the non-instantiated class definition.
    */
   getClass(): Class {
-    return this.constructor;
+    return getClass(this);
   }
 
   /**

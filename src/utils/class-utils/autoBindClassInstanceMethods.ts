@@ -13,6 +13,7 @@ import { ClassInstance } from "../../types";
  */
 export default function autoBindClassInstanceMethods(
   classInstance: ClassInstance,
+  // TODO: [3.0.0] Fix Function type
   ignoreMethods: Function[] = []
 ): void {
   if (!getIsClassInstance(classInstance)) {
@@ -20,6 +21,7 @@ export default function autoBindClassInstanceMethods(
   }
 
   getClassInstanceMethodNames(classInstance).forEach(methodName => {
+    // TODO: [3.0.0] Fix Function type
     const method = classInstance[methodName] as Function;
 
     if (

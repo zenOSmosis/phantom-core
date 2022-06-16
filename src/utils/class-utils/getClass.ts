@@ -12,7 +12,7 @@ export default function getClass(
   const isInstance = getIsClassInstance(instanceOrClass);
 
   if (isInstance) {
-    return instanceOrClass.constructor;
+    return instanceOrClass.constructor as Class;
   } else {
     return instanceOrClass as Class;
   }

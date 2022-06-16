@@ -32,9 +32,10 @@ export type RecursiveObject = {
     | unknown[];
 };
 
-// TODO: [3.0.0] See https://github.com/sindresorhus/type-fest/blob/main/test-d/class.ts
-// Borrowed from: https://stackoverflow.com/questions/39392853/is-there-a-type-for-class-in-typescript-and-does-any-include-it
-export type Class<T = Instantiable> = Instantiable | T;
+// Types borrowed from: https://github.com/microsoft/TypeScript/issues/17572#issuecomment-319994873
+export type Abstract<T = unknown> = (...args: any[]) => any & { prototype: T };
+export type Constructor<T = unknown> = new (...args: any[]) => T;
+export type Class<T = Constructor> = Abstract<T> | Constructor<T>;
 
 /**
  * A class instance.
@@ -45,7 +46,7 @@ export interface ClassInstance {
   [key: string]:
     | Primitive
     | RecursiveObject
-    | Function
+    | ((...args: any[]) => any)
     | Instantiable
     | Class
     | ClassInstance
@@ -61,7 +62,7 @@ export interface Instantiable {
   name: string;
 
   prototype:
-    | ((...args: (Primitive & RecursiveObject)[]) => Function)
+    | ((...args: (Primitive & RecursiveObject)[]) => (...args: any[]) => any)
     | Primitive
     | RecursiveObject;
 }
