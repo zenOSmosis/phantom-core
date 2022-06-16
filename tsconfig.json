@@ -14,7 +14,7 @@
     "noFallthroughCasesInSwitch": true,
     "module": "CommonJS",
     "moduleResolution": "node",
-    "resolveJsonModule": true,
+    "resolveJsonModule": false,
     "isolatedModules": true,
     "jsx": "react",
     "baseUrl": ".",
