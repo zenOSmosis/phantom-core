@@ -1,6 +1,5 @@
 import { Class } from "../types";
 import { PhantomCollectionChildKey } from "./types";
-import assert from "assert";
 import PhantomCore, {
   EVT_NO_INIT_WARN,
   EVT_READY,
@@ -408,8 +407,12 @@ export default class PhantomCollection extends PhantomCore {
       this.removeAllChildren();
 
       // Ensure no dangling references
-      assert.strictEqual(this._children.length, 0);
-      assert.strictEqual([...this._childrenMetadata.values()].length, 0);
+      if (
+        this._children.length !== 0 ||
+        [...this._childrenMetadata.values()].length !== 0
+      ) {
+        throw new Error("Unexpected dangling references");
+      }
 
       await this._childEventBridge.destroy();
     });

@@ -1,4 +1,3 @@
-import assert from "assert";
 import PhantomCore from "../PhantomCore";
 import _DestructibleEventEmitter, {
   EVT_DESTROY,
@@ -187,8 +186,13 @@ export default class EventProxyStack extends _DestructibleEventEmitter {
       this._removeAllTargetInstanceDestroyHandlers();
 
       // Ensure no dangling references
-      assert.strictEqual(this._eventProxyBinds.length, 0);
-      assert.strictEqual([...this._targetDestroyHandlers].length, 0);
+      if (
+        (this._eventProxyBinds.length !== 0 ||
+          [...this._targetDestroyHandlers].length,
+        0)
+      ) {
+        throw new Error("Unexpected dangling references");
+      }
     });
   }
 }

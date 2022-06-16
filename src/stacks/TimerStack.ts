@@ -1,4 +1,3 @@
-import assert from "assert";
 import _DestructibleEventEmitter, {
   EventListener,
 } from "../_DestructibleEventEmitter";
@@ -150,8 +149,9 @@ export default class TimerStack extends _DestructibleEventEmitter {
     return super.destroy(() => {
       this.clearAllTimers();
 
-      assert.deepEqual(this._timeoutStack.length, 0);
-      assert.deepEqual(this._intervalStack.length, 0);
+      if (this._timeoutStack.length !== 0 || this._intervalStack.length !== 0) {
+        throw new Error("Unexpected dangling references");
+      }
     });
   }
 }

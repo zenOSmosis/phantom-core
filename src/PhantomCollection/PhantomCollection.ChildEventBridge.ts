@@ -1,4 +1,3 @@
-import assert from "assert";
 import { EventMap } from "../CommonEventEmitter";
 import PhantomCore, { EVT_UPDATE } from "../PhantomCore";
 import PhantomCollection, {
@@ -138,8 +137,9 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
         this._deleteChildEventProxyMap(child);
       }
 
-      // Ensure we have destructed our event maps
-      assert.strictEqual([...this._childEventProxyMaps.values()].length, 0);
+      if ([...this._childEventProxyMaps.values()].length !== 0) {
+        throw new Error("Unexpected dangling event maps");
+      }
     });
   }
 
