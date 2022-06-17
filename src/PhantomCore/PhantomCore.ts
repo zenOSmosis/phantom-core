@@ -18,7 +18,7 @@ import EventProxyStack, {
 import TimerStack from "../stacks/TimerStack";
 import getClass from "../utils/class-utils/getClass";
 import getClassName from "../utils/class-utils/getClassName";
-import { v4 as uuidv4 } from "uuid";
+import createUUID from "../utils/createUUID";
 import shortUUID from "short-uuid";
 import dayjs from "dayjs";
 import getUnixTime from "../utils/getUnixTime";
@@ -156,7 +156,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
 
   protected _options: CommonOptions;
 
-  protected _uuid: string = uuidv4();
+  protected _uuid: string = createUUID();
   protected _shortUUID: string = shortUUID().fromUUID(this._uuid);
   protected _instanceStartTime: number = getUnixTime();
   protected _isReady: boolean = false;
@@ -532,7 +532,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
   }
 
   /**
-   * A 36-character unique identifier, conforming to RFC4122 (RFC 4122 A UUID
+   * A 36-character unique identifier, conforming to RFC4122 (a UUID
    * URN Namespace) designed to be unique across space and time, which
    * represents this class instance.
    *

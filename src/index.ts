@@ -101,6 +101,9 @@ export { TimerStack, TimerType };
 import consume from "./utils/consume";
 export { consume };
 
+import createUUID from "./utils/createUUID";
+export { createUUID };
+
 import deepMerge from "./utils/object-utils/deepMerge";
 export { deepMerge };
 
