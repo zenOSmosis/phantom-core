@@ -185,7 +185,7 @@ test("onceReady reject callback", async t => {
       });
     }
 
-    _init() {
+    override async _init() {
       // Premature destruct
       return this.destroy();
     }
@@ -240,7 +240,7 @@ test("onceReady success callback -- async mode", async t => {
       });
     }
 
-    async _init() {
+    override async _init() {
       t.notOk(this.getIsReady());
 
       return super._init();
