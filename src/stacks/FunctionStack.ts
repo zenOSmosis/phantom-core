@@ -1,3 +1,4 @@
+// TODO: [3.0.0] Export as enum
 export const FUNCTION_STACK_OPS_ORDER_FIFO = "FIFO";
 export const FUNCTION_STACK_OPS_ORDER_LIFO = "LIFO";
 
@@ -7,8 +8,9 @@ export const FUNCTION_STACK_OPS_ORDER_LIFO = "LIFO";
  */
 export default class FunctionStack {
   protected _opsOrder: string;
-  // TODO: [3.0.0] This may need to be redefined
-  protected _fns: Function[];
+  // TODO: [3.0.0] Use different type
+  protected _fns: Function[] = [];
+  protected _isExecuting: boolean = false;
 
   /**
    * @param {FUNCTION_STACK_OPS_ORDER_FIFO | FUNCTION_STACK_OPS_ORDER_LIFO} opsOrder?
@@ -23,8 +25,6 @@ export default class FunctionStack {
     }
 
     this._opsOrder = opsOrder;
-
-    this._fns = [];
   }
 
   /**
@@ -39,6 +39,7 @@ export default class FunctionStack {
   /**
    * Adds a new function to the stack.
    */
+  // TODO: [3.0.0] Use different type
   push(fn: Function) {
     if (typeof fn !== "function") {
       throw new TypeError("fn must be a function");
@@ -51,6 +52,7 @@ export default class FunctionStack {
   /**
    * Removes the given function from the stack.
    */
+  // TODO: [3.0.0] Use different type
   remove(fn: Function) {
     this._fns = this._fns.filter(pred => pred !== fn);
   }
@@ -87,7 +89,13 @@ export default class FunctionStack {
    * items in the stack.
    */
   async exec(): Promise<void> {
-    if (this._fns.length) {
+    if (this._isExecuting) {
+      return;
+    }
+
+    this._isExecuting = true;
+
+    do {
       // Obtain the first function of the array, and resize the array
       const fn =
         this._opsOrder === FUNCTION_STACK_OPS_ORDER_FIFO
@@ -97,9 +105,8 @@ export default class FunctionStack {
       if (typeof fn === "function") {
         await fn();
       }
+    } while (this._fns.length);
 
-      // Recursively call itself, executing the next stack index, if exists
-      return this.exec();
-    }
+    this._isExecuting = false;
   }
 }
