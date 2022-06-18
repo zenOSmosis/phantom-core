@@ -681,19 +681,18 @@ export default class PhantomCore extends DestructibleEventEmitter {
       this.on(eventName, listener);
     }
 
-    return {
-      unsubscribe: () => {
-        for (const eventName of eventNames) {
-          this.off(eventName, listener);
-        }
-      },
+    return () => {
+      for (const eventName of eventNames) {
+        this.off(eventName, listener);
+      }
     };
   }
 
   // TODO: [3.0.0] Implement
   // TODO: Document
-  unsubscribe(subscription: any) {
-    return subscription.unsubscribe();
+  // TODO: Properly type
+  unsubscribe(unsubscribeHandler: EventListener) {
+    return unsubscribeHandler();
   }
 
   /**
