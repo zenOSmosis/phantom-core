@@ -105,7 +105,7 @@ test("title support", async t => {
   );
 
   await Promise.all([
-    new Promise(resolve => {
+    new Promise<void>(resolve => {
       phantom.once(EVT_UPDATE, () => {
         t.equals(
           phantom.getTitle(),
@@ -134,6 +134,8 @@ test("determines class name", async t => {
     "determines its own class name"
   );
 
+  // FIXME: Fix this type issue
+  // @ts-ignore
   t.ok(phantom1.getClass() === PhantomCore, "determines its own class");
 
   class Phantom2 extends PhantomCore {}
@@ -439,7 +441,6 @@ test("no incorrect usage of EVT_DESTROY", async t => {
 
   t.ok(
     phantom.getHasDestroyStarted(),
-    true,
     "proceeds to destroying phase once EVT_DESTROY is improperly emit"
   );
 
@@ -447,7 +448,6 @@ test("no incorrect usage of EVT_DESTROY", async t => {
 
   t.ok(
     phantom.getIsDestroyed(),
-    true,
     "shuts down after finishing up destroying phase"
   );
 
@@ -620,6 +620,16 @@ test("phantom properties", async t => {
   }
 
   class TestPhantomProperties extends PhantomCore {
+    private _pred1: {};
+    private _pred2: PhantomCore;
+    private _pred3: () => null;
+    private _pred4: string;
+    private _pred5: ExtendedCore;
+    private _pred6: ExtendedCore2;
+    private _pred7: typeof ExtendedCore;
+    _pred8: typeof ExtendedCore2;
+    _pred9: typeof PhantomCore;
+
     constructor() {
       super();
 
@@ -652,8 +662,14 @@ test("phantom properties", async t => {
   // Silence memory leak warnings
   testPhantom.registerCleanupHandler(async () => {
     await Promise.all([
+      // Test internal property
+      // @ts-ignore
       testPhantom._pred2.destroy(),
+      // Test internal property
+      // @ts-ignore
       testPhantom._pred5.destroy(),
+      // Test internal property
+      // @ts-ignore
       testPhantom._pred6.destroy(),
     ]);
   });
@@ -690,7 +706,7 @@ test("shutdown phase event handling", async t => {
 
   const phantom = new PhantomCore();
 
-  const orderOps = [];
+  const orderOps: string[] = [];
 
   phantom.registerCleanupHandler(() =>
     orderOps.push("__TESTING__-shutdown-handler-invoked")
@@ -723,9 +739,9 @@ test("shutdown handler stack", async t => {
   const p1 = new PhantomCore();
 
   t.throws(
-    () => {
-      p1.registerCleanupHandler("something");
-    },
+    // Test error
+    // @ts-ignore
+    () => p1.registerCleanupHandler("something"),
     TypeError,
     "throws TypeError when trying to register non-function shutdown handler"
   );
@@ -745,11 +761,9 @@ test("shutdown handler stack", async t => {
 
   const p2 = new PhantomCore();
 
-  let opsRecords = [];
+  let opsRecords: string[] = [];
 
-  p2.registerCleanupHandler(() => {
-    opsRecords.push("a");
-  });
+  p2.registerCleanupHandler(() => opsRecords.push("a"));
 
   p2.registerCleanupHandler(async () => {
     await sleep(1000);
