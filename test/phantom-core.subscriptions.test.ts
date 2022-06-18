@@ -2,7 +2,7 @@ import test from "tape";
 import PhantomCore, { EVT_UPDATE } from "../src";
 import sinon from "sinon";
 
-test("subscribe / unsubscribe", async t => {
+test("subscribe / unsubscribe -- default event names", async t => {
   t.plan(3);
 
   const p = new PhantomCore();
