@@ -674,8 +674,8 @@ export default class PhantomCore extends DestructibleEventEmitter {
   }
 
   // TODO: [3.0.0] Document
-  subscribeFactory(listener: EventListener, eventNames = [EVT_UPDATE]) {
-    return () => this.subscribe(listener, eventNames);
+  subscribeFactory(eventNames = [EVT_UPDATE]) {
+    return (listener: EventListener) => this.subscribe(listener, eventNames);
   }
 
   // TODO: [3.0.0] Implement
