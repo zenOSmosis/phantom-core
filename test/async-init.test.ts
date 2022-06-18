@@ -74,7 +74,7 @@ test("_init cannot be called more than once", async t => {
       );
     }
 
-    async _init() {
+    override async _init() {
       ++this._initIdx;
 
       if (this._initIdx > 0) {
