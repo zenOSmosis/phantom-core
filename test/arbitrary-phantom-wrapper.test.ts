@@ -31,7 +31,7 @@ test("ArbitraryPhantomWrapper handling", async t => {
   );
 
   t.equals(
-    wrapper.getOptions().testOption,
+    wrapper.getOptions()["testOption"],
     "test-option-value",
     "class options are passed to PhantomCore superclass"
   );
