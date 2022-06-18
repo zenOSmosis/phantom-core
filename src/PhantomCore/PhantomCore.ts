@@ -673,6 +673,11 @@ export default class PhantomCore extends DestructibleEventEmitter {
     );
   }
 
+  // TODO: [3.0.0] Document
+  subscribeFactory(listener: EventListener, eventNames = [EVT_UPDATE]) {
+    return () => this.subscribe(listener, eventNames);
+  }
+
   // TODO: [3.0.0] Implement
   // Make compatible w/ https://www.typescriptlang.org/tsconfig
   // Partially related to: https://github.com/zenOSmosis/phantom-core/pull/57
@@ -681,11 +686,19 @@ export default class PhantomCore extends DestructibleEventEmitter {
       this.on(eventName, listener);
     }
 
-    return () => {
+    // TODO: [3.0.0] Document
+    const unsubscribe = () => {
+      this.unregisterCleanupHandler(unsubscribe);
+
       for (const eventName of eventNames) {
         this.off(eventName, listener);
       }
     };
+
+    // Automatically unsubscribe
+    this.registerCleanupHandler(unsubscribe);
+
+    return unsubscribe;
   }
 
   // TODO: [3.0.0] Implement
