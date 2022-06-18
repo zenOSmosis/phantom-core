@@ -9,13 +9,14 @@ test("event proxy error handling", async t => {
   const p2 = new PhantomCore();
 
   t.throws(
-    () => {
+    () =>
+      // Test error
+      // @ts-ignore
       p1.proxyOn(new CommonEventEmitter(), "mock-event", () =>
         // NOTE: Not throwing here because we want to make sure the error is
         // thrown from the instance
         console.log("Should not get here")
-      );
-    },
+      ),
     ReferenceError,
     "proxyOn cannot proxy to non-PhantomCore instance"
   );
@@ -33,13 +34,14 @@ test("event proxy error handling", async t => {
   );
 
   t.throws(
-    () => {
+    () =>
+      // Test error
+      // @ts-ignore
       p1.proxyOnce(new CommonEventEmitter(), "mock-event", () =>
         // NOTE: Not throwing here because we want to make sure the error is
         // thrown from the instance
         console.log("Should not get here")
-      );
-    },
+      ),
     ReferenceError,
     "proxyOnce cannot proxy to non-PhantomCore instance"
   );
@@ -57,13 +59,14 @@ test("event proxy error handling", async t => {
   );
 
   t.throws(
-    () => {
+    () =>
+      // Test error
+      // @ts-ignore
       p1.proxyOff(new CommonEventEmitter(), "mock-event", () =>
         // NOTE: Not throwing here because we want to make sure the error is
         // thrown from the instance
         console.log("Should not get here")
-      );
-    },
+      ),
     ReferenceError,
     "proxyOff cannot proxy to non-PhantomCore instance"
   );
@@ -86,7 +89,7 @@ test("event proxy error handling", async t => {
       let iterations = 0;
 
       await Promise.all([
-        new Promise(resolve =>
+        new Promise<void>(resolve =>
           p2.proxyOn(p1, "mock-event", () => {
             ++iterations;
 
@@ -107,7 +110,7 @@ test("event proxy error handling", async t => {
       let hasEmit = false;
 
       await Promise.all([
-        new Promise((resolve, reject) =>
+        new Promise<void>((resolve, reject) =>
           p2.proxyOnce(p1, "mock-event", () => {
             if (hasEmit) {
               throw new Error("proxyOnce cannot emit more than once");
@@ -124,7 +127,7 @@ test("event proxy error handling", async t => {
           setTimeout(() => resolve, 1000);
         }),
 
-        new Promise(resolve => {
+        new Promise<void>(resolve => {
           for (let i = 0; i < 2; i++) {
             p1.emit("mock-event");
           }
@@ -346,6 +349,8 @@ test("event proxy on / off", t => {
   p1.proxyOn(p2, "mock-event-b", _eventHandlerC);
 
   t.equals(
+    // Test internal property
+    // @ts-ignore
     p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
     3,
     "three registered on proxy listeners bound on p1, to target p2"
@@ -354,6 +359,8 @@ test("event proxy on / off", t => {
   p1.proxyOff(p2, "mock-event", _eventHandlerB);
 
   t.equals(
+    // Test internal property
+    // @ts-ignore
     p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
     2,
     "two registered on proxy listeners bound on p1, to target p2"
@@ -385,6 +392,8 @@ test("event proxy once / off", async t => {
   p1.proxyOnce(p2, "mock-event-b", _eventHandlerC);
 
   t.equals(
+    // Test internal property
+    // @ts-ignore
     p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
     3,
     "three registered once proxy listeners bound on p1, to target p2"
@@ -393,6 +402,8 @@ test("event proxy once / off", async t => {
   p1.proxyOff(p2, "mock-event", _eventHandlerB);
 
   t.equals(
+    // Test internal property
+    // @ts-ignore
     p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
     2,
     "two registered once proxy listeners bound on p1, to target p2"
@@ -424,6 +435,8 @@ test("event proxy on / destroy", async t => {
   p1.proxyOn(p2, "mock-event-b", _eventHandlerC);
 
   t.equals(
+    // Test internal property
+    // @ts-ignore
     p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
     3,
     "three registered on proxy listeners bound on p1, to target p2"
@@ -432,6 +445,8 @@ test("event proxy on / destroy", async t => {
   await p2.destroy();
 
   t.equals(
+    // Test internal property
+    // @ts-ignore
     p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
     0,
     "zero registered on proxy listeners bound on p1, to target p2"
@@ -469,12 +484,16 @@ test("event proxy on / once / mix / destroy", async t => {
   p1.proxyOnce(p3, "mock-event", _eventHandlerD);
 
   t.equals(
+    // Test internal property
+    // @ts-ignore
     p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
     3,
     "three registered on proxy listeners bound on p1, to target p2"
   );
 
   t.equals(
+    // Test internal property
+    // @ts-ignore
     p1._eventProxyStack.getTargetInstanceQueueDepth(p3),
     1,
     "one registered on proxy listeners bound on p1, to target p2"
@@ -483,12 +502,16 @@ test("event proxy on / once / mix / destroy", async t => {
   await p2.destroy();
 
   t.equals(
+    // Test internal property
+    // @ts-ignore
     p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
     0,
     "zero registered on proxy listeners bound on p1, to target p2, after p2 destroy"
   );
 
   t.equals(
+    // Test internal property
+    // @ts-ignore
     p1._eventProxyStack.getTargetInstanceQueueDepth(p3),
     1,
     "one registered on proxy listeners bound on p1, to target p3, after p2 destroy"
@@ -510,6 +533,8 @@ test("event proxy once / destroy", async t => {
   p1.proxyOnce(p2, "mock-event", _eventHandler);
 
   t.equals(
+    // Test internal property
+    // @ts-ignore
     p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
     1,
     "one registered on proxy listeners bound on p1, to target p2"
@@ -518,6 +543,8 @@ test("event proxy once / destroy", async t => {
   await p2.destroy();
 
   t.equals(
+    // Test internal property
+    // @ts-ignore
     p1._eventProxyStack.getTargetInstanceQueueDepth(p2),
     0,
     "zero registered on proxy listeners bound on p1, to target p2, after p2 destroy"
