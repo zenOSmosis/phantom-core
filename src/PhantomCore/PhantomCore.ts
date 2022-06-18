@@ -325,10 +325,9 @@ export default class PhantomCore extends DestructibleEventEmitter {
   }
 
   /**
-   * Internally invoked after being constructed.
+   * Must be manually called if the isAsync option is set to true.
    *
-   * IMPORTANT: Extensions which set isReady to false should call this
-   * manually.
+   * It must call super._init() when through or a warning will occur.
    */
   protected async _init(): Promise<void> {
     this._init = () => {
