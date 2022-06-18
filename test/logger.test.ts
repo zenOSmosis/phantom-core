@@ -1,4 +1,4 @@
-const test = require("tape");
+import test from "tape";
 import { PhantomCore, LogLevel, globalLogger } from "../src";
 
 // TODO: [3.0.0] Add log miss testing
@@ -150,21 +150,28 @@ test("PhantomCore this.log and this.logger calls", async t => {
 
   phantom.log("ok");
   t.ok(true, "call to phantom.log() succeeds");
+  // FIXME: Use sinon
   phantom.logger.log("ok");
   t.ok(true, "call to phantom.logger.log() succeeds");
 
+  // FIXME: Use sinon
   phantom.log.debug("ok");
   t.ok(true, "call to phantom.log.debug() succeeds");
+  // FIXME: Use sinon
   phantom.logger.debug("ok");
   t.ok(true, "call to phantom.logger.debug() succeeds");
 
+  // FIXME: Use sinon
   phantom.log.warn("ok");
   t.ok(true, "call to phantom.log.warn() succeeds");
+  // FIXME: Use sinon
   phantom.logger.warn("ok");
   t.ok(true, "call to phantom.logger.warn() succeeds");
 
+  // FIXME: Use sinon
   phantom.log.error("ok");
   t.ok(true, "call to phantom.log.error() succeeds");
+  // FIXME: Use sinon
   phantom.logger.error("ok");
   t.ok(true, "call to phantom.logger.error() succeeds");
 

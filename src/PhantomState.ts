@@ -28,7 +28,7 @@ export default class PhantomState extends PhantomCore {
 
   constructor(
     initialState: RecursiveObject | null = {},
-    superOptions: CommonOptions
+    superOptions?: CommonOptions
   ) {
     super(superOptions);
 

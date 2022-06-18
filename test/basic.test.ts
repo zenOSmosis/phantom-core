@@ -5,6 +5,7 @@ import PhantomCore, {
   EVT_BEFORE_DESTROY,
   EVT_DESTROY,
   sleep,
+  consume,
 } from "../src";
 
 /**
@@ -105,7 +106,7 @@ test("title support", async t => {
   );
 
   await Promise.all([
-    new Promise(resolve => {
+    new Promise<void>(resolve => {
       phantom.once(EVT_UPDATE, () => {
         t.equals(
           phantom.getTitle(),
@@ -134,6 +135,8 @@ test("determines class name", async t => {
     "determines its own class name"
   );
 
+  // FIXME: Fix this type issue
+  // @ts-ignore
   t.ok(phantom1.getClass() === PhantomCore, "determines its own class");
 
   class Phantom2 extends PhantomCore {}
@@ -183,7 +186,7 @@ test("onceReady reject callback", async t => {
       });
     }
 
-    _init() {
+    override async _init() {
       // Premature destruct
       return this.destroy();
     }
@@ -199,7 +202,7 @@ test("onceReady reject callback", async t => {
     t.ok(err instanceof Error, "onceReady rejects with Error object");
 
     t.equals(
-      err.message,
+      (err as Error).message,
       "Destruct phase started before ready",
       "onceReady rejects if premature destruct"
     );
@@ -238,7 +241,7 @@ test("onceReady success callback -- async mode", async t => {
       });
     }
 
-    async _init() {
+    override async _init() {
       t.notOk(this.getIsReady());
 
       return super._init();
@@ -261,7 +264,7 @@ test("emits EVT_READY in sync mode", async t => {
 
   const phantom = new PhantomCore();
 
-  await new Promise(resolve => {
+  await new Promise<void>(resolve => {
     phantom.once(EVT_READY, () => {
       t.ok(true, "emits EVT_READY after init");
 
@@ -439,7 +442,6 @@ test("no incorrect usage of EVT_DESTROY", async t => {
 
   t.ok(
     phantom.getHasDestroyStarted(),
-    true,
     "proceeds to destroying phase once EVT_DESTROY is improperly emit"
   );
 
@@ -447,7 +449,6 @@ test("no incorrect usage of EVT_DESTROY", async t => {
 
   t.ok(
     phantom.getIsDestroyed(),
-    true,
     "shuts down after finishing up destroying phase"
   );
 
@@ -476,7 +477,7 @@ test("multiple destroyHandler calls", async t => {
   let i = 0;
 
   class TestPhantomCore extends PhantomCore {
-    async destroy() {
+    override async destroy() {
       return super.destroy(() => {
         ++i;
       });
@@ -614,30 +615,51 @@ test("phantom properties", async t => {
   class ExtendedCore extends PhantomCore {}
 
   class ExtendedCore2 extends PhantomCore {
-    constructor(...args) {
+    constructor(...args: any[]) {
       super(...args);
     }
   }
 
   class TestPhantomProperties extends PhantomCore {
+    private _pred1: {};
+    private _pred2: PhantomCore;
+    private _pred3: () => null;
+    private _pred4: string;
+    private _pred5: ExtendedCore;
+    private _pred6: ExtendedCore2;
+    private _pred7: typeof ExtendedCore;
+    _pred8: typeof ExtendedCore2;
+    _pred9: typeof PhantomCore;
+
     constructor() {
       super();
 
       this._pred1 = {};
+      consume(this._pred1);
 
       this._pred2 = new PhantomCore();
+      consume(this._pred2);
 
       this._pred3 = () => null;
+      consume(this._pred3);
 
       this._pred4 = "hello";
+      consume(this._pred4);
 
       this._pred5 = new ExtendedCore();
+      consume(this._pred5);
 
       this._pred6 = new ExtendedCore2();
+      consume(this._pred6);
 
       this._pred7 = ExtendedCore;
+      consume(this._pred7);
+
       this._pred8 = ExtendedCore2;
+      consume(this._pred8);
+
       this._pred9 = PhantomCore;
+      consume(this._pred9);
     }
   }
 
@@ -652,8 +674,14 @@ test("phantom properties", async t => {
   // Silence memory leak warnings
   testPhantom.registerCleanupHandler(async () => {
     await Promise.all([
+      // Test internal property
+      // @ts-ignore
       testPhantom._pred2.destroy(),
+      // Test internal property
+      // @ts-ignore
       testPhantom._pred5.destroy(),
+      // Test internal property
+      // @ts-ignore
       testPhantom._pred6.destroy(),
     ]);
   });
@@ -690,7 +718,7 @@ test("shutdown phase event handling", async t => {
 
   const phantom = new PhantomCore();
 
-  const orderOps = [];
+  const orderOps: string[] = [];
 
   phantom.registerCleanupHandler(() =>
     orderOps.push("__TESTING__-shutdown-handler-invoked")
@@ -723,9 +751,9 @@ test("shutdown handler stack", async t => {
   const p1 = new PhantomCore();
 
   t.throws(
-    () => {
-      p1.registerCleanupHandler("something");
-    },
+    // Test error
+    // @ts-ignore
+    () => p1.registerCleanupHandler("something"),
     TypeError,
     "throws TypeError when trying to register non-function shutdown handler"
   );
@@ -738,18 +766,16 @@ test("shutdown handler stack", async t => {
     await p1.destroy();
   } catch (err) {
     t.ok(
-      err.message === "Expected error",
+      (err as Error).message === "Expected error",
       "errors in shutdown stack are thrown from the PhantomCore instance"
     );
   }
 
   const p2 = new PhantomCore();
 
-  let opsRecords = [];
+  let opsRecords: string[] = [];
 
-  p2.registerCleanupHandler(() => {
-    opsRecords.push("a");
-  });
+  p2.registerCleanupHandler(() => opsRecords.push("a"));
 
   p2.registerCleanupHandler(async () => {
     await sleep(1000);

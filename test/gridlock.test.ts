@@ -30,7 +30,7 @@ test("gridlock / forced timeout error", async t => {
   const p1 = new PhantomCore();
 
   await p1.destroy(async () => {
-    await new Promise(resolve => {
+    await new Promise<void>(resolve => {
       p1.once(EVT_DESTROY_STACK_TIME_OUT, () => {
         t.ok(
           "EVT_DESTROY_STACK_TIME_OUT if destroy handler does not complete in a reasonable amount of time"

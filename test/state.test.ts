@@ -17,7 +17,7 @@ test("phantom state", async t => {
       );
 
       t.ok(
-        this.getOptions().fakeOption,
+        this.getOptions()["fakeOption"],
         "options are passed through constructor"
       );
     }
@@ -78,15 +78,16 @@ test("phantom state", async t => {
   );
 
   t.throws(
-    () => {
-      extendedState.setState("abc");
-    },
+    () =>
+      // Test error
+      // @ts-ignore
+      extendedState.setState("abc"),
     TypeError,
     "setState must be called with an object"
   );
 
   await Promise.all([
-    new Promise(resolve => {
+    new Promise<void>(resolve => {
       extendedState.once(EVT_UPDATE, () => {
         t.deepEquals(
           extendedState.getState(),
@@ -104,7 +105,7 @@ test("phantom state", async t => {
       });
     }),
 
-    new Promise(resolve => {
+    new Promise<void>(resolve => {
       extendedState.setState({
         test: 456,
       });
@@ -122,15 +123,15 @@ test("phantom state", async t => {
     "non-merge strategy sets full state as expected"
   );
 
-  t.notDeepEquals(
-    extendedState._state,
+  t.notDeepEqual(
+    extendedState["_state"],
     {},
     "state is not cleared before destruct"
   );
 
   await extendedState.destroy();
 
-  t.deepEquals(extendedState._state, null, "state is null after destruct");
+  t.deepEquals(extendedState["_state"], null, "state is null after destruct");
 
   t.end();
 });
@@ -159,7 +160,7 @@ test("phantom state async init", t => {
       this._init();
     }
 
-    async _init() {
+    protected override async _init() {
       t.ok("async _init is called in AsyncPhantomState");
 
       super._init();
@@ -175,7 +176,7 @@ test("phantom state async init", t => {
       this._init();
     }
 
-    async _init() {
+    protected override async _init() {
       super._init();
     }
   }

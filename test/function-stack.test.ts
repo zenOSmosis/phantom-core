@@ -33,7 +33,7 @@ test("function stack FIFO ops order", async t => {
 
   const stack = new FunctionStack(FUNCTION_STACK_OPS_ORDER_FIFO);
 
-  const data = [];
+  const data: unknown[] = [];
 
   stack.push(() => data.push("a"));
   stack.push(async () => {
@@ -54,7 +54,7 @@ test("function stack LIFO ops order", async t => {
 
   const stack = new FunctionStack(FUNCTION_STACK_OPS_ORDER_LIFO);
 
-  const data = [];
+  const data: unknown[] = [];
 
   stack.push(() => data.push("a"));
   stack.push(async () => {
@@ -75,7 +75,7 @@ test("function stack clear ops", async t => {
 
   const stack = new FunctionStack(FUNCTION_STACK_OPS_ORDER_LIFO);
 
-  const data = [];
+  const data: unknown[] = [];
 
   stack.push(() => data.push("a"));
   stack.push(async () => {

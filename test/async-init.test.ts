@@ -13,7 +13,7 @@ test("instantiates async", async t => {
     isAsync: true,
   });
 
-  await new Promise(resolve =>
+  await new Promise<void>(resolve =>
     phantom.once(EVT_NO_INIT_WARN, () => {
       t.ok(true, "received EVT_NO_INIT_WARN after a reasonable amount of time");
 
@@ -30,6 +30,7 @@ test("instantiates async", async t => {
   // This is a protected method which shouldn't normally be called by the implementer
   await Promise.all([
     // This is a protected method which shouldn't normally be called by the implementer
+    // @ts-ignore
     phantom._init(),
 
     // Called right after _init
@@ -56,6 +57,7 @@ test("_init cannot be called more than once", async t => {
   t.plan(1);
 
   class TestAsyncPhantom extends PhantomCore {
+    private _initIdx: number;
     constructor() {
       super({
         isAsync: true,
@@ -72,7 +74,7 @@ test("_init cannot be called more than once", async t => {
       );
     }
 
-    async _init() {
+    override async _init() {
       ++this._initIdx;
 
       if (this._initIdx > 0) {
@@ -92,6 +94,8 @@ test("_init is discarded for non-async instances", async t => {
   t.plan(1);
 
   class TestSyncPhantom extends PhantomCore {
+    // Expected error
+    // @ts-ignore
     _init() {
       throw new Error("This error should not be echoed verbatim");
     }

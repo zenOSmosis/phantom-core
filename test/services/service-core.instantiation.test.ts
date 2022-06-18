@@ -12,9 +12,10 @@ test("service instantiation", async t => {
   const serviceManager = new PhantomServiceManager();
 
   t.throws(
-    () => {
-      serviceManager.startServiceClass(PhantomCore);
-    },
+    () =>
+      // Test error
+      // @ts-ignore
+      serviceManager.startServiceClass(PhantomCore),
     TypeError,
     "services must derive from PhantomServiceCore"
   );
@@ -28,17 +29,19 @@ test("service instantiation", async t => {
   );
 
   t.throws(
-    () => {
-      new PhantomServiceCore({});
-    },
+    () =>
+      // Test error
+      // @ts-ignore
+      new PhantomServiceCore({}),
     ReferenceError,
     "services must be instantiated by a manager"
   );
 
   t.throws(
-    () => {
-      serviceManager.startServiceClass(new PhantomServiceCore({}));
-    },
+    () =>
+      // Test error
+      // @ts-ignore
+      serviceManager.startServiceClass(new PhantomServiceCore({})),
     ReferenceError,
     "startServiceClass does not accept already instantiated service"
   );
@@ -52,16 +55,16 @@ test("service instantiation", async t => {
   );
 
   t.ok(
-    Array.isArray(
-      serviceManager.getServiceClasses(),
-      "getServiceClasses() returns an array"
-    )
+    Array.isArray(serviceManager.getServiceClasses()),
+    "getServiceClasses() returns an array"
   );
 
-  const testCollectionInstance = serviceManager.getServiceInstance(TestService);
+  const testServiceInstance = serviceManager.getServiceInstance(
+    TestService
+  ) as TestService;
 
   t.ok(
-    testCollectionInstance instanceof TestService,
+    testServiceInstance instanceof TestService,
     "TestService instance is available in getServiceInstance call"
   );
 
@@ -92,18 +95,19 @@ test("service instantiation", async t => {
     "serviceManager reports two service classes after adding in new service"
   );
 
-  const extendedTestCollectionInstance =
-    serviceManager.getServiceInstance(ExtendedTestService);
+  const extendedTestServiceInstance = serviceManager.getServiceInstance(
+    ExtendedTestService
+  ) as ExtendedTestService;
 
   t.notOk(
-    extendedTestCollectionInstance.getIsReady(),
+    extendedTestServiceInstance.getIsReady(),
     "service is not ready by default"
   );
 
-  await extendedTestCollectionInstance.onceReady();
+  await extendedTestServiceInstance.onceReady();
 
   t.ok(
-    extendedTestCollectionInstance.getIsReady(),
+    extendedTestServiceInstance.getIsReady(),
     "service is ready once it emits ready event"
   );
 
@@ -111,8 +115,8 @@ test("service instantiation", async t => {
 
   t.ok(
     serviceManager.getIsDestroyed() &&
-      testCollectionInstance.getIsDestroyed() &&
-      extendedTestCollectionInstance.getIsDestroyed(),
+      testServiceInstance.getIsDestroyed() &&
+      extendedTestServiceInstance.getIsDestroyed(),
     "TestService instance is destructed when ServiceManager is destructed"
   );
 
@@ -127,9 +131,11 @@ test("arbitrary service stopping", async t => {
 
   t.equals(serviceManager.getServiceClasses().length, 1);
 
-  const testCollectionInstance = serviceManager.getServiceInstance(TestService);
+  const testServiceInstance = serviceManager.getServiceInstance(
+    TestService
+  ) as TestService;
 
-  await testCollectionInstance.destroy();
+  await testServiceInstance.destroy();
 
   t.equals(serviceManager.getServiceClasses().length, 0);
 
@@ -144,6 +150,8 @@ test("invalid service constructor", async t => {
   class InvalidService1 extends PhantomServiceCore {
     // NOTE: Notice args are not passed through
     constructor() {
+      // Test error
+      // @ts-ignore
       super();
     }
   }
@@ -159,6 +167,8 @@ test("invalid service constructor", async t => {
   class InvalidService2 extends PhantomServiceCore {
     // NOTE: Notice object is set in constructor, but still not passed through to super
     constructor({}) {
+      // Test error
+      // @ts-ignore
       super();
     }
   }

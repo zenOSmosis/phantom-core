@@ -1,7 +1,7 @@
 import test from "tape";
 import PhantomCore, { globalLogger } from "../src";
 import orchestrator, {
-  PhantomCoreOrchestrator,
+  UNSAFE_PhantomCoreOrchestrator,
 } from "../src/PhantomCore/_PhantomCoreOrchestrator";
 
 test("does not allow multiple instances of orchestrator", async t => {
@@ -11,7 +11,7 @@ test("does not allow multiple instances of orchestrator", async t => {
 
   t.throws(
     () => {
-      new PhantomCoreOrchestrator();
+      new UNSAFE_PhantomCoreOrchestrator();
     },
     Error,
     "orchestrator blocks subsequent instance creation"
@@ -72,7 +72,7 @@ test("sets and retrieves global log levels", async t => {
     "global logger reflects orchestrator global change"
   );
 
-  globalLogger.setLogLevel(2, "global logger log level is changed directly");
+  globalLogger.setLogLevel(2);
   t.equals(
     orchestrator.getGlobalLogLevel(),
     2,

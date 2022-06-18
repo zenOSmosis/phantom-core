@@ -102,7 +102,7 @@ test("phantom log miss with title update", async t => {
   );
 
   await Promise.all([
-    new Promise(resolve => {
+    new Promise<void>(resolve => {
       watcher.on(EVT_PHANTOM_WATCHER_LOG_MISS, function handleLogMiss(data) {
         if (data.logLevel === 5 && data.title === FIRST_TITLE) {
           t.deepEquals(
@@ -131,7 +131,7 @@ test("phantom log miss with title update", async t => {
       });
     }),
 
-    new Promise(resolve => {
+    new Promise<void>(resolve => {
       watcher.on(EVT_PHANTOM_WATCHER_LOG_MISS, function handleLogMiss(data) {
         if (data.logLevel === 5 && data.title === SECOND_TITLE) {
           t.deepEquals(

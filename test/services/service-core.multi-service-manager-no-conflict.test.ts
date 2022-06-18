@@ -58,7 +58,9 @@ test("multi-service-manager no-conflict", async t => {
     "both managers report same number of classes before a service is destructed"
   );
 
-  await serviceManagerB.getServiceInstance(TestServiceB).destroy();
+  await (
+    serviceManagerB.getServiceInstance(TestServiceB) as TestServiceB
+  ).destroy();
 
   t.notEquals(
     serviceManagerA.getServiceClasses().length,

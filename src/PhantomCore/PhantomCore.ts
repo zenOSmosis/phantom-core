@@ -674,6 +674,58 @@ export default class PhantomCore extends DestructibleEventEmitter {
   }
 
   /**
+   * Adds a common event subscription to the given events.
+   *
+   * EVT_UPDATE is subscribed to by default, if nothing is defined for
+   * eventNames.
+   *
+   * A function is returned which takes the listener callback, and subsequently
+   * returns the unsubscribe handler.
+   *
+   * Note: This is modeled for usage with React 18's useSyncExternalStore
+   * @see https://reactjs.org/docs/hooks-reference.html#usesyncexternalstore
+   */
+  subscribeFactory(
+    eventNames = [EVT_UPDATE]
+  ): (listener: EventListener) => () => void {
+    return (listener: EventListener) => this.subscribe(listener, eventNames);
+  }
+
+  /**
+   * Adds a common event subscription to the given events.
+   *
+   * EVT_UPDATE is subscribed to by default, if nothing is defined for
+   * eventNames.
+   *
+   * The unsubscribe handler is returned.
+   */
+  subscribe(listener: EventListener, eventNames = [EVT_UPDATE]): () => void {
+    for (const eventName of eventNames) {
+      this.on(eventName, listener);
+    }
+
+    const unsubscribe = () => {
+      this.unregisterCleanupHandler(unsubscribe);
+
+      for (const eventName of eventNames) {
+        this.off(eventName, listener);
+      }
+    };
+
+    // Automatically unsubscribe
+    this.registerCleanupHandler(unsubscribe);
+
+    return unsubscribe;
+  }
+
+  /**
+   * Executes a subscription's unsubscribe method.
+   */
+  unsubscribe(unsubscribeHandler: EventListener): void {
+    return unsubscribeHandler();
+  }
+
+  /**
    * Retrieves the number of seconds since this class instance was
    * instantiated.
    */

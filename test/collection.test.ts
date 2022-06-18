@@ -26,6 +26,8 @@ test("PhantomCollection loose instance detection", t => {
   );
 
   t.notOk(
+    // Test error
+    // @ts-ignore
     PhantomCollection.getIsLooseInstance(phantom),
     "phantom is not a loose instance of PhantomCollection"
   );
@@ -87,25 +89,25 @@ test("PhantomCollection add / remove child; get children", async t => {
   t.plan(33);
 
   t.throws(
-    () => {
-      new PhantomCollection("some-string");
-    },
+    // Test error
+    // @ts-ignore
+    () => new PhantomCollection("some-string"),
     TypeError,
     "instantiating with string throws TypeError"
   );
 
   t.throws(
-    () => {
-      new PhantomCollection({ a: 123 });
-    },
+    // Test error
+    // @ts-ignore
+    () => new PhantomCollection({ a: 123 }),
     TypeError,
     "instantiating with object throws TypeError"
   );
 
   t.throws(
-    () => {
-      new PhantomCollection([new PhantomCore(), new CommonEventEmitter()]);
-    },
+    // Test error
+    // @ts-ignore
+    () => new PhantomCollection([new PhantomCore(), new CommonEventEmitter()]),
     TypeError,
     "cannot instantiate with non-PhantomCore class instances"
   );
@@ -134,9 +136,13 @@ test("PhantomCollection add / remove child; get children", async t => {
     "two children after temp child added"
   );
 
-  t.doesNotThrow(() => {
-    collection.removeChild(collection.getChildWithKey("temp-child"));
-  }, 'collection removes child with "temp-child" key');
+  t.doesNotThrow(
+    () =>
+      collection.removeChild(
+        collection.getChildWithKey("temp-child") as PhantomCore
+      ),
+    'collection removes child with "temp-child" key'
+  );
 
   t.deepEquals(collection.getKeys(), [], "getKeys() responds with no keys");
 
@@ -170,9 +176,9 @@ test("PhantomCollection add / remove child; get children", async t => {
   );
 
   t.throws(
-    () => {
-      collection.addChild(new CommonEventEmitter());
-    },
+    // Test error
+    // @ts-ignore
+    () => collection.addChild(new CommonEventEmitter()),
     TypeError,
     "cannot add non-PhantomCore class instance"
   );
@@ -204,7 +210,7 @@ test("PhantomCollection add / remove child; get children", async t => {
     extendedCore2.listenerCount(EVT_BEFORE_DESTROY);
 
   await Promise.all([
-    new Promise(resolve => {
+    new Promise<void>(resolve => {
       collection.once(EVT_UPDATE, () => {
         t.ok(true, "emits EVT_UPDATE when instance is added to collection");
 
@@ -217,7 +223,7 @@ test("PhantomCollection add / remove child; get children", async t => {
       });
     }),
 
-    new Promise(resolve => {
+    new Promise<void>(resolve => {
       collection.once(EVT_CHILD_INSTANCE_ADD, childInstance => {
         t.ok(
           Object.is(childInstance, extendedCore2),
@@ -237,7 +243,7 @@ test("PhantomCollection add / remove child; get children", async t => {
   ]);
 
   await Promise.all([
-    new Promise(resolve => {
+    new Promise<void>(resolve => {
       collection.once(EVT_UPDATE, () => {
         t.ok(true, "emits EVT_UPDATE when instance is removed from collection");
 
@@ -250,7 +256,7 @@ test("PhantomCollection add / remove child; get children", async t => {
       });
     }),
 
-    new Promise(resolve => {
+    new Promise<void>(resolve => {
       collection.once(EVT_CHILD_INSTANCE_REMOVE, childInstance => {
         t.ok(
           Object.is(childInstance, extendedCore2),
@@ -273,7 +279,7 @@ test("PhantomCollection add / remove child; get children", async t => {
     const autoDestructChild = new PhantomCore();
 
     await Promise.all([
-      new Promise(resolve => {
+      new Promise<void>(resolve => {
         collection.once(EVT_CHILD_INSTANCE_REMOVE, childInstance => {
           t.ok(
             Object.is(childInstance, autoDestructChild),
@@ -284,7 +290,7 @@ test("PhantomCollection add / remove child; get children", async t => {
         });
       }),
 
-      new Promise(resolve => {
+      new Promise<void>(resolve => {
         setTimeout(async () => {
           await autoDestructChild.destroy();
 
@@ -307,7 +313,7 @@ test("PhantomCollection add / remove child; get children", async t => {
   );
 
   await Promise.all([
-    new Promise(resolve => {
+    new Promise<void>(resolve => {
       collection.once(EVT_UPDATE, () => {
         t.ok(true, "emits EVT_UPDATE when instance is removed from collection");
 
@@ -358,7 +364,7 @@ test("PhantomCollection broadcasting / post-destruct child retention", async t =
   const expectedEventMessage = "hello world. it works.";
 
   await Promise.all([
-    new Promise(resolve => {
+    new Promise<void>(resolve => {
       phantom1.once(EVT_UPDATE, message => {
         t.equals(
           message,
@@ -370,7 +376,7 @@ test("PhantomCollection broadcasting / post-destruct child retention", async t =
       });
     }),
 
-    new Promise(resolve => {
+    new Promise<void>(resolve => {
       phantom2.once(EVT_UPDATE, message => {
         t.equals(
           message,
@@ -382,7 +388,7 @@ test("PhantomCollection broadcasting / post-destruct child retention", async t =
       });
     }),
 
-    new Promise(resolve => {
+    new Promise<void>(resolve => {
       collection.broadcast(EVT_UPDATE, expectedEventMessage);
 
       resolve();
@@ -411,9 +417,9 @@ test("PhantomCollection ChildEventBridge", async t => {
   t.plan(15);
 
   t.throws(
-    () => {
-      new _ChildEventBridge(new PhantomCore());
-    },
+    // Test error
+    // @ts-ignore
+    () => new _ChildEventBridge(new PhantomCore()),
     TypeError,
     "throws TypeError when trying to add non-PhantomCollection instance"
   );
@@ -468,7 +474,7 @@ test("PhantomCollection ChildEventBridge", async t => {
       const child = iChildren[idx];
 
       await Promise.all([
-        new Promise(resolve => {
+        new Promise<void>(resolve => {
           collection.once(EVT_UPDATE, message => {
             t.equals(
               message,
@@ -480,7 +486,7 @@ test("PhantomCollection ChildEventBridge", async t => {
           });
         }),
 
-        new Promise(resolve => {
+        new Promise<void>(resolve => {
           child.emit(EVT_UPDATE, "some-test-data");
 
           resolve();
@@ -497,8 +503,8 @@ test("PhantomCollection ChildEventBridge", async t => {
 
     await Promise.all([
       // Listen for updates on EVT_UPDATE
-      new Promise(resolve => {
-        const eventRejectHandler = message => {
+      new Promise<void>(resolve => {
+        const eventRejectHandler = () => {
           throw new Error("This handler should not have been called");
         };
 
@@ -513,7 +519,7 @@ test("PhantomCollection ChildEventBridge", async t => {
       }),
 
       // Emit out the child
-      new Promise(resolve => {
+      new Promise<void>(resolve => {
         child1.emit(EVT_UPDATE, "some-additional-test-data");
 
         resolve();
@@ -575,20 +581,16 @@ test("PhantomCollection ChildEventBridge", async t => {
     // const child2 = new PhantomCore();
 
     class _TestChildEventBridge extends _ChildEventBridge {
-      constructor(...args) {
-        super(...args);
+      protected _self = this;
 
-        this._self = this;
-      }
-
-      _handleChildInstanceAdded() {
+      protected override _handleChildInstanceAdded() {
         t.ok(
           Object.is(this._self, this),
           "_handleChildInstanceAdded is scoped to class"
         );
       }
 
-      _handleChildInstanceRemoved() {
+      protected override _handleChildInstanceRemoved() {
         t.ok(
           Object.is(this._self, this),
           "_handleChildInstanceRemoved is scoped to class"
@@ -629,7 +631,11 @@ test("PhantomCollection key support", async t => {
     "getChildWithKey() with no arguments returns undefined"
   );
 
-  t.ok(coll.getChildren().length, 1, "detects one child after first child add");
+  t.equals(
+    coll.getChildren().length,
+    1,
+    "detects one child after first child add"
+  );
 
   (() => {
     t.throws(
@@ -644,7 +650,7 @@ test("PhantomCollection key support", async t => {
 
     t.doesNotThrow(() => {
       coll.addChild(
-        coll.getChildWithKey("tPhantom1-test-key"),
+        coll.getChildWithKey("tPhantom1-test-key") as PhantomCore,
         "tPhantom1-test-key"
       );
     }, "does not throw when trying to re-add a child with the same test key");
@@ -658,7 +664,7 @@ test("PhantomCollection key support", async t => {
     );
   })();
 
-  t.ok(
+  t.equals(
     coll.getChildren().length,
     1,
     "detects one child after duplicate key attempt"
@@ -685,97 +691,6 @@ test("PhantomCollection key support", async t => {
     coll.getChildWithKey("tPhantom3-invalid-key"),
     "does not retrieve any child with invalid key"
   );
-
-  t.end();
-});
-
-test("PhantomCollection coerced type support", async t => {
-  t.plan(12);
-
-  let _hasDuplicate = false;
-
-  class _TestCoercedTypeCollection extends PhantomCollection {
-    // Takes an object and converts it into another type before writing it to
-    // super
-    //
-    // This type of scenario may be encountered often when dealing with objects
-    // of one value needing to be stored as another
-    addChild(obj, key = null) {
-      if (this.getChildWithKey(key)) {
-        t.ok(key !== null, "captures get child with key");
-
-        this.emit("duplicate-key");
-
-        _hasDuplicate = true;
-
-        return;
-      }
-
-      const phantom = new PhantomCore();
-
-      phantom.__testObj = obj;
-      return super.addChild(phantom, key);
-    }
-  }
-
-  const coll = new _TestCoercedTypeCollection();
-
-  // Set to true after coll.emit("duplicate-key") has been detected; this is
-  // not strictly required but helps to ensure the test is running properly
-  let _isDuplicateKeyCaptured = false;
-
-  await Promise.all([
-    new Promise(resolve => {
-      coll.once("duplicate-key", () => {
-        t.ok("duplicate key is captured");
-
-        _isDuplicateKeyCaptured = true;
-
-        resolve();
-      });
-    }),
-
-    new Promise(resolve => {
-      const testObject1 = { id: 1, foo: 123 };
-      const testObject2 = { id: 2, foo: 456 };
-
-      t.ok(!_hasDuplicate, "no duplicate key detected before start");
-
-      coll.addChild(testObject1, testObject1.id);
-      coll.addChild(testObject2, testObject2.id);
-
-      t.ok(!_hasDuplicate, "no duplicate key detected on first run");
-
-      coll.addChild(testObject1, testObject1.id);
-      coll.addChild(testObject2, testObject2.id);
-
-      t.ok(_hasDuplicate, "duplicate key detected on second run");
-      t.notOk(
-        Object.is(testObject1, testObject1.id),
-        "coerced test collection does not return original object on key lookup"
-      );
-
-      t.equals(
-        coll.getChildren().length,
-        2,
-        "2 total children detected after duplicate test add"
-      );
-
-      coll.addChild({}, testObject1.id);
-      coll.addChild({}, testObject2.id);
-      coll.addChild({}, "a-unique-id");
-
-      t.equals(
-        coll.getChildren().length,
-        3,
-        "3 total children detected after second duplicate test add"
-      );
-
-      resolve();
-    }),
-  ]);
-
-  t.ok(_isDuplicateKeyCaptured, "detects duplicate key has been captured");
 
   t.end();
 });
@@ -862,7 +777,7 @@ test("PhantomCollection child event proxies during shutdown", async t => {
   coll.bindChildEventName("__TESTING__-destruct-event-emitted");
 
   await Promise.all([
-    new Promise(resolve => {
+    new Promise<void>(resolve => {
       coll.once("__TESTING__-destruct-event-emitted", data => {
         if (data === "test-data-b") {
           t.ok(
@@ -882,7 +797,7 @@ test("PhantomCollection child event proxies during shutdown", async t => {
 });
 
 test("PhantomCollection diff", t => {
-  t.plan(3);
+  t.plan(1);
 
   const phantom1 = new PhantomCore();
   const phantom2 = new PhantomCore();
@@ -900,36 +815,6 @@ test("PhantomCollection diff", t => {
       removed: [phantom1, phantom3],
     },
     "determines diff against array of PhantomObjects"
-  );
-
-  const obj1 = { testObject: 1 };
-  const obj2 = { testObject: 2 };
-  const obj3 = { testObject: 3 };
-  const obj4 = { testObject: 4 };
-  const obj5 = { testObject: 5 };
-
-  t.deepEquals(
-    PhantomCollection.getChildrenDiff(
-      [obj1, obj2, obj3, obj4],
-      [obj2, obj4, obj5]
-    ),
-    {
-      added: [obj5],
-      removed: [obj1, obj3],
-    },
-    "determines diff against array of objects"
-  );
-
-  t.deepEquals(
-    PhantomCollection.getChildrenDiff(
-      [obj1, obj2, obj3, obj4],
-      [obj1, obj2, obj3, obj4]
-    ),
-    {
-      added: [],
-      removed: [],
-    },
-    "uses empty arrays for added and removed when nothing has changed"
   );
 
   t.end();
@@ -958,14 +843,20 @@ test("PhantomCollection iterator", async t => {
 
   const collection = new PhantomCollection([p1, p2, p3, p4, p5]);
 
+  // FIXME: Fix type
+  // @ts-ignore
   t.equals([...collection].length, 5);
 
   await p3.destroy();
 
+  // FIXME: Fix type
+  // @ts-ignore
   t.equals([...collection].length, 4);
 
   await p5.destroy();
 
+  // FIXME: Fix type
+  // @ts-ignore
   t.equals([...collection].length, 3);
 
   await collection.destroy();
@@ -991,7 +882,7 @@ test("PhantomCollection children ignored destructing / destructed children", asy
   );
 
   await Promise.all([
-    new Promise(resolve => {
+    new Promise<void>(resolve => {
       child.once(EVT_BEFORE_DESTROY, () => {
         t.ok(
           collection1.getChildren().length === 0,
@@ -1007,7 +898,7 @@ test("PhantomCollection children ignored destructing / destructed children", asy
       });
     }),
 
-    new Promise(resolve => {
+    new Promise<void>(resolve => {
       child.once(EVT_DESTROY, () => {
         t.ok(
           collection1.getChildren().length === 0,
@@ -1038,7 +929,7 @@ test("PhantomCollection emits EVT_UPDATE on child destruct", async t => {
   t.equals(collection.getChildren().length, 1, "collection has one child");
 
   await Promise.all([
-    new Promise(resolve => {
+    new Promise<void>(resolve => {
       collection.on(EVT_UPDATE, () => {
         t.ok(child.getIsDestroyed(), "child is destructed");
 
@@ -1071,7 +962,7 @@ test("child to collection to master collection event passing", async t => {
   t.ok(collection2.getChildren().length === 1);
 
   await Promise.all([
-    new Promise(resolve => {
+    new Promise<void>(resolve => {
       collection1.on(EVT_UPDATE, data => {
         if (data === "testing 1 2 3") {
           t.ok(true, "collection1 received expected test data from child");
@@ -1082,7 +973,7 @@ test("child to collection to master collection event passing", async t => {
         }
       });
     }),
-    new Promise(resolve => {
+    new Promise<void>(resolve => {
       collection2.on(EVT_UPDATE, data => {
         if (data === "testing 1 2 3") {
           t.ok(true, "collection2 received expected test data from child");
@@ -1093,7 +984,7 @@ test("child to collection to master collection event passing", async t => {
         }
       });
     }),
-    new Promise(resolve => {
+    new Promise<void>(resolve => {
       masterCollection.on(EVT_UPDATE, data => {
         if (data === "testing 1 2 3") {
           // This will be invoked twice since collection1 and collection2 will update
@@ -1117,7 +1008,7 @@ test("collection does not contain destructed children", async t => {
   t.plan(4);
 
   class TestCollection extends PhantomCollection {
-    addChild(child) {
+    override addChild(child: PhantomCore) {
       // NOTE: Though not typical, if adding the EVT_DESTROY handler to the
       // call BEFORE adding it to the collection, that initial EVT_DESTROY
       // handler will be invoked before the collection invokes its own handler,
@@ -1130,6 +1021,8 @@ test("collection does not contain destructed children", async t => {
           "does not contain destructed children from getChildren() call"
         );
         t.ok(
+          // FIXME: Fix type
+          // @ts-ignore
           [...this].length === 0,
           "does not contain destructed members in [...iteration]"
         );
@@ -1142,6 +1035,8 @@ test("collection does not contain destructed children", async t => {
         "contains initial added child in getChildren() call"
       );
       t.ok(
+        // FIXME: Fix type
+        // @ts-ignore
         [...this].length === 1,
         "contains initial added child in [...iteration]"
       );
