@@ -29,10 +29,8 @@ export default class FunctionStack {
 
   /**
    * Retrieves the order in which the stack elements will execute.
-   *
-   * @return {FUNCTION_STACK_OPS_ORDER_FIFO | FUNCTION_STACK_OPS_ORDER_LIFO}
    */
-  getOpsOrder() {
+  getOpsOrder(): string {
     return this._opsOrder;
   }
 
@@ -40,7 +38,7 @@ export default class FunctionStack {
    * Adds a new function to the stack.
    */
   // TODO: [3.0.0] Use different type
-  push(fn: Function) {
+  push(fn: Function): void {
     if (typeof fn !== "function") {
       throw new TypeError("fn must be a function");
     }
@@ -72,11 +70,13 @@ export default class FunctionStack {
    *
    * Currently invoking functions are not part of this count, as they have
    * already been removed from the queue.
-   *
-   * @return {number}
    */
-  getQueueDepth() {
+  getQueueDepth(): number {
     return this._fns.length;
+  }
+
+  getIsExecuting(): boolean {
+    return this._isExecuting;
   }
 
   // FIXME: (jh) Rename (or alias) to flush
