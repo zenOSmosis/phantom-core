@@ -295,3 +295,6 @@ class PhantomCoreOrchestrator extends CommonEventEmitter {
 }
 
 export default new PhantomCoreOrchestrator();
+
+const UNSAFE_PhantomCoreOrchestrator = PhantomCoreOrchestrator;
+export { UNSAFE_PhantomCoreOrchestrator };
