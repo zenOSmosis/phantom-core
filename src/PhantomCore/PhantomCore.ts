@@ -673,6 +673,29 @@ export default class PhantomCore extends DestructibleEventEmitter {
     );
   }
 
+  // TODO: [3.0.0] Implement
+  // Make compatible w/ https://www.typescriptlang.org/tsconfig
+  // Partially related to: https://github.com/zenOSmosis/phantom-core/pull/57
+  subscribe(listener: EventListener, eventNames = [EVT_UPDATE]) {
+    for (const eventName of eventNames) {
+      this.on(eventName, listener);
+    }
+
+    return {
+      unsubscribe: () => {
+        for (const eventName of eventNames) {
+          this.off(eventName, listener);
+        }
+      },
+    };
+  }
+
+  // TODO: [3.0.0] Implement
+  // TODO: Document
+  unsubscribe(subscription: any) {
+    return subscription.unsubscribe();
+  }
+
   /**
    * Retrieves the number of seconds since this class instance was
    * instantiated.
