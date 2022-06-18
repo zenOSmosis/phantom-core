@@ -5,6 +5,8 @@ test("ArbitraryPhantomWrapper handling", async t => {
   t.plan(5);
 
   t.throws(
+    // Intentional error
+    // @ts-ignore
     () => new ArbitraryPhantomWrapper(),
     ReferenceError,
     "throws ReferenceError if instantiated without any arguments"
@@ -21,6 +23,8 @@ test("ArbitraryPhantomWrapper handling", async t => {
   );
 
   t.throws(
+    // Intentional error
+    // @ts-ignore
     () => wrapper._setWrappedValue("test"),
     Error,
     "_setWrappedValue cannot be called more than once"
@@ -35,6 +39,7 @@ test("ArbitraryPhantomWrapper handling", async t => {
   await wrapper.destroy();
 
   t.equals(
+    // @ts-ignore
     wrapper._wrappedValue,
     null,
     "_wrappedValue is set to null after destruct"
