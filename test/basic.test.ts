@@ -5,6 +5,7 @@ import PhantomCore, {
   EVT_BEFORE_DESTROY,
   EVT_DESTROY,
   sleep,
+  consume,
 } from "../src";
 
 /**
@@ -201,7 +202,7 @@ test("onceReady reject callback", async t => {
     t.ok(err instanceof Error, "onceReady rejects with Error object");
 
     t.equals(
-      err.message,
+      (err as Error).message,
       "Destruct phase started before ready",
       "onceReady rejects if premature destruct"
     );
@@ -263,7 +264,7 @@ test("emits EVT_READY in sync mode", async t => {
 
   const phantom = new PhantomCore();
 
-  await new Promise(resolve => {
+  await new Promise<void>(resolve => {
     phantom.once(EVT_READY, () => {
       t.ok(true, "emits EVT_READY after init");
 
@@ -476,7 +477,7 @@ test("multiple destroyHandler calls", async t => {
   let i = 0;
 
   class TestPhantomCore extends PhantomCore {
-    async destroy() {
+    override async destroy() {
       return super.destroy(() => {
         ++i;
       });
@@ -614,7 +615,7 @@ test("phantom properties", async t => {
   class ExtendedCore extends PhantomCore {}
 
   class ExtendedCore2 extends PhantomCore {
-    constructor(...args) {
+    constructor(...args: any[]) {
       super(...args);
     }
   }
@@ -634,20 +635,31 @@ test("phantom properties", async t => {
       super();
 
       this._pred1 = {};
+      consume(this._pred1);
 
       this._pred2 = new PhantomCore();
+      consume(this._pred2);
 
       this._pred3 = () => null;
+      consume(this._pred3);
 
       this._pred4 = "hello";
+      consume(this._pred4);
 
       this._pred5 = new ExtendedCore();
+      consume(this._pred5);
 
       this._pred6 = new ExtendedCore2();
+      consume(this._pred6);
 
       this._pred7 = ExtendedCore;
+      consume(this._pred7);
+
       this._pred8 = ExtendedCore2;
+      consume(this._pred8);
+
       this._pred9 = PhantomCore;
+      consume(this._pred9);
     }
   }
 
@@ -754,7 +766,7 @@ test("shutdown handler stack", async t => {
     await p1.destroy();
   } catch (err) {
     t.ok(
-      err.message === "Expected error",
+      (err as Error).message === "Expected error",
       "errors in shutdown stack are thrown from the PhantomCore instance"
     );
   }

@@ -146,7 +146,7 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
   /**
    * Internally invoked when the PhantomCollection adds a new child.
    */
-  private _handleChildInstanceAdded(childInstance: PhantomCore): void {
+  protected _handleChildInstanceAdded(childInstance: PhantomCore): void {
     // Add linked child event handlers
     this._childToCollectionEventNames.forEach(eventName =>
       this._proxyChildEvent(childInstance, eventName)
@@ -156,7 +156,7 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
   /**
    * Internally invoked when the PhantomCollection removes a child.
    */
-  private _handleChildInstanceRemoved(childInstance: PhantomCore): void {
+  protected _handleChildInstanceRemoved(childInstance: PhantomCore): void {
     // Clear out linked child event handlers
     this._childToCollectionEventNames.forEach(eventName =>
       this._unproxyChildEvent(childInstance, eventName)
@@ -167,7 +167,7 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
    * Retrieves, or creates, a map of child events which will be re-emit (or
    * proxied) out the PhantomCollection.
    */
-  private _getChildEventProxyMap(childInstance: PhantomCore): EventMap {
+  protected _getChildEventProxyMap(childInstance: PhantomCore): EventMap {
     const prev = this._childEventProxyMaps.get(childInstance);
 
     if (prev) {
@@ -182,7 +182,7 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
   /**
    * Unbinds, then removes the child event map for the given child.
    */
-  private _deleteChildEventProxyMap(childInstance: PhantomCore): void {
+  protected _deleteChildEventProxyMap(childInstance: PhantomCore): void {
     for (const eventName of this._childToCollectionEventNames) {
       this._unproxyChildEvent(childInstance, eventName);
     }
@@ -193,7 +193,7 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
    *
    * Subsequent attempts to add the same event will be silently ignored.
    */
-  private _proxyChildEvent(
+  protected _proxyChildEvent(
     childInstance: PhantomCore,
     eventName: string | symbol
   ): void {
@@ -216,7 +216,7 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
   /**
    * Tears down a child => collection event proxy.
    */
-  private _unproxyChildEvent(
+  protected _unproxyChildEvent(
     childInstance: PhantomCore,
     eventName: string | symbol
   ): void {
