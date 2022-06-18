@@ -673,20 +673,37 @@ export default class PhantomCore extends DestructibleEventEmitter {
     );
   }
 
-  // TODO: [3.0.0] Document
-  subscribeFactory(eventNames = [EVT_UPDATE]) {
+  /**
+   * Adds a common event subscription to the given events.
+   *
+   * EVT_UPDATE is subscribed to by default, if nothing is defined for
+   * eventNames.
+   *
+   * A function is returned which takes the listener callback, and subsequently
+   * returns the unsubscribe handler.
+   *
+   * Note: This is modeled for usage with React 18's useSyncExternalStore
+   * @see https://reactjs.org/docs/hooks-reference.html#usesyncexternalstore
+   */
+  subscribeFactory(
+    eventNames = [EVT_UPDATE]
+  ): (listener: EventListener) => () => void {
     return (listener: EventListener) => this.subscribe(listener, eventNames);
   }
 
-  // TODO: [3.0.0] Implement
-  // Make compatible w/ https://www.typescriptlang.org/tsconfig
-  // Partially related to: https://github.com/zenOSmosis/phantom-core/pull/57
-  subscribe(listener: EventListener, eventNames = [EVT_UPDATE]) {
+  /**
+   * Adds a common event subscription to the given events.
+   *
+   * EVT_UPDATE is subscribed to by default, if nothing is defined for
+   * eventNames.
+   *
+   * The unsubscribe handler is returned.
+   */
+  subscribe(listener: EventListener, eventNames = [EVT_UPDATE]): () => void {
     for (const eventName of eventNames) {
       this.on(eventName, listener);
     }
 
-    // TODO: [3.0.0] Document
     const unsubscribe = () => {
       this.unregisterCleanupHandler(unsubscribe);
 
@@ -701,10 +718,10 @@ export default class PhantomCore extends DestructibleEventEmitter {
     return unsubscribe;
   }
 
-  // TODO: [3.0.0] Implement
-  // TODO: Document
-  // TODO: Properly type
-  unsubscribe(unsubscribeHandler: EventListener) {
+  /**
+   * Executes a subscription's unsubscribe method.
+   */
+  unsubscribe(unsubscribeHandler: EventListener): void {
     return unsubscribeHandler();
   }
 
