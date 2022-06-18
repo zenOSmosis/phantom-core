@@ -16,7 +16,6 @@
     "moduleResolution": "node",
     "resolveJsonModule": false,
     "isolatedModules": true,
-    "jsx": "react",
     "baseUrl": ".",
     "downlevelIteration": true,
     "noImplicitAny": true,
