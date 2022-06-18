@@ -330,7 +330,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * IMPORTANT: Extensions which set isReady to false should call this
    * manually.
    */
-  async _init(): Promise<void> {
+  protected async _init(): Promise<void> {
     this._init = () => {
       throw new ReferenceError("_init cannot be called more than once");
     };
