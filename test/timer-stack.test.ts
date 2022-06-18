@@ -10,7 +10,7 @@ test("invokes timeout", async t => {
 
   t.equals(stack.getTimeoutStack().length, 0, "starts with 0 timers in stack");
 
-  await new Promise(resolve => {
+  await new Promise<void>(resolve => {
     stack.setTimeout(() => {
       t.ok("executed timeout in stack", "executes timeout in stack");
 
@@ -38,10 +38,12 @@ test("stops given timeout in stack", async t => {
   const REMOVE_IDX = 3;
 
   const timers = [];
-  const completedIndexes = [];
+  const completedIndexes: number[] = [];
 
-  for (const i = 0; i < TIMER_LENGTH; i++) {
+  for (let i = 0; i < TIMER_LENGTH; i++) {
     timers.push(
+      // For testing only
+      // @ts-ignore
       stack.setTimeout(() => {
         if (i === REMOVE_IDX) {
           throw new Error("Timeout should not execute on REMOVE_IDX");
@@ -72,7 +74,7 @@ test("stops remaining timeouts from completing when stack is destructed", async 
 
   const TIMER_LENGTH = 8;
 
-  for (const i = 0; i < TIMER_LENGTH; i++) {
+  for (let i = 0; i < TIMER_LENGTH; i++) {
     stack.setTimeout(() => {
       throw new Error("This timeout should not execute");
     });
@@ -94,7 +96,7 @@ test("invokes and clears interval", async t => {
 
   t.equals(stack.getIntervalStack().length, 0, "starts with 0 timers in stack");
 
-  await new Promise(resolve => {
+  await new Promise<void>(resolve => {
     let iterations = 0;
 
     const interval = stack.setInterval(() => {
@@ -126,7 +128,7 @@ test("stops remaining intervals from completing when stack is destructed", async
 
   const TIMER_LENGTH = 8;
 
-  for (const i = 0; i < TIMER_LENGTH; i++) {
+  for (let i = 0; i < TIMER_LENGTH; i++) {
     stack.setInterval(() => {
       throw new Error("This timeout should not execute");
     });

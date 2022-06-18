@@ -1,3 +1,8 @@
+/**
+ * IMPORTANT: This file is utilized with a .js extension instead of .ts because
+ * the example is not in TypeScript.
+ */
+
 import test from "tape";
 import PhantomCore, { EVT_READY, EVT_DESTROY } from "../src";
 

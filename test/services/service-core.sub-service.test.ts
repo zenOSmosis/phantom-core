@@ -7,8 +7,10 @@ test("sub-service", async t => {
   class TestSubService extends PhantomServiceCore {}
 
   class TestService extends PhantomServiceCore {
-    constructor({ ...args }) {
-      super({ ...args });
+    constructor(...args: any[]) {
+      // FIXME: Fix type
+      // @ts-ignore
+      super(...args);
 
       t.throws(
         () => {
@@ -46,7 +48,9 @@ test("sub-service", async t => {
     "adding duplicate sub-service does not re-instantiate"
   );
 
-  const testService = serviceManager.getServiceInstance(TestService);
+  const testService = serviceManager.getServiceInstance(
+    TestService
+  ) as TestService;
 
   await testService.destroy();
 

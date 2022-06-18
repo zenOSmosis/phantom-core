@@ -1,4 +1,4 @@
-const test = require("tape");
+import test from "tape";
 import { PhantomCore, LogLevel, globalLogger } from "../src";
 
 // TODO: [3.0.0] Add log miss testing

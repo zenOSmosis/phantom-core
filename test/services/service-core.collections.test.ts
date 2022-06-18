@@ -28,18 +28,22 @@ test("service collections", async t => {
   );
 
   t.throws(
-    () => {
-      testService.bindCollectionClass(new TestCollection1());
-    },
+    // Test error
+    // @ts-ignore
+    () => testService.bindCollectionClass(new TestCollection1()),
     TypeError,
     "cannot bind instantiated collection"
   );
 
-  t.throws(() => {
-    testService.bindCollectionClass(PhantomServiceCore),
+  t.throws(
+    () => (
+      // Test error
+      // @ts-ignore
+      testService.bindCollectionClass(PhantomServiceCore),
       TypeError,
-      "cannot bind non-collection class as a collection";
-  });
+      "cannot bind non-collection class as a collection"
+    )
+  );
 
   const testCollectionInstance1A =
     testService.bindCollectionClass(TestCollection1);
@@ -54,7 +58,7 @@ test("service collections", async t => {
   testService.bindCollectionClass(TestCollection5);
 
   await Promise.all([
-    new Promise(resolve => {
+    new Promise<void>(resolve => {
       testService.once(EVT_UPDATE, data => {
         t.ok(
           data === "test data",
@@ -64,9 +68,9 @@ test("service collections", async t => {
         resolve();
       });
     }),
-    testService
-      .getCollectionInstance(TestCollection1)
-      .emit(EVT_UPDATE, "test data"),
+    (
+      testService.getCollectionInstance(TestCollection1) as PhantomCollection
+    ).emit(EVT_UPDATE, "test data"),
   ]);
 
   t.ok(
@@ -102,7 +106,9 @@ test("service collections", async t => {
     "getCollectionClasses() returns length of bound classes"
   );
 
-  const testCollection3 = testService.getCollectionInstance(TestCollection3);
+  const testCollection3 = testService.getCollectionInstance(
+    TestCollection3
+  ) as PhantomCollection;
 
   t.ok(
     testCollection3 instanceof TestCollection3,
@@ -126,7 +132,9 @@ test("service collections", async t => {
     testService.unbindCollectionClass(TestCollection3);
   }, "service does not throw if unbinding already destructed collection");
 
-  const testCollection4 = testService.getCollectionInstance(TestCollection4);
+  const testCollection4 = testService.getCollectionInstance(
+    TestCollection4
+  ) as PhantomCollection;
 
   t.equals(
     testCollection4.getIsDestroyed(),
@@ -159,7 +167,7 @@ test("service collections", async t => {
 
   t.notOk(
     remainingCollectionClassInstances.find(instance =>
-      instance.getIsDestroyed()
+      (instance as PhantomCollection).getIsDestroyed()
     ),
     "currently active collection classes do not report destructed"
   );
@@ -168,7 +176,7 @@ test("service collections", async t => {
 
   t.notOk(
     remainingCollectionClassInstances.find(
-      instance => !instance.getIsDestroyed()
+      instance => !(instance as PhantomCollection).getIsDestroyed()
     ),
     "previously active collection classes report destructed after service destruct"
   );

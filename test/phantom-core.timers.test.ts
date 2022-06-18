@@ -6,17 +6,15 @@ test("phantom-core timers", async t => {
 
   const phantom = new PhantomCore();
 
-  await new Promise(
-    resolve =>
-      phantom.setTimeout(() => {
-        t.ok(true, "timeout resolves");
+  await new Promise<void>(resolve =>
+    phantom.setTimeout(() => {
+      t.ok(true, "timeout resolves");
 
-        resolve();
-      }),
-    10
+      resolve();
+    }, 10)
   );
 
-  await new Promise(resolve => {
+  await new Promise<void>(resolve => {
     let i = 0;
 
     const interval = phantom.setInterval(() => {

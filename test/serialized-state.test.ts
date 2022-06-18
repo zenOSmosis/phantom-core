@@ -143,7 +143,7 @@ test("phantom serialized state", async t => {
 
   t.throws(() => {
     serialState.setState({
-      fn: function echo(arg) {
+      fn: function echo(arg: unknown) {
         return arg;
       },
     });
@@ -152,7 +152,7 @@ test("phantom serialized state", async t => {
   t.throws(() => {
     serialState.setState(
       {
-        fn: function echo(arg) {
+        fn: function echo(arg: unknown) {
           return arg;
         },
       },

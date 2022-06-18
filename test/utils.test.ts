@@ -14,7 +14,6 @@ import PhantomCore, {
   getClassInheritance,
   getClassInstancePropertyNames,
   sleep,
-  performance,
   enumToNumericIndexedObject,
   enumToMap,
   enumToStringIndexedObject,
@@ -27,11 +26,14 @@ import _DestructibleEventEmitter from "../src/_DestructibleEventEmitter";
 test("consume", t => {
   t.plan(7);
 
+  // Testing only
+  // @ts-ignore
   t.equals(consume(), undefined);
+
   t.equals(consume({ foo: 123 }), undefined);
   t.equals(consume(1), undefined);
   t.equals(consume(0), undefined);
-  t.equals(consume(new Promise(resolve => resolve())), undefined);
+  t.equals(consume(new Promise<void>(resolve => resolve())), undefined);
   t.equals(consume(true), undefined);
   t.equals(consume(false), undefined);
 
@@ -45,7 +47,7 @@ test("unix time", async t => {
 
   // NOTE (jh): Discovered that NaN type is a number, so doing parseInt check
   t.equals(
-    parseInt(timeStart, 10),
+    parseInt(timeStart as unknown as string, 10),
     timeStart,
     "getUnixTime() returns a number"
   );
@@ -64,7 +66,7 @@ test("unix time", async t => {
   const uptimeStart = getUptime();
 
   t.equals(
-    parseInt(uptimeStart, 10),
+    parseInt(uptimeStart as unknown as string, 10),
     uptimeStart,
     "getUptime() returns a number"
   );
@@ -158,7 +160,7 @@ test("class name", t => {
     "TestService is detected from non-instantiated class"
   );
   t.equals(
-    getClassName(serviceManager.getServiceInstance(TestService)),
+    getClassName(serviceManager.getServiceInstance(TestService) as TestService),
     "TestService",
     "TestService is detected from class instance"
   );
@@ -322,6 +324,8 @@ test("enum to map", t => {
 
   t.deepEquals(
     enumToMap(LogLevel),
+    // Testing only
+    // @ts-ignore
     new Map([
       [0, "silent"],
       [1, "error"],

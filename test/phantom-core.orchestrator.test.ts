@@ -72,7 +72,7 @@ test("sets and retrieves global log levels", async t => {
     "global logger reflects orchestrator global change"
   );
 
-  globalLogger.setLogLevel(2, "global logger log level is changed directly");
+  globalLogger.setLogLevel(2);
   t.equals(
     orchestrator.getGlobalLogLevel(),
     2,

@@ -5,19 +5,11 @@ test("circular service constructors", async t => {
   t.plan(2);
 
   class TestServiceB extends PhantomServiceCore {
-    constructor({ ...args }) {
-      super({ ...args });
-
-      this._testServiceA = this.useServiceClass(TestServiceA);
-    }
+    protected _testServiceA = this.useServiceClass(TestServiceA);
   }
 
   class TestServiceA extends PhantomServiceCore {
-    constructor({ ...args }) {
-      super({ ...args });
-
-      this._testServiceB = this.useServiceClass(TestServiceB);
-    }
+    protected _testServiceB = this.useServiceClass(TestServiceB);
   }
 
   const serviceManager = new PhantomServiceManager();
@@ -27,7 +19,11 @@ test("circular service constructors", async t => {
   } catch (err) {
     if (
       err instanceof RangeError ||
+      // Test error
+      // @ts-ignore
       /** Firefox */ (typeof InternalError !== "undefined" &&
+        // Test error
+        // @ts-ignore
         err instanceof InternalError)
     ) {
       t.ok(
@@ -39,6 +35,8 @@ test("circular service constructors", async t => {
   await serviceManager.destroy();
 
   t.equals(
+    // Test error
+    // @ts-ignore
     [...serviceManager._pendingServiceClassInstanceSet].length,
     0,
     "pending service class instance set is reset during destruct"
