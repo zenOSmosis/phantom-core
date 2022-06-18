@@ -14,11 +14,11 @@
     "document": "rm -rf docs && typedoc src/index.ts && cp phantom.svg docs && echo 'docs.phantom-core.zenosmosis.com' > docs/CNAME",
     "build": "tsc",
     "test": "npm run test-node && npm run test-sauce-browsers",
-    "test-node": "tape -r ts-node/register/transpile-only 'test/{,/**/}*.test.js'",
-    "test-sauce-browsers": "npm run build && dotenv airtap --coverage --concurrency 1 -- 'test/{,/**/}*.test.js'",
-    "test-local-browsers": "npm run build && airtap -p local --coverage --concurrency 1 -- 'test/{,/**/}*.test.js'",
-    "coverage": "nyc tape -r ts-node/register/transpile-only 'test/{,/**/}*.test.js'",
-    "lint": "prettier --write '(**/)*.js'",
+    "test-node": "tape -r ts-node/register/transpile-only 'test/{,/**/}*.test.ts'",
+    "test-sauce-browsers": "npm run build && dotenv airtap --coverage --concurrency 1 -- 'test/{,/**/}*.test.ts'",
+    "test-local-browsers": "npm run build && airtap -p local --coverage --concurrency 1 -- 'test/{,/**/}*.test.ts'",
+    "coverage": "nyc tape -r ts-node/register/transpile-only 'test/{,/**/}*.test.ts'",
+    "lint": "prettier --write '(**/)*.ts'",
     "check-dep-updates": "npx npm-check-updates"
   },
   "dependencies": {
