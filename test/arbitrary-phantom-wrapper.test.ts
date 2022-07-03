@@ -40,9 +40,9 @@ test("ArbitraryPhantomWrapper handling", async t => {
 
   t.equals(
     // @ts-ignore
-    wrapper._wrappedValue,
+    wrapper._encapsulatedValue,
     null,
-    "_wrappedValue is set to null after destruct"
+    "_encapsulatedValue is set to null after destruct"
   );
 
   t.end();

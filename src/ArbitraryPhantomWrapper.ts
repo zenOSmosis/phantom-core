@@ -19,11 +19,19 @@ export {
   EVT_DESTROY,
 };
 
+type EncapsulatedValue<T = unknown> = {
+  data: T;
+  isDefined: boolean;
+};
+
 /**
  * Wraps an arbitrary object with a PhantomCore instance.
  */
 export default class ArbitraryPhantomWrapper<T = unknown> extends PhantomCore {
-  protected _wrappedValue!: T;
+  protected _encapsulatedValue: EncapsulatedValue = {
+    data: null,
+    isDefined: false,
+  };
 
   constructor(wrappedValue: T, options: CommonOptions = {}) {
     super(options);
@@ -33,7 +41,7 @@ export default class ArbitraryPhantomWrapper<T = unknown> extends PhantomCore {
 
   // TODO: [3.0.0] Document
   protected _setWrappedValue(wrappedValue: T): void {
-    if (this._wrappedValue) {
+    if (this._encapsulatedValue.isDefined) {
       throw new Error("_setWrappedValue cannot be called more than once");
     }
 
@@ -41,10 +49,10 @@ export default class ArbitraryPhantomWrapper<T = unknown> extends PhantomCore {
       throw new ReferenceError("wrappedValue is not set");
     }
 
-    this._wrappedValue = wrappedValue;
+    this._encapsulatedValue = { data: wrappedValue, isDefined: true };
 
     this.registerCleanupHandler(() => {
-      this.dereference(this._wrappedValue);
+      this.dereference(this._encapsulatedValue);
     });
   }
 
@@ -52,8 +60,8 @@ export default class ArbitraryPhantomWrapper<T = unknown> extends PhantomCore {
    * Retrieves the wrapped object which was specified during the class instance
    * creation.
    */
-  getWrappedValue(): T {
-    return this._wrappedValue;
+  getWrappedValue(): T | unknown {
+    return this._encapsulatedValue?.data;
   }
 
   override async destroy(destroyHandler?: () => void) {

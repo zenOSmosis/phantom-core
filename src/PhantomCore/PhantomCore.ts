@@ -9,6 +9,7 @@ import DestructibleEventEmitter, {
 } from "../_DestructibleEventEmitter";
 import Logger, { LogIntersection, EVT_LOG_MISS } from "../Logger";
 import logger from "../globalLogger";
+import globalLogger from "../globalLogger";
 import getPackageJSON from "../utils/getPackageJSON";
 import FunctionStack, {
   FUNCTION_STACK_OPS_ORDER_LIFO,
@@ -29,7 +30,6 @@ import autoBindClassInstanceMethods from "../utils/class-utils/autoBindClassInst
 import shallowMerge from "../utils/object-utils/shallowMerge";
 
 import phantomCoreOrchestrator from "./_PhantomCoreOrchestrator";
-import globalLogger from "../globalLogger";
 
 export {
   EVT_ERROR,
@@ -800,23 +800,40 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * IMPORTANT: This will de-reference all matching properties with the same
    * instancePropertyValue; utilize with care.
    */
-  dereference(instancePropertyValue: unknown): void {
+  dereference(instancePropertyValue: RecursiveObject): void {
     if (!this.getIsDestroyed()) {
       throw new RangeError(
         "dereference can only be invoked once the cleanup phase has begun"
       );
     }
 
+    // Ignore potentially already-nulled objects
     if (instancePropertyValue === null) {
       return;
     }
+
+    if (typeof instancePropertyValue !== "object") {
+      throw new Error(
+        `Cannot deference non-object types. Received type: ${typeof instancePropertyValue}`
+      );
+    }
+
+    let foundProp = false;
 
     for (let prop of this.getPropertyNames()) {
       // @ts-ignore
       if (this[prop] === instancePropertyValue) {
         // @ts-ignore
         this[prop] = null;
+
+        foundProp = true;
       }
+    }
+
+    if (!foundProp) {
+      globalLogger.warn(
+        `Could not find property matching value: ${instancePropertyValue}`
+      );
     }
   }
 

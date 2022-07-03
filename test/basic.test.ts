@@ -821,7 +821,7 @@ test("unregister shutdown handler", async t => {
 });
 
 test("dereference", async t => {
-  t.plan(4);
+  t.plan(5);
 
   const p = new PhantomCore();
 
@@ -830,6 +830,8 @@ test("dereference", async t => {
   p["ab"] = { ab: 123 };
 
   t.throws(
+    // Test error
+    // @ts-ignore
     () => p.dereference(p["ab"]),
     RangeError,
     "throws RangeError if invoking before cleanup phase"
@@ -838,6 +840,10 @@ test("dereference", async t => {
   // Testing
   // @ts-ignore
   p["test-map"] = new Map();
+
+  // Testing
+  // @ts-ignore
+  p["non-object"] = true;
 
   // Testing
   // @ts-ignore
@@ -853,6 +859,14 @@ test("dereference", async t => {
     // Testing
     // @ts-ignore
     p.dereference(p["test-map"]);
+
+    t.throws(() => {
+      // Testing
+      // @ts-ignore
+      p.dereference(p["non-object"]);
+    });
+
+    p.dereference({ a: 1234566 });
   });
 
   await p.destroy();
