@@ -19,7 +19,7 @@ export {
   EVT_DESTROY,
 };
 
-type EncapsulatedValue<T = unknown> = {
+export type EncapsulatedArbitraryPhantomValue<T = unknown> = {
   data: T;
   isDefined: boolean;
 };
@@ -28,7 +28,7 @@ type EncapsulatedValue<T = unknown> = {
  * Wraps an arbitrary object with a PhantomCore instance.
  */
 export default class ArbitraryPhantomWrapper<T = unknown> extends PhantomCore {
-  protected _encapsulatedValue: EncapsulatedValue = {
+  protected _encapsulatedValue: EncapsulatedArbitraryPhantomValue = {
     data: null,
     isDefined: false,
   };

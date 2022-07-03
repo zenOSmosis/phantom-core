@@ -45,8 +45,11 @@ export type { EventName, EventMap, EventListener };
 
 // Extensions
 
-import ArbitraryPhantomWrapper from "./ArbitraryPhantomWrapper";
+import ArbitraryPhantomWrapper, {
+  EncapsulatedArbitraryPhantomValue,
+} from "./ArbitraryPhantomWrapper";
 export { ArbitraryPhantomWrapper };
+export type { EncapsulatedArbitraryPhantomValue };
 
 // TODO: [3.x] Use package.json exports (requires TypeScript 4.7)
 // @see https://github.com/microsoft/TypeScript/issues/33079
