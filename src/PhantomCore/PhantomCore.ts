@@ -800,7 +800,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * IMPORTANT: This will de-reference all matching properties with the same
    * instancePropertyValue; utilize with care.
    */
-  dereference(instancePropertyValue: RecursiveObject): void {
+  dereference(instancePropertyValue: unknown): void {
     if (!this.getIsDestroyed()) {
       throw new RangeError(
         "dereference can only be invoked once the cleanup phase has begun"
