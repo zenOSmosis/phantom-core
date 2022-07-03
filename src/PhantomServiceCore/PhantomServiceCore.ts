@@ -1,4 +1,5 @@
 import PhantomState, {
+  EVT_ERROR,
   EVT_NO_INIT_WARN,
   EVT_READY,
   EVT_UPDATE,
@@ -11,6 +12,7 @@ import PhantomServiceManager from "../PhantomServiceManager";
 import { Class, ClassInstance, Constructor } from "../types";
 
 export {
+  EVT_ERROR,
   EVT_NO_INIT_WARN,
   EVT_READY,
   EVT_UPDATE,

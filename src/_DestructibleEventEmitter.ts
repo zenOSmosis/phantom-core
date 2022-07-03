@@ -5,6 +5,11 @@ import Logger from "./Logger";
 export type { EventListener };
 
 /**
+ * @event EVT_ERROR Emits when there is an error.
+ */
+export const EVT_ERROR = "error";
+
+/**
  * @event EVT_BEFORE_DESTROY Emits directly before any destructor handling.
  */
 export const EVT_BEFORE_DESTROY = "before-destroy";

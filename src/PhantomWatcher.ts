@@ -1,4 +1,5 @@
 import PhantomCore, {
+  EVT_ERROR,
   EVT_NO_INIT_WARN,
   EVT_READY,
   EVT_UPDATE,
@@ -15,6 +16,7 @@ import phantomCoreOrchestrator, {
 } from "./PhantomCore/_PhantomCoreOrchestrator";
 
 export {
+  EVT_ERROR,
   EVT_NO_INIT_WARN,
   EVT_READY,
   EVT_UPDATE,

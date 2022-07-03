@@ -1,5 +1,6 @@
 import PhantomCore, { CommonOptions } from "../PhantomCore";
 import PhantomCollection, {
+  EVT_ERROR,
   EVT_NO_INIT_WARN,
   EVT_READY,
   EVT_UPDATE,
@@ -14,6 +15,7 @@ import getClassName from "../utils/class-utils/getClassName";
 import { Class, Constructor } from "../types";
 
 export {
+  EVT_ERROR,
   EVT_NO_INIT_WARN,
   EVT_READY,
   EVT_UPDATE,

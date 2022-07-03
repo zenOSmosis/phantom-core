@@ -2,6 +2,7 @@ import { Class, ClassInstance, RecursiveObject } from "../types";
 import { CommonOptions } from "./types";
 import CommonEventEmitter, { EventListener } from "../CommonEventEmitter";
 import DestructibleEventEmitter, {
+  EVT_ERROR,
   EVT_BEFORE_DESTROY,
   EVT_DESTROY_STACK_TIME_OUT,
   EVT_DESTROY,
@@ -29,9 +30,12 @@ import shallowMerge from "../utils/object-utils/shallowMerge";
 
 import phantomCoreOrchestrator from "./_PhantomCoreOrchestrator";
 
-// Number of milliseconds to allow async inits to initialize before triggering
-// warning
-const ASYNC_INIT_GRACE_TIME = 5000;
+export {
+  EVT_ERROR,
+  EVT_BEFORE_DESTROY,
+  EVT_DESTROY_STACK_TIME_OUT,
+  EVT_DESTROY,
+};
 
 /**
  * @event EVT_NO_EMIT_WARN Emits when async mode is turned on and super _init
@@ -51,8 +55,11 @@ export const EVT_READY = "ready";
  */
 export const EVT_UPDATE = "update";
 
-export { EVT_BEFORE_DESTROY, EVT_DESTROY_STACK_TIME_OUT, EVT_DESTROY };
 export type { EventListener };
+
+// Number of milliseconds to allow async inits to initialize before triggering
+// warning
+const ASYNC_INIT_GRACE_TIME = 5000;
 
 // Methods which should continue working after class destruct
 const KEEP_ALIVE_SHUTDOWN_METHODS = [

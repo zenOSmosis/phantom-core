@@ -1,6 +1,7 @@
 import { Class } from "../types";
 import { PhantomCollectionChildKey } from "./types";
 import PhantomCore, {
+  EVT_ERROR,
   EVT_NO_INIT_WARN,
   EVT_READY,
   EVT_UPDATE,
@@ -13,6 +14,7 @@ import PhantomCore, {
 import ChildEventBridge from "./PhantomCollection.ChildEventBridge";
 
 export {
+  EVT_ERROR,
   EVT_NO_INIT_WARN,
   EVT_READY,
   EVT_UPDATE,

@@ -10,6 +10,7 @@ import * as PhantomServiceManagerExports from "../../src/PhantomServiceManager";
 import * as PhantomWatcherExports from "../../src/PhantomWatcher";
 
 import {
+  EVT_ERROR,
   EVT_READY,
   EVT_UPDATE,
   EVT_BEFORE_DESTROY,
@@ -24,6 +25,7 @@ test("PhantomCore events", t => {
 
   t.doesNotThrow(() => {
     compareExportedEvents(PhantomCoreExports, {
+      EVT_ERROR,
       EVT_READY,
       EVT_UPDATE,
       EVT_BEFORE_DESTROY,

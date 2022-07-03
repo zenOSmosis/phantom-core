@@ -1,4 +1,5 @@
 import PhantomCollection, {
+  EVT_ERROR,
   EVT_NO_INIT_WARN,
   EVT_READY,
   EVT_UPDATE,
@@ -13,6 +14,7 @@ import PhantomCollectionChildEventBridge from "./PhantomCollection.ChildEventBri
 
 export default PhantomCollection;
 export {
+  EVT_ERROR,
   EVT_NO_INIT_WARN,
   EVT_READY,
   EVT_UPDATE,

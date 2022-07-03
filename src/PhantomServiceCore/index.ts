@@ -1,4 +1,5 @@
 import PhantomServiceCore, {
+  EVT_ERROR,
   EVT_NO_INIT_WARN,
   EVT_READY,
   EVT_UPDATE,
@@ -9,6 +10,7 @@ import PhantomServiceCore, {
 
 export default PhantomServiceCore;
 export {
+  EVT_ERROR,
   EVT_NO_INIT_WARN,
   EVT_READY,
   EVT_UPDATE,

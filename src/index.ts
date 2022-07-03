@@ -1,6 +1,7 @@
 export * from "./types";
 
 import PhantomCore, {
+  EVT_ERROR,
   EVT_READY,
   EVT_UPDATE,
   EVT_BEFORE_DESTROY,
@@ -17,6 +18,7 @@ export type { CommonOptions, EventConstant };
 
 export {
   PhantomCore,
+  EVT_ERROR,
   EVT_READY,
   EVT_UPDATE,
   EVT_BEFORE_DESTROY,

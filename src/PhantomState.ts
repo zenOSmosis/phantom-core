@@ -1,4 +1,5 @@
 import PhantomCore, {
+  EVT_ERROR,
   EVT_NO_INIT_WARN,
   EVT_READY,
   EVT_UPDATE,
@@ -10,6 +11,7 @@ import PhantomCore, {
 import { RecursiveObject } from "./types";
 
 export {
+  EVT_ERROR,
   EVT_NO_INIT_WARN,
   EVT_READY,
   EVT_UPDATE,

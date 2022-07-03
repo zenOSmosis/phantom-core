@@ -1,4 +1,5 @@
 import PhantomState, {
+  EVT_ERROR,
   EVT_NO_INIT_WARN,
   EVT_READY,
   EVT_UPDATE,
@@ -10,6 +11,7 @@ import { isPlainObject } from "is-plain-object";
 import { RecursiveObject } from "./types";
 
 export {
+  EVT_ERROR,
   EVT_NO_INIT_WARN,
   EVT_READY,
   EVT_UPDATE,
