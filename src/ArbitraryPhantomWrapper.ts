@@ -22,17 +22,17 @@ export {
 /**
  * Wraps an arbitrary object with a PhantomCore instance.
  */
-export default class ArbitraryPhantomWrapper extends PhantomCore {
-  protected _wrappedValue: unknown = null;
+export default class ArbitraryPhantomWrapper<T = unknown> extends PhantomCore {
+  protected _wrappedValue!: T;
 
-  constructor(wrappedValue: unknown, options: CommonOptions = {}) {
+  constructor(wrappedValue: T, options: CommonOptions = {}) {
     super(options);
 
     this._setWrappedValue(wrappedValue);
   }
 
   // TODO: [3.0.0] Document
-  protected _setWrappedValue(wrappedValue: unknown): void {
+  protected _setWrappedValue(wrappedValue: T): void {
     if (this._wrappedValue) {
       throw new Error("_setWrappedValue cannot be called more than once");
     }
@@ -44,7 +44,7 @@ export default class ArbitraryPhantomWrapper extends PhantomCore {
     this._wrappedValue = wrappedValue;
 
     this.registerCleanupHandler(() => {
-      this._wrappedValue = null;
+      this.dereference(this._wrappedValue);
     });
   }
 
@@ -52,7 +52,7 @@ export default class ArbitraryPhantomWrapper extends PhantomCore {
    * Retrieves the wrapped object which was specified during the class instance
    * creation.
    */
-  getWrappedValue(): unknown {
+  getWrappedValue(): T {
     return this._wrappedValue;
   }
 

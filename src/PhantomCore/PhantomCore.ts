@@ -29,6 +29,7 @@ import autoBindClassInstanceMethods from "../utils/class-utils/autoBindClassInst
 import shallowMerge from "../utils/object-utils/shallowMerge";
 
 import phantomCoreOrchestrator from "./_PhantomCoreOrchestrator";
+import globalLogger from "../globalLogger";
 
 export {
   EVT_ERROR,
@@ -255,24 +256,10 @@ export default class PhantomCore extends DestructibleEventEmitter {
 
     // Bound remote event handlers
     this._eventProxyStack = new EventProxyStack();
-    this.registerCleanupHandler(async () => {
-      await this._eventProxyStack.destroy();
-
-      // Ignoring because we don't want this to be an optional property
-      // during runtime
-      // @ts-ignore
-      this._eventProxyStack = null;
-    });
+    this.registerCleanupHandler(() => this._eventProxyStack.destroy());
 
     this._timerStack = new TimerStack();
-    this.registerCleanupHandler(async () => {
-      await this._timerStack.destroy();
-
-      // Ignoring because we don't want this to be an optional property
-      // during runtime
-      // @ts-ignore
-      this._timerStack = null;
-    });
+    this.registerCleanupHandler(() => this._timerStack.destroy());
 
     // Force method scope binding to class instance
     if (this._options.hasAutomaticBindings) {
@@ -400,7 +387,7 @@ export default class PhantomCore extends DestructibleEventEmitter {
    * Retrieves the property names which are non-destructed PhantomCore
    * instances.
    */
-  getPhantomProperties(): string[] {
+  getPhantomPropertyNames(): string[] {
     return this.getPropertyNames().filter(
       propName =>
         propName !== "__proto__" &&
@@ -804,6 +791,36 @@ export default class PhantomCore extends DestructibleEventEmitter {
   }
 
   /**
+   * Changes class properties with the given value to null during the cleanup
+   * phase.
+   *
+   * This is useful for instance disassociation without destructing the
+   * referenced instance.
+   *
+   * IMPORTANT: This will de-reference all matching properties with the same
+   * instancePropertyValue; utilize with care.
+   */
+  dereference(instancePropertyValue: unknown): void {
+    if (!this.getIsDestroyed()) {
+      throw new RangeError(
+        "dereference can only be invoked once the cleanup phase has begun"
+      );
+    }
+
+    if (instancePropertyValue === null) {
+      return;
+    }
+
+    for (let prop of this.getPropertyNames()) {
+      // @ts-ignore
+      if (this[prop] === instancePropertyValue) {
+        // @ts-ignore
+        this[prop] = null;
+      }
+    }
+  }
+
+  /**
    * NOTE: Order of operations for shutdown handling:
    *
    *  1. [implementation defined] destroyHandler
@@ -838,16 +855,16 @@ export default class PhantomCore extends DestructibleEventEmitter {
         // @see related issue: https://github.com/zenOSmosis/phantom-core/issues/34
         // @see potentially related issue: https://github.com/zenOSmosis/phantom-core/issues/100
 
-        this.getPhantomProperties().forEach(phantomProp => {
+        this.getPhantomPropertyNames().forEach(phantomProp => {
           this.log.warn(
-            `Lingering PhantomCore instance on prop name "${phantomProp}". This could be a memory leak. Ensure that all PhantomCore instances have been disposed of before class destruct.`
+            `Lingering PhantomCore instance on prop name "${phantomProp}". This could be a memory leak. Ensure that all PhantomCore instances have been destructed or dereferenceed before class destruct.`
           );
         });
 
         const className = this.getClassName();
 
+        // Force non-keep-alive methods to return undefined
         for (const methodName of this.getMethodNames()) {
-          // Force non-keep-alive methods to return undefined
           if (!KEEP_ALIVE_SHUTDOWN_METHODS.includes(methodName)) {
             // Override the class method
             (this as ClassInstance)[methodName] = (): void => {

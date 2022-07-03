@@ -665,7 +665,7 @@ test("phantom properties", async t => {
 
   const testPhantom = new TestPhantomProperties();
 
-  t.deepEquals(testPhantom.getPhantomProperties(), [
+  t.deepEquals(testPhantom.getPhantomPropertyNames(), [
     "_pred2",
     "_pred5",
     "_pred6",
@@ -816,6 +816,52 @@ test("unregister shutdown handler", async t => {
   await phantom.destroy();
 
   t.notOk(wasInvoked, "unregistered shutdown handler was not invoked");
+
+  t.end();
+});
+
+test("dereference", async t => {
+  t.plan(4);
+
+  const p = new PhantomCore();
+
+  // Testing
+  // @ts-ignore
+  p["ab"] = { ab: 123 };
+
+  t.throws(
+    () => p.dereference(p["ab"]),
+    RangeError,
+    "throws RangeError if invoking before cleanup phase"
+  );
+
+  // Testing
+  // @ts-ignore
+  p["test-map"] = new Map();
+
+  // Testing
+  // @ts-ignore
+  t.deepEquals(p["ab"], {
+    ab: 123,
+  });
+
+  p.registerCleanupHandler(() => {
+    // Testing
+    // @ts-ignore
+    p.dereference(p["ab"]);
+
+    // Testing
+    // @ts-ignore
+    p.dereference(p["test-map"]);
+  });
+
+  await p.destroy();
+
+  // @ts-ignore
+  t.equals(p["test-map"], null);
+
+  // @ts-ignore
+  t.equals(p["ab"], null);
 
   t.end();
 });
