@@ -58,6 +58,7 @@ export interface ClassInstance {
  * Type definitions which aren't categorizable, or are suited for general purposes.
  */
 
+// TODO: [3.0.0] Merge this w/ Constructor?
 export interface Instantiable {
   name: string;
 

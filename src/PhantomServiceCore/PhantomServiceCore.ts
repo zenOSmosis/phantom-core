@@ -24,21 +24,17 @@ export {
 // TODO: Configure reporter channel (base class PhantomState, SyncObject or
 // equivalent (not sure if SyncObject would be useful here, but could enable
 // remote reporting))
-//
-//
-// TODO: Document
-//
-// TODO: Consider this: Thought about extending PhantomCollection, instead,
-// since retaining a localized state of children (which happen to be
-// collections as well), but want to keep it open to the possibility of
-// managing other types of collection-type data without the possibility of a
-// conflict (i.e. collections based on role, etc.)
-//
-// IMPORTANT: It is OKAY to use this as an async!
+
+/**
+ * PhantomServiceCore is an extension of PhantomState which includes helper
+ * methods for managing collections whose lifecycles are bound to the service.
+ *
+ * Each service is bound to a PhantomServiceManager instance and are treated as
+ * a singleton in reference to a specific service manager.
+ */
 export default class PhantomServiceCore<
   T = RecursiveObject
 > extends PhantomState<T> {
-  // TODO: [3.0.0] Use generic for value i.e. PhantomInstance<PhantomCollection>
   protected _collectionMap: Map<Class<PhantomCollection>, PhantomCollection>;
 
   // TODO: [3.0.0] Rename?
