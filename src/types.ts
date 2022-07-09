@@ -16,7 +16,7 @@ export type Primitive =
  * A general-purpose (i.e. "plain") object which can contain other general-
  * purpose objects.
  */
-export type RecursiveObject = {
+export interface RecursiveObject {
   [key: string]:
     | Primitive
     | Primitive[]
@@ -30,7 +30,7 @@ export type RecursiveObject = {
     | Instantiable[]
     | unknown
     | unknown[];
-};
+}
 
 // Types borrowed from: https://github.com/microsoft/TypeScript/issues/17572#issuecomment-319994873
 export type Abstract<T = unknown> = (...args: any[]) => any & { prototype: T };

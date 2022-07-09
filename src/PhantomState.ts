@@ -23,19 +23,20 @@ export {
 /**
  * A simple, object-based state management utility.
  */
-export default class PhantomState extends PhantomCore {
+export default class PhantomState<T = RecursiveObject> extends PhantomCore {
   // FIXME: [3.0.0]? This may be more performant as a Map:
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map#objects_vs._maps
-  protected _state: RecursiveObject = {};
+  protected _state: T | RecursiveObject = {} as RecursiveObject;
 
-  constructor(
-    initialState: RecursiveObject | null = {},
-    superOptions?: CommonOptions
-  ) {
+  constructor(initialState: T | unknown = null, superOptions?: CommonOptions) {
     super(superOptions);
 
     if (initialState) {
-      this.setState(initialState as RecursiveObject);
+      if (typeof initialState !== "object") {
+        throw new TypeError("initialState is not an object");
+      }
+
+      this.setState(initialState as unknown as T);
     }
 
     // Reset state on destruct
@@ -56,7 +57,7 @@ export default class PhantomState extends PhantomCore {
    *
    * NOTE: The previous state object will be re-referenced.
    */
-  setState(partialNextState: RecursiveObject, isMerge = true): void {
+  setState(partialNextState: T, isMerge = true): void {
     if (typeof partialNextState !== "object") {
       throw new TypeError("partialNextState must be an object");
     }

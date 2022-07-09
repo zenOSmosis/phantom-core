@@ -25,11 +25,13 @@ export {
  * PhantomState and enforces serializable state so that the state can be
  * transmitted over network, etc.
  */
-export default class PhantomSerializableState extends PhantomState {
+export default class PhantomSerializableState<
+  T = RecursiveObject
+> extends PhantomState<T> {
   /**
    * Serializes the given object into a string.
    */
-  static serialize(obj: { [key: string]: unknown }): string {
+  static serialize<T = RecursiveObject>(obj: T): string {
     if (typeof obj !== "object") {
       throw new TypeError("Expected object type");
     }
@@ -55,7 +57,7 @@ export default class PhantomSerializableState extends PhantomState {
   /**
    * Converts the given string into an object.
    */
-  static unserialize(str: string): RecursiveObject {
+  static unserialize<T = RecursiveObject>(str: string): T {
     return JSON.parse(str);
   }
 
@@ -66,7 +68,7 @@ export default class PhantomSerializableState extends PhantomState {
    *
    * @emits EVT_UPDATE With partialNextState
    */
-  override setState(partialNextState: RecursiveObject, isMerge = true): void {
+  override setState(partialNextState: T, isMerge = true): void {
     // Run through obj->serial->obj conversion to ensure partial next state can
     // be serialized, while storing it in memory as an object, to enable
     // subsequent partial updates

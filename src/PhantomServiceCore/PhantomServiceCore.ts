@@ -9,7 +9,7 @@ import PhantomState, {
 } from "../PhantomState";
 import PhantomCollection from "../PhantomCollection";
 import PhantomServiceManager from "../PhantomServiceManager";
-import { Class, ClassInstance, Constructor } from "../types";
+import { Class, ClassInstance, Constructor, RecursiveObject } from "../types";
 
 export {
   EVT_ERROR,
@@ -35,7 +35,9 @@ export {
 // conflict (i.e. collections based on role, etc.)
 //
 // IMPORTANT: It is OKAY to use this as an async!
-export default class PhantomServiceCore extends PhantomState {
+export default class PhantomServiceCore<
+  T = RecursiveObject
+> extends PhantomState<T> {
   // TODO: [3.0.0] Use generic for value i.e. PhantomInstance<PhantomCollection>
   protected _collectionMap: Map<Class<PhantomCollection>, PhantomCollection>;
 
