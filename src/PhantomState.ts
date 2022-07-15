@@ -57,7 +57,7 @@ export default class PhantomState<T = RecursiveObject> extends PhantomCore {
    *
    * NOTE: The previous state object will be re-referenced.
    */
-  setState(partialNextState: T, isMerge = true): void {
+  setState(partialNextState: Partial<T>, isMerge = true): void {
     if (typeof partialNextState !== "object") {
       throw new TypeError("partialNextState must be an object");
     }

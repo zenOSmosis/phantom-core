@@ -68,7 +68,7 @@ export default class PhantomSerializableState<
    *
    * @emits EVT_UPDATE With partialNextState
    */
-  override setState(partialNextState: T, isMerge = true): void {
+  override setState(partialNextState: Partial<T>, isMerge = true): void {
     // Run through obj->serial->obj conversion to ensure partial next state can
     // be serialized, while storing it in memory as an object, to enable
     // subsequent partial updates
