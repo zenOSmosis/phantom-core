@@ -1,9 +1,10 @@
-sauce_connect: true
 browsers:
   - name: firefox
     version: latest
   - name: chrome
     version: latest
+  # FIXME: Safari on macOS via SauceLabs is currently (as of May 22, 2022) not
+  # functional due to the dynamic hostname airtap.local not being applied
   # - name: safari
   #  version: latest
   - name: edge
@@ -16,6 +17,9 @@ providers:
   - airtap-sauce
 presets:
   local:
-    providers: airtap-manual
+    providers:
+      - airtap-default # or airtap-system if you prefer
     browsers:
-      - name: manual
+      - name: default
+browserify:
+  - plugin: tsify
