@@ -26,7 +26,7 @@ export {
 export default class PhantomState<T = RecursiveObject> extends PhantomCore {
   // FIXME: [3.0.0]? This may be more performant as a Map:
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map#objects_vs._maps
-  protected _state: T | RecursiveObject = {} as RecursiveObject;
+  protected _state: T = {} as T;
 
   constructor(initialState: T | unknown = null, superOptions?: CommonOptions) {
     super(superOptions);
@@ -65,7 +65,7 @@ export default class PhantomState<T = RecursiveObject> extends PhantomCore {
     if (isMerge) {
       this._state = { ...this._state, ...partialNextState };
     } else {
-      this._state = partialNextState;
+      this._state = partialNextState as T;
     }
 
     this.emit(EVT_UPDATE, partialNextState);
