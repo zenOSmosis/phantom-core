@@ -1,3 +1,4 @@
+import PhantomCore from "../PhantomCore";
 import PhantomState, {
   EVT_ERROR,
   EVT_NO_INIT_WARN,
@@ -35,7 +36,11 @@ export {
 export default class PhantomServiceCore<
   T = RecursiveObject
 > extends PhantomState<T> {
-  protected _collectionMap: Map<Class<PhantomCollection>, PhantomCollection>;
+  // TODO: [3.0.0] Use generic for value i.e. PhantomInstance<PhantomCollection>
+  protected _collectionMap: Map<
+    Class<PhantomCollection<PhantomCore>>,
+    PhantomCollection<PhantomCore>
+  >;
 
   // TODO: [3.0.0] Rename?
   protected __MANAGED__useServiceClassHandler: (
@@ -120,7 +125,9 @@ export default class PhantomServiceCore<
    * bindCollectionClass will use separate instances of the collection.
    */
   // TODO: [3.0.0] Fix any return type
-  bindCollectionClass(CollectionClass: Constructor<PhantomCollection>) {
+  bindCollectionClass(
+    CollectionClass: Constructor<PhantomCollection<PhantomCore>>
+  ) {
     const prevCollectionInstance = this._collectionMap.get(CollectionClass);
 
     if (prevCollectionInstance) {
@@ -159,7 +166,7 @@ export default class PhantomServiceCore<
    * instance.
    */
   async unbindCollectionClass(
-    CollectionClass: Class<PhantomCollection>
+    CollectionClass: Class<PhantomCollection<PhantomCore>>
   ): Promise<void> {
     const collectionInstance = this.getCollectionInstance(CollectionClass);
 
@@ -175,8 +182,8 @@ export default class PhantomServiceCore<
    * nothing.
    */
   getCollectionInstance(
-    CollectionClass: Class<PhantomCollection>
-  ): PhantomCollection | undefined {
+    CollectionClass: Class<PhantomCollection<PhantomCore>>
+  ): PhantomCollection<PhantomCore> | undefined {
     return this._collectionMap.get(CollectionClass);
   }
 
@@ -184,7 +191,7 @@ export default class PhantomServiceCore<
    * Retrieves an array of PhantomCollection classes (not instances) which are
    * bound to the service.
    */
-  getCollectionClasses(): Class<PhantomCollection>[] {
+  getCollectionClasses(): Class<PhantomCollection<PhantomCore>>[] {
     // Coerce to array since map.keys() is not an array (it's an Iterator object)
     // @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/keys
     return [...this._collectionMap.keys()];

@@ -1,4 +1,6 @@
 import { RecursiveObject } from "../types";
+import PhantomCore from "./PhantomCore";
+export interface PhantomCoreExtension extends PhantomCore {}
 
 export type CommonOptions<T = RecursiveObject> = {
   isAsync?: boolean;

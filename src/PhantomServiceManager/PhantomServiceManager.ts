@@ -31,7 +31,7 @@ export {
  * PhantomServiceCore instance as a singleton in respect to an instance of the
  * current PhantomServiceManager instance.
  */
-export default class PhantomServiceManager extends PhantomCollection {
+export default class PhantomServiceManager extends PhantomCollection<PhantomServiceCore> {
   protected _pendingServiceClassInstanceSet: Set<Class<PhantomServiceCore>>;
   protected _circularWarningMessages: string[];
 
