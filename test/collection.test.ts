@@ -325,8 +325,8 @@ test("PhantomCollection add / remove child; get children", async t => {
   ]);
 
   (() => {
-    const coll1 = new PhantomCollection();
-    const coll2 = new PhantomCollection([coll1]);
+    const coll1 = new PhantomCollection<PhantomCore>();
+    const coll2 = new PhantomCollection<PhantomCore>([coll1]);
 
     t.ok(
       coll2.getChildren()[0].getIsSameInstance(coll1),
@@ -580,7 +580,7 @@ test("PhantomCollection ChildEventBridge", async t => {
     // FIXME: (jh) Use this somehow?
     // const child2 = new PhantomCore();
 
-    class _TestChildEventBridge extends _ChildEventBridge {
+    class _TestChildEventBridge extends _ChildEventBridge<PhantomCore> {
       protected _self = this;
 
       protected override _handleChildInstanceAdded() {
@@ -1007,7 +1007,7 @@ test("child to collection to master collection event passing", async t => {
 test("collection does not contain destructed children", async t => {
   t.plan(4);
 
-  class TestCollection extends PhantomCollection {
+  class TestCollection extends PhantomCollection<PhantomCore> {
     override addChild(child: PhantomCore) {
       // NOTE: Though not typical, if adding the EVT_DESTROY handler to the
       // call BEFORE adding it to the collection, that initial EVT_DESTROY

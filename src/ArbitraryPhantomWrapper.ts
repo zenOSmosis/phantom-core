@@ -34,8 +34,8 @@ export type EncapsulatedArbitraryPhantomValue<T = unknown> = {
  * types.
  */
 export default class ArbitraryPhantomWrapper<T = unknown> extends PhantomCore {
-  protected _encapsulatedValue: EncapsulatedArbitraryPhantomValue = {
-    value: null,
+  protected _encapsulatedValue: EncapsulatedArbitraryPhantomValue<T> = {
+    value: null as unknown as T,
     isUserDefined: false,
   };
 
@@ -66,7 +66,7 @@ export default class ArbitraryPhantomWrapper<T = unknown> extends PhantomCore {
    * Retrieves the wrapped object which was specified during the class instance
    * creation.
    */
-  getWrappedValue(): T | unknown {
-    return this._encapsulatedValue?.value;
+  getWrappedValue(): T {
+    return this._encapsulatedValue.value;
   }
 }
