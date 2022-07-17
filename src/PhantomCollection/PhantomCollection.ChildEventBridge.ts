@@ -11,8 +11,10 @@ const DEFAULT_BRIDGE_EVENT_NAMES = [EVT_UPDATE] as string[] & symbol[];
  * Manages the relationships of proxied events to / from a collection and its
  * children.
  */
-export default class PhantomCollectionChildEventBridge extends PhantomCore {
-  protected _phantomCollection?: PhantomCollection;
+export default class PhantomCollectionChildEventBridge<
+  T extends PhantomCore
+> extends PhantomCore {
+  protected _phantomCollection?: PhantomCollection<T>;
 
   /**
    * The event names this bridge currently (i.e. at any given
@@ -32,7 +34,7 @@ export default class PhantomCollectionChildEventBridge extends PhantomCore {
    * IMPORTANT: This bridge is destructed by the collection itself and does not
    * need to listen for EVT_DESTROY from PhantomCollection.
    */
-  constructor(phantomCollection: PhantomCollection) {
+  constructor(phantomCollection: PhantomCollection<T>) {
     if (!(phantomCollection instanceof PhantomCollection)) {
       throw new TypeError(
         "phantomCollection is not a PhantomCollection instance"

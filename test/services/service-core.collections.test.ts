@@ -1,5 +1,6 @@
 import test from "tape";
 import {
+  PhantomCore,
   PhantomCollection,
   PhantomServiceCore,
   PhantomServiceManager,
@@ -9,11 +10,11 @@ import {
 test("service collections", async t => {
   t.plan(19);
 
-  class TestCollection1 extends PhantomCollection {}
-  class TestCollection2 extends PhantomCollection {}
-  class TestCollection3 extends PhantomCollection {}
-  class TestCollection4 extends PhantomCollection {}
-  class TestCollection5 extends PhantomCollection {}
+  class TestCollection1 extends PhantomCollection<PhantomCore> {}
+  class TestCollection2 extends PhantomCollection<PhantomCore> {}
+  class TestCollection3 extends PhantomCollection<PhantomCore> {}
+  class TestCollection4 extends PhantomCollection<PhantomCore> {}
+  class TestCollection5 extends PhantomCollection<PhantomCore> {}
 
   class TestService extends PhantomServiceCore {}
 
@@ -69,7 +70,9 @@ test("service collections", async t => {
       });
     }),
     (
-      testService.getCollectionInstance(TestCollection1) as PhantomCollection
+      testService.getCollectionInstance(
+        TestCollection1
+      ) as PhantomCollection<PhantomCore>
     ).emit(EVT_UPDATE, "test data"),
   ]);
 
@@ -108,7 +111,7 @@ test("service collections", async t => {
 
   const testCollection3 = testService.getCollectionInstance(
     TestCollection3
-  ) as PhantomCollection;
+  ) as PhantomCollection<PhantomCore>;
 
   t.ok(
     testCollection3 instanceof TestCollection3,
@@ -134,7 +137,7 @@ test("service collections", async t => {
 
   const testCollection4 = testService.getCollectionInstance(
     TestCollection4
-  ) as PhantomCollection;
+  ) as PhantomCollection<PhantomCore>;
 
   t.equals(
     testCollection4.getIsDestroyed(),
@@ -167,7 +170,7 @@ test("service collections", async t => {
 
   t.notOk(
     remainingCollectionClassInstances.find(instance =>
-      (instance as PhantomCollection).getIsDestroyed()
+      (instance as PhantomCollection<PhantomCore>).getIsDestroyed()
     ),
     "currently active collection classes do not report destructed"
   );
@@ -176,7 +179,7 @@ test("service collections", async t => {
 
   t.notOk(
     remainingCollectionClassInstances.find(
-      instance => !(instance as PhantomCollection).getIsDestroyed()
+      instance => !(instance as PhantomCollection<PhantomCore>).getIsDestroyed()
     ),
     "previously active collection classes report destructed after service destruct"
   );

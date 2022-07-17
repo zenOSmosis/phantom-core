@@ -57,7 +57,9 @@ export const EVT_CHILD_INSTANCE_REMOVE = "child-instance-remove";
  *    based on a specific key
  *  - There must be a sort or iteration through the group elements
  */
-export default class PhantomCollection extends PhantomCore {
+export default class PhantomCollection<
+  T extends PhantomCore
+> extends PhantomCore {
   /**
    * Loosely determines whether or not the given instance is a
    * PhantomCollection instance.
@@ -66,8 +68,11 @@ export default class PhantomCollection extends PhantomCore {
    * be present by using this across incompatible versions.
    *
    */
-  static override getIsLooseInstance(instance: PhantomCollection | Class) {
-    const pcInstance = instance as PhantomCollection;
+  static override getIsLooseInstance(
+    instance: PhantomCollection<PhantomCore> | Class
+  ) {
+    // Coerce into type since we're checking against it during runtime
+    const pcInstance = instance as PhantomCollection<PhantomCore>;
 
     return Boolean(
       PhantomCore.getIsLooseInstance(pcInstance) &&
@@ -103,20 +108,21 @@ export default class PhantomCollection extends PhantomCore {
     };
   }
 
-  protected _children: PhantomCore[] = [];
+  protected _children: T[] = [];
   protected _childrenMetadata: Map<
-    PhantomCore,
+    T,
     {
       key?: PhantomCollectionChildKey;
       onBeforeDestroy: EventListener;
     }
   > = new Map();
-  protected _childEventBridge: ChildEventBridge = new ChildEventBridge(this);
+  protected _childEventBridge: ChildEventBridge<PhantomCore> =
+    new ChildEventBridge(
+      // TODO: [3.0.0] Fix this smell
+      this as unknown as PhantomCollection<PhantomCore>
+    );
 
-  constructor(
-    initialPhantomInstances: PhantomCore[] = [],
-    options: CommonOptions = {}
-  ) {
+  constructor(initialPhantomInstances: T[] = [], options: CommonOptions = {}) {
     if (!Array.isArray(initialPhantomInstances)) {
       throw new TypeError("initialPhantomInstances must be an array");
     }
@@ -178,7 +184,7 @@ export default class PhantomCollection extends PhantomCore {
    * @emits EVT_UPDATE
    */
   addChild(
-    phantomCoreInstance: PhantomCore,
+    phantomCoreInstance: T,
     key: PhantomCollectionChildKey = null
   ): void {
     const prevInstanceWithKey = this.getChildWithKey(key);
@@ -195,7 +201,11 @@ export default class PhantomCollection extends PhantomCore {
       }
     }
 
-    if (!PhantomCore.getIsLooseInstance(phantomCoreInstance)) {
+    if (
+      !PhantomCore.getIsLooseInstance(
+        phantomCoreInstance as unknown as PhantomCore
+      )
+    ) {
       // FIXME: (jh) Create a way to bypass this error when doing development or prototypes
       // Perhaps use a global state tied into LOA (i.e. root-controlled global state / config)
       // @see https://github.com/zenOSmosis/phantom-core/issues/60
@@ -204,19 +214,23 @@ export default class PhantomCollection extends PhantomCore {
       );
     }
 
-    if (this.getIsSameInstance(phantomCoreInstance)) {
+    if (this.getIsSameInstance(phantomCoreInstance as unknown as PhantomCore)) {
       throw new ReferenceError(
         "A PhantomCollection cannot be passed to itself"
       );
     }
 
-    if (phantomCoreInstance.getIsDestroyed()) {
+    if ((phantomCoreInstance as unknown as PhantomCore).getIsDestroyed()) {
       throw new ReferenceError("Cannot add a destroyed PhantomCore instance");
     }
 
     // Ensure instance isn't already part of the collection
     for (const instance of this.getChildren()) {
-      if (instance.getIsSameInstance(phantomCoreInstance)) {
+      if (
+        (instance as unknown as PhantomCore).getIsSameInstance(
+          phantomCoreInstance as unknown as PhantomCore
+        )
+      ) {
         // Silently ignore repeated attempts to add same child
         return;
       }
@@ -229,7 +243,7 @@ export default class PhantomCollection extends PhantomCore {
         child => child !== phantomCoreInstance
       );
 
-      phantomCoreInstance.once(EVT_DESTROY, () =>
+      (phantomCoreInstance as unknown as PhantomCore).once(EVT_DESTROY, () =>
         // Execute final event emissions from child and remove the associated
         // metadata
         this.removeChild(phantomCoreInstance)
@@ -264,12 +278,10 @@ export default class PhantomCollection extends PhantomCore {
   /**
    * Removes a PhantomCore instance from the collection.
    *
-   * @param {PhantomCore} phantomCoreInstance
    * @emits EVT_CHILD_INSTANCE_REMOVE
    * @emits EVT_UPDATE
-   * @return {void}
    */
-  removeChild(phantomCoreInstance: PhantomCore): void {
+  removeChild(phantomCoreInstance: T): void {
     const childMetadata = this._childrenMetadata.get(phantomCoreInstance);
 
     if (childMetadata) {
@@ -310,7 +322,7 @@ export default class PhantomCollection extends PhantomCore {
    * integrity unless one or more of the children wind up in a destructing
    * phase before the next attempt.
    */
-  getChildren(): PhantomCore[] {
+  getChildren(): T[] {
     return this._children;
   }
 
@@ -319,7 +331,7 @@ export default class PhantomCollection extends PhantomCore {
    *
    * If no child is found with the given key, it will not return anything.
    */
-  getChildWithKey(key: PhantomCollectionChildKey = null): PhantomCore | void {
+  getChildWithKey(key: PhantomCollectionChildKey = null): T | void {
     // FIXME: (jh) Having the optional null key is here for backward
     // compatibility with other PhantomCore-based packages.  It should probably
     // be removed in a future version.
