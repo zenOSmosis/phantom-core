@@ -127,6 +127,9 @@ export { getUnixTime };
 import getUptime from "./utils/getUptime";
 export { getUptime };
 
+import shallowCompare from "./utils/object-utils/shallowCompare";
+export { shallowCompare };
+
 import shallowMerge from "./utils/object-utils/shallowMerge";
 export { shallowMerge };
 
